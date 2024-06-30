@@ -1,0 +1,21 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.main {
+  display : flex;
+  flex-direction: column;
+}
+
+.card {
+  display: flex;
+  justify-content: space-between;
+  gap : 20px;
+}
+
+.read-the-docs {
+  color: #888;
+}
