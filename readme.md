@@ -16,16 +16,15 @@
 ┣ 📂 client
 ┃ ┣ 📂 src
 ┃ ┃ ┣ 📂 assets
-┃ ┃ ┣ 📜 App.tsx
-┃ ┃ ┣ 📜 App.css.tsx
+┃ ┃ ┣ 📂 component
+┃ ┃ ┃ ┣ 📂 Board
+┃ ┃ ┃ ┣ 📂 TestMain
+┃ ┃ ┃ ┣ 📂 User
 ┣ 📂 server
+┃ ┣ 📂 controller
 ┃ ┣ 📂 route
 ┃ ┣ 📂 utils
-┃ ┣ 📜 app.js
-┣ 📂 sql
-┃ ┣ 📜 users.sql
-┣ 📜 .gitignore
-┗ 📜 readme.md
+┗ 📂 sql
  ```
 
 ### 3. 프로젝트 초기 설정
