@@ -2,7 +2,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import './App.css'
 import TestMain from './component/TestMain/TestMain'
 import User from './component/User/User'
-import Board from './component/Board/Board'
+import Posts from './component/Posts/Posts'
 
 function App() {
   return (
@@ -10,7 +10,7 @@ function App() {
       <Routes>
         <Route path="/" element={<TestMain />}/>
         <Route path="/user" element={<User/>}/>
-        <Route path="/board" element={<Board/>}/>
+        <Route path="/posts" element={<Posts/>}/>
       </Routes>
     </BrowserRouter>
   )
