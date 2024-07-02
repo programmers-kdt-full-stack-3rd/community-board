@@ -18,7 +18,7 @@
 ┃ ┃ ┣ 📂 assets # 렌더링 할 사진 파일 저장
 ┃ ┃ ┗ 📂 component # 각 기능별 컴포넌트 저장
 ┃ ┗ 📜 app.tsx # client main
-┣ 📂 server
+┣ 📂 server # BE 폴더
 ┃ ┣ 📂 controller # 기능 구현
 ┃ ┣ 📂 route # 라우팅
 ┃ ┗ 📂 utils # 기타 기능을 가진 파일들
@@ -31,6 +31,11 @@
 ```sh
 # 프로젝트를 다운 받을 디렉토리에서 해당 명령어 실행
 git clone https://github.com/programmers-kdt-full-stack-3rd/community-board.git
+
+# 원격 저장소 연걸 확인
+git remote -v
+# 만약 제대로 URL이 안뜨면 아래 명령어 실행
+git remote add origin https://github.com/programmers-kdt-full-stack-3rd/community-board.git
 ```
 #### 2. 프로젝트에 필요한 패키지 설치
 ```sh
