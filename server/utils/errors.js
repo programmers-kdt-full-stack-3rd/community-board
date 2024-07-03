@@ -17,7 +17,7 @@ class ServerError extends Error{
     }
     static notFound(message){
         let errorMsg = `NotFound: ${message}`;
-        return new ServerError(500, errorMsg);
+        return new ServerError(404, errorMsg);
     }
     static reference(message){
         let errorMsg = `Reference Error: ${message}`;
