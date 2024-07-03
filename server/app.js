@@ -6,8 +6,10 @@ dotenv.config();
 // router -----------------
 const route = require("./route/route");
 // handelr ----------------
+const { errorHandler } = require("./utils/errors");
 
 // app 등록
+app.use(errorHandler);
 app.use("/", route);
 
 // listen
