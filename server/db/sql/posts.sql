@@ -4,8 +4,8 @@ CREATE TABLE IF NOT EXISTS posts (
     content TEXT NOT NULL,
     author_id INT NOT NULL,
     created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL,
-    views INT NOT NULL,
+    updated_at TIMESTAMP,
+    views INT NOT NULL default 0,
     FOREIGN KEY (author_id) REFERENCES users(id)
 );
 

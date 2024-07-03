@@ -3,8 +3,8 @@ CREATE TABLE IF NOT EXISTS comments (
     content TEXT NOT NULL,
     post_id INT NOT NULL,
     author_id INT NOT NULL,
-    updated_at TIMESTAMP NOT NULL,
     created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP,
     FOREIGN KEY (post_id) REFERENCES posts(id),
     FOREIGN KEY (author_id) REFERENCES users(id)
 );
