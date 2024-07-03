@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS posts (
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP,
     views INT NOT NULL default 0,
+    isDelete Boolean NOT NULL DEFAULT FALSE,
     FOREIGN KEY (author_id) REFERENCES users(id)
 );
 

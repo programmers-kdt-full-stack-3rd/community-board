@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS comments (
     author_id INT NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP,
+    isDelete Boolean NOT NULL DEFAULT FALSE,
     FOREIGN KEY (post_id) REFERENCES posts(id),
     FOREIGN KEY (author_id) REFERENCES users(id)
 );
