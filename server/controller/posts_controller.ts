@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { getPostInfos } from '../db/context/posts_context';
+import { getPostHeaders } from '../db/context/posts_context';
 
 export interface PostRequest {
     index : number;
@@ -14,7 +14,7 @@ export const getPosts = async (req : Request, res : Response, next : NextFunctio
             perPage : parseInt(req.query.perPage as string) || 10,
             keyword : req.query.keyword as string || null
         };
-        const posts = await getPostInfos(values);
+        const posts = await getPostHeaders(values);
         res.json({ posts });
     }catch(err){
         next(err);

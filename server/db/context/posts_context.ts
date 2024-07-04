@@ -1,6 +1,6 @@
 import { PostRequest } from '../../controller/posts_controller';
 import pool from '../connect';
-import { mapDBToPosts } from '../mapper/posts_mapper';
+import { mapDBToPostHeaders } from '../mapper/posts_mapper';
 
 export const addPost = async (values : any) => {
     let conn;
@@ -16,19 +16,15 @@ export const addPost = async (values : any) => {
     }
 };
 
-export const getPostInfos = async ( queryString : PostRequest) => {
+export const getPostHeaders = async ( queryString : PostRequest ) => {
     let conn;
     try {
         let values : (number | string)[] = [];
 
         let sql = `SELECT p.id as id, 
                             p.title as title,
-                            p.content as content,
-                            p.author_id as author_id,
                             u.nickname as author_nickname,
                             p.created_at as created_at,
-                            p.updated_at as updated_at,
-                            p.views as views,
                             (SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) AS likes
                         FROM posts as p
                         LEFT JOIN users as u
@@ -47,7 +43,7 @@ export const getPostInfos = async ( queryString : PostRequest) => {
 
         conn = await pool.getConnection();
         const [rows] : any[] = await conn.query(sql, values);
-        return mapDBToPosts(rows);
+        return mapDBToPostHeaders(rows);
     } catch (err) {
         throw err;
     } finally {
