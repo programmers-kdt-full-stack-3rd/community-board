@@ -1,6 +1,6 @@
-const pool = require('../connect');
+import pool from '../connect';
 
-const addPost = async (results) => {
+export const addPost = async (values : any) => {
     let conn;
     try {
         conn = await pool.getConnection();
@@ -12,8 +12,4 @@ const addPost = async (results) => {
     } finally {
         if (conn) conn.release();
     }
-};
-
-module.exports = {
-    addPost
 };
