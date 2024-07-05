@@ -1,4 +1,4 @@
-export interface PostInfo {
+export interface IPostInfo {
     id : number;
     title : string;
     content : string;
@@ -10,7 +10,7 @@ export interface PostInfo {
     likes : number;
 }
 
-export interface PostHeader {
+export interface IPostHeader {
     id : number;
     title : string;
     author_nickname : string;

@@ -1,6 +1,6 @@
-import { PostInfo, PostHeader } from "../model/posts";
+import { IPostInfo, IPostHeader } from "../model/posts";
 
-export const mapDBToPostInfo = (data : any) : PostInfo => {
+export const mapDBToPostInfo = (data : any) : IPostInfo => {
     return {
         id : data.id,
         title : data.title,
@@ -14,7 +14,7 @@ export const mapDBToPostInfo = (data : any) : PostInfo => {
     };
 };
 
-export const mapDBToPostHeaders = (datas : []) : PostHeader[] => {
+export const mapDBToPostHeaders = (datas : any[]) : IPostHeader[] => {
     return datas.map((data : any) => {
         return {
             id : data.id,

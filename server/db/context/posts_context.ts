@@ -1,4 +1,4 @@
-import { PostRequest } from '../../controller/posts_controller';
+import { IPostRequest } from '../../controller/posts_controller';
 import pool from '../connect';
 import { mapDBToPostHeaders } from '../mapper/posts_mapper';
 
@@ -16,7 +16,7 @@ export const addPost = async (values : any) => {
     }
 };
 
-export const getPostHeaders = async ( queryString : PostRequest ) => {
+export const getPostHeaders = async ( queryString : IPostRequest ) => {
     let conn;
     try {
         let values : (number | string)[] = [];
