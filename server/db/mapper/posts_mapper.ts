@@ -1,0 +1,27 @@
+import { IPostInfo, IPostHeader } from "../model/posts";
+
+export const mapDBToPostInfo = (data : any) : IPostInfo => {
+    return {
+        id : data.id,
+        title : data.title,
+        content : data.content,
+        author_id : data.author_id,
+        author_nickname : data.author_nickname,
+        created_at : new Date(data.created_at),
+        updated_at : data.updated_at? new Date(data.updated_at) : null,
+        views : data.views,
+        likes : data.likes
+    };
+};
+
+export const mapDBToPostHeaders = (datas : any[]) : IPostHeader[] => {
+    return datas.map((data : any) => {
+        return {
+            id : data.id,
+            title : data.title,
+            author_nickname : data.author_nickname,
+            created_at : new Date(data.created_at),
+            likes : data.likes
+        };
+    });
+}
