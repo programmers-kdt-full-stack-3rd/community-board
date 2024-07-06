@@ -1,5 +1,5 @@
-import express from 'express';
-import dotenv from 'dotenv';
+import express from "express";
+import dotenv from "dotenv";
 // router -----------------
 import apiRouter from "./route/route";
 // handelr ----------------
@@ -9,10 +9,10 @@ dotenv.config();
 const app = express();
 
 // app 등록
-app.use(errorHandler);
 app.use("/api", apiRouter);
+app.use(errorHandler);
 
 // listen
-app.listen(process.env.PORT, ()=>{
-    console.log('서버 실행 중')
+app.listen(process.env.PORT, () => {
+  console.log("서버 실행 중");
 });
