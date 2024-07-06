@@ -4,14 +4,15 @@
     "@types/node": "^20.14.9",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "express-validator": "^7.1.0",
     "mysql2": "^3.10.2",
     "nodemon": "^3.1.4",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.3"
   },
   "scripts": {
-    "start": "node dist/app.js", 
-    "build": "tsc -p .", 
+    "start": "node dist/app.js",
+    "build": "tsc -p .",
     "dev": "nodemon --watch \"*.ts\" --exec \"ts-node\" ./app.ts"
   }
 }
