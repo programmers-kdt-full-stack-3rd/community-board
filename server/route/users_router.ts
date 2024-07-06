@@ -1,5 +1,5 @@
 import express from "express";
-import { postJoin } from "../controller/users_controller";
+import { registerUser } from "../controller/users_controller";
 import { body } from "express-validator";
 import { validate } from "../middleware/validate";
 
@@ -24,6 +24,6 @@ const joinValidation = [
 const router = express.Router();
 router.use(express.json());
 
-router.post("/join", joinValidation, postJoin);
+router.post("/join", joinValidation, registerUser);
 
 export default router;

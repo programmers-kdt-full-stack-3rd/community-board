@@ -2,9 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { addUser } from "../db/context/users_context";
 import { ServerError } from "../middleware/errors";
 
-// 비동기로 salt를 생성하는 함수
-
-export const postJoin = async (
+export const registerUser = async (
   req: Request,
   res: Response,
   next: NextFunction
