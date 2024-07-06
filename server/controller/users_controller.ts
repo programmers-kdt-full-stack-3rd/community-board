@@ -23,6 +23,8 @@ export const registerUser = async (
   } catch (err: any) {
     if (err.code === "ER_DUP_ENTRY") {
       next(ServerError.badRequest("이미 존재하는 이메일 주소입니다."));
+    } else {
+      next(err);
     }
   }
 };
