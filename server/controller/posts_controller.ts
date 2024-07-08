@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { getPostHeaders, getPostInfo } from '../db/context/posts_context';
+import { addPost, getPostHeaders, getPostInfo } from '../db/context/posts_context';
 import { ServerError } from '../middleware/errors';
 
 export interface IReadPostRequest {
@@ -36,6 +36,23 @@ export const getPost = async (req : Request, res : Response, next : NextFunction
         }
         const post = await getPostInfo(post_id);
         res.status(200).json({ post : post });
+    } catch (err) {
+        next(err);
+    }
+}
+
+export const createPost = async (req : Request, res : Response, next : NextFunction) => {
+    try {
+        const reqBody : ICreatePostRequest = {
+            title : req.body.title,
+            content : req.body.content,
+            // TODO : token 검증 미들웨어 업데이트 시 삭제
+            author_id : parseInt(req.body.author_id)
+        };
+
+        await addPost(reqBody);
+
+        res.status(200).json({ message : "게시글 생성 success"});
     } catch (err) {
         next(err);
     }
