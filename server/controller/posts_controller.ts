@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { getPostHeaders } from '../db/context/posts_context';
+import { getPostHeaders, getPostInfo } from '../db/context/posts_context';
+import { ServerError } from '../middleware/errors';
 
 export interface IPostRequest {
     index : number;
@@ -17,6 +18,19 @@ export const getPosts = async (req : Request, res : Response, next : NextFunctio
         const posts = await getPostHeaders(values);
         res.json({ posts });
     }catch(err){
+        next(err);
+    }
+}
+
+export const getPost = async (req : Request, res : Response, next : NextFunction) => {
+    try {
+        const post_id = parseInt(req.params.post_id);
+        if (isNaN(post_id)) {
+            throw ServerError.badRequest("Invalid post ID");
+        }
+        const post = await getPostInfo(post_id);
+        res.status(200).json({ post : post });
+    } catch (err) {
         next(err);
     }
 }
