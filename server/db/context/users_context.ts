@@ -3,13 +3,13 @@ import pool from "../connect";
 import { makeHashedPassword, makeSalt } from "../../utils/crypto";
 import { ServerError } from "../../middleware/errors";
 
-interface IUser {
+interface IUserRegData {
   email: string;
   password: string;
   nickname: string;
 }
 
-export const addUser = async (userData: IUser) => {
+export const addUser = async (userData: IUserRegData) => {
   let conn: PoolConnection | null = null;
   try {
     const salt: string = await makeSalt();
