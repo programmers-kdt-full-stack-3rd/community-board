@@ -29,7 +29,7 @@ export const getPost = async (req : Request, res : Response, next : NextFunction
             throw ServerError.badRequest("Invalid post ID");
         }
         const post = await getPostInfo(post_id);
-        res.json({ post : post });
+        res.status(200).json({ post : post });
     } catch (err) {
         next(err);
     }

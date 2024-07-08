@@ -78,11 +78,12 @@ export const getPostInfo = async (post_id : number) => {
 
         conn = await pool.getConnection();
         const [rows] : any[] = await conn.query(sql, [post_id]);
-        if(rows.length > 0) {
-            return mapDBToPostInfo(rows[0]);
-        } else {
-            return null;
+
+        if(rows.length === 0) {
+            throw ServerError.notFound("존재하지 않는 게시글입니다.");
         }
+
+        return mapDBToPostInfo(rows[0]);
         
     } catch (err){
         throw err;
