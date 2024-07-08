@@ -1,6 +1,7 @@
 import { FieldPacket, PoolConnection, ResultSetHeader } from "mysql2/promise";
 import pool from "../connect";
 import { makeHashedPassword, makeSalt } from "../../utils/crypto";
+import { ServerError } from "../../middleware/errors";
 
 interface IUser {
   email: string;
@@ -28,7 +29,11 @@ export const addUser = async (userData: IUser) => {
 
     return rows;
   } catch (err: any) {
-    throw err;
+    if (err.code === "ER_DUP_ENTRY") {
+      throw ServerError.badRequest("이미 존재하는 이메일 주소입니다.");
+    } else {
+      throw err;
+    }
   } finally {
     if (conn) conn.release();
   }

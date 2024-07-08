@@ -18,13 +18,9 @@ export const registerUser = async (
     if (result.affectedRows === 1) {
       res.status(201).json({ message: "회원가입 성공" });
     } else {
-      next(ServerError.reference("회원가입 실패"));
+      throw ServerError.reference("회원가입 실패");
     }
   } catch (err: any) {
-    if (err.code === "ER_DUP_ENTRY") {
-      next(ServerError.badRequest("이미 존재하는 이메일 주소입니다."));
-    } else {
-      next(err);
-    }
+    next(err);
   }
 };
