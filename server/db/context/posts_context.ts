@@ -1,6 +1,8 @@
+import { PoolConnection } from "mysql2/promise";
 import { IPostRequest } from '../../controller/posts_controller';
 import pool from '../connect';
-import { mapDBToPostHeaders } from '../mapper/posts_mapper';
+import { mapDBToPostHeaders, mapDBToPostInfo } from '../mapper/posts_mapper';
+import { ServerError } from '../../middleware/errors';
 
 export const addPost = async (values : any) => {
     let conn;
@@ -17,7 +19,8 @@ export const addPost = async (values : any) => {
 };
 
 export const getPostHeaders = async ( queryString : IPostRequest ) => {
-    let conn;
+    let conn: PoolConnection | null = null;
+
     try {
         let values : (number | string)[] = [];
 
@@ -51,3 +54,32 @@ export const getPostHeaders = async ( queryString : IPostRequest ) => {
     }
 };
 
+export const getPostInfo = async (post_id : number) => {
+    let conn : PoolConnection | null = null;
+
+    try {
+        let sql = `
+                SELECT p.id, 
+                        p.title,
+                        p.content,
+                        p.author_id,
+                        u.nickname as author_nickname,
+                        p.created_at,
+                        p.updated_at,
+                        p.views,
+                        (SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) AS likes
+                FROM posts as p
+                LEFT JOIN users as u
+                ON p.author_id = u.id
+                WHERE p.isDelete = FALSE
+                AND u.isDelete = FALSE
+                AND p.id = ?
+        `;
+
+        conn = await pool.getConnection();
+        const [rows] : any[] = await conn.query(sql, [post_id]);
+        return mapDBToPostInfo(rows[0]);
+    } catch (err){
+        throw err;
+    }
+};
