@@ -1,5 +1,5 @@
 import { PoolConnection } from "mysql2/promise";
-import { IPostRequest } from '../../controller/posts_controller';
+import { ICreatePostRequest, IReadPostRequest } from '../../controller/posts_controller';
 import pool from '../connect';
 import { mapDBToPostHeaders, mapDBToPostInfo } from '../mapper/posts_mapper';
 import { ServerError } from '../../middleware/errors';
@@ -18,7 +18,7 @@ export const addPost = async (values : any) => {
     }
 };
 
-export const getPostHeaders = async ( queryString : IPostRequest ) => {
+export const getPostHeaders = async ( queryString : IReadPostRequest ) => {
     let conn: PoolConnection | null = null;
 
     try {

@@ -2,15 +2,21 @@ import { Request, Response, NextFunction } from 'express';
 import { getPostHeaders, getPostInfo } from '../db/context/posts_context';
 import { ServerError } from '../middleware/errors';
 
-export interface IPostRequest {
+export interface IReadPostRequest {
     index : number;
     perPage : number;
     keyword : string | null;
 }
 
+export interface ICreatePostRequest {
+    title : string;
+    content : string;
+    author_id : number;
+}
+
 export const getPosts = async (req : Request, res : Response, next : NextFunction) => {
     try{
-        const values : IPostRequest = {
+        const values : IReadPostRequest = {
             index : parseInt(req.query.index as string) - 1 || 0,
             perPage : parseInt(req.query.perPage as string) || 10,
             keyword : req.query.keyword as string || null
