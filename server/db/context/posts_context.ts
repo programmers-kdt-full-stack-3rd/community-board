@@ -78,7 +78,12 @@ export const getPostInfo = async (post_id : number) => {
 
         conn = await pool.getConnection();
         const [rows] : any[] = await conn.query(sql, [post_id]);
-        return mapDBToPostInfo(rows[0]);
+        if(rows.length > 0) {
+            return mapDBToPostInfo(rows[0]);
+        } else {
+            return null;
+        }
+        
     } catch (err){
         throw err;
     }
