@@ -15,8 +15,14 @@ const joinValidation = [
     .notEmpty()
     .withMessage("비밀번호를 입력해주십시오.")
     .bail()
-    .isLength({ min: 8 })
-    .withMessage("비밀번호는 8자 이상이어야 합니다."),
+    .isStrongPassword({
+      minLength: 10,
+      minLowercase: 1,
+      minUppercase: 1,
+      minNumbers: 1,
+      minSymbols: 0,
+    })
+    .withMessage("올바른 형태의 비밀번호가 아닙니다."),
   body("nickname").notEmpty().withMessage("닉네임을 입력해주십시오."),
   validate,
 ];
