@@ -1,24 +1,10 @@
 import { PoolConnection } from "mysql2/promise";
-import { IPostRequest } from '../../controller/posts_controller';
+import { ICreatePostRequest, IReadPostRequest } from '../../controller/posts_controller';
 import pool from '../connect';
 import { mapDBToPostHeaders, mapDBToPostInfo } from '../mapper/posts_mapper';
 import { ServerError } from '../../middleware/errors';
 
-export const addPost = async (values : any) => {
-    let conn;
-    try {
-        conn = await pool.getConnection();
-        const sql = `INSERT INTO users (email, nickname, password, salt) VALUES (?, ?, ?, ?)`;
-        const [results] = await conn.query(sql, values);
-        return results;
-    } catch (err) {
-        throw err;
-    } finally {
-        if (conn) conn.release();
-    }
-};
-
-export const getPostHeaders = async ( queryString : IPostRequest ) => {
+export const getPostHeaders = async ( queryString : IReadPostRequest ) => {
     let conn: PoolConnection | null = null;
 
     try {
@@ -89,3 +75,28 @@ export const getPostInfo = async (post_id : number) => {
         throw err;
     }
 };
+
+export const addPost = async (reqBody : ICreatePostRequest) => {
+    let conn : PoolConnection | null = null;
+
+    try {
+        const values : [string, string, number] = [reqBody.title, reqBody.content, reqBody.author_id];
+
+        let sql = `
+                INSERT INTO posts (title, content, author_id, created_at)
+                VALUES (?, ?, ?, now())
+        `;
+
+        conn = await pool.getConnection();
+        const [rows] : any[] = await conn.query(sql, values);
+        
+        if (rows.affectedRows === 0) {
+            throw ServerError.reference("게시글 작성 실패");
+        }
+
+        // 게시글 작성에 성공했을 때, client에 반환할 값이 없기 때문에
+        // 불필요한 return 제외
+    } catch (err) {
+        throw err;
+    }
+}
