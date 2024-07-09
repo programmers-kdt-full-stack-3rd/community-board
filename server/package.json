@@ -5,6 +5,7 @@
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "express-validator": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.10.2",
     "nodemon": "^3.1.4",
     "ts-node": "^10.9.2",
@@ -14,5 +15,8 @@
     "start": "node dist/app.js",
     "build": "tsc -p .",
     "dev": "nodemon --watch \"*.ts\" --exec \"ts-node\" ./app.ts"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.6"
   }
 }
