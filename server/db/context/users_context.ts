@@ -85,7 +85,7 @@ export const authUser = async (userData: IUserAuthData) => {
     } else {
       accessToken = makeAccessToken(user.id);
       refreshToken = makeRefreshToken(user.id);
-      addRefreshToken(
+      await addRefreshToken(
         user.id,
         refreshToken,
         new Date(Date.now() + 1000 * 60 * 60 * 24)
