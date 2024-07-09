@@ -14,6 +14,12 @@ export interface ICreatePostRequest {
     author_id : number;
 }
 
+export interface IUpdatePostRequest {
+    title? : string;
+    content? : string;
+    author_id : number;
+}
+
 export const getPosts = async (req : Request, res : Response, next : NextFunction) => {
     try{
         const values : IReadPostRequest = {
