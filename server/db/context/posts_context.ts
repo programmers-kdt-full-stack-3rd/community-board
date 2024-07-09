@@ -1,5 +1,5 @@
 import { PoolConnection } from "mysql2/promise";
-import { ICreatePostRequest, IReadPostRequest } from '../../controller/posts_controller';
+import { ICreatePostRequest, IReadPostRequest, IUpdatePostRequest } from '../../controller/posts_controller';
 import pool from '../connect';
 import { mapDBToPostHeaders, mapDBToPostInfo } from '../mapper/posts_mapper';
 import { ServerError } from '../../middleware/errors';
@@ -73,6 +73,8 @@ export const getPostInfo = async (post_id : number) => {
         
     } catch (err){
         throw err;
+    } finally {
+        if (conn) conn.release();
     }
 };
 
@@ -98,5 +100,51 @@ export const addPost = async (reqBody : ICreatePostRequest) => {
         // 불필요한 return 제외
     } catch (err) {
         throw err;
+    } finally {
+        if (conn) conn.release();
     }
-}
+};
+
+export const updatePost = async (post_id : number, reqBody : IUpdatePostRequest) => {
+    let conn: PoolConnection | null = null;
+
+    try {
+        let values : (number | string)[] = [];
+
+        let sql = `
+                UPDATE posts
+                SET title = ?, content = ?
+                WHERE id =? AND isDelete = FALSE
+        `;
+
+        if (reqBody.title !== undefined){
+            values.push(reqBody.title);
+            sql += ' title = ?'
+        }
+
+        if (reqBody.content !== undefined){
+            values.push(reqBody.content);
+
+            if (values.length > 0) {
+                sql += `,`;
+            }
+
+            sql += ' content = ?'
+        }
+
+        values.push(post_id);
+        values.push(reqBody.author_id);
+        sql += ` WHERE id = ? AND author_id = ? AND isDelete = FALSE`;
+
+        conn = await pool.getConnection();
+        const [rows] : any[] = await conn.query(sql, values);
+        
+        if (rows.affectedRows === 0) {
+            throw ServerError.reference("게시글 수정 실패");
+        }
+    } catch (err) {
+        throw err;
+    } finally {
+        if (conn) conn.release();
+    }
+};
