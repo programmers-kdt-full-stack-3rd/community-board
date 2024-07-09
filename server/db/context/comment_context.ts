@@ -68,35 +68,10 @@ export const createComment = async (commentInsertion: ICommentInsertion) => {
     );
 
     if (result.affectedRows === 0) {
-      throw ServerError.etcError(500, "댓글 등록하지 못했습니다.");
+      throw ServerError.etcError(500, "댓글을 등록하지 못했습니다.");
     }
   } catch (err: any) {
-    if (err?.code === "ER_BAD_NULL_ERROR") {
-      const omittedFields = [
-        { fieldDesc: "작성자 ID", value: author_id },
-        { fieldDesc: "게시글 ID", value: post_id },
-        { fieldDesc: "댓글 내용", value: content },
-      ]
-        .filter(({ value }) => value === undefined || value === null)
-        .map(({ fieldDesc }) => fieldDesc)
-        .join(", ");
-
-      throw ServerError.badRequest(
-        `필수 항목이 누락되었습니다. (${omittedFields})`
-      );
-    } else if (err?.code === "ER_TRUNCATED_WRONG_VALUE_FOR_FIELD") {
-      const wrongTypedFields = [
-        { fieldDesc: "작성자 ID", type: typeof author_id, expected: "number" },
-        { fieldDesc: "댓글 내용", type: typeof content, expected: "string" },
-      ]
-        .filter(({ type, expected }) => type !== expected)
-        .map(({ fieldDesc }) => fieldDesc)
-        .join(", ");
-
-      throw ServerError.badRequest(
-        `입력 자료형이 일치하지 않습니다. (${wrongTypedFields})`
-      );
-    } else if (err?.code === "ER_NO_REFERENCED_ROW_2") {
+    if (err?.code === "ER_NO_REFERENCED_ROW_2") {
       const notFoundFields = [
         { fieldDesc: "작성자 ID", columnName: "author_id" },
         { fieldDesc: "게시글 ID", columnName: "post_id" },
@@ -109,6 +84,16 @@ export const createComment = async (commentInsertion: ICommentInsertion) => {
           );
         }
       }
+    } else if (
+      err?.code === "ER_BAD_NULL_ERROR" &&
+      (author_id === undefined || author_id === null)
+    ) {
+      throw ServerError.badRequest("작성자 ID가 필요합니다.");
+    } else if (
+      err?.code === "ER_TRUNCATED_WRONG_VALUE_FOR_FIELD" &&
+      typeof author_id !== "number"
+    ) {
+      throw ServerError.badRequest("작성자 ID의 자료형은 number이어야 합니다.");
     }
 
     throw err;

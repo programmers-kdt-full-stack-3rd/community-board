@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import { createComment, getComments } from "../db/context/comment_context";
-import { ServerError } from "../middleware/errors";
 
 export const getCommentsByPostId = async (
   req: Request,
@@ -9,11 +8,9 @@ export const getCommentsByPostId = async (
 ) => {
   try {
     const postId = parseInt(req.params.post_id, 10);
-    if (isNaN(postId)) {
-      throw ServerError.badRequest("Invalid post ID");
-    }
 
-    const comments = await getComments(parseInt(req.params.post_id));
+    const comments = await getComments(postId);
+
     res.status(200).json({ comments });
   } catch (err) {
     next(err);
@@ -27,12 +24,9 @@ export const createCommentByPostId = async (
 ) => {
   try {
     const postId = parseInt(req.params.post_id, 10);
-    if (isNaN(postId)) {
-      throw ServerError.badRequest("Invalid post ID");
-    }
 
     await createComment({
-      post_id: parseInt(req.params.post_id),
+      post_id: postId,
       author_id: req.body.author_id,
       content: req.body.content,
     });

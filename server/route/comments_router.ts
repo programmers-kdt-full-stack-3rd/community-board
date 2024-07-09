@@ -6,6 +6,16 @@ import {
 } from "../controller/comments_controller";
 import { validate } from "../middleware/validate";
 
+const getCommentValidation = [
+  param("post_id")
+    .notEmpty()
+    .withMessage("게시글 ID를 입력해 주십시오.")
+    .bail()
+    .isInt({ min: 1 })
+    .withMessage("게시글 ID가 양의 정수가 아닙니다."),
+  validate,
+];
+
 const postCommentValidation = [
   body("content")
     .notEmpty()
@@ -25,7 +35,7 @@ const postCommentValidation = [
 const router = express.Router();
 router.use(express.json());
 
-router.get("/:post_id", getCommentsByPostId);
+router.get("/:post_id", getCommentValidation, getCommentsByPostId);
 router.post("/:post_id", postCommentValidation, createCommentByPostId);
 
 export default router;
