@@ -83,8 +83,8 @@ export const authUser = async (userData: IUserAuthData) => {
     if (user.password !== hashedPassword) {
       throw ServerError.badRequest("비밀번호가 일치하지 않습니다.");
     } else {
-      accessToken = await makeAccessToken(user.id);
-      refreshToken = await makeRefreshToken(user.id);
+      accessToken = makeAccessToken(user.id);
+      refreshToken = makeRefreshToken(user.id);
       addToken(
         user.id,
         refreshToken,

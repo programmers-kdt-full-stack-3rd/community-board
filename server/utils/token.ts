@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import { ServerError } from "../middleware/errors";
 
 dotenv.config();
-export const makeAccessToken = async (userId: number) => {
+export const makeAccessToken = (userId: number) => {
   const key = process.env.ACCESS_TOKEN_KEY;
   if (key) {
     const token = jwt.sign({ userId }, key, { expiresIn: "1h" });
@@ -13,7 +13,7 @@ export const makeAccessToken = async (userId: number) => {
   }
 };
 
-export const makeRefreshToken = async (userId: number) => {
+export const makeRefreshToken = (userId: number) => {
   const key = process.env.REFRESH_TOKEN_KEY;
   if (key) {
     const token = jwt.sign({ userId }, key, { expiresIn: "1d" });
