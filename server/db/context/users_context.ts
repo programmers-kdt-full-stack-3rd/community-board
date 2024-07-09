@@ -81,7 +81,7 @@ export const authUser = async (userData: IUserAuthData) => {
     );
 
     if (user.password !== hashedPassword) {
-      throw ServerError.badRequest("비밀번호가 일치하지 않습니다.");
+      throw ServerError.badRequest("이메일 또는 비밀번호가 틀렸습니다.");
     } else {
       accessToken = makeAccessToken(user.id);
       refreshToken = makeRefreshToken(user.id);

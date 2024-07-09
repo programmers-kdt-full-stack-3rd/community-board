@@ -28,8 +28,23 @@ const joinValidation = [
 ];
 
 const loginValidation = [
-  body("email").notEmpty().withMessage("이메일을 입력해주십시오."),
-  body("password").notEmpty().withMessage("비밀번호를 입력해주십시오."),
+  body("email")
+    .notEmpty()
+    .withMessage("이메일을 입력해주십시오.")
+    .bail()
+    .isEmail()
+    .withMessage("이메일 또는 비밀번호가 틀렸습니다."),
+  body("password")
+    .notEmpty()
+    .withMessage("비밀번호를 입력해주십시오.")
+    .isStrongPassword({
+      minLength: 10,
+      minLowercase: 1,
+      minUppercase: 1,
+      minNumbers: 1,
+      minSymbols: 0,
+    })
+    .withMessage("이메일 또는 비밀번호가 틀렸습니다."),
   validate,
 ];
 
