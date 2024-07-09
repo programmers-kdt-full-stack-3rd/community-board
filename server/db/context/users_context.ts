@@ -9,7 +9,7 @@ import { makeHashedPassword, makeSalt } from "../../utils/crypto";
 import { ServerError } from "../../middleware/errors";
 import { IUser } from "../model/users";
 import { makeAccessToken, makeRefreshToken } from "../../utils/token";
-import { addToken } from "./token_context";
+import { addRefreshToken } from "./token_context";
 
 interface IUserRegData {
   email: string;
@@ -85,7 +85,7 @@ export const authUser = async (userData: IUserAuthData) => {
     } else {
       accessToken = makeAccessToken(user.id);
       refreshToken = makeRefreshToken(user.id);
-      addToken(
+      addRefreshToken(
         user.id,
         refreshToken,
         new Date(Date.now() + 1000 * 60 * 60 * 24)

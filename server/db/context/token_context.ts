@@ -2,7 +2,7 @@ import { FieldPacket, PoolConnection, ResultSetHeader } from "mysql2/promise";
 import pool from "../connect";
 import { ServerError } from "../../middleware/errors";
 
-export const addToken = async (
+export const addRefreshToken = async (
   user_id: number,
   token: string,
   expired_at: Date
