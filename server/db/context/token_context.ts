@@ -25,5 +25,7 @@ export const addRefreshToken = async (
     return rows;
   } catch (err: any) {
     throw err;
+  } finally {
+    if (conn) conn.release();
   }
 };
