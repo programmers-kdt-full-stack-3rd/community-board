@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { addPost, getPostHeaders, getPostInfo } from '../db/context/posts_context';
+import { addPost, getPostHeaders, getPostInfo, updatePost } from '../db/context/posts_context';
 import { ServerError } from '../middleware/errors';
 
 export interface IReadPostRequest {
@@ -11,6 +11,12 @@ export interface IReadPostRequest {
 export interface ICreatePostRequest {
     title : string;
     content : string;
+    author_id : number;
+}
+
+export interface IUpdatePostRequest {
+    title? : string;
+    content? : string;
     author_id : number;
 }
 
@@ -53,6 +59,29 @@ export const createPost = async (req : Request, res : Response, next : NextFunct
         await addPost(reqBody);
 
         res.status(200).json({ message : "게시글 생성 success"});
+    } catch (err) {
+        next(err);
+    }
+}
+
+export const patchPost = async (req : Request, res : Response, next : NextFunction) => {
+    try {
+        const post_id = parseInt(req.params.post_id);
+
+        if (isNaN(post_id)) {
+            throw ServerError.badRequest("Invalid post ID");
+        }
+
+        const reqBody : IUpdatePostRequest = {
+            title : req.body.title,
+            content : req.body.content,
+            // TODO : token 검증 미들웨어 업데이트 시 삭제
+            author_id : parseInt(req.body.author_id)
+        };
+
+        await updatePost(post_id, reqBody);
+
+        res.status(200).json({ message : "게시글 수정 success"});
     } catch (err) {
         next(err);
     }

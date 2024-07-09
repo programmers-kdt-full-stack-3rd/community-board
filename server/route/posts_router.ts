@@ -1,7 +1,8 @@
 import express from 'express';
-import { createPost, getPost, getPosts } from '../controller/posts_controller';
-import { body } from "express-validator";
+import { createPost, getPost, getPosts, patchPost } from '../controller/posts_controller';
+import { body, check } from "express-validator";
 import { validate } from "../middleware/validate";
+import { ServerError } from '../middleware/errors';
 
 // Request body 유효성 검사
 const postBodyValidation = [
@@ -16,6 +17,13 @@ const postBodyValidation = [
   validate,
 ];
 
+const patchBodyValidation = [
+  body("title").custom((value, { req }) => {
+    return value || req.body.content;
+  }).withMessage("수정 사항이 없습니다."),
+  validate
+];
+
 const router = express.Router();
 router.use(express.json());
 
@@ -23,5 +31,7 @@ router.get("/", getPosts);
 router.get("/:post_id", getPost);
 
 router.post("/", postBodyValidation, createPost);
+
+router.patch("/:post_id", patchBodyValidation, patchPost);
 
 export default router;
