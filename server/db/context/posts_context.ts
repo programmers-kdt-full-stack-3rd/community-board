@@ -113,16 +113,15 @@ export const updatePost = async (post_id : number, reqBody : IUpdatePostRequest)
 
         let sql = `
                 UPDATE posts
-                SET title = ?, content = ?
-                WHERE id =? AND isDelete = FALSE
+                SET
         `;
 
-        if (reqBody.title !== undefined){
+        if (reqBody.title){
             values.push(reqBody.title);
             sql += ' title = ?'
         }
 
-        if (reqBody.content !== undefined){
+        if (reqBody.content){
             values.push(reqBody.content);
 
             if (values.length > 0) {
@@ -140,6 +139,8 @@ export const updatePost = async (post_id : number, reqBody : IUpdatePostRequest)
         const [rows] : any[] = await conn.query(sql, values);
         
         if (rows.affectedRows === 0) {
+            // 1. 게시글 author_id와 수정 요청한 user_id가 다름 -> client에서 막아야 함
+            // 2. 원인모를 이유로 실패함
             throw ServerError.reference("게시글 수정 실패");
         }
     } catch (err) {
