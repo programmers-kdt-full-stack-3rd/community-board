@@ -44,6 +44,8 @@ export const authToken = async (
           httpOnly: true,
           secure: true,
         });
+
+        req.userId = userId;
         next();
       } catch (err: any) {
         res.clearCookie("accessToken");
