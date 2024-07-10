@@ -9,6 +9,12 @@ interface ICommentInsertion {
   content: string;
 }
 
+interface ICommentUpdate {
+  id: number;
+  author_id: number;
+  content: string;
+}
+
 export const readComments = async (postId: number) => {
   let conn: PoolConnection | null = null;
 
@@ -96,6 +102,39 @@ export const createComment = async (commentInsertion: ICommentInsertion) => {
       throw ServerError.badRequest("작성자 ID의 자료형은 number이어야 합니다.");
     }
 
+    throw err;
+  } finally {
+    if (conn) conn.release();
+  }
+};
+
+export const updateComment = async (commentUpdate: ICommentUpdate) => {
+  let conn: PoolConnection | null = null;
+
+  const { id, author_id, content } = commentUpdate;
+
+  try {
+    const sql = `
+      UPDATE
+        comments
+      SET
+        content = ?
+      WHERE
+        id = ?
+        AND author_id = ?
+    `;
+    const values = [content, id, author_id];
+
+    conn = await pool.getConnection();
+    const [result]: [ResultSetHeader, FieldPacket[]] = await conn.query(
+      sql,
+      values
+    );
+
+    if (result.affectedRows === 0) {
+      throw ServerError.reference("댓글 수정 실패");
+    }
+  } catch (err) {
     throw err;
   } finally {
     if (conn) conn.release();
