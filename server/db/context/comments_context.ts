@@ -9,7 +9,7 @@ interface ICommentInsertion {
   content: string;
 }
 
-export const getComments = async (postId: number) => {
+export const readComments = async (postId: number) => {
   let conn: PoolConnection | null = null;
 
   try {

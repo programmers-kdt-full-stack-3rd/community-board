@@ -1,8 +1,8 @@
 import express from "express";
 import { body, param } from "express-validator";
 import {
-  createCommentByPostId,
-  getCommentsByPostId,
+  handleCommentCreate,
+  handleCommentsRead,
 } from "../controller/comments_controller";
 import { validate } from "../middleware/validate";
 
@@ -23,7 +23,7 @@ const postCommentValidation = [
     .bail()
     .isString()
     .withMessage("본문이 문자열이 아닙니다."),
-  param("post_id")
+  body("post_id")
     .notEmpty()
     .withMessage("게시글 ID를 입력해 주십시오.")
     .bail()
@@ -35,7 +35,7 @@ const postCommentValidation = [
 const router = express.Router();
 router.use(express.json());
 
-router.get("/:post_id", getCommentValidation, getCommentsByPostId);
-router.post("/:post_id", postCommentValidation, createCommentByPostId);
+router.get("/:post_id", getCommentValidation, handleCommentsRead);
+router.post("/", postCommentValidation, handleCommentCreate);
 
 export default router;
