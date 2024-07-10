@@ -1,5 +1,9 @@
 import { Request, Response, NextFunction } from "express";
-import { createComment, readComments } from "../db/context/comments_context";
+import {
+  createComment,
+  readComments,
+  updateComment,
+} from "../db/context/comments_context";
 
 export const handleCommentsRead = async (
   req: Request,
@@ -30,6 +34,24 @@ export const handleCommentCreate = async (
     });
 
     res.status(201).end();
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const handleCommentUpdate = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    await updateComment({
+      id: parseInt(req.body.id, 10),
+      author_id: parseInt(req.body.author_id, 10), // TODO: 토큰 미들웨어 도입 시 req 객체에서 가져오기
+      content: req.body.content,
+    });
+
+    res.status(200).end();
   } catch (err) {
     next(err);
   }
