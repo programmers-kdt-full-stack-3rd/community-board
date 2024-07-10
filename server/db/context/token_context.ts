@@ -39,12 +39,12 @@ export const addRefreshToken = async (
   }
 };
 
-export const getRefreshToken = async (user_id: number) => {
+export const getRefreshToken = async (user_id: number, token: string) => {
   let conn: PoolConnection | null = null;
 
   try {
-    const sql = `SELECT token FROM refresh_tokens WHERE user_id = ?`;
-    const value = [user_id];
+    const sql = `SELECT token FROM refresh_tokens WHERE user_id = ? AND token = ? and expired_at > now()`;
+    const value = [user_id, token];
 
     conn = await pool.getConnection();
     const [rows]: [IRefreshTokenResult[], FieldPacket[]] = await conn.query(
@@ -53,10 +53,8 @@ export const getRefreshToken = async (user_id: number) => {
     );
 
     if (rows.length === 0) {
-      throw ServerError.tokenError("db에 저장된 토큰이 없습니다.");
+      throw ServerError.tokenError("잘못된 refresh token 입니다.");
     }
-
-    return rows[0].token;
   } catch (err: any) {
     throw err;
   } finally {

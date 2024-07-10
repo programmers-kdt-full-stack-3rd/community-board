@@ -54,10 +54,7 @@ export const verifyRefreshToken = async (token: string) => {
     if (key) {
       const verifiedToken = jwt.verify(token, key) as IToken;
       const userId = verifiedToken.userId;
-      const dbToken = await getRefreshToken(userId);
-      if (token !== dbToken) {
-        throw ServerError.tokenError("변조된 토큰 입니다.");
-      }
+      await getRefreshToken(userId, token);
       return verifiedToken;
     } else {
       throw ServerError.reference("키가 없습니다.");
