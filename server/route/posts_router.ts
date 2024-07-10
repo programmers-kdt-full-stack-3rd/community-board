@@ -27,7 +27,7 @@ const patchBodyValidation = [
 const deleteValidation = [
   param('post_id')
   .notEmpty()
-  .isNumeric()
+  .isInt({ min : 1 })
   .withMessage("유효하지 않은 게시글입니다.")
   .bail(),
   validate
