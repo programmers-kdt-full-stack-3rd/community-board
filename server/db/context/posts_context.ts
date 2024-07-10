@@ -156,7 +156,7 @@ export const deletePost = async (post_id : number, user_id : number) => {
     try {
         let values : number[] = [post_id, user_id];
 
-        let sql = `DELETE FROM posts WHERE author_id = ? and post_id = ?`;
+        let sql = `DELETE FROM posts WHERE id = ? and author_id = ?`;
 
         conn = await pool.getConnection();
         const [rows] : any[] = await conn.query(sql, values);
@@ -167,6 +167,7 @@ export const deletePost = async (post_id : number, user_id : number) => {
             throw ServerError.reference("게시글 삭제 실패");
         }
     } catch (err) {
+        console.log(err);
         throw err;
     } finally {
         if (conn) conn.release();
