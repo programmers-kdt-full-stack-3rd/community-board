@@ -27,15 +27,15 @@ export const authToken = async (
     if (err instanceof TokenExpiredError || err.name === "Unauthorized") {
       try {
         const cookies = req.cookies;
-        const refresh_tokens = cookies.refreshToken;
+        const refreshToken = cookies.refreshToken;
         if (err.name === "Unauthorized") {
-          if (!refresh_tokens) {
+          if (!refreshToken) {
             return next();
           }
         }
 
         //Refresh token 검증 로직
-        const jwtPayload = await verifyRefreshToken(refresh_tokens);
+        const jwtPayload = await verifyRefreshToken(refreshToken);
         const userId = jwtPayload.userId;
 
         //새로운 access token 발급
@@ -44,7 +44,6 @@ export const authToken = async (
           httpOnly: true,
           secure: true,
         });
-
         next();
       } catch (err: any) {
         res.clearCookie("accessToken");
