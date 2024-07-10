@@ -6,12 +6,14 @@ import apiRouter from "./route/route";
 import { errorHandler } from "./middleware/errors";
 // cookie-parser -------------
 import cookieParser from "cookie-parser";
+import { authToken } from "./middleware/auth";
 
 dotenv.config();
 const app = express();
 
 // app 등록
 app.use(cookieParser());
+app.use(authToken);
 app.use("/api", apiRouter);
 app.use(errorHandler);
 
