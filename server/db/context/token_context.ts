@@ -1,6 +1,15 @@
-import { FieldPacket, PoolConnection, ResultSetHeader } from "mysql2/promise";
+import {
+  FieldPacket,
+  PoolConnection,
+  ResultSetHeader,
+  RowDataPacket,
+} from "mysql2/promise";
 import pool from "../connect";
 import { ServerError } from "../../middleware/errors";
+
+interface IRefreshTokenResult extends RowDataPacket {
+  token: string;
+}
 
 export const addRefreshToken = async (
   user_id: number,
@@ -23,6 +32,31 @@ export const addRefreshToken = async (
       throw ServerError.reference("토큰 저장 실패");
     }
     return rows;
+  } catch (err: any) {
+    throw err;
+  } finally {
+    if (conn) conn.release();
+  }
+};
+
+export const getRefreshToken = async (user_id: number) => {
+  let conn: PoolConnection | null = null;
+
+  try {
+    const sql = `SELECT token FROM refresh_tokens WHERE user_id = ?`;
+    const value = [user_id];
+
+    conn = await pool.getConnection();
+    const [rows]: [IRefreshTokenResult[], FieldPacket[]] = await conn.query(
+      sql,
+      value
+    );
+
+    if (rows.length === 0) {
+      throw ServerError.tokenError("db에 저장된 토큰이 없습니다.");
+    }
+
+    return rows[0].token;
   } catch (err: any) {
     throw err;
   } finally {
