@@ -6,6 +6,7 @@ import {
   handleCommentsRead,
   handleCommentUpdate,
 } from "../controller/comments_controller";
+import { requireLogin } from "../middleware/auth";
 import { validate } from "../middleware/validate";
 
 const getCommentValidation = [
@@ -64,8 +65,8 @@ const router = express.Router();
 router.use(express.json());
 
 router.get("/:post_id", getCommentValidation, handleCommentsRead);
-router.post("/", postCommentValidation, handleCommentCreate);
-router.patch("/", patchCommentValidation, handleCommentUpdate);
-router.delete("/", deleteCommentValidation, handleCommentDelete);
+router.post("/", requireLogin, postCommentValidation, handleCommentCreate);
+router.patch("/", requireLogin, patchCommentValidation, handleCommentUpdate);
+router.delete("/", requireLogin, deleteCommentValidation, handleCommentDelete);
 
 export default router;
