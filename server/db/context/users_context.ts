@@ -22,6 +22,12 @@ interface IUserAuthData {
   password: string;
 }
 
+interface IUpdateUserInfo {
+  nickname: string;
+  password: string;
+  userId: number;
+}
+
 interface IUserAuthResult extends RowDataPacket, IUser {}
 
 export const addUser = async (userData: IUserRegData) => {
@@ -93,6 +99,34 @@ export const authUser = async (userData: IUserAuthData) => {
     }
 
     return { accessToken, refreshToken };
+  } catch (err: any) {
+    throw err;
+  } finally {
+    if (conn) conn.release();
+  }
+};
+
+export const updateUser = async (userData: IUpdateUserInfo) => {
+  let conn: PoolConnection | null = null;
+  try {
+    const salt: string = await makeSalt();
+    const hashedPassword: string = await makeHashedPassword(
+      userData.password,
+      salt
+    );
+
+    const sql = `UPDATE users SET nickname=?, password=?, salt=? WHERE id=? AND isDelete=FALSE `;
+    const value = [userData.nickname, hashedPassword, salt, userData.userId];
+
+    conn = await pool.getConnection();
+    const [rows]: [ResultSetHeader, FieldPacket[]] = await conn.query(
+      sql,
+      value
+    );
+
+    if (rows.affectedRows === 0) {
+      throw ServerError.badRequest("회원정보 수정 실패");
+    }
   } catch (err: any) {
     throw err;
   } finally {
