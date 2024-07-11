@@ -61,9 +61,10 @@ export const logoutUser = async (
   next: NextFunction
 ) => {
   try {
+    const refreshToken = req.cookies.refreshToken;
     res.clearCookie("accessToken");
     res.clearCookie("refreshToken");
-    deleteRefreshToken(req.userId);
+    await deleteRefreshToken(req.userId, refreshToken);
 
     res.status(200).json({ message: "로그아웃 성공" });
   } catch (err: any) {
