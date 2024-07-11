@@ -1,4 +1,9 @@
-import { FieldPacket, PoolConnection, ResultSetHeader } from "mysql2/promise";
+import {
+  FieldPacket,
+  PoolConnection,
+  ResultSetHeader,
+  RowDataPacket,
+} from "mysql2/promise";
 import { ServerError } from "../../middleware/errors";
 import pool from "../connect";
 import { mapDBToComments } from "../mapper/comments_mapper";
@@ -52,7 +57,10 @@ export const readComments = async (postId: number) => {
     const values = [postId];
 
     conn = await pool.getConnection();
-    const [rows]: any[] = await conn.query(sql, values);
+    const [rows]: [RowDataPacket[], FieldPacket[]] = await conn.query(
+      sql,
+      values
+    );
     return mapDBToComments(rows);
   } catch (err) {
     throw err;
@@ -123,6 +131,10 @@ export const updateComment = async (commentUpdate: ICommentUpdate) => {
     );
 
     if (result.affectedRows === 0) {
+      // 실패하는 상황
+      // - 존재하지 않는 댓글: 댓글 ID가 일치하는 레코드가 없음
+      // - 다른 사람의 댓글: 댓글의 작성자 ID가 일치하지 않음
+      // - 이미 삭제된 댓글: isDelete 컬럼이 TRUE
       throw ServerError.reference("댓글 수정 실패");
     }
   } catch (err) {
