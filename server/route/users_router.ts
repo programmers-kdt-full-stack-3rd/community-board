@@ -3,6 +3,7 @@ import {
   loginUser,
   logoutUser,
   registerUser,
+  updateUserInfo,
 } from "../controller/users_controller";
 import { body } from "express-validator";
 import { validate } from "../middleware/validate";
@@ -53,11 +54,28 @@ const loginValidation = [
   validate,
 ];
 
+const updateUserInfoValidation = [
+  body("nickname").notEmpty().withMessage("닉네임을 입력해주십시오."),
+  body("password")
+    .notEmpty()
+    .withMessage("비밀번호를 입력해주십시오.")
+    .isStrongPassword({
+      minLength: 10,
+      minLowercase: 1,
+      minUppercase: 1,
+      minNumbers: 1,
+      minSymbols: 0,
+    })
+    .withMessage("올바른 형태의 비밀번호가 아닙니다."),
+  validate,
+];
+
 const router = express.Router();
 router.use(express.json());
 
 router.post("/join", joinValidation, registerUser);
 router.post("/login", loginValidation, loginUser);
 router.post("/logout", requireLogin, logoutUser);
+router.put("/", updateUserInfoValidation, requireLogin, updateUserInfo);
 
 export default router;
