@@ -133,3 +133,27 @@ export const updateUser = async (userData: IUpdateUserInfo) => {
     if (conn) conn.release();
   }
 };
+
+export const getUserById = async (userId: number) => {
+  let conn: PoolConnection | null = null;
+  try {
+    const sql = `SELECT * FROM users WHERE id = ? AND isDelete=FALSE`;
+    const value = [userId];
+
+    conn = await pool.getConnection();
+    const [rows]: [IUserAuthResult[], FieldPacket[]] = await conn.query(
+      sql,
+      value
+    );
+
+    if (rows.length === 0) {
+      throw ServerError.badRequest("존재하지 않은 회원 입니다.");
+    }
+
+    return rows[0];
+  } catch (err: any) {
+    throw err;
+  } finally {
+    if (conn) conn.release();
+  }
+};
