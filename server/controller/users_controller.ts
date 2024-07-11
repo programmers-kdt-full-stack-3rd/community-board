@@ -3,7 +3,7 @@ import { addUser, authUser, updateUser } from "../db/context/users_context";
 import { ServerError } from "../middleware/errors";
 import { deleteRefreshToken } from "../db/context/token_context";
 
-export const registerUser = async (
+export const handleJoinUser = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -26,7 +26,7 @@ export const registerUser = async (
   }
 };
 
-export const loginUser = async (
+export const handleLoginUser = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -55,7 +55,7 @@ export const loginUser = async (
   }
 };
 
-export const logoutUser = async (
+export const handleLogoutUser = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -72,7 +72,7 @@ export const logoutUser = async (
   }
 };
 
-export const updateUserInfo = async (
+export const handleUpdateUser = async (
   req: Request,
   res: Response,
   next: NextFunction

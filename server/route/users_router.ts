@@ -1,9 +1,9 @@
 import express from "express";
 import {
-  loginUser,
-  logoutUser,
-  registerUser,
-  updateUserInfo,
+  handleLoginUser,
+  handleLogoutUser,
+  handleJoinUser,
+  handleUpdateUser,
 } from "../controller/users_controller";
 import { body } from "express-validator";
 import { validate } from "../middleware/validate";
@@ -73,9 +73,9 @@ const updateUserInfoValidation = [
 const router = express.Router();
 router.use(express.json());
 
-router.post("/join", joinValidation, registerUser);
-router.post("/login", loginValidation, loginUser);
-router.post("/logout", requireLogin, logoutUser);
-router.put("/", updateUserInfoValidation, requireLogin, updateUserInfo);
+router.post("/join", joinValidation, handleJoinUser);
+router.post("/login", loginValidation, handleLoginUser);
+router.post("/logout", requireLogin, handleLogoutUser);
+router.put("/", updateUserInfoValidation, requireLogin, handleUpdateUser);
 
 export default router;
