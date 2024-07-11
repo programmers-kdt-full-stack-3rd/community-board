@@ -1,7 +1,6 @@
 import express, { Request, Response } from "express";
 import dotenv from "dotenv";
 import path from "path";
-import cors from "cors";
 // router -----------------
 import apiRouter from "./route/route";
 // handelr ----------------
@@ -9,8 +8,6 @@ import { errorHandler } from "./middleware/errors";
 
 dotenv.config();
 const app = express();
-app.use(cors());
-
 // app 등록
 app.use("/api", apiRouter);
 app.use(errorHandler);
