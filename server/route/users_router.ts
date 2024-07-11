@@ -99,7 +99,7 @@ router.put(
   handleUpdateUser
 );
 router.post(
-  "/checkPassword",
+  "/check-password",
   checkPasswordValidation,
   requireLogin,
   handleCheckPassword
