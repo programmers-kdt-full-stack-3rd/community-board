@@ -22,6 +22,12 @@ interface IUserAuthData {
   password: string;
 }
 
+interface IUpdateUserInfo {
+  nickname: string;
+  password: string;
+  userId: number;
+}
+
 interface IUserAuthResult extends RowDataPacket, IUser {}
 
 export const addUser = async (userData: IUserRegData) => {
@@ -93,6 +99,58 @@ export const authUser = async (userData: IUserAuthData) => {
     }
 
     return { accessToken, refreshToken };
+  } catch (err: any) {
+    throw err;
+  } finally {
+    if (conn) conn.release();
+  }
+};
+
+export const updateUser = async (userData: IUpdateUserInfo) => {
+  let conn: PoolConnection | null = null;
+  try {
+    const salt: string = await makeSalt();
+    const hashedPassword: string = await makeHashedPassword(
+      userData.password,
+      salt
+    );
+
+    const sql = `UPDATE users SET nickname=?, password=?, salt=? WHERE id=? AND isDelete=FALSE `;
+    const value = [userData.nickname, hashedPassword, salt, userData.userId];
+
+    conn = await pool.getConnection();
+    const [rows]: [ResultSetHeader, FieldPacket[]] = await conn.query(
+      sql,
+      value
+    );
+
+    if (rows.affectedRows === 0) {
+      throw ServerError.badRequest("회원정보 수정 실패");
+    }
+  } catch (err: any) {
+    throw err;
+  } finally {
+    if (conn) conn.release();
+  }
+};
+
+export const getUserById = async (userId: number) => {
+  let conn: PoolConnection | null = null;
+  try {
+    const sql = `SELECT * FROM users WHERE id = ? AND isDelete=FALSE`;
+    const value = [userId];
+
+    conn = await pool.getConnection();
+    const [rows]: [IUserAuthResult[], FieldPacket[]] = await conn.query(
+      sql,
+      value
+    );
+
+    if (rows.length === 0) {
+      throw ServerError.badRequest("존재하지 않은 회원 입니다.");
+    }
+
+    return rows[0];
   } catch (err: any) {
     throw err;
   } finally {

@@ -2,6 +2,7 @@
   "dependencies": {
     "@types/express": "^4.17.21",
     "@types/node": "^20.14.9",
+    "cookie-parser": "^1.4.6",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "express-validator": "^7.1.0",
@@ -14,10 +15,10 @@
   "scripts": {
     "start": "node dist/app.js",
     "build": "tsc -p .",
-    "dev": "nodemon --watch \"*.ts\" --exec \"ts-node\" ./app.ts"
+    "dev": "nodemon --watch \"*.ts\" --exec \"ts-node\" --files ./app.ts"
   },
   "devDependencies": {
-    "@types/cors": "^2.8.17",
+    "@types/cookie-parser": "^1.4.7",
     "@types/jsonwebtoken": "^9.0.6"
   }
 }

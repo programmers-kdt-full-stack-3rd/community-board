@@ -1,9 +1,12 @@
 import express from "express";
 import { body, param } from "express-validator";
 import {
-  createCommentByPostId,
-  getCommentsByPostId,
+  handleCommentCreate,
+  handleCommentDelete,
+  handleCommentsRead,
+  handleCommentUpdate,
 } from "../controller/comments_controller";
+import { requireLogin } from "../middleware/auth";
 import { validate } from "../middleware/validate";
 
 const getCommentValidation = [
@@ -23,7 +26,7 @@ const postCommentValidation = [
     .bail()
     .isString()
     .withMessage("본문이 문자열이 아닙니다."),
-  param("post_id")
+  body("post_id")
     .notEmpty()
     .withMessage("게시글 ID를 입력해 주십시오.")
     .bail()
@@ -32,10 +35,38 @@ const postCommentValidation = [
   validate,
 ];
 
+const patchCommentValidation = [
+  body("id")
+    .notEmpty()
+    .withMessage("댓글 ID를 입력해 주십시오.")
+    .bail()
+    .isInt({ min: 1 })
+    .withMessage("댓글 ID가 양의 정수가 아닙니다."),
+  body("content")
+    .notEmpty()
+    .withMessage("본문을 입력해 주십시오.")
+    .bail()
+    .isString()
+    .withMessage("본문이 문자열이 아닙니다."),
+  validate,
+];
+
+const deleteCommentValidation = [
+  body("id")
+    .notEmpty()
+    .withMessage("댓글 ID를 입력해 주십시오.")
+    .bail()
+    .isInt({ min: 1 })
+    .withMessage("댓글 ID가 양의 정수가 아닙니다."),
+  validate,
+];
+
 const router = express.Router();
 router.use(express.json());
 
-router.get("/:post_id", getCommentValidation, getCommentsByPostId);
-router.post("/:post_id", postCommentValidation, createCommentByPostId);
+router.get("/:post_id", getCommentValidation, handleCommentsRead);
+router.post("/", requireLogin, postCommentValidation, handleCommentCreate);
+router.patch("/", requireLogin, patchCommentValidation, handleCommentUpdate);
+router.delete("/", requireLogin, deleteCommentValidation, handleCommentDelete);
 
 export default router;

@@ -149,3 +149,27 @@ export const updatePost = async (post_id : number, reqBody : IUpdatePostRequest)
         if (conn) conn.release();
     }
 };
+
+export const deletePost = async (post_id : number, user_id : number) => {
+    let conn: PoolConnection | null = null;
+
+    try {
+        let values : number[] = [post_id, user_id];
+
+        let sql = `DELETE FROM posts WHERE id = ? and author_id = ?`;
+
+        conn = await pool.getConnection();
+        const [rows] : any[] = await conn.query(sql, values);
+        
+        if (rows.affectedRows === 0) {
+            // 1. 게시글 author_id와 수정 요청한 user_id가 다름 -> client에서 막아야 함
+            // 2. 원인모를 이유로 실패함
+            throw ServerError.reference("게시글 삭제 실패");
+        }
+    } catch (err) {
+        console.log(err);
+        throw err;
+    } finally {
+        if (conn) conn.release();
+    }
+};

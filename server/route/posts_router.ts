@@ -1,6 +1,6 @@
 import express from 'express';
-import { createPost, getPost, getPosts, patchPost } from '../controller/posts_controller';
-import { body, check } from "express-validator";
+import { createPost, getPost, getPosts, patchPost, removePost } from '../controller/posts_controller';
+import { body, check, param } from "express-validator";
 import { validate } from "../middleware/validate";
 import { ServerError } from '../middleware/errors';
 
@@ -24,6 +24,15 @@ const patchBodyValidation = [
   validate
 ];
 
+const deleteValidation = [
+  param('post_id')
+  .notEmpty()
+  .isInt({ min : 1 })
+  .withMessage("유효하지 않은 게시글입니다.")
+  .bail(),
+  validate
+];
+
 const router = express.Router();
 router.use(express.json());
 
@@ -33,5 +42,7 @@ router.get("/:post_id", getPost);
 router.post("/", postBodyValidation, createPost);
 
 router.patch("/:post_id", patchBodyValidation, patchPost);
+
+router.delete("/:post_id", deleteValidation, removePost);
 
 export default router;

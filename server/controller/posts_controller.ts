@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { addPost, getPostHeaders, getPostInfo, updatePost } from '../db/context/posts_context';
+import { addPost, deletePost, getPostHeaders, getPostInfo, updatePost } from '../db/context/posts_context';
 import { ServerError } from '../middleware/errors';
 
 export interface IReadPostRequest {
@@ -82,6 +82,19 @@ export const patchPost = async (req : Request, res : Response, next : NextFuncti
         await updatePost(post_id, reqBody);
 
         res.status(200).json({ message : "게시글 수정 success"});
+    } catch (err) {
+        next(err);
+    }
+}
+
+export const removePost = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const post_id = parseInt(req.params.post_id);
+        const { user_id } = req.body;
+
+        await deletePost(post_id, user_id);
+
+        res.status(200).json({ message : "게시글 삭제 success"});
     } catch (err) {
         next(err);
     }
