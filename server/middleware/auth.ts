@@ -3,6 +3,7 @@ import {
   makeAccessToken,
   verifyAccessToken,
   verifyRefreshToken,
+  verifyTempToken,
 } from "../utils/token";
 import { TokenExpiredError } from "jsonwebtoken";
 import { ServerError } from "./errors";
@@ -66,4 +67,19 @@ export const requireLogin = (
   next: NextFunction
 ) => {
   req.userId ? next() : next(ServerError.unauthorized("로그인이 필요합니다."));
+};
+
+export const requirePassword = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const tempToken = req.cookies.tempToken;
+  if (!tempToken) {
+    throw ServerError.unauthorized("비밀번호 확인이 필요합니다.");
+  }
+  verifyTempToken(tempToken);
+
+  res.clearCookie("tempToken");
+  next();
 };
