@@ -1,7 +1,12 @@
 import express from "express";
-import { loginUser, registerUser } from "../controller/users_controller";
+import {
+  loginUser,
+  logoutUser,
+  registerUser,
+} from "../controller/users_controller";
 import { body } from "express-validator";
 import { validate } from "../middleware/validate";
+import { requireLogin } from "../middleware/auth";
 
 // Request body 유효성 검사
 const joinValidation = [
@@ -53,5 +58,6 @@ router.use(express.json());
 
 router.post("/join", joinValidation, registerUser);
 router.post("/login", loginValidation, loginUser);
+router.post("/logout", requireLogin, logoutUser);
 
 export default router;
