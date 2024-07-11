@@ -1,5 +1,5 @@
 import express from "express";
-import { doTest } from "../controller/testController";
+import { doTest, doTest2 } from "../controller/testController";
 import postRouter from "./posts_router";
 import userRouter from "./users_router";
 import commentRouter from "./comments_router";
@@ -15,5 +15,6 @@ router.use("/user", userRouter);
 
 // 테스팅 api -> 추후 삭제
 router.get("/test", doTest);
+router.post("/test", doTest2);
 
 export default router;

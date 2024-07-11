@@ -1,4 +1,4 @@
-import { sendGetTestRequest } from "../../api/test/test";
+import { sendGetTestRequest, sendPostTestRequest } from "../../api/test/test";
 
 const Posts = () => {
 
@@ -8,9 +8,20 @@ const Posts = () => {
     });
   };
 
+  const postTest = () => {
+    const body = {
+      user_id : "테스트계정1",
+      title : "게시글입니다요"
+    }
+    sendPostTestRequest(body).then((res)=>{
+      console.log(res);
+    });
+  };
+
   return (
     <div>
-      <button onClick={getTest}>테스트 보내기</button>
+      <button onClick={getTest}>테스트(GET) 보내기</button>
+      <button onClick={postTest}>테스트(POST) 보내기</button>
     </div>
   )
 }
