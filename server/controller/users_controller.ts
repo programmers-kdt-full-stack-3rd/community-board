@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import {
   addUser,
   authUser,
+  deleteUser,
   getUserById,
   updateUser,
 } from "../db/context/users_context";
@@ -118,6 +119,23 @@ export const handleCheckPassword = async (
     res.cookie("tempToken", tempToken, { maxAge: 1000 * 60 * 60 }); // 유효 기간 1시간
 
     res.status(200).json({ message: "비밀번호 확인 성공" });
+  } catch (err: any) {
+    next(err);
+  }
+};
+
+export const handleDeleteUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.userId;
+    await deleteUser(userId);
+
+    res.clearCookie("accessToken");
+    res.clearCookie("refreshToken");
+    res.status(200).json({ message: "회원탈퇴 성공" });
   } catch (err: any) {
     next(err);
   }
