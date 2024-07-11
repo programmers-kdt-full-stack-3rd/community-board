@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { addUser, authUser } from "../db/context/users_context";
+import { addUser, authUser, updateUser } from "../db/context/users_context";
 import { ServerError } from "../middleware/errors";
 import { deleteRefreshToken } from "../db/context/token_context";
 
@@ -67,6 +67,25 @@ export const logoutUser = async (
     await deleteRefreshToken(req.userId, refreshToken);
 
     res.status(200).json({ message: "로그아웃 성공" });
+  } catch (err: any) {
+    next(err);
+  }
+};
+
+export const updateUserInfo = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const values = {
+      nickname: req.body.nickname,
+      password: req.body.password,
+      userId: req.userId,
+    };
+
+    await updateUser(values);
+    res.status(200).json({ message: "회원정보 수정 성공" });
   } catch (err: any) {
     next(err);
   }
