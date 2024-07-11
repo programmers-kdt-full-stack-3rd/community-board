@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { addUser, authUser } from "../db/context/users_context";
 import { ServerError } from "../middleware/errors";
+import { deleteRefreshToken } from "../db/context/token_context";
 
 export const registerUser = async (
   req: Request,
@@ -49,6 +50,22 @@ export const loginUser = async (
     });
 
     res.status(200).json({ message: "로그인 성공" });
+  } catch (err: any) {
+    next(err);
+  }
+};
+
+export const logoutUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    res.clearCookie("accessToken");
+    res.clearCookie("refreshToken");
+    deleteRefreshToken(req.userId);
+
+    res.status(200).json({ message: "로그아웃 성공" });
   } catch (err: any) {
     next(err);
   }
