@@ -4,10 +4,11 @@ import {
   handleLogoutUser,
   handleJoinUser,
   handleUpdateUser,
+  handleCheckPassword,
 } from "../controller/users_controller";
 import { body } from "express-validator";
 import { validate } from "../middleware/validate";
-import { requireLogin } from "../middleware/auth";
+import { requireLogin, requirePassword } from "../middleware/auth";
 
 // Request body 유효성 검사
 const joinValidation = [
@@ -70,12 +71,38 @@ const updateUserInfoValidation = [
   validate,
 ];
 
+const checkPasswordValidation = [
+  body("password")
+    .notEmpty()
+    .withMessage("비밀번호를 입력해주십시오.")
+    .isStrongPassword({
+      minLength: 10,
+      minLowercase: 1,
+      minUppercase: 1,
+      minNumbers: 1,
+      minSymbols: 0,
+    })
+    .withMessage("비밀번호가 틀렸습니다."),
+];
+
 const router = express.Router();
 router.use(express.json());
 
 router.post("/join", joinValidation, handleJoinUser);
 router.post("/login", loginValidation, handleLoginUser);
 router.post("/logout", requireLogin, handleLogoutUser);
-router.put("/", updateUserInfoValidation, requireLogin, handleUpdateUser);
+router.put(
+  "/",
+  updateUserInfoValidation,
+  requireLogin,
+  requirePassword,
+  handleUpdateUser
+);
+router.post(
+  "/check-password",
+  checkPasswordValidation,
+  requireLogin,
+  handleCheckPassword
+);
 
 export default router;
