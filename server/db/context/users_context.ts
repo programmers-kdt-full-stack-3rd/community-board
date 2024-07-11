@@ -73,7 +73,7 @@ export const addUser = async (userData: IUserRegData) => {
 export const authUser = async (userData: IUserAuthData) => {
   let conn: PoolConnection | null = null;
   try {
-    const sql = `SELECT * FROM users WHERE email = ? AND isDelete=FALSE`;
+    const sql = `SELECT * FROM users WHERE email = ?`;
     const value = [userData.email];
 
     let accessToken: string;
@@ -90,6 +90,10 @@ export const authUser = async (userData: IUserAuthData) => {
     }
 
     const user: IUserAuthResult = rows[0];
+
+    if (user.isDelete) {
+      throw ServerError.badRequest("탈퇴한 회원입니다.");
+    }
 
     const hashedPassword: string = await makeHashedPassword(
       userData.password,
