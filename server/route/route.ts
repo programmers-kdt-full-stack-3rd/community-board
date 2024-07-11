@@ -14,6 +14,6 @@ router.use("/comment", commentRouter);
 router.use("/user", userRouter);
 
 // 테스팅 api -> 추후 삭제
-router.get("/", doTest);
+router.get("/test", doTest);
 
 export default router;
