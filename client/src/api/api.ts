@@ -26,21 +26,22 @@ export const httpRequest = async (
         body
     });
 
+    let responseJson ;
+
     const contentType = response.headers.get("content-type");
+
     if (contentType && contentType.includes("application/json")) {
-        const responseJson = await response.json();
-        return {
-            ...responseJson,
-            status: response.status
-        };
+        responseJson = await response.json();
     } else {
-        // JSON 형식이 아닌 경우 수동으로 파싱
         const textResponse = await response.text();
         
-        const parsedJson = JSON.parse(textResponse);
-        return {
-            ...parsedJson,
-            status: response.status
-        };
+        if (textResponse) {
+            responseJson = JSON.parse(textResponse);
+        }
+    }
+
+    return {
+        ...responseJson,
+        status : response.status
     }
 }; 
