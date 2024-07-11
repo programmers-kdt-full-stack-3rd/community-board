@@ -30,7 +30,7 @@ export const handleCommentCreate = async (
   try {
     await createComment({
       post_id: parseInt(req.body.post_id, 10),
-      author_id: parseInt(req.body.author_id, 10), // TODO: 토큰 미들웨어 도입 시 req 객체에서 가져오기
+      author_id: req.userId,
       content: req.body.content,
     });
 
@@ -48,7 +48,7 @@ export const handleCommentUpdate = async (
   try {
     await updateComment({
       id: parseInt(req.body.id, 10),
-      author_id: parseInt(req.body.author_id, 10), // TODO: 토큰 미들웨어 도입 시 req 객체에서 가져오기
+      author_id: req.userId,
       content: req.body.content,
     });
 
@@ -66,7 +66,7 @@ export const handleCommentDelete = async (
   try {
     await deleteComment({
       id: parseInt(req.body.id, 10),
-      author_id: parseInt(req.body.author_id, 10), // TODO: 토큰 미들웨어 도입 시 req 객체에서 가져오기
+      author_id: req.userId,
     });
 
     res.status(200).end();
