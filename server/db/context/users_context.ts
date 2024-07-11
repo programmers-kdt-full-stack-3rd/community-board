@@ -30,6 +30,10 @@ interface IUpdateUserInfo {
 
 interface IUserAuthResult extends RowDataPacket, IUser {}
 
+interface UserDeletionStatus extends RowDataPacket {
+  isDelete: boolean;
+}
+
 export const addUser = async (userData: IUserRegData) => {
   let conn: PoolConnection | null = null;
   try {
@@ -51,6 +55,12 @@ export const addUser = async (userData: IUserRegData) => {
     return rows;
   } catch (err: any) {
     if (err.code === "ER_DUP_ENTRY") {
+      const isDelete = await isUserDeleted(userData.email);
+
+      if (isDelete) {
+        throw ServerError.badRequest("탈퇴한 회원입니다.");
+      }
+
       throw ServerError.badRequest("이미 존재하는 이메일 주소입니다.");
     } else {
       throw err;
@@ -173,6 +183,26 @@ export const deleteUser = async (userId: number) => {
     if (rows.affectedRows === 0) {
       throw ServerError.badRequest("회원 탈퇴 실패");
     }
+  } catch (err: any) {
+    throw err;
+  } finally {
+    if (conn) conn.release();
+  }
+};
+
+export const isUserDeleted = async (email: string) => {
+  let conn: PoolConnection | null = null;
+  try {
+    const sql = `SELECT isDelete FROM users WHERE email = ?`;
+    const value = [email];
+    conn = await pool.getConnection();
+    const [rows]: [UserDeletionStatus[], FieldPacket[]] = await conn.query(
+      sql,
+      value
+    );
+
+    const user: UserDeletionStatus = rows[0];
+    return user.isDelete;
   } catch (err: any) {
     throw err;
   } finally {
