@@ -1,9 +1,16 @@
 import { Request, Response, NextFunction } from "express";
-import { addUser, authUser } from "../db/context/users_context";
+import {
+  addUser,
+  authUser,
+  getUserById,
+  updateUser,
+} from "../db/context/users_context";
 import { ServerError } from "../middleware/errors";
 import { deleteRefreshToken } from "../db/context/token_context";
+import { makeTempToken } from "../utils/token";
+import { makeHashedPassword } from "../utils/crypto";
 
-export const registerUser = async (
+export const handleJoinUser = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -26,7 +33,7 @@ export const registerUser = async (
   }
 };
 
-export const loginUser = async (
+export const handleLoginUser = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -55,7 +62,7 @@ export const loginUser = async (
   }
 };
 
-export const logoutUser = async (
+export const handleLogoutUser = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -67,6 +74,50 @@ export const logoutUser = async (
     await deleteRefreshToken(req.userId, refreshToken);
 
     res.status(200).json({ message: "로그아웃 성공" });
+  } catch (err: any) {
+    next(err);
+  }
+};
+
+export const handleUpdateUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const values = {
+      nickname: req.body.nickname,
+      password: req.body.password,
+      userId: req.userId,
+    };
+
+    await updateUser(values);
+    res.status(200).json({ message: "회원정보 수정 성공" });
+  } catch (err: any) {
+    next(err);
+  }
+};
+
+export const handleCheckPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const password = req.body.password;
+    const userId = req.userId;
+    const user = await getUserById(userId);
+
+    const hashedPassword = await makeHashedPassword(password, user.salt);
+    if (user.password !== hashedPassword) {
+      throw ServerError.badRequest("비밀번호가 틀렸습니다.");
+    }
+
+    const tempToken = makeTempToken(userId);
+
+    res.cookie("tempToken", tempToken, { maxAge: 1000 * 60 * 60 }); // 유효 기간 1시간
+
+    res.status(200).json({ message: "비밀번호 확인 성공" });
   } catch (err: any) {
     next(err);
   }

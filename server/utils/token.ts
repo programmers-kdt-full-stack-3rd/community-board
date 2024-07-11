@@ -29,6 +29,13 @@ export const makeRefreshToken = (userId: number) => {
   }
 };
 
+export const makeTempToken = (userId: number) => {
+  const key = process.env.TEMP_TOKEN_KEY;
+  if (!key) throw ServerError.reference("키가 없습니다.");
+  const token = jwt.sign({ userId }, key, { expiresIn: "1h" }); // 유효기간 1시간
+  return token;
+};
+
 export const verifyAccessToken = (token: string) => {
   try {
     const key = process.env.ACCESS_TOKEN_KEY;
@@ -62,6 +69,25 @@ export const verifyRefreshToken = async (token: string) => {
   } catch (err: any) {
     if (err instanceof TokenExpiredError) {
       throw ServerError.unauthorized("로그인이 필요합니다.");
+    } else if (err instanceof JsonWebTokenError) {
+      throw ServerError.tokenError("검증되지 않은 토큰 입니다.");
+    } else {
+      throw err;
+    }
+  }
+};
+
+export const verifyTempToken = (token: string) => {
+  try {
+    const key = process.env.TEMP_TOKEN_KEY;
+    if (!key) {
+      throw ServerError.reference("키가 없습니다.");
+    }
+    const verifiedToken = jwt.verify(token, key) as IToken;
+    return verifiedToken;
+  } catch (err: any) {
+    if (err instanceof TokenExpiredError) {
+      throw ServerError.unauthorized("비밀번호 확인이 필요합니다.");
     } else if (err instanceof JsonWebTokenError) {
       throw ServerError.tokenError("검증되지 않은 토큰 입니다.");
     } else {
