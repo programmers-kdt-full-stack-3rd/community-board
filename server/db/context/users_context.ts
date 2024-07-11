@@ -157,3 +157,25 @@ export const getUserById = async (userId: number) => {
     if (conn) conn.release();
   }
 };
+
+export const deleteUser = async (userId: number) => {
+  let conn: PoolConnection | null = null;
+  try {
+    const sql = `UPDATE users SET isDelete=TRUE WHERE id=? AND isDelete=FALSE`;
+    const value = [userId];
+
+    conn = await pool.getConnection();
+    const [rows]: [ResultSetHeader, FieldPacket[]] = await conn.query(
+      sql,
+      value
+    );
+
+    if (rows.affectedRows === 0) {
+      throw ServerError.badRequest("회원 탈퇴 실패");
+    }
+  } catch (err: any) {
+    throw err;
+  } finally {
+    if (conn) conn.release();
+  }
+};
