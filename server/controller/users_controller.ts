@@ -1,7 +1,14 @@
 import { Request, Response, NextFunction } from "express";
-import { addUser, authUser, updateUser } from "../db/context/users_context";
+import {
+  addUser,
+  authUser,
+  getUserById,
+  updateUser,
+} from "../db/context/users_context";
 import { ServerError } from "../middleware/errors";
 import { deleteRefreshToken } from "../db/context/token_context";
+import { makeTempToken } from "../utils/token";
+import { makeHashedPassword } from "../utils/crypto";
 
 export const handleJoinUser = async (
   req: Request,
@@ -86,6 +93,31 @@ export const handleUpdateUser = async (
 
     await updateUser(values);
     res.status(200).json({ message: "회원정보 수정 성공" });
+  } catch (err: any) {
+    next(err);
+  }
+};
+
+export const handleCheckPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const password = req.body.password;
+    const userId = req.userId;
+    const user = await getUserById(userId);
+
+    const hashedPassword = await makeHashedPassword(password, user.salt);
+    if (user.password !== hashedPassword) {
+      throw ServerError.badRequest("비밀번호가 틀렸습니다.");
+    }
+
+    const tempToken = makeTempToken(userId);
+
+    res.cookie("tempToken", tempToken, { maxAge: 1000 * 60 * 60 }); // 유효 기간 1시간
+
+    res.status(200).json({ message: "비밀번호 확인 성공" });
   } catch (err: any) {
     next(err);
   }
