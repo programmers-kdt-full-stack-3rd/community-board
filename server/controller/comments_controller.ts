@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import {
   createComment,
+  deleteComment,
   readComments,
   updateComment,
 } from "../db/context/comments_context";
@@ -49,6 +50,23 @@ export const handleCommentUpdate = async (
       id: parseInt(req.body.id, 10),
       author_id: parseInt(req.body.author_id, 10), // TODO: 토큰 미들웨어 도입 시 req 객체에서 가져오기
       content: req.body.content,
+    });
+
+    res.status(200).end();
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const handleCommentDelete = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    await deleteComment({
+      id: parseInt(req.body.id, 10),
+      author_id: parseInt(req.body.author_id, 10), // TODO: 토큰 미들웨어 도입 시 req 객체에서 가져오기
     });
 
     res.status(200).end();

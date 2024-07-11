@@ -15,6 +15,11 @@ interface ICommentUpdate {
   content: string;
 }
 
+interface ICommentDelete {
+  id: number;
+  author_id: number;
+}
+
 export const readComments = async (postId: number) => {
   let conn: PoolConnection | null = null;
 
@@ -133,6 +138,44 @@ export const updateComment = async (commentUpdate: ICommentUpdate) => {
 
     if (result.affectedRows === 0) {
       throw ServerError.reference("댓글 수정 실패");
+    }
+  } catch (err) {
+    throw err;
+  } finally {
+    if (conn) conn.release();
+  }
+};
+
+export const deleteComment = async (commentDelete: ICommentDelete) => {
+  let conn: PoolConnection | null = null;
+
+  const { id, author_id } = commentDelete;
+
+  try {
+    const sql = `
+      UPDATE
+        comments
+      SET
+        isDelete = TRUE
+      WHERE
+        id = ?
+        AND author_id = ?
+        AND isDelete = FALSE
+    `;
+    const values = [id, author_id];
+
+    conn = await pool.getConnection();
+    const [result]: [ResultSetHeader, FieldPacket[]] = await conn.query(
+      sql,
+      values
+    );
+
+    if (result.affectedRows === 0) {
+      // 실패하는 상황
+      // - 존재하지 않는 댓글: 댓글 ID가 일치하는 레코드가 없음
+      // - 다른 사람의 댓글: 댓글의 작성자 ID가 일치하지 않음
+      // - 이미 삭제된 댓글: isDelete 컬럼이 TRUE
+      throw ServerError.reference("댓글 삭제 실패");
     }
   } catch (err) {
     throw err;
