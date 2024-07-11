@@ -61,3 +61,30 @@ export const getRefreshToken = async (user_id: number, token: string) => {
     if (conn) conn.release();
   }
 };
+
+export const deleteRefreshToken = async (
+  user_id: number,
+  refreshToken: string
+) => {
+  let conn: PoolConnection | null = null;
+
+  try {
+    const sql = `DELETE FROM refresh_tokens WHERE user_id = ? AND token = ?`;
+    const value = [user_id, refreshToken];
+
+    conn = await pool.getConnection();
+    const [rows]: [ResultSetHeader, FieldPacket[]] = await conn.query(
+      sql,
+      value
+    );
+
+    if (rows.affectedRows === 0) {
+      throw ServerError.reference("토큰 삭제 실패");
+    }
+    return rows;
+  } catch (err: any) {
+    throw err;
+  } finally {
+    if (conn) conn.release();
+  }
+};
