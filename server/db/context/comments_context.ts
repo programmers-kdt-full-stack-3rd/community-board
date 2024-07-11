@@ -45,6 +45,9 @@ export const readComments = async (postId: number) => {
       WHERE
         comments.isDelete = FALSE
         AND users.isDelete = FALSE
+      ORDER BY
+        comments.created_at,
+        comments.id
     `;
     const values = [postId];
 
@@ -109,6 +112,7 @@ export const updateComment = async (commentUpdate: ICommentUpdate) => {
       WHERE
         id = ?
         AND author_id = ?
+        AND isDelete = FALSE
     `;
     const values = [content, id, author_id];
 
