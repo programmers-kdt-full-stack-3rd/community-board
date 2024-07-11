@@ -82,29 +82,11 @@ export const createComment = async (commentInsertion: ICommentInsertion) => {
       throw ServerError.etcError(500, "댓글을 등록하지 못했습니다.");
     }
   } catch (err: any) {
-    if (err?.code === "ER_NO_REFERENCED_ROW_2") {
-      const notFoundFields = [
-        { fieldDesc: "작성자 ID", columnName: "author_id" },
-        { fieldDesc: "게시글 ID", columnName: "post_id" },
-      ];
-
-      for (const field of notFoundFields) {
-        if (err?.sqlMessage?.includes(field.columnName)) {
-          throw ServerError.notFound(
-            `${field.fieldDesc} ${field.columnName}이(가) 존재하지 않습니다.`
-          );
-        }
-      }
-    } else if (
-      err?.code === "ER_BAD_NULL_ERROR" &&
-      (author_id === undefined || author_id === null)
+    if (
+      err?.code === "ER_NO_REFERENCED_ROW_2" &&
+      err?.sqlMessage?.includes("post_id")
     ) {
-      throw ServerError.badRequest("작성자 ID가 필요합니다.");
-    } else if (
-      err?.code === "ER_TRUNCATED_WRONG_VALUE_FOR_FIELD" &&
-      typeof author_id !== "number"
-    ) {
-      throw ServerError.badRequest("작성자 ID의 자료형은 number이어야 합니다.");
+      throw ServerError.notFound("게시글 ID가 존재하지 않습니다.");
     }
 
     throw err;
