@@ -7,6 +7,7 @@ import {
 } from "../utils/token";
 import { TokenExpiredError } from "jsonwebtoken";
 import { ServerError } from "./errors";
+import { getUserById, isUserDeleted } from "../db/context/users_context";
 
 export const authToken = async (
   req: Request,
@@ -22,6 +23,10 @@ export const authToken = async (
     }
     //Access token 검증 로직
     const jwtPayload = verifyAccessToken(accessToken);
+
+    if (await isUserDeleted({ userId: jwtPayload.userId })) {
+      throw ServerError.badRequest("탈퇴한 회원입니다.");
+    }
     req.userId = jwtPayload.userId;
     next();
   } catch (err: any) {

@@ -28,11 +28,11 @@ interface IUpdateUserInfo {
   userId: number;
 }
 
-interface IUserAuthResult extends RowDataPacket, IUser {}
+type TDeleteUserInfo =
+  | { email: string; userId?: never }
+  | { email?: never; userId: number };
 
-interface UserDeletionStatus extends RowDataPacket {
-  isDelete: boolean;
-}
+interface IUserAuthResult extends RowDataPacket, IUser {}
 
 export const addUser = async (userData: IUserRegData) => {
   let conn: PoolConnection | null = null;
@@ -55,7 +55,7 @@ export const addUser = async (userData: IUserRegData) => {
     return rows;
   } catch (err: any) {
     if (err.code === "ER_DUP_ENTRY") {
-      const isDelete = await isUserDeleted(userData.email);
+      const isDelete = await isUserDeleted({ email: userData.email });
 
       if (isDelete) {
         throw ServerError.badRequest("탈퇴한 회원입니다.");
@@ -194,19 +194,26 @@ export const deleteUser = async (userId: number) => {
   }
 };
 
-export const isUserDeleted = async (email: string) => {
+export const isUserDeleted = async (params: TDeleteUserInfo) => {
+  const { email, userId } = params;
   let conn: PoolConnection | null = null;
   try {
-    const sql = `SELECT isDelete FROM users WHERE email = ?`;
-    const value = [email];
+    let sql = `SELECT * FROM users WHERE isDelete = true`;
+    let value: (string | number)[] = [];
+    if (email) {
+      sql += ` AND email = ?`;
+      value = [email];
+    } else if (userId) {
+      sql += ` AND id = ?`;
+      value = [userId];
+    }
     conn = await pool.getConnection();
-    const [rows]: [UserDeletionStatus[], FieldPacket[]] = await conn.query(
+    const [rows]: [RowDataPacket[], FieldPacket[]] = await conn.query(
       sql,
       value
     );
 
-    const user: UserDeletionStatus = rows[0];
-    return user.isDelete;
+    return rows.length > 0;
   } catch (err: any) {
     throw err;
   } finally {
