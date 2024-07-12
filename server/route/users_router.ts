@@ -5,6 +5,7 @@ import {
   handleJoinUser,
   handleUpdateUser,
   handleCheckPassword,
+  handleDeleteUser,
 } from "../controller/users_controller";
 import { body } from "express-validator";
 import { validate } from "../middleware/validate";
@@ -104,5 +105,6 @@ router.post(
   requireLogin,
   handleCheckPassword
 );
+router.delete("/", requireLogin, requirePassword, handleDeleteUser);
 
 export default router;

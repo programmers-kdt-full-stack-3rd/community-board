@@ -28,6 +28,10 @@ interface IUpdateUserInfo {
   userId: number;
 }
 
+type TDeleteUserInfo =
+  | { email: string; userId?: never }
+  | { email?: never; userId: number };
+
 interface IUserAuthResult extends RowDataPacket, IUser {}
 
 export const addUser = async (userData: IUserRegData) => {
@@ -51,6 +55,12 @@ export const addUser = async (userData: IUserRegData) => {
     return rows;
   } catch (err: any) {
     if (err.code === "ER_DUP_ENTRY") {
+      const isDelete = await isUserDeleted({ email: userData.email });
+
+      if (isDelete) {
+        throw ServerError.badRequest("탈퇴한 회원입니다.");
+      }
+
       throw ServerError.badRequest("이미 존재하는 이메일 주소입니다.");
     } else {
       throw err;
@@ -63,7 +73,7 @@ export const addUser = async (userData: IUserRegData) => {
 export const authUser = async (userData: IUserAuthData) => {
   let conn: PoolConnection | null = null;
   try {
-    const sql = `SELECT * FROM users WHERE email = ? AND isDelete=FALSE`;
+    const sql = `SELECT * FROM users WHERE email = ?`;
     const value = [userData.email];
 
     let accessToken: string;
@@ -80,6 +90,10 @@ export const authUser = async (userData: IUserAuthData) => {
     }
 
     const user: IUserAuthResult = rows[0];
+
+    if (user.isDelete) {
+      throw ServerError.badRequest("탈퇴한 회원입니다.");
+    }
 
     const hashedPassword: string = await makeHashedPassword(
       userData.password,
@@ -151,6 +165,55 @@ export const getUserById = async (userId: number) => {
     }
 
     return rows[0];
+  } catch (err: any) {
+    throw err;
+  } finally {
+    if (conn) conn.release();
+  }
+};
+
+export const deleteUser = async (userId: number) => {
+  let conn: PoolConnection | null = null;
+  try {
+    const sql = `UPDATE users SET isDelete=TRUE WHERE id=? AND isDelete=FALSE`;
+    const value = [userId];
+
+    conn = await pool.getConnection();
+    const [rows]: [ResultSetHeader, FieldPacket[]] = await conn.query(
+      sql,
+      value
+    );
+
+    if (rows.affectedRows === 0) {
+      throw ServerError.badRequest("회원 탈퇴 실패");
+    }
+  } catch (err: any) {
+    throw err;
+  } finally {
+    if (conn) conn.release();
+  }
+};
+
+export const isUserDeleted = async (params: TDeleteUserInfo) => {
+  const { email, userId } = params;
+  let conn: PoolConnection | null = null;
+  try {
+    let sql = `SELECT * FROM users WHERE isDelete = true`;
+    let value: (string | number)[] = [];
+    if (email) {
+      sql += ` AND email = ?`;
+      value = [email];
+    } else if (userId) {
+      sql += ` AND id = ?`;
+      value = [userId];
+    }
+    conn = await pool.getConnection();
+    const [rows]: [RowDataPacket[], FieldPacket[]] = await conn.query(
+      sql,
+      value
+    );
+
+    return rows.length > 0;
   } catch (err: any) {
     throw err;
   } finally {

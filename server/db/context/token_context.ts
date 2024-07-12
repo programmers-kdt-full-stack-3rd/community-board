@@ -64,13 +64,18 @@ export const getRefreshToken = async (user_id: number, token: string) => {
 
 export const deleteRefreshToken = async (
   user_id: number,
-  refreshToken: string
+  refreshToken?: string
 ) => {
   let conn: PoolConnection | null = null;
 
   try {
-    const sql = `DELETE FROM refresh_tokens WHERE user_id = ? AND token = ?`;
-    const value = [user_id, refreshToken];
+    let sql = `DELETE FROM refresh_tokens WHERE user_id = ?`;
+    const value: [number, string?] = [user_id];
+
+    if (refreshToken) {
+      sql += ` AND token = ?`;
+      value.push(refreshToken);
+    }
 
     conn = await pool.getConnection();
     const [rows]: [ResultSetHeader, FieldPacket[]] = await conn.query(
