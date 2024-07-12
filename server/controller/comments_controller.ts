@@ -12,7 +12,7 @@ export const handleCommentsRead = async (
   next: NextFunction
 ) => {
   try {
-    const postId = parseInt(req.params.post_id, 10);
+    const postId = parseInt(String(req.query.post_id), 10);
 
     const comments = await readComments(postId);
 
@@ -65,7 +65,7 @@ export const handleCommentDelete = async (
 ) => {
   try {
     await deleteComment({
-      id: parseInt(req.body.id, 10),
+      id: parseInt(req.params.comment_id, 10),
       author_id: req.userId,
     });
 

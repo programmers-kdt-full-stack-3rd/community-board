@@ -1,5 +1,5 @@
 import express from "express";
-import { body, param } from "express-validator";
+import { body, param, query } from "express-validator";
 import {
   handleCommentCreate,
   handleCommentDelete,
@@ -10,7 +10,7 @@ import { requireLogin } from "../middleware/auth";
 import { validate } from "../middleware/validate";
 
 const getCommentValidation = [
-  param("post_id")
+  query("post_id")
     .notEmpty()
     .withMessage("게시글 ID를 입력해 주십시오.")
     .bail()
@@ -52,7 +52,7 @@ const patchCommentValidation = [
 ];
 
 const deleteCommentValidation = [
-  body("id")
+  param("comment_id")
     .notEmpty()
     .withMessage("댓글 ID를 입력해 주십시오.")
     .bail()
@@ -64,9 +64,14 @@ const deleteCommentValidation = [
 const router = express.Router();
 router.use(express.json());
 
-router.get("/:post_id", getCommentValidation, handleCommentsRead);
+router.get("/", getCommentValidation, handleCommentsRead);
 router.post("/", requireLogin, postCommentValidation, handleCommentCreate);
 router.patch("/", requireLogin, patchCommentValidation, handleCommentUpdate);
-router.delete("/", requireLogin, deleteCommentValidation, handleCommentDelete);
+router.delete(
+  "/:comment_id",
+  requireLogin,
+  deleteCommentValidation,
+  handleCommentDelete
+);
 
 export default router;
