@@ -1,0 +1,5 @@
+{
+    "name": "community-board",
+    "private": true,
+    "workspaces": ["client", "server", "shared"]
+}
