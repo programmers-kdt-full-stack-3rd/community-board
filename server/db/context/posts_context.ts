@@ -22,7 +22,11 @@ export const getPostHeaders = async ( queryString : IReadPostRequest ) => {
                             p.title as title,
                             u.nickname as author_nickname,
                             p.created_at as created_at,
-                            (SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) AS likes ${sharedSql}`; 
+                            (
+                                SELECT COUNT(DISTINCT pl.user_id)
+                                FROM post_likes as pl
+                                WHERE post_id = p.id
+                            ) AS likes ${sharedSql}`; 
 
         let countSql = `SELECT COUNT(*) as total ${sharedSql}`;
         
@@ -82,7 +86,11 @@ export const getPostInfo = async (post_id : number) => {
                         p.created_at,
                         p.updated_at,
                         p.views,
-                        (SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) AS likes
+                        (
+                            SELECT COUNT(DISTINCT pl.user_id)
+                            FROM post_likes as pl
+                            WHERE post_id = p.id
+                        ) AS likes
                 FROM posts as p
                 LEFT JOIN users as u
                 ON p.author_id = u.id

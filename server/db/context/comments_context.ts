@@ -37,7 +37,11 @@ export const readComments = async (postId: number) => {
         users.nickname as author_nickname,
         comments.created_at as created_at,
         comments.updated_at as updated_at,
-        (SELECT COUNT(*) FROM comment_likes WHERE comment_id = comments.id) AS likes
+        (
+          SELECT COUNT(DISTINCT comment_likes.user_id)
+          FROM comment_likes
+          WHERE comment_id = comments.id
+        ) AS likes
       FROM
         comments
       INNER JOIN
