@@ -12,7 +12,7 @@ import {
   checkPasswordValidation,
   joinValidation,
   loginValidation,
-  updateUserInfoValidation,
+  updateUserValidation,
 } from "../utils/validations/users/user";
 
 const router = express.Router();
@@ -23,7 +23,7 @@ router.post("/login", loginValidation, handleLoginUser);
 router.post("/logout", requireLogin, handleLogoutUser);
 router.put(
   "/",
-  updateUserInfoValidation,
+  updateUserValidation,
   requireLogin,
   requirePassword,
   handleUpdateUser

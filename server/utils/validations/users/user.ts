@@ -71,7 +71,7 @@ export const loginValidation = [
 /**
  * 회원 정보 수정 API 유효성 검사
  */
-export const updateUserInfoValidation = [
+export const updateUserValidation = [
   nicknameValidator,
   passwordValidator(),
   validate,
