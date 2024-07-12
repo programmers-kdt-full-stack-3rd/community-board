@@ -15,7 +15,7 @@ export const httpRequest = async (
     method : HttpMethod,
     body? : string
 ) => {
-    const requestAddress = `http://localhost:9000/api/${address}`;
+    const requestAddress = `${import.meta.env.VITE_SERVER_ADDRESS}/api/${address}`;
 
     const response = await fetch(requestAddress, {
         method: method,
