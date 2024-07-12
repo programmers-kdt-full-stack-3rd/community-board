@@ -2,7 +2,7 @@ import { body } from "express-validator";
 import { validate } from "../../../middleware/validate";
 import { ERROR_MESSAGES, PASSWORD_POLICY } from "./constants";
 
-type ErrorMessageType = (typeof ERROR_MESSAGES)[keyof typeof ERROR_MESSAGES];
+type TErrorMessage = (typeof ERROR_MESSAGES)[keyof typeof ERROR_MESSAGES];
 
 /*
   Validators
@@ -14,7 +14,7 @@ type ErrorMessageType = (typeof ERROR_MESSAGES)[keyof typeof ERROR_MESSAGES];
  * @param invalidMessage 유효하지 않은 이메일 형식에 대한 오류 메시지
  */
 const emailValidator = (
-  invalidMessage: ErrorMessageType = ERROR_MESSAGES.INVALID_EMAIL
+  invalidMessage: TErrorMessage = ERROR_MESSAGES.INVALID_EMAIL
 ) =>
   body("email")
     .notEmpty()
@@ -28,7 +28,7 @@ const emailValidator = (
  * @param invalidMessage 유효하지 않은 비밀번호 형식에 대한 오류 메시지
  */
 const passwordValidator = (
-  invalidMessage: ErrorMessageType = ERROR_MESSAGES.INVALID_PASSWORD
+  invalidMessage: TErrorMessage = ERROR_MESSAGES.INVALID_PASSWORD
 ) =>
   body("password")
     .notEmpty()
