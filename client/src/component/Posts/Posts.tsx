@@ -1,9 +1,11 @@
+import { SortBy } from "shared";
 import { sendGetPostRequest, sendGetPostsRequest } from "../../api/posts/crud";
 
 const Posts = () => {
 
   const getPosts = () => {
-    sendGetPostsRequest().then((res)=>{
+    const query = `?index=1&perPage=5&sortBy=`+SortBy.LIKES;
+    sendGetPostsRequest(query).then((res)=>{
       console.log(res);
     });
   };
