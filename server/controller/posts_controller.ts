@@ -1,11 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import { addPost, deletePost, getPostHeaders, getPostInfo, updatePost } from '../db/context/posts_context';
 import { ServerError } from '../middleware/errors';
+import { SortBy } from 'shared/enums/posts';
 
 export interface IReadPostRequest {
     index : number;
     perPage : number;
-    keyword : string | null;
+    keyword? : string;
+    sortBy? : SortBy;
 }
 
 export interface ICreatePostRequest {
@@ -25,8 +27,12 @@ export const getPosts = async (req : Request, res : Response, next : NextFunctio
         const values : IReadPostRequest = {
             index : parseInt(req.query.index as string) - 1 || 0,
             perPage : parseInt(req.query.perPage as string) || 10,
-            keyword : req.query.keyword as string || null
+            keyword : req.query.keyword as string || undefined,
+            sortBy : parseInt(req.query.sortBy as string) || undefined
         };
+
+        console.log(values);
+
         const posts = await getPostHeaders(values);
         res.json({ posts });
     }catch(err){
