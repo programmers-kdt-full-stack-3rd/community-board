@@ -135,6 +135,7 @@ export const handleDeleteUser = async (
 
     res.clearCookie("accessToken");
     res.clearCookie("refreshToken");
+    await deleteRefreshToken(userId);
     res.status(200).json({ message: "회원탈퇴 성공" });
   } catch (err: any) {
     next(err);
