@@ -7,6 +7,7 @@ const TestMain = () => {
         <div className="main">
             <div className="card">
                 <button onClick={()=>navigate("/user")}>회원 기능</button>
+                <button onClick={()=>navigate("/test")}>테스트 보기</button>
                 <button onClick={()=>navigate("/posts")}>게시글 기능</button>
             </div>
             <p className="read-the-docs">
