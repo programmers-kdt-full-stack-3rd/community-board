@@ -58,8 +58,7 @@ export const createPost = async (req : Request, res : Response, next : NextFunct
         const reqBody : ICreatePostRequest = {
             title : req.body.title,
             content : req.body.content,
-            // TODO : token 검증 미들웨어 업데이트 시 삭제
-            author_id : parseInt(req.body.author_id)
+            author_id : req.userId
         };
 
         await addPost(reqBody);
@@ -81,8 +80,7 @@ export const patchPost = async (req : Request, res : Response, next : NextFuncti
         const reqBody : IUpdatePostRequest = {
             title : req.body.title,
             content : req.body.content,
-            // TODO : token 검증 미들웨어 업데이트 시 삭제
-            author_id : parseInt(req.body.author_id)
+            author_id : req.userId
         };
 
         await updatePost(post_id, reqBody);
@@ -96,9 +94,8 @@ export const patchPost = async (req : Request, res : Response, next : NextFuncti
 export const removePost = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const post_id = parseInt(req.params.post_id);
-        const { user_id } = req.body;
 
-        await deletePost(post_id, user_id);
+        await deletePost(post_id, req.userId);
 
         res.status(200).json({ message : "게시글 삭제 success"});
     } catch (err) {

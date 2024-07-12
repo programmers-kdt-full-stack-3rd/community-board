@@ -3,6 +3,7 @@ import { createPost, getPost, getPosts, patchPost, removePost } from '../control
 import { body, check, param } from "express-validator";
 import { validate } from "../middleware/validate";
 import { ServerError } from '../middleware/errors';
+import { requireLogin } from '../middleware/auth';
 
 // Request body 유효성 검사
 const postBodyValidation = [
@@ -39,10 +40,10 @@ router.use(express.json());
 router.get("/", getPosts);
 router.get("/:post_id", getPost);
 
-router.post("/", postBodyValidation, createPost);
+router.post("/", requireLogin, postBodyValidation, createPost);
 
-router.patch("/:post_id", patchBodyValidation, patchPost);
+router.patch("/:post_id", requireLogin, patchBodyValidation, patchPost);
 
-router.delete("/:post_id", deleteValidation, removePost);
+router.delete("/:post_id", requireLogin, deleteValidation, removePost);
 
 export default router;
