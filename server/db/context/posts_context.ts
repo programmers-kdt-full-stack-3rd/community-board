@@ -3,6 +3,7 @@ import { ICreatePostRequest, IReadPostRequest, IUpdatePostRequest } from '../../
 import pool from '../connect';
 import { mapDBToPostHeaders, mapDBToPostInfo } from '../mapper/posts_mapper';
 import { ServerError } from '../../middleware/errors';
+import { SortBy } from "shared";
 
 export const getPostHeaders = async ( queryString : IReadPostRequest ) => {
     let conn: PoolConnection | null = null;
@@ -21,12 +22,22 @@ export const getPostHeaders = async ( queryString : IReadPostRequest ) => {
                         WHERE p.isDelete = FALSE
                         AND u.isDelete = FALSE`;
         
-        if (queryString.keyword !== null){
+        if (queryString.keyword){
             values.push(`%${queryString.keyword}%`);
             sql += ` AND p.content LIKE ?`
         }
 
-        sql += ' LIMIT ? OFFSET ?;';
+        if (queryString.sortBy === SortBy.LIKES) {
+            sql += ` ORDER BY likes DESC`
+        } else if (queryString.sortBy === SortBy.VIEWS) {
+            sql += ` ORDER BY views DESC`
+        } else {
+            sql += ` ORDER BY created_at DESC`;
+        }
+
+        sql+= `, u.id ASC`
+
+        sql += ' LIMIT ? OFFSET ?';
         values.push(queryString.perPage);
         values.push(queryString.index * queryString.perPage);
 
@@ -34,6 +45,7 @@ export const getPostHeaders = async ( queryString : IReadPostRequest ) => {
         const [rows] : any[] = await conn.query(sql, values);
         return mapDBToPostHeaders(rows);
     } catch (err) {
+        console.log(err);
         throw err;
     } finally {
         if (conn) conn.release();

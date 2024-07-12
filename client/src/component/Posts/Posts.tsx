@@ -1,27 +1,26 @@
-import { sendGetTestRequest, sendPostTestRequest } from "../../api/test/test";
+import { SortBy } from "shared";
+import { sendGetPostRequest, sendGetPostsRequest } from "../../api/posts/crud";
 
 const Posts = () => {
 
-  const getTest = () => {
-    sendGetTestRequest().then((res)=>{
+  const getPosts = () => {
+    const query = `?index=1&perPage=5&sortBy=`+SortBy.LIKES;
+    sendGetPostsRequest(query).then((res)=>{
       console.log(res);
     });
   };
 
-  const postTest = () => {
-    const body = {
-      user_id : "테스트계정1",
-      title : "게시글입니다요"
-    }
-    sendPostTestRequest(body).then((res)=>{
+  const getPost = () => {
+    const post_id = '1';
+    sendGetPostRequest(post_id).then((res)=>{
       console.log(res);
     });
   };
 
   return (
     <div>
-      <button onClick={getTest}>테스트(GET) 보내기</button>
-      <button onClick={postTest}>테스트(POST) 보내기</button>
+      <button onClick={getPosts}>게시글 목록 불러오기</button>
+      <button onClick={getPost}>게시글 내용 보기</button>
     </div>
   )
 }
