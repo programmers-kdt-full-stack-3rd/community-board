@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { addPost, deletePost, getPostHeaders, getPostInfo, updatePost } from '../db/context/posts_context';
 import { ServerError } from '../middleware/errors';
-import { SortBy } from 'shared/enums/posts';
+import { SortBy } from 'shared';
 
 export interface IReadPostRequest {
     index : number;
