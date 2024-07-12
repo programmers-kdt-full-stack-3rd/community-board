@@ -1,8 +1,7 @@
 import express from 'express';
-import { createPost, getPost, getPosts, patchPost, removePost } from '../controller/posts_controller';
-import { body, check, param } from "express-validator";
+import { handlePostRead, handlePostsRead, handlePostCreate, handlePostUpdate, handlePostDelete } from '../controller/posts_controller';
+import { body, param } from "express-validator";
 import { validate } from "../middleware/validate";
-import { ServerError } from '../middleware/errors';
 import { requireLogin } from '../middleware/auth';
 
 // Request body 유효성 검사
@@ -37,13 +36,13 @@ const deleteValidation = [
 const router = express.Router();
 router.use(express.json());
 
-router.get("/", getPosts);
-router.get("/:post_id", getPost);
+router.get("/", handlePostsRead);
+router.get("/:post_id", handlePostRead);
 
-router.post("/", requireLogin, postBodyValidation, createPost);
+router.post("/", requireLogin, postBodyValidation, handlePostCreate);
 
-router.patch("/:post_id", requireLogin, patchBodyValidation, patchPost);
+router.patch("/:post_id", requireLogin, patchBodyValidation, handlePostUpdate);
 
-router.delete("/:post_id", requireLogin, deleteValidation, removePost);
+router.delete("/:post_id", requireLogin, deleteValidation, handlePostDelete);
 
 export default router;

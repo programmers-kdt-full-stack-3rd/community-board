@@ -22,7 +22,7 @@ export interface IUpdatePostRequest {
     author_id : number;
 }
 
-export const getPosts = async (req : Request, res : Response, next : NextFunction) => {
+export const handlePostsRead = async (req : Request, res : Response, next : NextFunction) => {
     try{
         const values : IReadPostRequest = {
             index : parseInt(req.query.index as string) - 1 || 0,
@@ -40,7 +40,7 @@ export const getPosts = async (req : Request, res : Response, next : NextFunctio
     }
 }
 
-export const getPost = async (req : Request, res : Response, next : NextFunction) => {
+export const handlePostRead = async (req : Request, res : Response, next : NextFunction) => {
     try {
         const post_id = parseInt(req.params.post_id);
         if (isNaN(post_id)) {
@@ -53,7 +53,7 @@ export const getPost = async (req : Request, res : Response, next : NextFunction
     }
 }
 
-export const createPost = async (req : Request, res : Response, next : NextFunction) => {
+export const handlePostCreate = async (req : Request, res : Response, next : NextFunction) => {
     try {
         const reqBody : ICreatePostRequest = {
             title : req.body.title,
@@ -69,7 +69,7 @@ export const createPost = async (req : Request, res : Response, next : NextFunct
     }
 }
 
-export const patchPost = async (req : Request, res : Response, next : NextFunction) => {
+export const handlePostUpdate = async (req : Request, res : Response, next : NextFunction) => {
     try {
         const post_id = parseInt(req.params.post_id);
 
@@ -91,7 +91,7 @@ export const patchPost = async (req : Request, res : Response, next : NextFuncti
     }
 }
 
-export const removePost = async (req: Request, res: Response, next: NextFunction) => {
+export const handlePostDelete = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const post_id = parseInt(req.params.post_id);
 
