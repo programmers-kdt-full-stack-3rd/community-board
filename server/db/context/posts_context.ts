@@ -168,7 +168,7 @@ export const deletePost = async (post_id : number, user_id : number) => {
     try {
         let values : number[] = [post_id, user_id];
 
-        let sql = `DELETE FROM posts WHERE id = ? and author_id = ?`;
+        let sql = `UPDATE posts SET isDelete = true WHERE id = ? and author_id = ?`;
 
         conn = await pool.getConnection();
         const [rows] : any[] = await conn.query(sql, values);
