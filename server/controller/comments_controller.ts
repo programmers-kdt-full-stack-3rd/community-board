@@ -29,7 +29,7 @@ export const handleCommentCreate = async (
 ) => {
   try {
     await createComment({
-      post_id: parseInt(req.body.post_id, 10),
+      post_id: req.body.post_id,
       author_id: req.userId,
       content: req.body.content,
     });
@@ -47,7 +47,7 @@ export const handleCommentUpdate = async (
 ) => {
   try {
     await updateComment({
-      id: parseInt(req.body.id, 10),
+      id: req.body.id,
       author_id: req.userId,
       content: req.body.content,
     });
