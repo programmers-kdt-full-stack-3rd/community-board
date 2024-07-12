@@ -1,1 +1,1 @@
-export * from './enums/posts';
+export * from './posts/enums';
