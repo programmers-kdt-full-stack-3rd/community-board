@@ -3,7 +3,6 @@ import { requireLogin } from "../middleware/auth";
 import {
   handleLikeCreateWith,
   handleLikeDeleteWith,
-  handleLikesReadWith,
 } from "../controller/likes_controller";
 import { likeValidationWith } from "../utils/validations/likes/like";
 
@@ -12,7 +11,6 @@ router.use(express.json());
 
 router
   .route("/post/:post_id")
-  .get(likeValidationWith("post"), handleLikesReadWith("post"))
   .post(requireLogin, likeValidationWith("post"), handleLikeCreateWith("post"))
   .delete(
     requireLogin,
@@ -22,7 +20,6 @@ router
 
 router
   .route("/comment/:comment_id")
-  .get(likeValidationWith("comment"), handleLikesReadWith("comment"))
   .post(
     requireLogin,
     likeValidationWith("comment"),
