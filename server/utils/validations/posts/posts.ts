@@ -15,13 +15,13 @@ const postContentValidator = body("content")
 const patchBodyValidator =
     body("title").custom((value, { req }) => {
         return value || req.body.content;
-      }).withMessage("수정 사항이 없습니다.");
+      }).withMessage(ERROR_MESSAGES.UPDATE_DATA_REQUIRED);
 
 const deleteValidator =
     param('post_id')
         .notEmpty()
         .isInt({ min : 1 })
-        .withMessage("유효하지 않은 게시글입니다.")
+        .withMessage(ERROR_MESSAGES.INVALID_POSR_ID)
         .bail();
 
 export const postValidation = [
