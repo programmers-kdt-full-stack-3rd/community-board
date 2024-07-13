@@ -34,7 +34,8 @@ export const handlePostsRead = async (req : Request, res : Response, next : Next
         console.log(values);
 
         const posts = await getPostHeaders(values);
-        res.json({ posts });
+        
+        res.json({ total : posts.total, postHeaders : posts.postHeaders });
     }catch(err){
         next(err);
     }
