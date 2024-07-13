@@ -73,7 +73,7 @@ export const getPostHeaders = async ( queryString : IReadPostRequest ) => {
     }
 };
 
-export const getPostInfo = async (post_id : number) => {
+export const getPostInfo = async (post_id : number, user_id? : number) => {
     let conn : PoolConnection | null = null;
 
     try {
@@ -89,8 +89,13 @@ export const getPostInfo = async (post_id : number) => {
                         (
                             SELECT COUNT(DISTINCT pl.user_id)
                             FROM post_likes as pl
-                            WHERE post_id = p.id
-                        ) AS likes
+                            WHERE pl.post_id = p.id
+                        ) AS likes,
+                        EXISTS(
+                            SELECT *
+                            FROM post_likes AS pl
+                            WHERE pl.post_id = p.id AND pl.user_id = ?
+                        ) AS user_liked
                 FROM posts as p
                 LEFT JOIN users as u
                 ON p.author_id = u.id
@@ -100,7 +105,7 @@ export const getPostInfo = async (post_id : number) => {
         `;
 
         conn = await pool.getConnection();
-        const [rows] : any[] = await conn.query(sql, [post_id]);
+        const [rows] : any[] = await conn.query(sql, [user_id, post_id]);
 
         if(rows.length === 0) {
             throw ServerError.notFound("존재하지 않는 게시글입니다.");

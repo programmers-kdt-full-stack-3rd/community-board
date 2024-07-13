@@ -8,6 +8,7 @@ export interface IPostInfo {
     updated_at : Date | null;
     views : number;
     likes : number;
+    user_liked : boolean;
 }
 
 export interface IPostHeader {

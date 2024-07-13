@@ -10,7 +10,8 @@ export const mapDBToPostInfo = (data : any) : IPostInfo => {
         created_at : new Date(data.created_at),
         updated_at : data.updated_at? new Date(data.updated_at) : null,
         views : data.views,
-        likes : data.likes
+        likes : data.likes,
+        user_liked : !!data.user_liked,
     };
 };
 

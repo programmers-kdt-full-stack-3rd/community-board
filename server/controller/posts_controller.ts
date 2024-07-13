@@ -47,7 +47,7 @@ export const handlePostRead = async (req : Request, res : Response, next : NextF
         if (isNaN(post_id)) {
             throw ServerError.badRequest("Invalid post ID");
         }
-        const post = await getPostInfo(post_id);
+        const post = await getPostInfo(post_id, req.userId);
         res.status(200).json({ post : post });
     } catch (err) {
         next(err);
