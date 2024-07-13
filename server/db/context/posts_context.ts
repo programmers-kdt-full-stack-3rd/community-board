@@ -9,41 +9,58 @@ export const getPostHeaders = async ( queryString : IReadPostRequest ) => {
     let conn: PoolConnection | null = null;
 
     try {
-        let values : (number | string)[] = [];
+        let dataValues : (number | string)[] = [];
+        let countValues : (number | string)[] = [];
 
-        let sql = `SELECT p.id as id, 
-                            p.title as title,
-                            u.nickname as author_nickname,
-                            p.created_at as created_at,
-                            (SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) AS likes
-                        FROM posts as p
+        let sharedSql = ` FROM posts as p
                         LEFT JOIN users as u
                         ON p.author_id = u.id
                         WHERE p.isDelete = FALSE
                         AND u.isDelete = FALSE`;
         
+        let dataSql = `SELECT p.id as id, 
+                            p.title as title,
+                            u.nickname as author_nickname,
+                            p.created_at as created_at,
+                            (SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) AS likes ${sharedSql}`; 
+
+        let countSql = `SELECT COUNT(*) as total ${sharedSql}`;
+        
         if (queryString.keyword){
-            values.push(`%${queryString.keyword}%`);
-            sql += ` AND p.content LIKE ?`
+            const keyword = `%${queryString.keyword.trim()}%`;
+            dataValues.push(keyword);
+            countValues.push(keyword);
+            dataSql += ` AND p.title LIKE ?`;
+            countSql += ` AND p.title LIKE ?`;
         }
 
         if (queryString.sortBy === SortBy.LIKES) {
-            sql += ` ORDER BY likes DESC`
+            dataSql += ` ORDER BY likes DESC`;
         } else if (queryString.sortBy === SortBy.VIEWS) {
-            sql += ` ORDER BY views DESC`
+            dataSql += ` ORDER BY views DESC`;
         } else {
-            sql += ` ORDER BY created_at DESC`;
+            dataSql += ` ORDER BY created_at DESC`;
         }
 
-        sql+= `, u.id ASC`
+        dataSql += `, u.id ASC`
 
-        sql += ' LIMIT ? OFFSET ?';
-        values.push(queryString.perPage);
-        values.push(queryString.index * queryString.perPage);
+        dataSql += ' LIMIT ? OFFSET ?';
+        dataValues.push(queryString.perPage);
+        dataValues.push(queryString.index * queryString.perPage);
 
+        // pagenation
         conn = await pool.getConnection();
-        const [rows] : any[] = await conn.query(sql, values);
-        return mapDBToPostHeaders(rows);
+
+        const [countRows]: any[] = await conn.query(countSql, countValues);
+        const total = countRows[0].total;
+
+        const [dataRows] : any[] = await conn.query(dataSql, dataValues);
+        const postHeaders = mapDBToPostHeaders(dataRows);
+        
+        return {
+            total,
+            postHeaders
+        }
     } catch (err) {
         console.log(err);
         throw err;
