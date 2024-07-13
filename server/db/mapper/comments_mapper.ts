@@ -8,6 +8,7 @@ export const mapDBToComments = (data: any[]): IComment[] => {
     author_nickname: item.author_nickname,
     created_at: new Date(item.created_at),
     updated_at: item.updated_at ? new Date(item.updated_at) : null,
-    likes: item.likes
+    likes: item.likes,
+    user_liked: !!item.user_liked,
   }));
 };
