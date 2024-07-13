@@ -27,10 +27,11 @@ export const getPostHeaders = async ( queryString : IReadPostRequest ) => {
         let countSql = `SELECT COUNT(*) as total ${sharedSql}`;
         
         if (queryString.keyword){
-            dataValues.push(`%${queryString.keyword}%`);
-            countValues.push(`%${queryString.keyword}%`);
-            dataSql += ` AND p.content LIKE ?`;
-            countSql += ` AND p.content LIKE ?`;
+            const keyword = `%${queryString.keyword.trim()}%`;
+            dataValues.push(keyword);
+            countValues.push(keyword);
+            dataSql += ` AND p.title LIKE ?`;
+            countSql += ` AND p.title LIKE ?`;
         }
 
         if (queryString.sortBy === SortBy.LIKES) {
