@@ -15,8 +15,12 @@
 📦 community-board
 ┣ 📂 client # FE 폴더
 ┃ ┣ 📂 src
+┃ ┃ ┣ 📂 api # http request 함수
 ┃ ┃ ┣ 📂 assets # 렌더링 할 사진 파일
-┃ ┃ ┗ 📂 component # 각 기능별 컴포넌트
+┃ ┃ ┣ 📂 component # 각 기능별 컴포넌트
+┃ ┃ ┣ 📂 page # app.tsx에서 routing하는 페이지
+┃ ┃ ┣ 📂 state # 전역 state with Zustand
+┃ ┃ ┗ 📂 hooks # 커스텀 훅
 ┃ ┗ 📜 app.tsx # client main
 ┣ 📂 server # BE 폴더
 ┃ ┣ 📂 controller # 실제 API 구현
@@ -26,7 +30,8 @@
 ┃ ┃ ┣ 📂 sql # table.sql
 ┃ ┃ ┣ 📂 model # db data를 server에서 다루기 쉽게 변환하는 model type , interface
 ┃ ┃ ┗ 📂 mapper # select한 db data를 model로 바꿔줌.
-┗ ┗ 📂 middleware # 개발한 middleware 모아놓는 곳
+┃ ┗ 📂 middleware # 개발한 middleware 모아놓는 곳
+┗ 📂 shared # 공용 타입 및 함수 (로컬 패키지)
  ```
 
 ### 3. 프로젝트 초기 설정
@@ -55,7 +60,15 @@ sudo npm i
 # 프로젝트 진행하면서 .env 파일에 채워야 하는 내용 언급할 예정
 
 # client ----
-( 아직 없음 )
+VITE_SERVER_ADDRESS
 # server ----
 PORT
+DB_PORT
+DB_USER
+DB_NAME
+DB_PSWORD
+ACCESS_TOKEN_KEY
+REFRESH_TOKEN_KEY
+TEMP_TOKEN_KEY
+
 ```
