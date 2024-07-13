@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { createLike, deleteLike, readLikes } from "../db/context/likes_context";
+import { createLike, deleteLike } from "../db/context/likes_context";
 import { TLikeTarget } from "../db/model/likes";
 
 export const handleLikeCreateWith =
@@ -9,11 +9,8 @@ export const handleLikeCreateWith =
       const targetId = parseInt(req.params[`${targetType}_id`], 10);
 
       await createLike(targetType, targetId, req.userId);
-      const likes = await readLikes(targetType, targetId, req.userId);
 
-      res.status(201).json({
-        [`${targetType}_likes`]: likes,
-      });
+      res.status(201).end();
     } catch (err) {
       next(err);
     }
@@ -26,11 +23,8 @@ export const handleLikeDeleteWith =
       const targetId = parseInt(req.params[`${targetType}_id`], 10);
 
       await deleteLike(targetType, targetId, req.userId);
-      const likes = await readLikes(targetType, targetId, req.userId);
 
-      res.status(200).json({
-        [`${targetType}_likes`]: likes,
-      });
+      res.status(200).end();
     } catch (err) {
       next(err);
     }

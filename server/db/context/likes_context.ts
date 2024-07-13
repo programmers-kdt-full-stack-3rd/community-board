@@ -1,49 +1,8 @@
-import {
-  FieldPacket,
-  PoolConnection,
-  ResultSetHeader,
-  RowDataPacket,
-} from "mysql2/promise";
+import { FieldPacket, PoolConnection, ResultSetHeader } from "mysql2/promise";
 import { ServerError } from "../../middleware/errors";
 import pool from "../connect";
-import { likeTargetToName, mapDBToLikes } from "../mapper/likes_mapper";
+import { likeTargetToName } from "../mapper/likes_mapper";
 import { TLikeTarget } from "../model/likes";
-
-export const readLikes = async <T extends TLikeTarget>(
-  targetType: T,
-  targetId: number,
-  userId?: number
-) => {
-  let conn: PoolConnection | null = null;
-
-  try {
-    const sql = `
-      SELECT
-        COUNT(DISTINCT user_id) AS likes,
-        EXISTS(
-          SELECT *
-          FROM ${targetType}_likes
-          WHERE ${targetType}_id = ? AND user_id = ?
-        ) AS user_liked
-      FROM
-        ${targetType}_likes
-      WHERE
-        ${targetType}_id = ?
-    `;
-    const values = [targetId, userId, targetId];
-
-    conn = await pool.getConnection();
-    const [rows]: [RowDataPacket[], FieldPacket[]] = await conn.query(
-      sql,
-      values
-    );
-    return mapDBToLikes(targetType, targetId, rows[0]);
-  } catch (err) {
-    throw err;
-  } finally {
-    if (conn) conn.release();
-  }
-};
 
 export const createLike = async <T extends TLikeTarget>(
   targetType: T,
@@ -72,7 +31,11 @@ export const createLike = async <T extends TLikeTarget>(
       throw ServerError.etcError(500, `${targetTypeName} 좋아요 실패`);
     }
   } catch (err: any) {
-    if (
+    if (err?.code === "ER_DUP_ENTRY") {
+      throw ServerError.badRequest(
+        `이미 좋아요 표시한 ${targetTypeName}입니다.`
+      );
+    } else if (
       err?.code === "ER_NO_REFERENCED_ROW_2" &&
       err?.sqlMessage?.includes(`${targetType}_id`)
     ) {
