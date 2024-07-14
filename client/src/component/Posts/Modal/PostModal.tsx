@@ -1,20 +1,66 @@
 import { SetStateAction, useState } from 'react'
 import { CloseBtn, ContentTextArea, InputContainer, InputIndex, ModalBody, ModalContainer, ModalHeader, PostBtn, PostHeaderTitle, TitleInput } from './PostModal.css'
+import { sendCreatePostRequest, sendUpdatePostRequest } from '../../../api/posts/crud';
+
+export interface PostData {
+    id : number;
+    title : string;
+    content : string;
+}
 
 interface PostModalProps {
     close : React.Dispatch<SetStateAction<boolean>>;
+    originalPostData? : PostData
 }
 
-const PostModal : React.FC<PostModalProps> = ({ close }) => {
-    const [title, setTitle] = useState("");
-    const [content, setContent] = useState("");
+const PostModal : React.FC<PostModalProps> = ({ close, originalPostData }) => {
+    const isUpdateMode = originalPostData !== undefined;
 
+    const modalTitle = isUpdateMode ? "수정" : "생성";
+
+    const [title, setTitle] = useState(isUpdateMode ? originalPostData.title : "");
+    const [content, setContent] = useState(isUpdateMode ? originalPostData.content : "");
+
+    const createPost = () => {
+        const body = {
+            title,
+            content
+        };
+
+        sendCreatePostRequest(body).then((res)=>{
+            console.log(res);
+        })
+    };
+
+    const updatePost = () => {
+        if (!originalPostData){
+            return;
+        }
+
+        const body = {
+            title,
+            content
+        };
+
+        const postId : number = originalPostData.id;
+
+        sendUpdatePostRequest(postId, body).then((res)=>{
+            console.log(res);
+        })
+    };
 
     return (
         <div className={ModalContainer}>
             <div className={ModalHeader}>
-                <button className={PostBtn} onClick={()=>close(false)}>생성</button>
-                <div className={PostHeaderTitle}>게시글 생성</div>
+                <button className={PostBtn}
+                        onClick={()=>{
+                            if(isUpdateMode){
+                                updatePost();
+                            } else {
+                                createPost();
+                            }
+                        }}>생성</button>
+                <div className={PostHeaderTitle}>게시글 {modalTitle}</div>
                 <button className={CloseBtn} onClick={()=>close(false)}>취소</button>
             </div>
             <div className={ModalBody}>
