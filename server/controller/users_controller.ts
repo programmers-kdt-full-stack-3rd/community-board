@@ -57,7 +57,16 @@ export const handleLoginUser = async (
       secure: true,
     });
 
-    res.status(200).json({ message: "로그인 성공" });
+    const time = new Date();
+
+    res.status(200).json({
+      message: "로그인 성공",
+      result: {
+        nickname: result.user.nickname,
+        loginTime: time.toISOString(),
+        isLogin: true,
+      },
+    });
   } catch (err: any) {
     next(err);
   }

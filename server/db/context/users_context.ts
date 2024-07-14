@@ -112,7 +112,7 @@ export const authUser = async (userData: IUserAuthData) => {
       );
     }
 
-    return { accessToken, refreshToken };
+    return { user, accessToken, refreshToken };
   } catch (err: any) {
     throw err;
   } finally {
