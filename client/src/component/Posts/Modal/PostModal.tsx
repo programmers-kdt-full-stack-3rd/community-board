@@ -2,18 +2,18 @@ import { SetStateAction, useState } from 'react'
 import { CloseBtn, ContentTextArea, InputContainer, InputIndex, ModalBody, ModalContainer, ModalHeader, PostBtn, PostHeaderTitle, TitleInput } from './PostModal.css'
 import { sendCreatePostRequest, sendUpdatePostRequest } from '../../../api/posts/crud';
 
-export interface PostData {
+interface IPostData {
     id : number;
     title : string;
     content : string;
 }
 
-interface PostModalProps {
+interface IPostModalProps {
     close : React.Dispatch<SetStateAction<boolean>>;
-    originalPostData? : PostData
+    originalPostData? : IPostData
 }
 
-const PostModal : React.FC<PostModalProps> = ({ close, originalPostData }) => {
+const PostModal : React.FC<IPostModalProps> = ({ close, originalPostData }) => {
     const isUpdateMode = originalPostData !== undefined;
 
     const modalMode = isUpdateMode ? "수정" : "생성";
