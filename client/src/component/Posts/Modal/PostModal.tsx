@@ -16,7 +16,7 @@ interface PostModalProps {
 const PostModal : React.FC<PostModalProps> = ({ close, originalPostData }) => {
     const isUpdateMode = originalPostData !== undefined;
 
-    const modalTitle = isUpdateMode ? "수정" : "생성";
+    const modalMode = isUpdateMode ? "수정" : "생성";
 
     const [title, setTitle] = useState(isUpdateMode ? originalPostData.title : "");
     const [content, setContent] = useState(isUpdateMode ? originalPostData.content : "");
@@ -59,8 +59,9 @@ const PostModal : React.FC<PostModalProps> = ({ close, originalPostData }) => {
                             } else {
                                 createPost();
                             }
-                        }}>생성</button>
-                <div className={PostHeaderTitle}>게시글 {modalTitle}</div>
+                            close(false);
+                        }}>{modalMode}</button>
+                <div className={PostHeaderTitle}>게시글 {modalMode}</div>
                 <button className={CloseBtn} onClick={()=>close(false)}>취소</button>
             </div>
             <div className={ModalBody}>
