@@ -16,5 +16,6 @@ CREATE TABLE IF NOT EXISTS comment_likes (
     user_id INT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     FOREIGN KEY (comment_id) REFERENCES comments(id),
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    UNIQUE KEY (comment_id, user_id)
 );

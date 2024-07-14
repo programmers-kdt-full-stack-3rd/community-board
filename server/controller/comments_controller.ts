@@ -14,7 +14,7 @@ export const handleCommentsRead = async (
   try {
     const postId = parseInt(String(req.query.post_id), 10);
 
-    const comments = await readComments(postId);
+    const comments = await readComments(postId, req.userId);
 
     res.status(200).json({ comments });
   } catch (err) {

@@ -16,5 +16,6 @@ CREATE TABLE IF NOT EXISTS post_likes (
     user_id INT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     FOREIGN KEY (post_id) REFERENCES posts(id),
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    UNIQUE KEY (post_id, user_id)
 );

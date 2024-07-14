@@ -6,4 +6,5 @@ export interface IComment {
   created_at: Date;
   updated_at?: Date | null;
   likes: number;
+  user_liked: boolean;
 }

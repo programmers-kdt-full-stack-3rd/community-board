@@ -25,7 +25,7 @@ interface ICommentDelete {
   author_id: number;
 }
 
-export const readComments = async (postId: number) => {
+export const readComments = async (postId: number, userId?: number) => {
   let conn: PoolConnection | null = null;
 
   try {
@@ -37,7 +37,13 @@ export const readComments = async (postId: number) => {
         users.nickname as author_nickname,
         comments.created_at as created_at,
         comments.updated_at as updated_at,
-        (SELECT COUNT(*) FROM comment_likes WHERE comment_id = comments.id) AS likes
+        (SELECT COUNT(*) FROM comment_likes WHERE comment_id = comments.id) AS likes,
+        EXISTS(
+          SELECT *
+          FROM comment_likes
+          WHERE comment_likes.comment_id = comments.id
+            AND comment_likes.user_id = ?
+        ) AS user_liked
       FROM
         comments
       INNER JOIN
@@ -54,7 +60,7 @@ export const readComments = async (postId: number) => {
         comments.created_at,
         comments.id
     `;
-    const values = [postId];
+    const values = [userId, postId];
 
     conn = await pool.getConnection();
     const [rows]: [RowDataPacket[], FieldPacket[]] = await conn.query(
