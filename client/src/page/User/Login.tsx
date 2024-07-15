@@ -1,16 +1,10 @@
 import { FC, useState } from "react";
-import {
-  input,
-  inputBox,
-  joinButton as joinLink,
-  label,
-  loginButton,
-  loginForm,
-  loginWrapper,
-  errorMessageStyle,
-} from "./Login.css";
+import { joinLink, loginButton, loginWrapper } from "./Login.css";
 import { sendPostLoginRequest } from "../../api/users/crud";
 import { useNavigate } from "react-router-dom";
+import EmailForm from "../../component/User/EmailForm";
+import PasswordForm from "../../component/User/PasswordForm";
+import ErrorMessageForm from "../../component/User/ErrorMessageForm";
 import { useUserStore } from "../../state/store";
 
 interface ILogin {
@@ -92,46 +86,14 @@ const Login: FC = () => {
   return (
     <div className={loginWrapper}>
       <h1>로그인</h1>
-      <div className={loginForm}>
-        <div className={inputBox}>
-          <label className={label} htmlFor="email">
-            이메일
-          </label>
-          <input
-            className={input}
-            type="email"
-            id="email"
-            onChange={handleEmailChange}
-            value={email}
-            placeholder="이메일을 입력하세요."
-          />
-        </div>
-        <div className={inputBox}>
-          <label className={label} htmlFor="password">
-            비밀번호
-          </label>
-          <input
-            className={input}
-            type="password"
-            id="password"
-            onChange={handlePasswordChange}
-            value={password}
-            placeholder="비밀번호를 입력하세요."
-          />
-          {errorMessage && (
-            <div className={errorMessageStyle}>{errorMessage}</div>
-          )}
-        </div>
-        <button
-          className={loginButton}
-          onClick={handleLoginButton}
-          type="submit"
-        >
-          로그인
-        </button>
-        {/* TODO: 회원가입 페이지 만든 이후 클릭시 페이지 이동 기능 추가 */}
-        <div className={joinLink}>회원가입</div>
-      </div>
+      <EmailForm email={email} onChange={handleEmailChange} />
+      <PasswordForm password={password} onChange={handlePasswordChange} />
+      {errorMessage && <ErrorMessageForm>{errorMessage}</ErrorMessageForm>}
+      <button className={loginButton} onClick={handleLoginButton} type="submit">
+        로그인
+      </button>
+      {/* TODO: 회원가입 페이지 만든 이후 클릭시 페이지 이동 기능 추가 */}
+      <div className={joinLink}>회원가입</div>
 
       {
         // zustand 테스트용
