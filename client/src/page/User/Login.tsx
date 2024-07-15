@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { joinLink, loginWrapper } from "./Login.css";
 import { sendPostLoginRequest } from "../../api/users/crud";
 import { useNavigate } from "react-router-dom";
@@ -31,7 +31,10 @@ const Login: FC = () => {
   // const stateIsLogin = useUserStore.use.isLogin();
 
   const navigate = useNavigate();
-
+  // TODO: 버그 해결을 위해 제대로된 해결방법 찾아서 고치기
+  useEffect(() => {
+    useUserStore.persist.clearStorage();
+  }, []);
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
   };
