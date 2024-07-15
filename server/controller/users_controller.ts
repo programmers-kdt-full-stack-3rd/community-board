@@ -68,7 +68,6 @@ export const handleLoginUser = async (
       result: {
         nickname: result.user.nickname,
         loginTime: time,
-        isLogin: true,
       },
     });
   } catch (err: any) {
