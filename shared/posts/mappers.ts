@@ -1,4 +1,4 @@
-import { IPostInfo, IPostHeader } from "../model/posts";
+import { IPostHeader, IPostInfo } from "./models";
 
 export const mapDBToPostInfo = (data : any) : IPostInfo => {
     return {
@@ -8,7 +8,7 @@ export const mapDBToPostInfo = (data : any) : IPostInfo => {
         author_id : data.author_id,
         author_nickname : data.author_nickname,
         created_at : new Date(data.created_at),
-        updated_at : data.updated_at? new Date(data.updated_at) : null,
+        updated_at : data.updated_at? new Date(data.updated_at) : undefined,
         views : data.views,
         likes : data.likes,
         user_liked : !!data.user_liked,

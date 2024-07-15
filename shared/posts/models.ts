@@ -5,7 +5,7 @@ export interface IPostInfo {
     author_id : number;
     author_nickname : string;
     created_at : Date;
-    updated_at : Date | null;
+    updated_at? : Date;
     views : number;
     likes : number;
     user_liked : boolean;
