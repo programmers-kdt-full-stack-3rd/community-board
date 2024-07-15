@@ -42,10 +42,12 @@ const PostInfo : React.FC<IPostInfoProps> = ({ postInfo }) => {
         <div className={PostBody}>
             {content}
         </div>
-        <div className={Buttons}></div>
+        <div className={Buttons}>
+          {/* TODO : 로그인 여부에 따라 버튼 숨기기 */}
           {<button>수정</button>}
           <button>좋아요</button>
           {<button>삭제</button>}
+        </div>
     </div>
   )
 }

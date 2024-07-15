@@ -1,5 +1,4 @@
 import { style } from "@vanilla-extract/css";
-import { vars } from "../../App.css.ts";
 
 export const PostHeader = style({
     display : "flex",
@@ -36,13 +35,18 @@ export const PostBody = style({
     display : "flex",
     flexDirection : "column",
     textAlign : "start",
-    backgroundColor : vars.color.brightText,
-    color : vars.color.darkText,
     width : "780px",
-    height : "350px",
+    height : "100%",
     resize : "none",
     borderRadius : 5,
     padding : 10
 });
 
-export const Buttons = style({});
+export const Buttons = style({
+    display : "flex",
+    justifyContent : "space-between",
+    paddingTop : "20px",
+    paddingBottom : "20px",
+    paddingLeft : "10px",
+    paddingRight : "10px"
+});
