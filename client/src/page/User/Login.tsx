@@ -6,6 +6,7 @@ import EmailForm from "../../component/User/EmailForm";
 import PasswordForm from "../../component/User/PasswordForm";
 import ErrorMessageForm from "../../component/User/ErrorMessageForm";
 import { useUserStore } from "../../state/store";
+import { REGEX } from "./constants/constants";
 import SubmitButton from "../../component/User/SubmitButton";
 
 interface ILogin {
@@ -46,9 +47,9 @@ const Login: FC = () => {
     };
 
     // 이메일 정규표현식
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,3}$/;
+    const emailRegex = REGEX.EMAIL;
     //비밀번호 정규표현식(영대소문자 각각 1개 이상, 숫자 1개이상, 10자리 이상)
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{10,}$/;
+    const passwordRegex = REGEX.PASSWORD;
 
     if (!email) {
       setErrorMessage("이메일을 입력하세요.");
@@ -88,7 +89,11 @@ const Login: FC = () => {
     <div className={loginWrapper}>
       <h1>로그인</h1>
       <EmailForm email={email} onChange={handleEmailChange} />
-      <PasswordForm password={password} onChange={handlePasswordChange} />
+      <PasswordForm
+        password={password}
+        onChange={handlePasswordChange}
+        labelText="비밀번호"
+      />
       {errorMessage && <ErrorMessageForm>{errorMessage}</ErrorMessageForm>}
       <SubmitButton onClick={handleLoginButton}>로그인 버튼</SubmitButton>
       {/* TODO: 회원가입 페이지 만든 이후 클릭시 페이지 이동 기능 추가 */}
