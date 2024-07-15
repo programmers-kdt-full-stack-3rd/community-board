@@ -1,5 +1,5 @@
 import { FC, ReactNode } from "react";
-import { submitButtonStyle } from "./SubmitButton.css";
+import { submitButtonStyle } from "./css/SubmitButton.css";
 
 interface ISubmitButtonProps {
   children: ReactNode;

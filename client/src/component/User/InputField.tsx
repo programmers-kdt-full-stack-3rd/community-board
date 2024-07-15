@@ -1,5 +1,5 @@
 import { FC, InputHTMLAttributes } from "react";
-import { input, inputBox, label } from "./InputField.css";
+import { input, inputBox, label } from "./css/InputField.css";
 
 interface IInputFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   labelText: string;
