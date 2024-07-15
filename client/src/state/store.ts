@@ -37,7 +37,14 @@ const useUserStoreBase = create<TUserStore>()(
         },
       };
     },
-    { name: "userStorage" }
+    {
+      name: "userStorage",
+      partialize: (state) => ({
+        nickname: state.nickname,
+        loginTime: state.loginTime,
+        isLogin: state.isLogin,
+      }),
+    }
   )
 );
 
