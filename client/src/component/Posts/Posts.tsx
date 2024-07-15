@@ -1,12 +1,13 @@
 import { SortBy } from "shared";
-import { sendGetPostRequest, sendGetPostsRequest } from "../../api/posts/crud";
+import { sendGetPostsRequest } from "../../api/posts/crud";
 import { useState } from "react";
 import PostModal from "./Modal/PostModal";
+import { useNavigate } from "react-router-dom";
 
 const Posts = () => {
+  const navigate = useNavigate();
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false);
-
 
   const getPosts = () => {
     const query = `?index=1&perPage=5&sortBy=`+SortBy.LIKES;
@@ -16,10 +17,7 @@ const Posts = () => {
   };
 
   const getPost = () => {
-    const post_id = '1';
-    sendGetPostRequest(post_id).then((res)=>{
-      console.log(res);
-    });
+    navigate("/post/9");
   };
 
   const testPostData = {

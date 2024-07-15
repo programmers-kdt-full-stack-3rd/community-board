@@ -1,7 +1,7 @@
 import { PoolConnection } from "mysql2/promise";
 import { ICreatePostRequest, IReadPostRequest, IUpdatePostRequest } from '../../controller/posts_controller';
 import pool from '../connect';
-import { mapDBToPostHeaders, mapDBToPostInfo } from '../mapper/posts_mapper';
+import { mapDBToPostHeaders, mapDBToPostInfo } from 'shared';
 import { ServerError } from '../../middleware/errors';
 import { SortBy } from "shared";
 
