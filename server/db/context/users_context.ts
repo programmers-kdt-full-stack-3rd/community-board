@@ -34,6 +34,7 @@ type TDeleteUserInfo =
 
 interface IUserAuthResult extends RowDataPacket, IUser {}
 
+// TODO: 회원가입시 닉네임 중복 체크 해야함. (SQL문도 변경해야함)
 export const addUser = async (userData: IUserRegData) => {
   let conn: PoolConnection | null = null;
   try {
