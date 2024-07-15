@@ -14,6 +14,7 @@ import {
   mainPageStyle,
   postListActions,
 } from "./Main.css";
+import TestMain from "../../component/TestMain/TestMain";
 
 const Main = () => {
   const isLogin = useUserStore((state) => state.isLogin);
@@ -78,6 +79,9 @@ const Main = () => {
   return (
     <div className={mainPageStyle}>
       {isModalOpen ? <PostModal close={setIsModalOpen} /> : null}
+
+      {/* TODO: 최상단 헤더 연결 후 TestMain 제거 */}
+      <TestMain />
 
       <PostList posts={posts} sortBy={parsed.sortBy} onSort={handlePostSort} />
 
