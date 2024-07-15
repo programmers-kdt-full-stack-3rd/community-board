@@ -13,6 +13,7 @@ const PostInfoPage = () => {
     content: "",
     author_id : 0,
     author_nickname: "",
+    is_author : false,
     created_at: new Date(),
     updated_at : undefined,
     views: 0,
