@@ -46,6 +46,7 @@ const Login: FC = () => {
       password,
     };
 
+    // TODO: 로그인시 유효성검사 따로 분리
     // 이메일 정규표현식
     const emailRegex = REGEX.EMAIL;
     //비밀번호 정규표현식(영대소문자 각각 1개 이상, 숫자 1개이상, 10자리 이상)
@@ -96,8 +97,9 @@ const Login: FC = () => {
       />
       {errorMessage && <ErrorMessageForm>{errorMessage}</ErrorMessageForm>}
       <SubmitButton onClick={handleLoginButton}>로그인 버튼</SubmitButton>
-      {/* TODO: 회원가입 페이지 만든 이후 클릭시 페이지 이동 기능 추가 */}
-      <div className={joinLink}>회원가입</div>
+      <div className={joinLink} onClick={() => navigate("/join")}>
+        회원가입
+      </div>
 
       {
         // zustand 테스트용
