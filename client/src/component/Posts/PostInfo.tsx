@@ -1,4 +1,4 @@
-import { Buttons, EtcInfo, EtcInfoItem, PostBody, PostHeader, Title } from "./PostInfo.css";
+import { EtcInfo, EtcInfoItem, FullButtons, OneButton, PostBody, PostHeader, Title } from "./PostInfo.css";
 import { dateToStr } from "../../utils/date-to-str";
 import { IPostInfo } from "shared";
 
@@ -19,6 +19,8 @@ const PostInfo : React.FC<IPostInfoProps> = ({ postInfo }) => {
       <br />
     </span>
   ));
+
+  const isLogin = false;
 
   return (
     <div>
@@ -42,11 +44,11 @@ const PostInfo : React.FC<IPostInfoProps> = ({ postInfo }) => {
         <div className={PostBody}>
             {content}
         </div>
-        <div className={Buttons}>
+        <div className={isLogin ? FullButtons : OneButton}>
           {/* TODO : 로그인 여부에 따라 버튼 숨기기 */}
-          {<button>수정</button>}
+          {isLogin ? <button>수정</button> : null}
           <button>좋아요</button>
-          {<button>삭제</button>}
+          {isLogin ? <button>삭제</button> : null}
         </div>
     </div>
   )

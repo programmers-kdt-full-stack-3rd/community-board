@@ -42,9 +42,18 @@ export const PostBody = style({
     padding : 10
 });
 
-export const Buttons = style({
+export const FullButtons = style({
     display : "flex",
     justifyContent : "space-between",
+    paddingTop : "20px",
+    paddingBottom : "20px",
+    paddingLeft : "10px",
+    paddingRight : "10px"
+});
+
+export const OneButton = style({
+    display : "flex",
+    justifyContent : "center",
     paddingTop : "20px",
     paddingBottom : "20px",
     paddingLeft : "10px",
