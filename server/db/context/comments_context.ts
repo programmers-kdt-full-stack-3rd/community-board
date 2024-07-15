@@ -35,6 +35,7 @@ export const readComments = async (postId: number, userId?: number) => {
         comments.content as content,
         comments.author_id as author_id,
         users.nickname as author_nickname,
+        (comments.author_id = ?) AS is_author,
         comments.created_at as created_at,
         comments.updated_at as updated_at,
         (SELECT COUNT(*) FROM comment_likes WHERE comment_id = comments.id) AS likes,
@@ -60,7 +61,7 @@ export const readComments = async (postId: number, userId?: number) => {
         comments.created_at,
         comments.id
     `;
-    const values = [userId, postId];
+    const values = [userId, userId, postId];
 
     conn = await pool.getConnection();
     const [rows]: [RowDataPacket[], FieldPacket[]] = await conn.query(

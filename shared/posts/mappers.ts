@@ -7,6 +7,7 @@ export const mapDBToPostInfo = (data : any) : IPostInfo => {
         content : data.content,
         author_id : data.author_id,
         author_nickname : data.author_nickname,
+        is_author : !!data.is_author,
         created_at : new Date(data.created_at),
         updated_at : data.updated_at? new Date(data.updated_at) : undefined,
         views : data.views,

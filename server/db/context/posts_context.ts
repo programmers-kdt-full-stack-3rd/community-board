@@ -79,6 +79,7 @@ export const getPostInfo = async (post_id : number, user_id? : number) => {
                         p.content,
                         p.author_id,
                         u.nickname as author_nickname,
+                        (p.author_id = ?) AS is_author,
                         p.created_at,
                         p.updated_at,
                         p.views,
@@ -97,7 +98,7 @@ export const getPostInfo = async (post_id : number, user_id? : number) => {
         `;
 
         conn = await pool.getConnection();
-        const [rows] : any[] = await conn.query(sql, [user_id, post_id]);
+        const [rows] : any[] = await conn.query(sql, [user_id, user_id, post_id]);
 
         if(rows.length === 0) {
             throw ServerError.notFound("존재하지 않는 게시글입니다.");
