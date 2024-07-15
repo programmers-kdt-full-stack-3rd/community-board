@@ -1,5 +1,4 @@
 import { useLayoutEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
 import { IPostHeader, mapDBToPostHeaders, SortBy } from "shared";
 import { sendGetPostsRequest } from "../../api/posts/crud";
 import PostModal from "../../component/Posts/Modal/PostModal";
@@ -24,8 +23,7 @@ const Main = () => {
   const [posts, setPosts] = useState<IPostHeader[]>([]);
   const [totalPosts, setTotalPosts] = useState(0);
 
-  const [searchParams, setSearchParams] = useSearchParams();
-  const parsed = useMainPageSearchParams(searchParams);
+  const { searchParams, setSearchParams, parsed } = useMainPageSearchParams();
 
   useLayoutEffect(() => {
     const queryString = `?${searchParams.toString()}`;
@@ -36,13 +34,30 @@ const Main = () => {
         return;
       }
 
-      setPosts(mapDBToPostHeaders(data.postHeaders));
-      setTotalPosts(data?.total ?? 0);
+      const total = data?.total;
+
+      if (typeof total !== "number") {
+        // TODO: 에러 핸들링
+        return;
+      }
+
+      const pageCount = Math.ceil(total / parsed.perPage);
+
+      if (pageCount > 0 && parsed.index > pageCount) {
+        const nextSearchParams = new URLSearchParams(searchParams);
+        nextSearchParams.set("index", String(pageCount));
+        setSearchParams(nextSearchParams);
+      } else {
+        setPosts(mapDBToPostHeaders(data.postHeaders));
+        setTotalPosts(data?.total ?? 0);
+      }
     });
   }, [parsed.index, parsed.perPage, parsed.keyword, parsed.sortBy]);
 
   const handlePostSort = (sortBy: SortBy | null) => {
     const nextSearchParams = new URLSearchParams(searchParams);
+
+    nextSearchParams.set("index", "1");
 
     if (sortBy === null) {
       nextSearchParams.delete("sortBy");
@@ -66,6 +81,8 @@ const Main = () => {
 
   const handleSearchSubmit = (keyword: string) => {
     const nextSearchParams = new URLSearchParams(searchParams);
+
+    nextSearchParams.set("index", "1");
 
     if (keyword) {
       nextSearchParams.set("keyword", keyword);

@@ -21,9 +21,9 @@ interface IPaginationProps {
 }
 
 const Pagination = ({
-  currentPage = 1,
-  totalPosts = 1,
-  perPage = 10,
+  currentPage,
+  totalPosts,
+  perPage,
   onChange,
 }: IPaginationProps) => {
   const actualTotalPosts = Math.max(1, totalPosts);
