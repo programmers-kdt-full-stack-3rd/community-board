@@ -1,11 +1,12 @@
 import { FC, useState } from "react";
-import { joinLink, loginButton, loginWrapper } from "./Login.css";
+import { joinLink, loginWrapper } from "./Login.css";
 import { sendPostLoginRequest } from "../../api/users/crud";
 import { useNavigate } from "react-router-dom";
 import EmailForm from "../../component/User/EmailForm";
 import PasswordForm from "../../component/User/PasswordForm";
 import ErrorMessageForm from "../../component/User/ErrorMessageForm";
 import { useUserStore } from "../../state/store";
+import SubmitButton from "../../component/User/SubmitButton";
 
 interface ILogin {
   message: string;
@@ -89,9 +90,7 @@ const Login: FC = () => {
       <EmailForm email={email} onChange={handleEmailChange} />
       <PasswordForm password={password} onChange={handlePasswordChange} />
       {errorMessage && <ErrorMessageForm>{errorMessage}</ErrorMessageForm>}
-      <button className={loginButton} onClick={handleLoginButton} type="submit">
-        로그인
-      </button>
+      <SubmitButton onClick={handleLoginButton}>로그인 버튼</SubmitButton>
       {/* TODO: 회원가입 페이지 만든 이후 클릭시 페이지 이동 기능 추가 */}
       <div className={joinLink}>회원가입</div>
 

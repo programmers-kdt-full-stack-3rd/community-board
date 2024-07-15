@@ -14,20 +14,6 @@ export const loginWrapper = style({
   gap: "10px",
 });
 
-export const loginButton = style({
-  width: "100%",
-  height: "50px",
-  padding: "0px",
-  border: "1px solid #ccc",
-  borderRadius: "4px",
-  backgroundColor: "#000",
-  color: "#fff",
-  cursor: "pointer",
-  ":hover": {
-    opacity: 0.8,
-  },
-});
-
 export const joinLink = style({
   width: "100%",
   padding: "0px",
