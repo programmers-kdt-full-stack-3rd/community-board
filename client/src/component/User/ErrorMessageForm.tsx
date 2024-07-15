@@ -1,5 +1,5 @@
 import { FC, ReactNode } from "react";
-import { errorMessageStyle } from "./EmailForm.css";
+import { errorMessageStyle } from "./css/errorMessage.css";
 
 interface IErrorMessageFormProps {
   children: ReactNode;
