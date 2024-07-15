@@ -5,6 +5,7 @@ const User = () => {
   return (
     <div>
       <button onClick={() => navigate("/login")}>로그인 화면</button>
+      <button onClick={() => navigate("/join")}>회원가입 화면</button>
     </div>
   );
 };
