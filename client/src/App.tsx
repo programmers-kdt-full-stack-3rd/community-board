@@ -6,6 +6,7 @@ import Posts from "./component/Posts/Posts";
 import Tests from "./component/TestMain/Tests";
 import Login from "./page/User/Login";
 import PostInfoPage from './page/Posts/PostInfoPage';
+import Join from "./page/User/Join";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/" element={<TestMain />} />
         <Route path="/user" element={<User />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/join" element={<Join />} />
         <Route path="/test" element={<Tests />} />
         <Route path="/posts" element={<Posts />} />
         <Route path="/post/:id" element={<PostInfoPage />}/>

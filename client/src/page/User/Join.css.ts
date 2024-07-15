@@ -1,6 +1,6 @@
 import { style } from "@vanilla-extract/css";
 
-export const loginWrapper = style({
+export const joinWrapper = style({
   position: "relative",
   width: "460px",
   height: "100%",
@@ -14,12 +14,8 @@ export const loginWrapper = style({
   gap: "10px",
 });
 
-export const joinLink = style({
-  width: "100%",
-  padding: "0px",
-  cursor: "pointer",
-  ":hover": {
-    textDecoration: "underline",
-    color: "blue",
-  },
+export const passwordReqStyle = style({
+  color: "gray",
+  fontSize: "12px",
+  display: "none",
 });
