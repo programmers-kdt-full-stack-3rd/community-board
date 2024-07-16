@@ -60,6 +60,7 @@ const PostModal : React.FC<IPostModalProps> = ({ close, originalPostData }) => {
                                 createPost();
                             }
                             close(false);
+                            window.location.reload();
                         }}>{modalMode}</button>
                 <div className={PostHeaderTitle}>게시글 {modalMode}</div>
                 <button className={CloseBtn} onClick={()=>close(false)}>취소</button>
