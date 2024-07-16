@@ -21,3 +21,8 @@ export const sendUpdatePostRequest = async (postId: number, body : object) => {
     const requestBody = convertToBody(body);
     return await httpRequest(url, HttpMethod.PATCH, requestBody);
 }
+
+export const sendDeletePostRequest = async (param : string) => {
+    const url = `post/${param}`
+    return await httpRequest(url, HttpMethod.DELETE);
+}

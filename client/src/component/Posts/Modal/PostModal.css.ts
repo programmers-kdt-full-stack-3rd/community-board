@@ -10,7 +10,8 @@ export const ModalContainer = style({
     height : "600px",
     background : vars.color.task,
     borderRadius : "5px",
-    textAlign : "center"
+    textAlign : "center",
+    zIndex : 1000
 });
 
 export const ModalHeader = style({

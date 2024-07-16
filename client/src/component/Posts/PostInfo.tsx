@@ -1,17 +1,35 @@
-import { Buttons, EtcInfo, EtcInfoItem, PostBody, PostHeader, Title } from "./PostInfo.css";
+import { EtcInfo, EtcInfoItem, FullButtons, OneButton, PostBody, PostHeader, Title, AuthorBtn, LikeBtn, LikedColor, UnLikedColor } from "./PostInfo.css";
 import { dateToStr } from "../../utils/date-to-str";
 import { IPostInfo } from "shared";
+import { useLayoutEffect, useState } from "react";
+import PostModal from "./Modal/PostModal";
+import DeleteModal from "./Modal/DeleteModal";
+import { AiFillLike } from "react-icons/ai";
+import { sendCreatePostLikeRequest, sendDeletePostLikeRequest } from "../../api/likes/crud";
+import { useUserStore } from "../../state/store";
 
 interface IPostInfoProps {
   postInfo : IPostInfo
 }
 
 const PostInfo : React.FC<IPostInfoProps> = ({ postInfo }) => {
+  const [updateModalOpen, setUpdateModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [userLiked, setUserLiked] = useState(false);
+  const [likes, setLikes] = useState(0);
+
+  useLayoutEffect(()=>{
+    setUserLiked(postInfo.user_liked);
+    setLikes(postInfo.likes);
+  }, [postInfo]);
+
   const time = postInfo.updated_at ?
               new Date(postInfo.updated_at):
               new Date(postInfo.created_at);
 
   const updateTxt = postInfo.updated_at ? " (수정됨)" : "";
+
+  const isAuthor = postInfo.is_author;
 
   const content = postInfo.content.split('\n').map((line, index) => (
     <span key={index}>
@@ -20,20 +38,47 @@ const PostInfo : React.FC<IPostInfoProps> = ({ postInfo }) => {
     </span>
   ));
 
+  const isLogin = useUserStore((state) => state.isLogin);
+
+  const handleLike = () => {
+    if(!isLogin){
+      alert("로그인이 필요합니다!");
+      return;
+    }
+
+    if(!userLiked){
+      sendCreatePostLikeRequest(postInfo.id).then((res)=>{
+        if(res.status >= 400){
+          console.log(res);
+          return;
+        }
+        setLikes(likes+1);
+        setUserLiked(true);
+      });
+    } else {
+      sendDeletePostLikeRequest(postInfo.id).then((res)=>{
+        if(res.status >= 400){
+          console.log(res);
+          return;
+        }
+        setLikes(likes-1);
+        setUserLiked(false);
+      });
+    }
+  };
+
   return (
     <div>
+        { updateModalOpen ? <PostModal close={setUpdateModalOpen} originalPostData={postInfo}/> : null}
+        { deleteModalOpen ? <DeleteModal close={setDeleteModalOpen} isAuthor={isAuthor} postId={postInfo.id}/> : null}
         <div className={PostHeader}>
-            {/* flex col */}
             <div className={Title}>{postInfo.title}</div>
             <div className={EtcInfo}>
-              {/* flex between */}
               <div className={EtcInfoItem}>
-                {/* 왼쪽 flex row */}
                 <div>{postInfo.author_nickname}</div>
                 <div>{dateToStr(time) + updateTxt}</div>
               </div>
               <div className={EtcInfoItem}>
-                {/* 오른쪽 flex row */}
                 <div>{"조회 " + postInfo.views}</div>
                 <div>{"좋아요 " + postInfo.likes}</div>
               </div>
@@ -42,11 +87,13 @@ const PostInfo : React.FC<IPostInfoProps> = ({ postInfo }) => {
         <div className={PostBody}>
             {content}
         </div>
-        <div className={Buttons}>
-          {/* TODO : 로그인 여부에 따라 버튼 숨기기 */}
-          {<button>수정</button>}
-          <button>좋아요</button>
-          {<button>삭제</button>}
+        <div className={isAuthor ? FullButtons : OneButton}>
+          {isAuthor ? <button className={AuthorBtn} onClick={()=>setUpdateModalOpen(true)}>수정</button> : null}
+          <div className={LikeBtn} onClick={handleLike}>
+            <AiFillLike color={userLiked ? "#36B700" : "#000000"} size={50}/>
+            <div className={userLiked ? LikedColor : UnLikedColor}>{likes}</div>
+          </div>
+          {isAuthor ? <button className={AuthorBtn} onClick={()=>setDeleteModalOpen(true)}>삭제</button> : null}
         </div>
     </div>
   )
