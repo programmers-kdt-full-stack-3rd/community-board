@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { createSelectors } from "./selector";
+import { persist } from "zustand/middleware";
 
 interface IUserState {
   nickname: string;
@@ -17,21 +18,34 @@ interface IUserActions {
 
 type TUserStore = IUserState & { actions: IUserActions };
 
-const useUserStoreBase = create<TUserStore>((set) => {
-  return {
-    nickname: "",
-    loginTime: "",
-    isLogin: false,
+const useUserStoreBase = create<TUserStore>()(
+  persist(
+    (set) => {
+      return {
+        nickname: "",
+        loginTime: "",
+        isLogin: false,
 
-    actions: {
-      setNickName: (nickname: string) => set({ nickname: nickname }),
-      setLoginTime: (loginTime: string) => set({ loginTime }),
-      setIsLogin: (isLogin: boolean) => set({ isLogin }),
-      setLoginUser: (nickname: string, loginTime: string) =>
-        set({ nickname, loginTime, isLogin: true }),
-      setLogoutUser: () => set({ nickname: "", loginTime: "", isLogin: false }),
+        actions: {
+          setNickName: (nickname: string) => set({ nickname: nickname }),
+          setLoginTime: (loginTime: string) => set({ loginTime }),
+          setIsLogin: (isLogin: boolean) => set({ isLogin }),
+          setLoginUser: (nickname: string, loginTime: string) =>
+            set({ nickname, loginTime, isLogin: true }),
+          setLogoutUser: () =>
+            set({ nickname: "", loginTime: "", isLogin: false }),
+        },
+      };
     },
-  };
-});
+    {
+      name: "userStorage",
+      partialize: (state) => ({
+        nickname: state.nickname,
+        loginTime: state.loginTime,
+        isLogin: state.isLogin,
+      }),
+    }
+  )
+);
 
 export const useUserStore = createSelectors(useUserStoreBase);
