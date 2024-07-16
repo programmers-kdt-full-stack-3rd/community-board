@@ -22,6 +22,7 @@ export const getPostHeaders = async ( queryString : IReadPostRequest ) => {
                             p.title as title,
                             u.nickname as author_nickname,
                             p.created_at as created_at,
+                            p.views as views,
                             (SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) AS likes ${sharedSql}`; 
 
         let countSql = `SELECT COUNT(*) as total ${sharedSql}`;
