@@ -1,12 +1,18 @@
 import { EtcInfo, EtcInfoItem, FullButtons, OneButton, PostBody, PostHeader, Title } from "./PostInfo.css";
 import { dateToStr } from "../../utils/date-to-str";
 import { IPostInfo } from "shared";
+import { useState } from "react";
+import PostModal from "./Modal/PostModal";
 
 interface IPostInfoProps {
   postInfo : IPostInfo
 }
 
 const PostInfo : React.FC<IPostInfoProps> = ({ postInfo }) => {
+
+  const [updateModalOpen, setUpdateModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+
   const time = postInfo.updated_at ?
               new Date(postInfo.updated_at):
               new Date(postInfo.created_at);
@@ -20,10 +26,12 @@ const PostInfo : React.FC<IPostInfoProps> = ({ postInfo }) => {
     </span>
   ));
 
-  const isLogin = false;
+  const isAuthor = postInfo.is_author;
 
   return (
     <div>
+        { updateModalOpen ? <PostModal close={setUpdateModalOpen} originalPostData={postInfo}/> : null}
+        { deleteModalOpen ? null : null}
         <div className={PostHeader}>
             {/* flex col */}
             <div className={Title}>{postInfo.title}</div>
@@ -44,11 +52,11 @@ const PostInfo : React.FC<IPostInfoProps> = ({ postInfo }) => {
         <div className={PostBody}>
             {content}
         </div>
-        <div className={isLogin ? FullButtons : OneButton}>
+        <div className={isAuthor ? FullButtons : OneButton}>
           {/* TODO : 로그인 여부에 따라 버튼 숨기기 */}
-          {isLogin ? <button>수정</button> : null}
+          {isAuthor ? <button onClick={()=>setUpdateModalOpen(true)}>수정</button> : null}
           <button>좋아요</button>
-          {isLogin ? <button>삭제</button> : null}
+          {isAuthor ? <button onClick={()=>setDeleteModalOpen(true)}>삭제</button> : null}
         </div>
     </div>
   )
