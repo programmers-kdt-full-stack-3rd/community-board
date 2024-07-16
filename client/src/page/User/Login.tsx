@@ -1,7 +1,7 @@
 import { FC, useState } from "react";
 import { joinLink, loginWrapper } from "./Login.css";
 import { sendPostLoginRequest } from "../../api/users/crud";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import EmailForm from "../../component/User/EmailForm";
 import PasswordForm from "../../component/User/PasswordForm";
 import ErrorMessageForm from "../../component/User/ErrorMessageForm";
@@ -31,6 +31,8 @@ const Login: FC = () => {
   // const stateIsLogin = useUserStore.use.isLogin();
 
   const navigate = useNavigate();
+  const location = useLocation();
+
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
   };
@@ -74,8 +76,9 @@ const Login: FC = () => {
 
       setLoginUser(nickname, loginTime);
 
-      //TODO: 로그인 헤더 추가 후 로그인 버튼 누른 시점의 페이지로 이동
-      navigate("/user"); // 유저 페이지로 이동
+      const redirect =
+        new URLSearchParams(location.search).get("redirect") || "/";
+      navigate(redirect); // 이전 페이지로
     } else {
       if (result.message) {
         let message: string = result.message;

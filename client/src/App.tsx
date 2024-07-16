@@ -13,9 +13,9 @@ import { AppContainer, mainContainer } from "./App.css";
 function App() {
   return (
     <div className={AppContainer}>
-      <Header />
-      <div className={mainContainer}>
-        <BrowserRouter>
+      <BrowserRouter>
+        <Header />
+        <div className={mainContainer}>
           <Routes>
             <Route path="/" element={<Main />} />
             <Route path="/user" element={<User />} />
@@ -25,8 +25,8 @@ function App() {
             <Route path="/posts" element={<Posts />} />
             <Route path="/post/:id" element={<PostInfoPage />} />
           </Routes>
-        </BrowserRouter>
-      </div>
+        </div>
+      </BrowserRouter>
     </div>
   );
 }
