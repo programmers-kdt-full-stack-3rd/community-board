@@ -23,7 +23,8 @@ export const mapDBToPostHeaders = (datas : any[]) : IPostHeader[] => {
             title : data.title,
             author_nickname : data.author_nickname,
             created_at : new Date(data.created_at),
-            likes : data.likes
+            likes : data.likes,
+            views : data.views
         };
     });
 }
