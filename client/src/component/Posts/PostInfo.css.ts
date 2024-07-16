@@ -1,4 +1,5 @@
 import { style } from "@vanilla-extract/css";
+import { vars } from "../../App.css.ts";
 
 export const PostHeader = style({
     display : "flex",
@@ -58,4 +59,30 @@ export const OneButton = style({
     paddingBottom : "20px",
     paddingLeft : "10px",
     paddingRight : "10px"
+});
+
+export const AuthorBtn = style({
+    height : "40px"
+});
+
+export const LikeBtn = style({
+    width : "70px",
+    height : "70px",
+    backgroundColor : vars.color.brightText,
+    color : vars.color.darkText,
+    cursor : "pointer",
+    border : "1px solid white",
+    borderRadius : 70,
+    display : "flex",
+    justifyContent : "center",
+    alignItems : "center",
+    flexDirection : "column"
+})
+
+export const LikedColor = style({
+    color : vars.color.successButton
+});
+
+export const UnLikedColor = style({
+    color : vars.color.darkText
 });

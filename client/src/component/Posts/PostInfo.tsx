@@ -1,9 +1,11 @@
-import { EtcInfo, EtcInfoItem, FullButtons, OneButton, PostBody, PostHeader, Title } from "./PostInfo.css";
+import { EtcInfo, EtcInfoItem, FullButtons, OneButton, PostBody, PostHeader, Title, AuthorBtn, LikeBtn, LikedColor, UnLikedColor } from "./PostInfo.css";
 import { dateToStr } from "../../utils/date-to-str";
 import { IPostInfo } from "shared";
-import { useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import PostModal from "./Modal/PostModal";
 import DeleteModal from "./Modal/DeleteModal";
+import { AiFillLike } from "react-icons/ai";
+import { sendCreatePostLikeRequest, sendDeletePostLikeRequest } from "../../api/likes/crud";
 
 interface IPostInfoProps {
   postInfo : IPostInfo
@@ -12,6 +14,13 @@ interface IPostInfoProps {
 const PostInfo : React.FC<IPostInfoProps> = ({ postInfo }) => {
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [userLiked, setUserLiked] = useState(false);
+  const [likes, setLikes] = useState(0);
+
+  useLayoutEffect(()=>{
+    setUserLiked(postInfo.user_liked);
+    setLikes(postInfo.likes);
+  }, [postInfo]);
 
   const time = postInfo.updated_at ?
               new Date(postInfo.updated_at):
@@ -27,6 +36,28 @@ const PostInfo : React.FC<IPostInfoProps> = ({ postInfo }) => {
       <br />
     </span>
   ));
+
+  const handleLike = () => {
+      if(!userLiked){
+        sendCreatePostLikeRequest(postInfo.id).then((res)=>{
+          if(res.status >= 400){
+            console.log(res);
+            return;
+          }
+          setLikes(likes+1);
+          setUserLiked(true);
+        });
+      } else {
+        sendDeletePostLikeRequest(postInfo.id).then((res)=>{
+          if(res.status >= 400){
+            console.log(res);
+            return;
+          }
+          setLikes(likes-1);
+          setUserLiked(false);
+        });
+      }
+  };
 
   return (
     <div>
@@ -49,9 +80,12 @@ const PostInfo : React.FC<IPostInfoProps> = ({ postInfo }) => {
             {content}
         </div>
         <div className={isAuthor ? FullButtons : OneButton}>
-          {isAuthor ? <button onClick={()=>setUpdateModalOpen(true)}>수정</button> : null}
-          <button>좋아요</button>
-          {isAuthor ? <button onClick={()=>setDeleteModalOpen(true)}>삭제</button> : null}
+          {isAuthor ? <button className={AuthorBtn} onClick={()=>setUpdateModalOpen(true)}>수정</button> : null}
+          <div className={LikeBtn} onClick={handleLike}>
+            <AiFillLike color={userLiked ? "#36B700" : "#000000"} size={50}/>
+            <div className={userLiked ? LikedColor : UnLikedColor}>{likes}</div>
+          </div>
+          {isAuthor ? <button className={AuthorBtn} onClick={()=>setDeleteModalOpen(true)}>삭제</button> : null}
         </div>
     </div>
   )
