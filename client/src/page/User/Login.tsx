@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useState } from "react";
 import { joinLink, loginWrapper } from "./Login.css";
 import { sendPostLoginRequest } from "../../api/users/crud";
 import { useNavigate } from "react-router-dom";

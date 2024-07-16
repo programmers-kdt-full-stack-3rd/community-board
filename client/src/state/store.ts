@@ -1,6 +1,6 @@
-import { StateCreator, create } from "zustand";
+import { create } from "zustand";
 import { createSelectors } from "./selector";
-import { PersistOptions, persist } from "zustand/middleware";
+import { persist } from "zustand/middleware";
 
 interface IUserState {
   nickname: string;
