@@ -14,8 +14,10 @@ export const header = style({
 
 export const siteTitle = style({
   fontSize: "24px",
+  color: "white",
   fontWeight: "bold",
   ":hover": {
+    color: "white",
     opacity: 0.7,
     cursor: "pointer",
   },

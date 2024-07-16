@@ -1,7 +1,8 @@
 import { FiLogIn, FiLogOut, FiUser, FiUserPlus } from "react-icons/fi";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { sendPostLogoutRequest } from "../../api/users/crud";
 import { useUserStore } from "../../state/store";
+import { RiAliensFill } from "react-icons/ri";
 import {
   button,
   header,
@@ -16,10 +17,6 @@ const Header = () => {
   const isLogin = useUserStore.use.isLogin();
   const nickname = useUserStore.use.nickname();
   const { setLogoutUser } = useUserStore.use.actions();
-
-  const handleTitle = () => {
-    navigate("/");
-  };
 
   const handleLogin = () => {
     const currentPath = window.location.pathname;
@@ -47,9 +44,10 @@ const Header = () => {
 
   return (
     <div className={header}>
-      <div className={siteTitle} onClick={handleTitle}>
+      <Link to="/" className={siteTitle}>
+        <RiAliensFill />
         DBDB DEEP
-      </div>
+      </Link>
       <div className={userAuthPanel}>
         {isLogin && (
           <div className={nicknameInfo}>{nickname}님 환영 합니다.</div>
