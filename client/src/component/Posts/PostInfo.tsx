@@ -6,6 +6,7 @@ import PostModal from "./Modal/PostModal";
 import DeleteModal from "./Modal/DeleteModal";
 import { AiFillLike } from "react-icons/ai";
 import { sendCreatePostLikeRequest, sendDeletePostLikeRequest } from "../../api/likes/crud";
+import { useUserStore } from "../../state/store";
 
 interface IPostInfoProps {
   postInfo : IPostInfo
@@ -37,26 +38,33 @@ const PostInfo : React.FC<IPostInfoProps> = ({ postInfo }) => {
     </span>
   ));
 
+  const isLogin = useUserStore((state) => state.isLogin);
+
   const handleLike = () => {
-      if(!userLiked){
-        sendCreatePostLikeRequest(postInfo.id).then((res)=>{
-          if(res.status >= 400){
-            console.log(res);
-            return;
-          }
-          setLikes(likes+1);
-          setUserLiked(true);
-        });
-      } else {
-        sendDeletePostLikeRequest(postInfo.id).then((res)=>{
-          if(res.status >= 400){
-            console.log(res);
-            return;
-          }
-          setLikes(likes-1);
-          setUserLiked(false);
-        });
-      }
+    if(!isLogin){
+      alert("로그인이 필요합니다!");
+      return;
+    }
+
+    if(!userLiked){
+      sendCreatePostLikeRequest(postInfo.id).then((res)=>{
+        if(res.status >= 400){
+          console.log(res);
+          return;
+        }
+        setLikes(likes+1);
+        setUserLiked(true);
+      });
+    } else {
+      sendDeletePostLikeRequest(postInfo.id).then((res)=>{
+        if(res.status >= 400){
+          console.log(res);
+          return;
+        }
+        setLikes(likes-1);
+        setUserLiked(false);
+      });
+    }
   };
 
   return (
