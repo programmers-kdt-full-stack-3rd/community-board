@@ -95,7 +95,7 @@ const Main = () => {
 
   return (
     <div className={mainPageStyle}>
-      {isModalOpen ? <PostModal close={setIsModalOpen} /> : null}
+      {isModalOpen && <PostModal close={setIsModalOpen} />}
 
       {/* TODO: 최상단 헤더 연결 후 TestMain 제거 */}
       <TestMain />
@@ -110,7 +110,7 @@ const Main = () => {
       />
 
       <div className={postListActions}>
-        {isLogin ? (
+        {isLogin && (
           <div className={createPostButtonWrapper}>
             <button
               className={createPostButton}
@@ -119,7 +119,7 @@ const Main = () => {
               글쓰기
             </button>
           </div>
-        ) : null}
+        )}
 
         <SearchForm
           defaultKeyword={parsed.keyword}
