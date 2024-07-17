@@ -46,6 +46,13 @@ const CommentItem = ({ comment, onUpdate }: ICommentItemProps) => {
   };
 
   const handleEditionSubmit = async (content: string): Promise<boolean> => {
+    const trimmedContent = content.trim();
+
+    if (trimmedContent === comment.content) {
+      alert("댓글 내용이 이전과 동일합니다.");
+      return false;
+    }
+
     try {
       const response = await sendPatchCommentRequest({
         content,
