@@ -147,6 +147,7 @@ const CommentItem = ({ comment, onUpdate }: ICommentItemProps) => {
       {isEditMode || (
         <div className={commentFooter}>
           <CommentLikeButton
+            commentId={comment.id}
             likes={comment.likes}
             userLiked={comment.user_liked}
           />
