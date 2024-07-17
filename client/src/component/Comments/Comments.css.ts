@@ -43,3 +43,10 @@ export const commentList = style({
   flexDirection: "column",
   rowGap: "40px",
 });
+
+export const noComment = style({
+  margin: "0 0 120px",
+  textAlign: "center",
+  color: "#808080",
+  fontSize: "24px",
+});

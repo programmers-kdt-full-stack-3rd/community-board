@@ -13,6 +13,7 @@ import {
   commentSection,
   commentSectionTitle,
   commentWriteSection,
+  noComment,
 } from "./Comments.css";
 
 interface ICommentsProps {
@@ -82,13 +83,20 @@ const Comments = ({ postId }: ICommentsProps) => {
       </div>
 
       <div className={commentList}>
-        {comments.map((comment) => (
-          <CommentItem
-            key={comment.id}
-            comment={comment}
-            onUpdate={handleCommentUpdate}
-          />
-        ))}
+        {comments.length > 0 ? (
+          comments.map((comment) => (
+            <CommentItem
+              key={comment.id}
+              comment={comment}
+              onUpdate={handleCommentUpdate}
+            />
+          ))
+        ) : (
+          <p className={noComment}>
+            아직 댓글이 없습니다.
+            <br />첫 댓글을 작성해 보세요.
+          </p>
+        )}
       </div>
     </div>
   );
