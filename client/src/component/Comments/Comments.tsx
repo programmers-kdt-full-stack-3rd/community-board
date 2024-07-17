@@ -17,6 +17,10 @@ const Comments = ({ postId }: ICommentsProps) => {
   const [comments, setComments] = useState<IComment[]>([]);
 
   useLayoutEffect(() => {
+    if (postId < 1) {
+      return;
+    }
+
     sendGetCommentsRequest(postId).then((data) => {
       if (data.status >= 400) {
         // TODO: 에러 핸들링

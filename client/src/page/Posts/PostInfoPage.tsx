@@ -40,7 +40,7 @@ const PostInfoPage = () => {
   return (
     <div className={PostInfoPageStyle}>
       <PostInfo postInfo={postInfo} />
-      <Comments postId={postInfo.id} />
+      <Comments postId={postInfo.id || parseInt(id ?? "0", 10) || 0} />
     </div>
   );
 };
