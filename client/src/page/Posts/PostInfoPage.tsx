@@ -4,6 +4,7 @@ import { PostInfoPageStyle } from "./PostInfoPage.css";
 import { useParams } from 'react-router-dom';
 import { IPostInfo, mapDBToPostInfo } from "shared";
 import { sendGetPostRequest } from "../../api/posts/crud";
+import Comments from "../../component/Comments/Comments";
 
 const PostInfoPage = () => {
   const { id } = useParams();
@@ -38,9 +39,10 @@ const PostInfoPage = () => {
 
   return (
     <div className={PostInfoPageStyle}>
-        <PostInfo postInfo={postInfo}/>
+      <PostInfo postInfo={postInfo} />
+      <Comments postId={postInfo.id || parseInt(id ?? "0", 10) || 0} />
     </div>
-  )
-}
+  );
+};
 
-export default PostInfoPage
+export default PostInfoPage;

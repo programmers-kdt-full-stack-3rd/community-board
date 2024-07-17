@@ -1,3 +1,4 @@
+import { mapDBToComments } from "shared";
 import {
   FieldPacket,
   PoolConnection,
@@ -6,7 +7,6 @@ import {
 } from "mysql2/promise";
 import { ServerError } from "../../middleware/errors";
 import pool from "../connect";
-import { mapDBToComments } from "../mapper/comments_mapper";
 
 interface ICommentInsertion {
   post_id: number;
