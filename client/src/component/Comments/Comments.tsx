@@ -1,7 +1,11 @@
-import { IComment, mapDBToComments } from "shared";
-import CommentItem from "./CommentItem/CommentItem";
 import { useLayoutEffect, useState } from "react";
-import { sendGetCommentsRequest } from "../../api/comments/crud";
+import { IComment, mapDBToComments } from "shared";
+import {
+  sendGetCommentsRequest,
+  sendPostCommentRequest,
+} from "../../api/comments/crud";
+import CommentForm from "./CommentForm/CommentForm";
+import CommentItem from "./CommentItem/CommentItem";
 import {
   commentCount,
   commentList,
@@ -14,6 +18,7 @@ interface ICommentsProps {
 }
 
 const Comments = ({ postId }: ICommentsProps) => {
+  const [submissionTime, setSubmissionTime] = useState(0);
   const [comments, setComments] = useState<IComment[]>([]);
 
   useLayoutEffect(() => {
@@ -30,13 +35,38 @@ const Comments = ({ postId }: ICommentsProps) => {
 
       setComments(mapDBToComments(data.comments));
     });
-  }, [postId]);
+  }, [postId, submissionTime]);
+
+  const handleCommentCreate = async (content: string): Promise<boolean> => {
+    try {
+      const response = await sendPostCommentRequest({
+        content,
+        post_id: postId,
+      });
+
+      if (response?.status >= 400) {
+        alert("댓글 작성에 실패했습니다.");
+        return false;
+      }
+
+      setSubmissionTime(Date.now());
+      alert("댓글을 작성했습니다.");
+    } catch (error) {
+      console.error(error);
+      alert("댓글 작성에 실패했습니다.");
+      return false;
+    }
+
+    return true;
+  };
 
   return (
     <div className={commentSection}>
       <h2 className={commentSectionTitle}>
         댓글<span className={commentCount}> ({comments.length}개)</span>
       </h2>
+
+      <CommentForm onSubmit={handleCommentCreate} />
 
       <div className={commentList}>
         {comments.map((comment) => (
