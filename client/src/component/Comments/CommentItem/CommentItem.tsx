@@ -76,6 +76,8 @@ const CommentItem = ({ comment, onUpdate }: ICommentItemProps) => {
       await onUpdate();
     }
 
+    setIsEditMode(false);
+
     return true;
   };
 
