@@ -1,4 +1,10 @@
-import { FiLogIn, FiLogOut, FiUser, FiUserPlus } from "react-icons/fi";
+import {
+  FiLogIn,
+  FiLogOut,
+  FiUser,
+  FiUserPlus,
+  FiChevronDown,
+} from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
 import { sendPostLogoutRequest } from "../../api/users/crud";
 import { useUserStore } from "../../state/store";
@@ -11,12 +17,33 @@ import {
   siteTitle,
   userAuthPanel,
 } from "./Header.css";
+import { useEffect, useRef, useState } from "react";
+import DropdownMenu from "./DropdownMenu";
 
 const Header = () => {
   const navigate = useNavigate();
   const isLogin = useUserStore.use.isLogin();
   const nickname = useUserStore.use.nickname();
   const { setLogoutUser } = useUserStore.use.actions();
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const dropdownMenuRef = useRef<HTMLDivElement>(null);
+
+  // 드랍다운 메뉴 이외 클릭시 드랍다운 메뉴 닫기
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        dropdownMenuRef.current &&
+        !dropdownMenuRef.current.contains(e.target as Node)
+      ) {
+        setIsUserMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleLogin = () => {
     const currentPath = window.location.pathname;
@@ -34,8 +61,7 @@ const Header = () => {
   };
 
   const handleUserInfo = () => {
-    //TODO: 유저 정보 화면 생성후 추가
-    console.log("유저정보");
+    setIsUserMenuOpen(!isUserMenuOpen);
   };
 
   const handleJoin = () => {
@@ -68,13 +94,18 @@ const Header = () => {
             className={button}
           >
             {isLogin ? (
-              <FiUser size="30" title="유저정보" />
+              <div className={button}>
+                <FiUser size="30" title="유저정보" />
+                <FiChevronDown size="20" />
+              </div>
             ) : (
               <FiUserPlus size="30" title="회원가입" />
             )}
           </div>
+          {isUserMenuOpen &&
+            isLogin &&
+            DropdownMenu({ ref: dropdownMenuRef, navigate: navigate })}
         </div>
-        <div></div>
       </div>
     </div>
   );
