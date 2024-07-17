@@ -23,3 +23,7 @@ export const sendPostLogoutRequest = async () => {
 export const sendPutUpdateUserRequest = async (body: object) => {
   return await httpRequest("user", HttpMethod.PUT, convertToBody(body));
 };
+
+export const sendDeleteUserRequest = async () => {
+  return await httpRequest("user", HttpMethod.DELETE);
+};
