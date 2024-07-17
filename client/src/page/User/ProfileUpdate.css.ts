@@ -13,3 +13,25 @@ export const profileUpdateWrapper = style({
   padding: "24px",
   gap: "10px",
 });
+
+export const buttonsWrapper = style({
+  width: "100%",
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "space-between",
+  gap: "10px",
+});
+
+export const cancleButton = style({
+  width: "100%",
+  height: "50px",
+  padding: "0px",
+  borderRadius: "4px",
+  backgroundColor: "gray",
+  color: "#fff",
+
+  ":hover": {
+    filter: "brightness(0.8)",
+    cursor: "pointer",
+  },
+});

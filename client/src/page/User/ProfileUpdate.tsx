@@ -1,7 +1,11 @@
 import { ChangeEvent, FC, useState } from "react";
 import NicknameForm from "../../component/User/NicknameForm";
 import PasswordForm from "../../component/User/PasswordForm";
-import { profileUpdateWrapper } from "./ProfileUpdate.css";
+import {
+  buttonsWrapper,
+  cancleButton,
+  profileUpdateWrapper,
+} from "./ProfileUpdate.css";
 import SubmitButton from "../../component/User/SubmitButton";
 import { REGEX } from "./constants/constants";
 import ErrorMessageForm from "../../component/User/ErrorMessageForm";
@@ -125,6 +129,10 @@ const ProfileUpdate: FC = () => {
 
     alert("유저 정보가 변경되었습니다.");
   };
+
+  const handleCancle = () => {
+    navigate(final || "/");
+  };
   return (
     <div className={profileUpdateWrapper}>
       <h1>유저 정보 수정</h1>
@@ -144,9 +152,13 @@ const ProfileUpdate: FC = () => {
         password={requiredPassword}
         onChange={handleRequiredPasswordChange}
       />
-      <SubmitButton onClick={handleSubmit}>유저 정보 변경</SubmitButton>
-
       {errorMessage && <ErrorMessageForm>{errorMessage}</ErrorMessageForm>}
+      <div className={buttonsWrapper}>
+        <button className={cancleButton} onClick={handleCancle}>
+          취소
+        </button>
+        <SubmitButton onClick={handleSubmit}>유저 정보 변경</SubmitButton>
+      </div>
     </div>
   );
 };
