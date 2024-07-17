@@ -1,6 +1,9 @@
 import { ReactNode, useMemo, useState } from "react";
 import { IComment } from "shared";
-import { sendPatchCommentRequest } from "../../../api/comments/crud";
+import {
+  sendDeleteCommentRequest,
+  sendPatchCommentRequest,
+} from "../../../api/comments/crud";
 import { dateToStr } from "../../../utils/date-to-str";
 import CommentForm from "../CommentForm/CommentForm";
 import CommentLikeButton from "../CommentLikeButton/CommentLikeButton";
@@ -66,6 +69,36 @@ const CommentItem = ({ comment, onUpdate }: ICommentItemProps) => {
       await onUpdate();
     }
 
+    return true;
+  };
+
+  const handleDeleteClick = async () => {
+    const accepted = confirm("댓글을 정말로 삭제할까요?");
+
+    if (!accepted) {
+      return;
+    }
+
+    try {
+      const response = await sendDeleteCommentRequest(comment.id);
+
+      if (response?.status >= 400) {
+        console.error(response);
+        alert("댓글 삭제에 실패했습니다.");
+        return false;
+      }
+
+      alert("댓글을 삭제했습니다.");
+    } catch (error) {
+      console.error(error);
+      alert("댓글 삭제에 실패했습니다.");
+      return false;
+    }
+
+    if (onUpdate) {
+      await onUpdate();
+    }
+
     setIsEditMode(false);
 
     return true;
@@ -114,7 +147,7 @@ const CommentItem = ({ comment, onUpdate }: ICommentItemProps) => {
           {comment.is_author && (
             <div className={commentEditButtons}>
               <button onClick={handleEditModeToggle}>수정</button>
-              <button onClick={() => alert("댓글 삭제 요청")}>삭제</button>
+              <button onClick={handleDeleteClick}>삭제</button>
             </div>
           )}
         </div>
