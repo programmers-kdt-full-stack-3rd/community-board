@@ -47,22 +47,13 @@ export const isCommentUpdated = style({
 });
 
 export const commentBody = style({
-  boxSizing: "border-box",
-  padding: "8px 12px",
   width: "100%",
 });
 
-export const commentContent = style({});
-
-export const commentEdit = style({
+export const commentContent = style({
   boxSizing: "border-box",
-  padding: "4px 8px",
+  padding: "8px 12px",
   width: "100%",
-  minHeight: "120px",
-  resize: "vertical",
-  lineHeight: "1.5",
-  fontFamily: "Inter, system-ui, Avenir, Helvetica, Arial, sans-serif",
-  fontSize: "16px",
 });
 
 export const commentFooter = style({

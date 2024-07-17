@@ -24,6 +24,20 @@ export const commentCount = style({
   fontSize: "0.8em",
 });
 
+export const commentWriteSection = style({
+  display: "flex",
+  flexDirection: "column",
+  rowGap: "8px",
+  boxSizing: "border-box",
+  width: "100%",
+});
+
+export const commentFormTitle = style({
+  margin: 0,
+  padding: "0 12px",
+  fontSize: "18px",
+});
+
 export const commentList = style({
   display: "flex",
   flexDirection: "column",

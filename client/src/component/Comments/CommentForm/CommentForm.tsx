@@ -1,20 +1,24 @@
 import { ChangeEvent, FormEvent, useCallback, useState } from "react";
 import { useUserStore } from "../../../state/store";
 import {
+  button,
   commentFormContainer,
   footer,
-  submitButton,
   textArea,
 } from "./CommentForm.css";
 
 interface ICommentFormProps {
   defaultContent?: string;
+  isUpdateMode?: boolean;
   onSubmit: (content: string) => Promise<boolean>;
+  onCancel?: () => void;
 }
 
 const CommentForm = ({
   defaultContent,
+  isUpdateMode,
   onSubmit,
+  onCancel,
 }: ICommentFormProps) => {
   const isLogin = useUserStore((state) => state.isLogin);
 
@@ -45,6 +49,12 @@ const CommentForm = ({
     []
   );
 
+  const handleCancelClick = useCallback(() => {
+    if (onCancel) {
+      onCancel();
+    }
+  }, [onCancel]);
+
   return (
     <form className={commentFormContainer} onSubmit={handleFormSubmit}>
       <textarea
@@ -55,9 +65,14 @@ const CommentForm = ({
       />
 
       <div className={footer}>
-        <button type="submit" className={submitButton} disabled={!isLogin}>
-          등록
+        <button type="submit" className={button} disabled={!isLogin}>
+          {isUpdateMode ? "수정" : "등록"}
         </button>
+        {isUpdateMode && (
+          <button type="button" className={button} onClick={handleCancelClick}>
+            취소
+          </button>
+        )}
       </div>
     </form>
   );

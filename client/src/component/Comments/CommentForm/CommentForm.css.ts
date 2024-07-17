@@ -6,14 +6,15 @@ export const commentFormContainer = style({
   alignItems: "stretch",
   rowGap: "8px",
   boxSizing: "border-box",
-  width: "800px",
+  width: "100%",
 });
 
 export const textArea = style({
   boxSizing: "border-box",
+  marginBottom: "",
   border: "1px solid #80808080",
   borderRadius: "8px",
-  padding: "4px 8px",
+  padding: "7px 11px",
   width: "100%",
   minHeight: "100px",
   resize: "vertical",
@@ -26,9 +27,13 @@ export const footer = style({
   display: "flex",
   justifyContent: "flex-end",
   alignItems: "flex-start",
+  columnGap: "8px",
 });
 
-export const submitButton = style({
+export const button = style({
+  height: "40px",
+  fontSize: "0.9rem",
+
   selectors: {
     "&[disabled]": {
       cursor: "not-allowed",
