@@ -38,6 +38,12 @@ export const commentTimestamp = style({
 export const isCommentUpdated = style({
   fontSize: "0.9em",
   opacity: 0.7,
+  cursor: "help",
+
+  ":hover": {
+    opacity: 1,
+    textDecoration: "underline dotted",
+  },
 });
 
 export const commentBody = style({

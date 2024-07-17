@@ -48,7 +48,15 @@ const CommentItem = ({ comment }: ICommentItemProps) => {
         <div className={commentTimestamp}>
           {dateToStr(comment.created_at)}
           {comment.updated_at ? (
-            <span className={isCommentUpdated}> (수정됨)</span>
+            <>
+              {" "}
+              <span
+                className={isCommentUpdated}
+                title={`최종 수정: ${dateToStr(comment.updated_at)}`}
+              >
+                (수정됨)
+              </span>
+            </>
           ) : null}
         </div>
       </div>
