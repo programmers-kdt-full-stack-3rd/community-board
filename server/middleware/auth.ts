@@ -74,6 +74,7 @@ export const requireLogin = (
   req.userId ? next() : next(ServerError.unauthorized("로그인이 필요합니다."));
 };
 
+// TODO: 기존 유저의 userId와 tenpToken의 userId가 일치하는지 확인하는 로직 추가
 export const requirePassword = (
   req: Request,
   res: Response,
