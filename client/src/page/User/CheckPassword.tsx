@@ -1,11 +1,26 @@
 import { FC, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { sendPOSTCheckPasswordRequest } from "../../api/users/crud";
+import {
+  sendDeleteUserRequest,
+  sendPOSTCheckPasswordRequest,
+} from "../../api/users/crud";
 import PasswordForm from "../../component/User/PasswordForm";
 import SubmitButton from "../../component/User/SubmitButton";
 import { checkPasswordWrapper } from "./CheckPassword.css";
 import { REGEX } from "./constants/constants";
+import { useModal } from "../../hook/useModal";
+import UserDeleteModal from "../../component/Header/UserDeleteModal";
+import { useUserStore } from "../../state/store";
 
+const MODAL_CONFIGS = {
+  final: {
+    title: "회원 탈퇴 최종 확인",
+    message: "정말로 탈퇴하시겠습니까?",
+    cancelText: "취소",
+    confirmText: "탈퇴 확정",
+    isWarning: true,
+  },
+};
 const CheckPassword: FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -14,6 +29,10 @@ const CheckPassword: FC = () => {
   const searchParams = new URLSearchParams(location.search);
   const next = searchParams.get("next");
   const final = searchParams.get("final");
+
+  const { setLogoutUser } = useUserStore.use.actions();
+
+  const finalModal = useModal();
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
@@ -42,8 +61,26 @@ const CheckPassword: FC = () => {
       navigate("/login");
     }
 
+    if (next === "accountDelete") {
+      finalModal.open();
+      return;
+    }
     navigate(`/${next}?final=${final}`);
   };
+
+  const handleFinalConfirm = async () => {
+    finalModal.close();
+    alert("회원 탈퇴가 완료되었습니다.");
+    const result = await sendDeleteUserRequest();
+    if (result.status !== 200) {
+      alert("회원 탈퇴에 실패했습니다.");
+      navigate(`/`);
+      return;
+    }
+    setLogoutUser();
+    navigate(`/`);
+  };
+
   return (
     <>
       <div className={checkPasswordWrapper}>
@@ -54,6 +91,13 @@ const CheckPassword: FC = () => {
         />
         <SubmitButton onClick={handleSubmit}>확인</SubmitButton>
       </div>
+
+      <UserDeleteModal
+        {...MODAL_CONFIGS.final}
+        isOpen={finalModal.isOpen}
+        onClose={finalModal.close}
+        onConfirm={handleFinalConfirm}
+      />
     </>
   );
 };
