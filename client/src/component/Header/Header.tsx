@@ -19,6 +19,7 @@ import {
 } from "./Header.css";
 import { useEffect, useRef, useState } from "react";
 import DropdownMenu from "./DropdownMenu";
+import { useModal } from "../../hook/useModal";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -27,6 +28,9 @@ const Header = () => {
   const { setLogoutUser } = useUserStore.use.actions();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const dropdownMenuRef = useRef<HTMLDivElement>(null);
+
+  // Modal hooks
+  const warningModal = useModal();
 
   // 드랍다운 메뉴 이외 클릭시 드랍다운 메뉴 닫기
   useEffect(() => {
@@ -104,7 +108,11 @@ const Header = () => {
           </div>
           {isUserMenuOpen &&
             isLogin &&
-            DropdownMenu({ ref: dropdownMenuRef, navigate: navigate })}
+            DropdownMenu({
+              ref: dropdownMenuRef,
+              navigate: navigate,
+              warningModal: warningModal,
+            })}
         </div>
       </div>
     </div>
