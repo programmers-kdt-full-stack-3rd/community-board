@@ -9,6 +9,9 @@ const User = () => {
       <button onClick={() => navigate("/checkPassword")}>
         비밀번호 확인 화면
       </button>
+      <button onClick={() => navigate("/profileUpdate")}>
+        회원정보 수정 화면
+      </button>
     </div>
   );
 };
