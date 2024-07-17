@@ -111,6 +111,7 @@ export const handleUpdateUser = async (
   }
 };
 
+// TODO: 비밀번호가 기존 비밀번호와 같은지 확인 작업 필요
 export const handleCheckPassword = async (
   req: Request,
   res: Response,

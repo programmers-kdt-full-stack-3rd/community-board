@@ -10,6 +10,7 @@ import Main from "./page/Main/Main";
 import Header from "./component/Header/Header";
 import { AppContainer, mainContainer } from "./App.css";
 import CheckPassword from "./page/User/CheckPassword";
+import ProfileUpdate from "./page/User/ProfileUpdate";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/join" element={<Join />} />
             <Route path="/checkPassword" element={<CheckPassword />} />
+            <Route path="/profileUpdate" element={<ProfileUpdate />} />
             <Route path="/test" element={<Tests />} />
             <Route path="/posts" element={<Posts />} />
             <Route path="/post/:id" element={<PostInfoPage />} />

@@ -19,3 +19,7 @@ export const sendPOSTCheckPasswordRequest = async (body: object) => {
 export const sendPostLogoutRequest = async () => {
   return await httpRequest("user/logout", HttpMethod.POST);
 };
+
+export const sendPutUpdateUserRequest = async (body: object) => {
+  return await httpRequest("user", HttpMethod.PUT, convertToBody(body));
+};
