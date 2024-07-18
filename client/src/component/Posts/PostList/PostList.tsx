@@ -35,8 +35,6 @@ const PostList = ({ posts, keyword, sortBy, onSort }: IPostListProps) => {
   const isFetchFailed = posts === null;
   const isPostsEmpty = isFetchFailed || posts.length === 0;
 
-  console.log(isFetchFailed, posts);
-
   return (
     <div className={postListStyle}>
       <div className={clsx(postListHeaderRow, postListRow.container)}>
