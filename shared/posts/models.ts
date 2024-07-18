@@ -18,4 +18,5 @@ export interface IPostHeader {
     author_nickname : string;
     created_at : Date;
     likes : number;
+    views : number;
 }
