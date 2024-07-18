@@ -4,6 +4,7 @@ import { FiArrowDown } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { IPostHeader, SortBy } from "shared";
 import { dateToStr } from "../../../utils/date-to-str";
+import EmptyPostListBody from "./EmptyPostListBody";
 import {
   noPost,
   notSorted,
@@ -17,7 +18,7 @@ import {
 } from "./PostList.css";
 
 interface IPostListProps {
-  posts: IPostHeader[];
+  posts: IPostHeader[] | null;
   keyword?: string;
   sortBy: SortBy | null;
   onSort: (sortBy: SortBy | null) => void;
@@ -30,6 +31,11 @@ const PostList = ({ posts, keyword, sortBy, onSort }: IPostListProps) => {
 
       onSort(nextSortBy);
     };
+
+  const isFetchFailed = posts === null;
+  const isPostsEmpty = isFetchFailed || posts.length === 0;
+
+  console.log(isFetchFailed, posts);
 
   return (
     <div className={postListStyle}>
@@ -85,7 +91,13 @@ const PostList = ({ posts, keyword, sortBy, onSort }: IPostListProps) => {
       </div>
 
       <div className={postListBody}>
-        {posts.length > 0 ? (
+        {isPostsEmpty ? (
+          <EmptyPostListBody
+            className={noPost}
+            isFetchFailed={isFetchFailed}
+            keyword={keyword}
+          />
+        ) : (
           posts.map((postHeader) => (
             <Link
               key={postHeader.id}
@@ -103,17 +115,6 @@ const PostList = ({ posts, keyword, sortBy, onSort }: IPostListProps) => {
               <div className={postListRow.views}>{postHeader.views}</div>
             </Link>
           ))
-        ) : (
-          <p className={noPost}>
-            {keyword ? (
-              <>“{keyword}”에 대한 검색 결과가 없습니다.</>
-            ) : (
-              <>
-                아직 게시글이 없습니다.
-                <br />첫 게시글을 작성해 보세요.
-              </>
-            )}
-          </p>
         )}
       </div>
     </div>
