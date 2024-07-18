@@ -112,3 +112,10 @@ export const postListRow = {
     flex: "0 0 64px",
   }),
 };
+
+export const noPost = style({
+  margin: "120px 0",
+  textAlign: "center",
+  color: "#808080",
+  fontSize: "24px",
+});

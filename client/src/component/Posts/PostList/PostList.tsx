@@ -4,7 +4,9 @@ import { FiArrowDown } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { IPostHeader, SortBy } from "shared";
 import { dateToStr } from "../../../utils/date-to-str";
+import EmptyPostListBody from "./EmptyPostListBody";
 import {
+  noPost,
   notSorted,
   postListBody,
   postListHeaderRow,
@@ -16,18 +18,22 @@ import {
 } from "./PostList.css";
 
 interface IPostListProps {
-  posts: IPostHeader[];
+  posts: IPostHeader[] | null;
+  keyword?: string;
   sortBy: SortBy | null;
   onSort: (sortBy: SortBy | null) => void;
 }
 
-const PostList = ({ posts, sortBy, onSort }: IPostListProps) => {
+const PostList = ({ posts, keyword, sortBy, onSort }: IPostListProps) => {
   const handleSortableClickWith =
     (nextSortBy: SortBy | null) => (event: MouseEvent) => {
       event.preventDefault();
 
       onSort(nextSortBy);
     };
+
+  const isFetchFailed = posts === null;
+  const isPostsEmpty = isFetchFailed || posts.length === 0;
 
   return (
     <div className={postListStyle}>
@@ -83,24 +89,31 @@ const PostList = ({ posts, sortBy, onSort }: IPostListProps) => {
       </div>
 
       <div className={postListBody}>
-        {posts.map((postHeader) => (
-          <Link
-            key={postHeader.id}
-            className={clsx(postListLinks, postListRow.container)}
-            to={`/post/${postHeader.id}`}
-          >
-            <div className={postListRow.title}>{postHeader.title}</div>
-            <div className={postListRow.author}>
-              {postHeader.author_nickname}
-            </div>
-            <div className={postListRow.created_at}>
-              {dateToStr(postHeader.created_at)}
-            </div>
-            <div className={postListRow.likes}>{postHeader.likes}</div>
-            {/* TODO: 조회수 views가 인터페이스에 없음 */}
-            <div className={postListRow.views}>?</div>
-          </Link>
-        ))}
+        {isPostsEmpty ? (
+          <EmptyPostListBody
+            className={noPost}
+            isFetchFailed={isFetchFailed}
+            keyword={keyword}
+          />
+        ) : (
+          posts.map((postHeader) => (
+            <Link
+              key={postHeader.id}
+              className={clsx(postListLinks, postListRow.container)}
+              to={`/post/${postHeader.id}`}
+            >
+              <div className={postListRow.title}>{postHeader.title}</div>
+              <div className={postListRow.author}>
+                {postHeader.author_nickname}
+              </div>
+              <div className={postListRow.created_at}>
+                {dateToStr(postHeader.created_at, true)}
+              </div>
+              <div className={postListRow.likes}>{postHeader.likes}</div>
+              <div className={postListRow.views}>{postHeader.views}</div>
+            </Link>
+          ))
+        )}
       </div>
     </div>
   );

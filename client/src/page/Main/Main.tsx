@@ -20,7 +20,7 @@ const Main = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const [posts, setPosts] = useState<IPostHeader[]>([]);
+  const [posts, setPosts] = useState<IPostHeader[] | null>([]);
   const [totalPosts, setTotalPosts] = useState(0);
 
   const { searchParams, setSearchParams, parsed } = useMainPageSearchParams();
@@ -28,30 +28,34 @@ const Main = () => {
   useLayoutEffect(() => {
     const queryString = `?${searchParams.toString()}`;
 
-    sendGetPostsRequest(queryString).then((data) => {
-      if (data?.status >= 400) {
-        // TODO: 에러 핸들링
-        return;
-      }
+    sendGetPostsRequest(queryString)
+      .then((data) => {
+        if (data?.status >= 400) {
+          setPosts(null);
+          return;
+        }
 
-      const total = data?.total;
+        const total = parseInt(data?.total, 10);
 
-      if (typeof total !== "number") {
-        // TODO: 에러 핸들링
-        return;
-      }
+        if (isNaN(total)) {
+          // TODO: 에러 핸들링
+          return;
+        }
 
-      const pageCount = Math.ceil(total / parsed.perPage);
+        const pageCount = Math.ceil(total / parsed.perPage);
 
-      if (pageCount > 0 && parsed.index > pageCount) {
-        const nextSearchParams = new URLSearchParams(searchParams);
-        nextSearchParams.set("index", String(pageCount));
-        setSearchParams(nextSearchParams);
-      } else {
-        setPosts(mapDBToPostHeaders(data.postHeaders));
-        setTotalPosts(data?.total ?? 0);
-      }
-    });
+        if (pageCount > 0 && parsed.index > pageCount) {
+          const nextSearchParams = new URLSearchParams(searchParams);
+          nextSearchParams.set("index", String(pageCount));
+          setSearchParams(nextSearchParams);
+        } else {
+          setPosts(mapDBToPostHeaders(data.postHeaders));
+          setTotalPosts(data?.total ?? 0);
+        }
+      })
+      .catch(() => {
+        setPosts(null);
+      });
   }, [parsed.index, parsed.perPage, parsed.keyword, parsed.sortBy]);
 
   const handlePostSort = (sortBy: SortBy | null) => {
@@ -100,7 +104,12 @@ const Main = () => {
       {/* TODO: 최상단 헤더 연결 후 TestMain 제거 */}
       <TestMain />
 
-      <PostList posts={posts} sortBy={parsed.sortBy} onSort={handlePostSort} />
+      <PostList
+        posts={posts}
+        keyword={parsed.keyword}
+        sortBy={parsed.sortBy}
+        onSort={handlePostSort}
+      />
 
       <Pagination
         currentPage={parsed.index}
