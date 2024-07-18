@@ -1,12 +1,19 @@
+import { useCallback, useLayoutEffect, useState } from "react";
 import { IComment, mapDBToComments } from "shared";
+import {
+  sendGetCommentsRequest,
+  sendPostCommentRequest,
+} from "../../api/comments/crud";
+import CommentForm from "./CommentForm/CommentForm";
 import CommentItem from "./CommentItem/CommentItem";
-import { useLayoutEffect, useState } from "react";
-import { sendGetCommentsRequest } from "../../api/comments/crud";
 import {
   commentCount,
+  commentFormTitle,
   commentList,
   commentSection,
   commentSectionTitle,
+  commentWriteSection,
+  noComment,
 } from "./Comments.css";
 
 interface ICommentsProps {
@@ -16,21 +23,53 @@ interface ICommentsProps {
 const Comments = ({ postId }: ICommentsProps) => {
   const [comments, setComments] = useState<IComment[]>([]);
 
+  const fetchComments = useCallback(async () => {
+    const data = await sendGetCommentsRequest(postId);
+
+    if (data.status >= 400) {
+      // TODO: 에러 핸들링
+      console.error(data);
+      return;
+    }
+
+    setComments(mapDBToComments(data.comments));
+  }, [postId]);
+
   useLayoutEffect(() => {
     if (postId < 1) {
       return;
     }
 
-    sendGetCommentsRequest(postId).then((data) => {
-      if (data.status >= 400) {
-        // TODO: 에러 핸들링
-        console.log(data);
-        return;
+    fetchComments();
+  }, [postId]);
+
+  const handleCommentCreate = async (content: string): Promise<boolean> => {
+    try {
+      const response = await sendPostCommentRequest({
+        content,
+        post_id: postId,
+      });
+
+      if (response?.status >= 400) {
+        console.error(response);
+        alert("댓글 작성에 실패했습니다.");
+        return false;
       }
 
-      setComments(mapDBToComments(data.comments));
-    });
-  }, [postId]);
+      fetchComments();
+      alert("댓글을 작성했습니다.");
+    } catch (error) {
+      console.error(error);
+      alert("댓글 작성에 실패했습니다.");
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleCommentUpdate = async () => {
+    await fetchComments();
+  };
 
   return (
     <div className={commentSection}>
@@ -38,10 +77,26 @@ const Comments = ({ postId }: ICommentsProps) => {
         댓글<span className={commentCount}> ({comments.length}개)</span>
       </h2>
 
+      <div className={commentWriteSection}>
+        <h3 className={commentFormTitle}>새 댓글을 남겨 보세요.</h3>
+        <CommentForm onSubmit={handleCommentCreate} />
+      </div>
+
       <div className={commentList}>
-        {comments.map((comment) => (
-          <CommentItem key={comment.id} comment={comment} />
-        ))}
+        {comments.length > 0 ? (
+          comments.map((comment) => (
+            <CommentItem
+              key={comment.id}
+              comment={comment}
+              onUpdate={handleCommentUpdate}
+            />
+          ))
+        ) : (
+          <p className={noComment}>
+            아직 댓글이 없습니다.
+            <br />첫 댓글을 작성해 보세요.
+          </p>
+        )}
       </div>
     </div>
   );

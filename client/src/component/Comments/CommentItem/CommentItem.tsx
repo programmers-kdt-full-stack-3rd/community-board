@@ -1,7 +1,11 @@
-import clsx from "clsx";
 import { ReactNode, useMemo, useState } from "react";
 import { IComment } from "shared";
+import {
+  sendDeleteCommentRequest,
+  sendPatchCommentRequest,
+} from "../../../api/comments/crud";
 import { dateToStr } from "../../../utils/date-to-str";
+import CommentForm from "../CommentForm/CommentForm";
 import CommentLikeButton from "../CommentLikeButton/CommentLikeButton";
 import {
   commentHeader,
@@ -11,16 +15,16 @@ import {
   commentTimestamp,
   isCommentUpdated,
   commentContent,
-  commentEdit,
   commentFooter,
   commentEditButtons,
 } from "./CommentItem.css";
 
 interface ICommentItemProps {
   comment: IComment;
+  onUpdate?: () => Promise<void>;
 }
 
-const CommentItem = ({ comment }: ICommentItemProps) => {
+const CommentItem = ({ comment, onUpdate }: ICommentItemProps) => {
   const [isEditMode, setIsEditMode] = useState(false);
 
   const contentNodes = useMemo(
@@ -39,6 +43,74 @@ const CommentItem = ({ comment }: ICommentItemProps) => {
 
   const handleEditModeToggle = () => {
     setIsEditMode(!isEditMode);
+  };
+
+  const handleEditionSubmit = async (content: string): Promise<boolean> => {
+    const trimmedContent = content.trim();
+
+    if (trimmedContent === comment.content) {
+      alert("댓글 내용이 이전과 동일합니다.");
+      return false;
+    }
+
+    try {
+      const response = await sendPatchCommentRequest({
+        content,
+        id: comment.id,
+      });
+
+      if (response?.status >= 400) {
+        console.error(response);
+        alert("댓글 수정에 실패했습니다.");
+        return false;
+      }
+
+      alert("댓글을 수정했습니다.");
+    } catch (error) {
+      console.error(error);
+      alert("댓글 수정에 실패했습니다.");
+      return false;
+    }
+
+    if (onUpdate) {
+      await onUpdate();
+    }
+
+    setIsEditMode(false);
+
+    return true;
+  };
+
+  const handleDeleteClick = async () => {
+    const accepted = confirm("댓글을 정말로 삭제할까요?");
+
+    if (!accepted) {
+      return;
+    }
+
+    try {
+      const response = await sendDeleteCommentRequest(comment.id);
+
+      if (response?.status >= 400) {
+        console.error(response);
+        alert("댓글 삭제에 실패했습니다.");
+        return false;
+      }
+
+      alert("댓글을 삭제했습니다.");
+    } catch (error) {
+      console.error(error);
+      alert("댓글 삭제에 실패했습니다.");
+      return false;
+    }
+
+    if (onUpdate) {
+      await onUpdate();
+    }
+
+    setIsEditMode(false);
+
+    return true;
   };
 
   return (
@@ -63,31 +135,33 @@ const CommentItem = ({ comment }: ICommentItemProps) => {
 
       <div className={commentBody}>
         {isEditMode ? (
-          <textarea className={commentEdit} defaultValue="수정 폼" />
+          <CommentForm
+            defaultContent={comment.content}
+            isUpdateMode={true}
+            onSubmit={handleEditionSubmit}
+            onCancel={handleEditModeToggle}
+          />
         ) : (
           <div className={commentContent}>{contentNodes}</div>
         )}
       </div>
 
-      <div className={commentFooter}>
-        <CommentLikeButton
-          likes={comment.likes}
-          userLiked={comment.user_liked}
-        />
+      {isEditMode || (
+        <div className={commentFooter}>
+          <CommentLikeButton
+            commentId={comment.id}
+            likes={comment.likes}
+            userLiked={comment.user_liked}
+          />
 
-        {comment.is_author &&
-          (isEditMode ? (
-            <div className={clsx(commentEditButtons)}>
-              <button onClick={() => alert("수정한 댓글 제출")}>완료</button>
-              <button onClick={handleEditModeToggle}>취소</button>
-            </div>
-          ) : (
-            <div className={clsx(commentEditButtons)}>
+          {comment.is_author && (
+            <div className={commentEditButtons}>
               <button onClick={handleEditModeToggle}>수정</button>
-              <button onClick={() => alert("댓글 삭제 요청")}>삭제</button>
+              <button onClick={handleDeleteClick}>삭제</button>
             </div>
-          ))}
-      </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

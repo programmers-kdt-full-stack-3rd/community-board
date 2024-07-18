@@ -5,6 +5,7 @@ export const commentSection = style({
   flexDirection: "column",
   justifyContent: "flex-start",
   alignItems: "stretch",
+  rowGap: "40px",
   boxSizing: "border-box",
   margin: "40px 0",
   width: "800px",
@@ -23,9 +24,29 @@ export const commentCount = style({
   fontSize: "0.8em",
 });
 
+export const commentWriteSection = style({
+  display: "flex",
+  flexDirection: "column",
+  rowGap: "8px",
+  boxSizing: "border-box",
+  width: "100%",
+});
+
+export const commentFormTitle = style({
+  margin: 0,
+  padding: "0 12px",
+  fontSize: "18px",
+});
+
 export const commentList = style({
   display: "flex",
   flexDirection: "column",
   rowGap: "40px",
-  margin: "40px 0",
+});
+
+export const noComment = style({
+  margin: "0 0 120px",
+  textAlign: "center",
+  color: "#808080",
+  fontSize: "24px",
 });

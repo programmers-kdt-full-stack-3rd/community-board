@@ -1,15 +1,24 @@
 import { useState } from "react";
 import { AiFillLike } from "react-icons/ai";
 import { vars } from "../../../App.css";
+import {
+  sendCreateCommentLikeRequest,
+  sendDeleteCommentLikeRequest,
+} from "../../../api/likes/crud";
 import { useUserStore } from "../../../state/store";
 import { likeButton } from "./CommentLikeButton.css";
 
 interface ICommentLikeButtonProps {
+  commentId: number;
   likes: number;
   userLiked?: boolean;
 }
 
-const CommentLikeButton = ({ likes, userLiked }: ICommentLikeButtonProps) => {
+const CommentLikeButton = ({
+  commentId,
+  likes,
+  userLiked,
+}: ICommentLikeButtonProps) => {
   const isLogin = useUserStore((state) => state.isLogin);
 
   const [toggled, setToggled] = useState(false);
@@ -17,19 +26,27 @@ const CommentLikeButton = ({ likes, userLiked }: ICommentLikeButtonProps) => {
   const actualUserLiked = userLiked !== toggled; // XOR
   const diff = toggled ? (userLiked ? -1 : 1) : 0;
 
-  const handleLikeClick = () => {
+  const handleLikeClick = async () => {
     if (!isLogin) {
       alert("로그인이 필요합니다!");
       return;
     }
 
+    let response;
+
     if (actualUserLiked) {
-      // TODO: 좋아요 취소 요청 후 성공 응답 시 상태 변경
-      setToggled(!toggled);
+      response = await sendDeleteCommentLikeRequest(commentId);
     } else {
-      // TODO: 좋아요 활성화 요청 후 성공 응답 시 상태 변경
-      setToggled(!toggled);
+      response = await sendCreateCommentLikeRequest(commentId);
     }
+
+    if (response?.status >= 400) {
+      console.error(response);
+      alert(`좋아요${actualUserLiked ? " 취소" : ""} 실패`);
+      return;
+    }
+
+    setToggled(!toggled);
   };
 
   return (
