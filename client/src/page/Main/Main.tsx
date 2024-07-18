@@ -100,7 +100,12 @@ const Main = () => {
       {/* TODO: 최상단 헤더 연결 후 TestMain 제거 */}
       <TestMain />
 
-      <PostList posts={posts} sortBy={parsed.sortBy} onSort={handlePostSort} />
+      <PostList
+        posts={posts}
+        keyword={parsed.keyword}
+        sortBy={parsed.sortBy}
+        onSort={handlePostSort}
+      />
 
       <Pagination
         currentPage={parsed.index}
