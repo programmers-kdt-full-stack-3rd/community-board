@@ -97,8 +97,7 @@ const PostList = ({ posts, sortBy, onSort }: IPostListProps) => {
               {dateToStr(postHeader.created_at)}
             </div>
             <div className={postListRow.likes}>{postHeader.likes}</div>
-            {/* TODO: 조회수 views가 인터페이스에 없음 */}
-            <div className={postListRow.views}>?</div>
+            <div className={postListRow.views}>{postHeader.views}</div>
           </Link>
         ))}
       </div>
