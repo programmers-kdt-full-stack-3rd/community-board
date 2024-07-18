@@ -109,7 +109,7 @@ const PostList = ({ posts, keyword, sortBy, onSort }: IPostListProps) => {
                 {postHeader.author_nickname}
               </div>
               <div className={postListRow.created_at}>
-                {dateToStr(postHeader.created_at)}
+                {dateToStr(postHeader.created_at, true)}
               </div>
               <div className={postListRow.likes}>{postHeader.likes}</div>
               <div className={postListRow.views}>{postHeader.views}</div>
