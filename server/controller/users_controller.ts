@@ -104,6 +104,16 @@ export const handleUpdateUser = async (
       userId: req.userId,
     };
 
+    const currentUser = await getUserById(values.userId);
+    const newHashedPassword = await makeHashedPassword(
+      values.password,
+      currentUser.salt
+    );
+
+    if (currentUser.password === newHashedPassword) {
+      throw ServerError.badRequest("기존 비밀번호와 동일합니다.");
+    }
+
     await updateUser(values);
     res.status(200).json({ message: "회원정보 수정 성공" });
   } catch (err: any) {
@@ -111,7 +121,6 @@ export const handleUpdateUser = async (
   }
 };
 
-// TODO: 비밀번호가 기존 비밀번호와 같은지 확인 작업 필요
 export const handleCheckPassword = async (
   req: Request,
   res: Response,
