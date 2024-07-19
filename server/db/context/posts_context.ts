@@ -105,9 +105,21 @@ export const getPostInfo = async (post_id : number, user_id? : number) => {
             throw ServerError.notFound("존재하지 않는 게시글입니다.");
         }
 
-        return mapDBToPostInfo(rows[0]);
-        
+        let postInfo = mapDBToPostInfo(rows[0]);
+
+        if(postInfo.author_id !== user_id){
+            const sql2 = `UPDATE posts SET views = views + 1, updated_at = updated_at WHERE id = ?`;
+
+            const [rows] : any[] = await conn.query(sql2, [post_id]);
+
+            if (rows.affectedRows !== 0) {
+                postInfo.views += 1;
+            }
+        }
+
+        return postInfo;
     } catch (err){
+        console.log(err);
         throw err;
     } finally {
         if (conn) conn.release();
