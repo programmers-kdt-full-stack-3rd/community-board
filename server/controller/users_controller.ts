@@ -23,12 +23,8 @@ export const handleJoinUser = async (
       nickname: req.body.nickname,
     };
 
-    const result = await addUser(values);
-    if (result.affectedRows === 1) {
-      res.status(201).json({ message: "회원가입 성공" });
-    } else {
-      throw ServerError.reference("회원가입 실패");
-    }
+    await addUser(values);
+    res.status(201).json({ message: "회원가입 성공" });
   } catch (err: any) {
     next(err);
   }
