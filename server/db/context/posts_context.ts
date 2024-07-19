@@ -108,7 +108,7 @@ export const getPostInfo = async (post_id : number, user_id? : number) => {
         let postInfo = mapDBToPostInfo(rows[0]);
 
         if(postInfo.author_id !== user_id){
-            const sql2 = `UPDATE posts SET views = views + 1 WHERE id = ?`;
+            const sql2 = `UPDATE posts SET views = views + 1, updated_at = updated_at WHERE id = ?`;
 
             const [rows] : any[] = await conn.query(sql2, [post_id]);
 
