@@ -23,15 +23,15 @@ router.post("/login", loginValidation, handleLoginUser);
 router.post("/logout", requireLogin, handleLogoutUser);
 router.put(
   "/",
-  updateUserValidation,
   requireLogin,
   requirePassword,
+  updateUserValidation,
   handleUpdateUser
 );
 router.post(
   "/check-password",
-  checkPasswordValidation,
   requireLogin,
+  checkPasswordValidation,
   handleCheckPassword
 );
 router.delete("/", requireLogin, requirePassword, handleDeleteUser);
