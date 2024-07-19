@@ -99,7 +99,13 @@ const Join: FC = () => {
     );
 
     if (isValid) {
-      const result = await sendPostJoinRequest({ email, password, nickname });
+      const result = await sendPostJoinRequest({
+        email,
+        password,
+        requiredPassword,
+        nickname,
+      });
+
       if (result.status !== 201) {
         if (result.message) {
           let message: string = result.message;

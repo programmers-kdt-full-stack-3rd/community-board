@@ -38,6 +38,20 @@ const passwordValidator = (
     .withMessage(invalidMessage);
 
 /**
+ * 비밀번호 확인 유효성 검사
+ */
+const requiredPasswordValidator = body("requiredPassword")
+  .notEmpty()
+  .withMessage(ERROR_MESSAGES.REQUIRED_PASSWORD_MISSING)
+  .bail()
+  .custom((value, { req }) => {
+    if (value !== req.body.password) {
+      throw new Error(ERROR_MESSAGES.REQUIRED_PASSWORD_MISMATCH);
+    }
+    return true;
+  });
+
+/**
  * 닉네임 유효성 검사
  */
 const nicknameValidator = body("nickname")
@@ -49,13 +63,13 @@ const nicknameValidator = body("nickname")
   - 각 API 엔드포인트에 대한 유효성 검사
 */
 
-//TODO: 회원가입시 비밀번호, 비밀번호 확인 일치 여부 검사 추가 필요
 /**
  * 회원가입 API 유효성 검사
  */
 export const joinValidation = [
   emailValidator(),
   passwordValidator(),
+  requiredPasswordValidator,
   nicknameValidator,
   validate,
 ];
