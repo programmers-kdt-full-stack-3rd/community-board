@@ -2,6 +2,8 @@ import { SetStateAction, useState } from 'react'
 import { CloseBtn, ContentTextArea, InputContainer, InputIndex, ModalBody, ModalContainer, ModalHeader, PostBtn, PostHeaderTitle, TitleInput } from './PostModal.css'
 import { sendCreatePostRequest, sendUpdatePostRequest } from '../../../api/posts/crud';
 import { ApiCall } from '../../../api/api';
+import { ClientError } from '../../../api/errors';
+import { useErrorModal } from '../../../state/errorModalStore';
 
 interface IPostData {
     id : number;
@@ -18,20 +20,30 @@ const PostModal : React.FC<IPostModalProps> = ({ close, originalPostData }) => {
     const isUpdateMode = originalPostData !== undefined;
 
     const modalMode = isUpdateMode ? "수정" : "생성";
+    const errorModal = useErrorModal();
 
     const [title, setTitle] = useState(isUpdateMode ? originalPostData.title : "");
     const [content, setContent] = useState(isUpdateMode ? originalPostData.content : "");
 
     const createPost = async() => {
-        const body = {
-            title,
-            content
-        };
+        const body = { title, content };
 
-        await ApiCall(()=>sendCreatePostRequest(body));
+        const res = await ApiCall(
+            ()=>sendCreatePostRequest(body), 
+            (err)=>{
+                errorModal.setErrorMessage(err.message);
+                errorModal.open();
+            }
+        );
+
+        if(res instanceof ClientError){
+            return;
+        }
+
+        window.location.reload();
     };
 
-    const updatePost = () => {
+    const updatePost = async () => {
         if (!originalPostData){
             return;
         }
@@ -43,9 +55,19 @@ const PostModal : React.FC<IPostModalProps> = ({ close, originalPostData }) => {
 
         const postId : number = originalPostData.id;
 
-        sendUpdatePostRequest(postId, body).then((res)=>{
-            console.log(res);
-        })
+        const res = await ApiCall(
+            ()=>sendUpdatePostRequest(postId, body),
+            (err)=>{
+                errorModal.setErrorMessage(err.message);
+                errorModal.open();
+            }
+        );
+
+        if(res instanceof ClientError){
+            return;
+        }
+
+        window.location.reload();
     };
 
     return (
@@ -59,7 +81,6 @@ const PostModal : React.FC<IPostModalProps> = ({ close, originalPostData }) => {
                                 createPost();
                             }
                             close(false);
-                            window.location.reload();
                         }}>{modalMode}</button>
                 <div className={PostHeaderTitle}>게시글 {modalMode}</div>
                 <button className={CloseBtn} onClick={()=>close(false)}>취소</button>
