@@ -1,4 +1,4 @@
-import { Dispatch, FC, SetStateAction, useState } from "react";
+import { FC, useState } from "react";
 import { joinLink, loginWrapper } from "./Login.css";
 import { sendPostLoginRequest } from "../../api/users/crud";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -19,37 +19,55 @@ interface ILogin {
   status: number;
 }
 
-function validateLogin(
-  email: string,
-  password: string,
-  setErrorMessage: Dispatch<SetStateAction<string>>
-): boolean {
+interface ValidationResult {
+  isValid: boolean;
+  errorMessage: string;
+  invalidFields: ("email" | "password")[];
+}
+
+const createError = (
+  message: string,
+  fields: ("email" | "password")[]
+): ValidationResult => ({
+  isValid: false,
+  errorMessage: message,
+  invalidFields: fields,
+});
+
+const validateLogin = (email: string, password: string): ValidationResult => {
   const emailRegex = REGEX.EMAIL;
   const passwordRegex = REGEX.PASSWORD;
 
   if (!email) {
-    setErrorMessage("이메일을 입력하세요.");
-    return false;
+    return createError("이메일을 입력하세요.", ["email"]);
   }
 
   if (!password) {
-    setErrorMessage("비밀번호를 입력하세요.");
-    return false;
+    return createError("비밀번호를 입력하세요.", ["password"]);
   }
 
   if (!emailRegex.test(email) || !passwordRegex.test(password)) {
-    setErrorMessage("이메일 또는 비밀번호가 틀렸습니다.");
-    return false;
+    return createError("이메일 또는 비밀번호가 틀렸습니다.", [
+      "email",
+      "password",
+    ]);
   }
 
-  setErrorMessage("");
-  return true;
-}
+  return {
+    isValid: true,
+    errorMessage: "",
+    invalidFields: [],
+  };
+};
 
 const Login: FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [invalidFields, setInvalidFields] = useState<("email" | "password")[]>(
+    []
+  );
+
   const { setLoginUser } = useUserStore.use.actions();
 
   // zustand 테스트용
@@ -69,9 +87,12 @@ const Login: FC = () => {
   };
 
   const handleLoginButton = async () => {
-    const isValid = validateLogin(email, password, setErrorMessage);
+    const validateResult = validateLogin(email, password);
 
-    if (isValid) {
+    setErrorMessage(validateResult.errorMessage);
+    setInvalidFields(validateResult.invalidFields);
+
+    if (validateResult.isValid) {
       const body = {
         email,
         password,
@@ -91,6 +112,13 @@ const Login: FC = () => {
         if (result.message) {
           let message: string = result.message;
           message = message.replace("Bad Request: ", "");
+          console.log(message);
+          if (message.includes("이메일")) {
+            setInvalidFields(["email"]);
+          } else if (message.includes("또는")) {
+            setInvalidFields(["email", "password"]);
+          }
+
           setErrorMessage(message);
         }
       }
@@ -100,11 +128,16 @@ const Login: FC = () => {
   return (
     <div className={loginWrapper}>
       <h1>로그인</h1>
-      <EmailForm email={email} onChange={handleEmailChange} />
+      <EmailForm
+        email={email}
+        onChange={handleEmailChange}
+        isValid={!invalidFields.includes("email")}
+      />
       <PasswordForm
         password={password}
         onChange={handlePasswordChange}
         labelText="비밀번호"
+        isValid={!invalidFields.includes("password")}
       />
       {errorMessage && <ErrorMessageForm>{errorMessage}</ErrorMessageForm>}
       <SubmitButton onClick={handleLoginButton}>로그인 버튼</SubmitButton>
