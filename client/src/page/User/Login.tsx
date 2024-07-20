@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { Dispatch, FC, SetStateAction, useState } from "react";
 import { joinLink, loginWrapper } from "./Login.css";
 import { sendPostLoginRequest } from "../../api/users/crud";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -17,6 +17,33 @@ interface ILogin {
     isLogin: boolean;
   };
   status: number;
+}
+
+function validateLogin(
+  email: string,
+  password: string,
+  setErrorMessage: Dispatch<SetStateAction<string>>
+): boolean {
+  const emailRegex = REGEX.EMAIL;
+  const passwordRegex = REGEX.PASSWORD;
+
+  if (!email) {
+    setErrorMessage("이메일을 입력하세요.");
+    return false;
+  }
+
+  if (!password) {
+    setErrorMessage("비밀번호를 입력하세요.");
+    return false;
+  }
+
+  if (!emailRegex.test(email) || !passwordRegex.test(password)) {
+    setErrorMessage("이메일 또는 비밀번호가 틀렸습니다.");
+    return false;
+  }
+
+  setErrorMessage("");
+  return true;
 }
 
 const Login: FC = () => {
@@ -42,48 +69,30 @@ const Login: FC = () => {
   };
 
   const handleLoginButton = async () => {
-    const body = {
-      email,
-      password,
-    };
+    const isValid = validateLogin(email, password, setErrorMessage);
 
-    // TODO: 로그인시 유효성검사 따로 분리
-    // 이메일 정규표현식
-    const emailRegex = REGEX.EMAIL;
-    //비밀번호 정규표현식(영대소문자 각각 1개 이상, 숫자 1개이상, 10자리 이상)
-    const passwordRegex = REGEX.PASSWORD;
+    if (isValid) {
+      const body = {
+        email,
+        password,
+      };
+      const result: ILogin = await sendPostLoginRequest(body);
+      if (result.status === 200 && result.result) {
+        // 로그인 성공
+        console.log("로그인 성공");
+        const { nickname, loginTime } = result.result;
 
-    if (!email) {
-      setErrorMessage("이메일을 입력하세요.");
-      return;
-    }
+        setLoginUser(nickname, loginTime);
 
-    if (!password) {
-      setErrorMessage("비밀번호를 입력하세요.");
-      return;
-    }
-
-    if (!emailRegex.test(email) || !passwordRegex.test(password)) {
-      setErrorMessage("이메일 또는 비밀번호가 틀렸습니다.");
-      return;
-    }
-
-    const result: ILogin = await sendPostLoginRequest(body);
-    if (result.status === 200 && result.result) {
-      // 로그인 성공
-      console.log("로그인 성공");
-      const { nickname, loginTime } = result.result;
-
-      setLoginUser(nickname, loginTime);
-
-      const redirect =
-        new URLSearchParams(location.search).get("redirect") || "/";
-      navigate(redirect); // 이전 페이지로
-    } else {
-      if (result.message) {
-        let message: string = result.message;
-        message = message.replace("Bad Request: ", "");
-        setErrorMessage(message);
+        const redirect =
+          new URLSearchParams(location.search).get("redirect") || "/";
+        navigate(redirect); // 이전 페이지로
+      } else {
+        if (result.message) {
+          let message: string = result.message;
+          message = message.replace("Bad Request: ", "");
+          setErrorMessage(message);
+        }
       }
     }
   };
