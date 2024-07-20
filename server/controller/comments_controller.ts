@@ -17,9 +17,14 @@ export const handleCommentsRead = async (
     const index = Math.max(1, parseInt(String(req.query.index), 10) || 1) - 1;
     const perPage = Math.max(1, parseInt(String(req.query.perPage), 10) || 50);
 
-    const comments = await readComments(postId, index, perPage, req.userId);
+    const { comments, total } = await readComments(
+      postId,
+      index,
+      perPage,
+      req.userId
+    );
 
-    res.status(200).json({ comments });
+    res.status(200).json({ total, comments });
   } catch (err) {
     next(err);
   }

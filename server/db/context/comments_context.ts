@@ -34,7 +34,7 @@ export const readComments = async (
   let conn: PoolConnection | null = null;
 
   try {
-    const sql = `
+    const dataSelectSql = `
       SELECT
         comments.id AS id,
         comments.content AS content,
@@ -50,6 +50,15 @@ export const readComments = async (
           WHERE comment_likes.comment_id = comments.id
             AND comment_likes.user_id = ?
         ) AS user_liked
+    `;
+    const dataSelectValues = [userId, userId];
+
+    const countSelectSql = `
+      SELECT
+        COUNT(*) AS total
+    `;
+
+    const sharedFromWhereSql = `
       FROM
         comments
       INNER JOIN
@@ -62,19 +71,43 @@ export const readComments = async (
       WHERE
         comments.isDelete = FALSE
         AND users.isDelete = FALSE
+    `;
+    const sharedFromWhereValues = [postId];
+
+    const dataSortLimitSql = `
       ORDER BY
         comments.created_at,
         comments.id
       LIMIT ? OFFSET ?
     `;
-    const values = [userId, userId, postId, perPage, index * perPage];
+    const dataSortLimitValues = [perPage, index * perPage];
+
+    const dataSql = [dataSelectSql, sharedFromWhereSql, dataSortLimitSql].join(
+      "\n"
+    );
+    const dataValues = [
+      ...dataSelectValues,
+      ...sharedFromWhereValues,
+      ...dataSortLimitValues,
+    ];
+
+    const countSql = [countSelectSql, sharedFromWhereSql].join("\n");
+    const countValues = [...sharedFromWhereValues];
 
     conn = await pool.getConnection();
-    const [rows]: [RowDataPacket[], FieldPacket[]] = await conn.query(
-      sql,
-      values
+    const [dataRows]: [RowDataPacket[], FieldPacket[]] = await conn.query(
+      dataSql,
+      dataValues
     );
-    return mapDBToComments(rows);
+    const [countRows]: [RowDataPacket[], FieldPacket[]] = await conn.query(
+      countSql,
+      countValues
+    );
+
+    return {
+      total: Number(countRows[0]?.total) || 0,
+      comments: mapDBToComments(dataRows),
+    };
   } catch (err) {
     throw err;
   } finally {
