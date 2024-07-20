@@ -6,6 +6,7 @@ interface IPasswordFormProps {
   id?: string;
   password: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  isValid?: boolean;
 }
 
 const PasswordForm: FC<IPasswordFormProps> = ({
@@ -13,6 +14,7 @@ const PasswordForm: FC<IPasswordFormProps> = ({
   id = "password",
   password,
   onChange,
+  isValid = true,
 }) => {
   return (
     <InputField
@@ -22,6 +24,7 @@ const PasswordForm: FC<IPasswordFormProps> = ({
       value={password}
       onChange={onChange}
       placeholder="비밀번호를 입력하세요."
+      isValid={isValid}
     />
   );
 };
