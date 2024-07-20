@@ -1,4 +1,6 @@
 import { useUserStore } from "../state/store";
+import { ClientError } from "./errors";
+import { isTokenError, isUnauthorized } from "./users/utils";
 
 export enum HttpMethod {
   POST = "POST",
@@ -9,14 +11,7 @@ export enum HttpMethod {
 }
 
 const setLogoutUser = useUserStore.getState().actions.setLogoutUser;
-
 const isLogin = useUserStore.getState().isLogin;
-
-const isTokenExpired = (message: string) =>
-  message === "Expired Token: 토큰이 만료 되었습니다.";
-
-const isUnauthorized = (message: string) =>
-  message === "Unauthorized: 로그인이 필요합니다.";
 
 export const convertToBody = (body: object) => {
   return JSON.stringify(body);
@@ -54,16 +49,33 @@ export const httpRequest = async (
     }
   }
 
-  if (
-    response.status === 401 &&
-    (isTokenExpired(responseJson.message) ||
-      (isUnauthorized(responseJson.message) && isLogin))
-  ) {
-    setLogoutUser();
-  }
-
   return {
     ...responseJson,
     status: response.status,
   };
+};
+
+export const ApiCall = async(func : () => Promise<any>) => {
+    func().then((res)=>{
+      if(res.status >= 400){
+        throw ClientError.autoFindErrorType(res.code, res.message);
+      }
+      // TODO : 지우기
+      console.log(res);
+      return res;
+    }).catch((err : ClientError)=>{
+      // TODO : 각각의 에러 상황 핸들링하기 + 출력 지우기
+      console.log(err);
+
+      if(err.code === 400){
+        alert(err.message);
+      }
+
+      if (err.code === 401){
+        if(isTokenError(err.message) || isUnauthorized(err.message) && isLogin){
+          alert("로그인이 만료되었습니다");
+          setLogoutUser();
+        }
+      }
+    });
 };

@@ -1,6 +1,7 @@
 import { SetStateAction, useState } from 'react'
 import { CloseBtn, ContentTextArea, InputContainer, InputIndex, ModalBody, ModalContainer, ModalHeader, PostBtn, PostHeaderTitle, TitleInput } from './PostModal.css'
 import { sendCreatePostRequest, sendUpdatePostRequest } from '../../../api/posts/crud';
+import { ApiCall } from '../../../api/api';
 
 interface IPostData {
     id : number;
@@ -21,15 +22,13 @@ const PostModal : React.FC<IPostModalProps> = ({ close, originalPostData }) => {
     const [title, setTitle] = useState(isUpdateMode ? originalPostData.title : "");
     const [content, setContent] = useState(isUpdateMode ? originalPostData.content : "");
 
-    const createPost = () => {
+    const createPost = async() => {
         const body = {
             title,
             content
         };
 
-        sendCreatePostRequest(body).then((res)=>{
-            console.log(res);
-        })
+        await ApiCall(()=>sendCreatePostRequest(body));
     };
 
     const updatePost = () => {
