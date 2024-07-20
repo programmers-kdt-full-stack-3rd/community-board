@@ -14,8 +14,8 @@ export const handleCommentsRead = async (
   try {
     const postId = parseInt(String(req.query.post_id), 10);
 
-    const index = (parseInt(String(req.query.index), 10) || 1) - 1;
-    const perPage = parseInt(String(req.query.perPage), 10) || 50;
+    const index = Math.max(1, parseInt(String(req.query.index), 10) || 1) - 1;
+    const perPage = Math.max(1, parseInt(String(req.query.perPage), 10) || 50);
 
     const comments = await readComments(postId, index, perPage, req.userId);
 
