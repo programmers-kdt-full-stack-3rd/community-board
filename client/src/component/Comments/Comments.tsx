@@ -1,4 +1,4 @@
-import { useCallback, useLayoutEffect, useState } from "react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { IComment, mapDBToComments } from "shared";
 import {
@@ -27,6 +27,7 @@ const Comments = ({ postId }: ICommentsProps) => {
   const [total, setTotal] = useState(0);
 
   const [searchParams, setSearchParams] = useSearchParams();
+  const commentListRef = useRef<HTMLDivElement>(null);
 
   const fetchComments = useCallback(async () => {
     const requestSearchParams = new URLSearchParams(
@@ -92,6 +93,10 @@ const Comments = ({ postId }: ICommentsProps) => {
     nextSearchParams.set("comment_index", String(page));
 
     setSearchParams(nextSearchParams);
+
+    const commentListY =
+      window.scrollY + (commentListRef.current?.getBoundingClientRect().y ?? 0);
+    window.scrollTo({ top: commentListY - 40 });
   };
 
   return (
@@ -105,7 +110,7 @@ const Comments = ({ postId }: ICommentsProps) => {
         <CommentForm onSubmit={handleCommentCreate} />
       </div>
 
-      <div className={commentList}>
+      <div className={commentList} ref={commentListRef}>
         {comments.length > 0 ? (
           comments.map((comment) => (
             <CommentItem
