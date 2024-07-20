@@ -122,12 +122,14 @@ const Comments = ({ postId }: ICommentsProps) => {
         )}
       </div>
 
-      <Pagination
-        currentPage={Number(searchParams.get("comment_index")) || 1}
-        totalPosts={total}
-        perPage={Number(searchParams.get("comment_perPage")) || 50}
-        onChange={handlePageChange}
-      />
+      {total > 50 && (
+        <Pagination
+          currentPage={Number(searchParams.get("comment_index")) || 1}
+          totalPosts={total}
+          perPage={Number(searchParams.get("comment_perPage")) || 50}
+          onChange={handlePageChange}
+        />
+      )}
     </div>
   );
 };
