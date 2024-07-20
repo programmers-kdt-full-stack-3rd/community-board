@@ -55,8 +55,41 @@ export const httpRequest = async (
   };
 };
 
-export const ApiCall = async(func : () => Promise<any>, onError? : () => void) => {
-    func().then((res)=>{
+export const handleApiError = (error: ClientError, onError : (err: ClientError) => void) => {
+  switch (error.code) {
+    /* bad request */
+    case 400:
+      onError(error);
+      break;
+    /* unauthorized or tokenError */
+    case 401:
+      if (isTokenError(error.message) || isUnauthorized(error.message) && isLogin) {
+        setLogoutUser();
+        onError(error);
+      } else {
+        console.log(error.message);
+      }
+      break;
+    /* not found */
+    case 404:
+      onError(error);
+      console.log(error.message);
+      break;
+    /* server error */
+    case 500:
+      onError(error);
+      console.log(error.message);
+      break;
+    /* 기타 에러 */
+    default:
+      onError(error);
+      console.log(error.message);
+      break;
+  }
+};
+
+export const ApiCall = async(func : () => Promise<any>, onError : (err:ClientError) => void) => {
+    return func().then((res)=>{
       if(res.status >= 400){
         throw ClientError.autoFindErrorType(res.code, res.message);
       }
@@ -65,23 +98,7 @@ export const ApiCall = async(func : () => Promise<any>, onError? : () => void) =
       return res;
     }).catch((err : ClientError)=>{
       // TODO : 각각의 에러 상황 핸들링하기 + 출력 지우기
-      if(err.code === 400){
-        if(onError){
-          onError();
-        } else {
-          alert(err.message);
-        }
-      }
-
-      if (err.code === 401){
-        if(isTokenError(err.message) || isUnauthorized(err.message) && isLogin){
-          if(onError){
-            onError();
-          } else {
-            alert("로그인이 만료되었습니다");
-          }
-          setLogoutUser();
-        }
-      }
+      handleApiError(err, onError);
+      return err;
     });
 };
