@@ -7,7 +7,7 @@ import {
 } from "../utils/token";
 import { TokenExpiredError } from "jsonwebtoken";
 import { ServerError } from "./errors";
-import { getUserById, isUserDeleted } from "../db/context/users_context";
+import { isUserDeleted } from "../db/context/users_context";
 
 export const authToken = async (
   req: Request,
@@ -56,7 +56,7 @@ export const authToken = async (
       } catch (err: any) {
         res.clearCookie("accessToken");
         res.clearCookie("refreshToken");
-        next(err);
+        next(ServerError.expiredToken("토큰이 만료 되었습니다."));
       }
     } else {
       res.clearCookie("accessToken");
