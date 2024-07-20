@@ -1,7 +1,7 @@
 import { HttpMethod, convertToBody, httpRequest } from "../api";
 
-export const sendGetCommentsRequest = async (postId: number) => {
-  const url = `comment?post_id=${postId}`;
+export const sendGetCommentsRequest = async (query?: string) => {
+  const url = `comment${query}`;
   return await httpRequest(url, HttpMethod.GET);
 };
 

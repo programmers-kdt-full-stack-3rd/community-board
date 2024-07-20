@@ -1,9 +1,11 @@
 import { useCallback, useLayoutEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { IComment, mapDBToComments } from "shared";
 import {
   sendGetCommentsRequest,
   sendPostCommentRequest,
 } from "../../api/comments/crud";
+import Pagination from "../common/Pagination/Pagination";
 import CommentForm from "./CommentForm/CommentForm";
 import CommentItem from "./CommentItem/CommentItem";
 import {
@@ -22,9 +24,22 @@ interface ICommentsProps {
 
 const Comments = ({ postId }: ICommentsProps) => {
   const [comments, setComments] = useState<IComment[]>([]);
+  const [total, setTotal] = useState(0);
+
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const fetchComments = useCallback(async () => {
-    const data = await sendGetCommentsRequest(postId);
+    const requestSearchParams = new URLSearchParams(
+      [
+        ["post_id", String(postId)],
+        ["index", searchParams.get("comment_index") ?? ""],
+        ["perPage", searchParams.get("comment_perPage") ?? ""],
+      ].filter(([_, value]) => value)
+    );
+
+    const queryString = `?${requestSearchParams.toString()}`;
+
+    const data = await sendGetCommentsRequest(queryString);
 
     if (data.status >= 400) {
       // TODO: 에러 핸들링
@@ -33,7 +48,8 @@ const Comments = ({ postId }: ICommentsProps) => {
     }
 
     setComments(mapDBToComments(data.comments));
-  }, [postId]);
+    setTotal(data.total);
+  }, [postId, searchParams]);
 
   useLayoutEffect(() => {
     if (postId < 1) {
@@ -41,7 +57,7 @@ const Comments = ({ postId }: ICommentsProps) => {
     }
 
     fetchComments();
-  }, [postId]);
+  }, [postId, searchParams]);
 
   const handleCommentCreate = async (content: string): Promise<boolean> => {
     try {
@@ -71,10 +87,17 @@ const Comments = ({ postId }: ICommentsProps) => {
     await fetchComments();
   };
 
+  const handlePageChange = async (page: number) => {
+    const nextSearchParams = new URLSearchParams(searchParams);
+    nextSearchParams.set("comment_index", String(page));
+
+    setSearchParams(nextSearchParams);
+  };
+
   return (
     <div className={commentSection}>
       <h2 className={commentSectionTitle}>
-        댓글<span className={commentCount}> ({comments.length}개)</span>
+        댓글<span className={commentCount}> ({total}개)</span>
       </h2>
 
       <div className={commentWriteSection}>
@@ -98,6 +121,13 @@ const Comments = ({ postId }: ICommentsProps) => {
           </p>
         )}
       </div>
+
+      <Pagination
+        currentPage={Number(searchParams.get("comment_index")) || 1}
+        totalPosts={total}
+        perPage={Number(searchParams.get("comment_perPage")) || 50}
+        onChange={handlePageChange}
+      />
     </div>
   );
 };
