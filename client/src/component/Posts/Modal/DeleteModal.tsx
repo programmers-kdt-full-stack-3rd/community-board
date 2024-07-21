@@ -2,6 +2,9 @@ import { SetStateAction } from "react";
 import { sendDeletePostRequest } from "../../../api/posts/crud";
 import { useNavigate } from "react-router-dom";
 import { Btns, CancleBtn, DeleteBtn, DeleteModalContainer, DeleteModalText } from "./DeleteModal.css";
+import { ApiCall } from "../../../api/api";
+import { ClientError } from "../../../api/errors";
+import { useErrorModal } from "../../../state/errorModalStore";
 
 interface IDeleteModalProps {
   close : React.Dispatch<SetStateAction<boolean>>;
@@ -11,22 +14,32 @@ interface IDeleteModalProps {
 
 const DeleteModal : React.FC<IDeleteModalProps> = ({ close, postId, isAuthor }) => {
   const navigate = useNavigate();
+  const errorModal = useErrorModal();
 
-  const handlePostDelete = () => {
+  const handlePostDelete = async () => {
     // TODO : 메모제이션으로 최적화
     if(!isAuthor){
-      alert("삭제 권한이 없습니다.");
+      errorModal.setErrorMessage("error:삭제권한이 없습니다.");
+      errorModal.open();
+      return;
     }
 
-    sendDeletePostRequest(postId.toString()).then((res)=>{
-      if(res.status >= 400){
-        console.log(res);
-        return;
+    const res = await ApiCall(
+      ()=>sendDeletePostRequest(postId.toString()),
+      (err)=>{
+        errorModal.setErrorMessage(err.message);
+        close(false);
+        errorModal.open();
       }
-      close(false);
-      alert("삭제에 성공했습니다.");
-      navigate("/");
-    });
+    );
+
+    if(res instanceof ClientError){
+      return;
+    }
+
+    close(false);
+    alert("삭제에 성공했습니다.");
+    navigate("/");
   };
 
   return (
