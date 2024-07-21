@@ -7,6 +7,9 @@ import DeleteModal from "./Modal/DeleteModal";
 import { AiFillLike } from "react-icons/ai";
 import { sendCreatePostLikeRequest, sendDeletePostLikeRequest } from "../../api/likes/crud";
 import { useUserStore } from "../../state/store";
+import { ApiCall } from "../../api/api";
+import { ClientError } from "../../api/errors";
+import { useErrorModal } from "../../state/errorModalStore";
 
 interface IPostInfoProps {
   postInfo : IPostInfo
@@ -17,6 +20,7 @@ const PostInfo : React.FC<IPostInfoProps> = ({ postInfo }) => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [userLiked, setUserLiked] = useState(false);
   const [likes, setLikes] = useState(0);
+  const errorModal = useErrorModal();
 
   useLayoutEffect(()=>{
     setUserLiked(postInfo.user_liked);
@@ -40,30 +44,42 @@ const PostInfo : React.FC<IPostInfoProps> = ({ postInfo }) => {
 
   const isLogin = useUserStore((state) => state.isLogin);
 
-  const handleLike = () => {
+  const handleLike = async () => {
     if(!isLogin){
       alert("로그인이 필요합니다!");
       return;
     }
 
     if(!userLiked){
-      sendCreatePostLikeRequest(postInfo.id).then((res)=>{
-        if(res.status >= 400){
-          console.log(res);
-          return;
+      const res = await ApiCall(
+        ()=>sendCreatePostLikeRequest(postInfo.id),
+        (err)=>{
+          errorModal.setErrorMessage(err.message);
+          errorModal.open();
         }
-        setLikes(likes+1);
-        setUserLiked(true);
-      });
+      );
+
+      if (res instanceof ClientError){
+        return;
+      }
+      
+      setLikes(likes+1);
+      setUserLiked(true);
     } else {
-      sendDeletePostLikeRequest(postInfo.id).then((res)=>{
-        if(res.status >= 400){
-          console.log(res);
-          return;
+      const res = await ApiCall(
+        ()=>sendDeletePostLikeRequest(postInfo.id),
+        (err)=>{
+          errorModal.setErrorMessage(err.message);
+          errorModal.open();
         }
-        setLikes(likes-1);
-        setUserLiked(false);
-      });
+      );
+
+      if (res instanceof ClientError){
+        return;
+      }
+
+      setLikes(likes-1);
+      setUserLiked(false);
     }
   };
 
