@@ -13,7 +13,8 @@ import {
   mainPageStyle,
   postListActions,
 } from "./Main.css";
-import TestMain from "../../component/TestMain/TestMain";
+import { ApiCall } from "../../api/api";
+import { ClientError } from "../../api/errors";
 
 const Main = () => {
   const isLogin = useUserStore((state) => state.isLogin);
@@ -28,34 +29,32 @@ const Main = () => {
   useLayoutEffect(() => {
     const queryString = `?${searchParams.toString()}`;
 
-    sendGetPostsRequest(queryString)
-      .then((data) => {
-        if (data?.status >= 400) {
-          setPosts(null);
+    ApiCall(
+      () => sendGetPostsRequest(queryString),
+      () => { setPosts(null) }
+    ).then((res)=>{
+      if (res instanceof ClientError){
           return;
-        }
+      }
 
-        const total = parseInt(data?.total, 10);
+      const total = parseInt(res.total, 10);
 
-        if (isNaN(total)) {
-          // TODO: 에러 핸들링
-          return;
-        }
+      if (isNaN(total)) {
+        // TODO: 에러 핸들링
+        return;
+      }
 
-        const pageCount = Math.ceil(total / parsed.perPage);
+      const pageCount = Math.ceil(total / parsed.perPage);
 
-        if (pageCount > 0 && parsed.index > pageCount) {
-          const nextSearchParams = new URLSearchParams(searchParams);
-          nextSearchParams.set("index", String(pageCount));
-          setSearchParams(nextSearchParams);
-        } else {
-          setPosts(mapDBToPostHeaders(data.postHeaders));
-          setTotalPosts(data?.total ?? 0);
-        }
-      })
-      .catch(() => {
-        setPosts(null);
-      });
+      if (pageCount > 0 && parsed.index > pageCount) {
+        const nextSearchParams = new URLSearchParams(searchParams);
+        nextSearchParams.set("index", String(pageCount));
+        setSearchParams(nextSearchParams);
+      } else {
+        setPosts(mapDBToPostHeaders(res.postHeaders));
+        setTotalPosts(res.total ?? 0);
+      }
+    });
   }, [parsed.index, parsed.perPage, parsed.keyword, parsed.sortBy]);
 
   const handlePostSort = (sortBy: SortBy | null) => {
@@ -100,9 +99,6 @@ const Main = () => {
   return (
     <div className={mainPageStyle}>
       {isModalOpen && <PostModal close={setIsModalOpen} />}
-
-      {/* TODO: 최상단 헤더 연결 후 TestMain 제거 */}
-      <TestMain />
 
       <PostList
         posts={posts}
