@@ -50,36 +50,27 @@ const PostInfo : React.FC<IPostInfoProps> = ({ postInfo }) => {
       return;
     }
 
-    if(!userLiked){
-      const res = await ApiCall(
-        ()=>sendCreatePostLikeRequest(postInfo.id),
-        (err)=>{
-          errorModal.setErrorMessage(err.message);
-          errorModal.open();
-        }
-      );
-
-      if (res instanceof ClientError){
-        return;
+    const res = await ApiCall(
+      userLiked ? 
+      ()=>sendDeletePostLikeRequest(postInfo.id)
+      :
+      ()=>sendCreatePostLikeRequest(postInfo.id),
+      (err)=>{
+        errorModal.setErrorMessage(err.message);
+        errorModal.open();
       }
-      
-      setLikes(likes+1);
-      setUserLiked(true);
-    } else {
-      const res = await ApiCall(
-        ()=>sendDeletePostLikeRequest(postInfo.id),
-        (err)=>{
-          errorModal.setErrorMessage(err.message);
-          errorModal.open();
-        }
-      );
+    );
 
-      if (res instanceof ClientError){
-        return;
-      }
+    if (res instanceof ClientError){
+      return;
+    }
 
+    if(userLiked){  
       setLikes(likes-1);
       setUserLiked(false);
+    } else {
+      setLikes(likes+1);
+      setUserLiked(true);
     }
   };
 
