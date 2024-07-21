@@ -53,14 +53,14 @@ const CheckPassword: FC = () => {
 
     const errorHandle = (err: ClientError) => {
       if (err.code === 400) {
-      alert("비밀번호가 일치하지 않습니다.");
-      setPassword("");
-      return;
-    }
+        alert("비밀번호가 일치하지 않습니다.");
+        setPassword("");
+        return;
+      }
 
       if (err.code === 401) {
-      alert("로그인이 필요합니다.");
-      navigate("/login");
+        alert("로그인이 필요합니다.");
+        navigate("/login");
         return;
       }
     };
@@ -83,14 +83,21 @@ const CheckPassword: FC = () => {
   };
 
   const handleFinalConfirm = async () => {
-    finalModal.close();
-    alert("회원 탈퇴가 완료되었습니다.");
-    const result = await sendDeleteUserRequest();
-    if (result.status !== 200) {
+    const errorHandle = () => {
       alert("회원 탈퇴에 실패했습니다.");
       navigate(`/`);
       return;
+    };
+
+    const result = await ApiCall(() => sendDeleteUserRequest(), errorHandle);
+
+    if (result instanceof ClientError) {
+      return;
     }
+
+    finalModal.close();
+    alert("회원 탈퇴가 완료되었습니다.");
+
     setLogoutUser();
     navigate(`/`);
   };
