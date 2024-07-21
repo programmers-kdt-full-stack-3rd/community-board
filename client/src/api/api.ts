@@ -55,7 +55,10 @@ export const httpRequest = async (
   };
 };
 
-export const handleApiError = (error: ClientError, onError : (err: ClientError) => void) => {
+export const handleApiError = (
+  error: ClientError,
+  onError: (err: ClientError) => void
+) => {
   switch (error.code) {
     /* bad request */
     case 400:
@@ -63,7 +66,10 @@ export const handleApiError = (error: ClientError, onError : (err: ClientError) 
       break;
     /* unauthorized or tokenError */
     case 401:
-      if (isTokenError(error.message) || isUnauthorized(error.message) && isLogin) {
+      if (
+        isTokenError(error.message) ||
+        (isUnauthorized(error.message) && isLogin)
+      ) {
         setLogoutUser();
         onError(error);
       } else {
@@ -88,15 +94,20 @@ export const handleApiError = (error: ClientError, onError : (err: ClientError) 
   }
 };
 
-export const ApiCall = async(func : () => Promise<any>, onError : (err:ClientError) => void) => {
-    return func().then((res)=>{
-      if(res.status >= 400){
-        throw ClientError.autoFindErrorType(res.code, res.message);
+export const ApiCall = async (
+  func: () => Promise<any>,
+  onError: (err: ClientError) => void
+) => {
+  return func()
+    .then((res) => {
+      if (res.status >= 400) {
+        throw ClientError.autoFindErrorType(res.status, res.message);
       }
       // TODO : 지우기
       console.log(res);
       return res;
-    }).catch((err : ClientError)=>{
+    })
+    .catch((err: ClientError) => {
       // TODO : 각각의 에러 상황 핸들링하기 + 출력 지우기
       handleApiError(err, onError);
       return err;
