@@ -1,13 +1,19 @@
 import { useLayoutEffect, useState } from "react";
 import PostInfo from "../../component/Posts/PostInfo";
 import { PostInfoPageStyle } from "./PostInfoPage.css";
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { IPostInfo, mapDBToPostInfo } from "shared";
 import { sendGetPostRequest } from "../../api/posts/crud";
 import Comments from "../../component/Comments/Comments";
+import { ApiCall } from "../../api/api";
+import { ClientError } from "../../api/errors";
+import { useErrorModal } from "../../state/errorModalStore";
 
 const PostInfoPage = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const errorModal = useErrorModal();
+
   const [postInfo, setPostInfo] = useState<IPostInfo>({
     id: 0,
     title: "",
@@ -28,11 +34,18 @@ const PostInfoPage = () => {
       return;
     }
 
-    sendGetPostRequest(id).then((res)=>{
-      if(res.status >= 400){
-        console.log(res);
+    ApiCall(
+      ()=>sendGetPostRequest(id),
+      (err)=>{
+        errorModal.setErrorMessage(err.message);
+        errorModal.setOnError(()=>navigate("/"));
+        errorModal.open();
+      }
+    ).then((res)=>{
+      if(res instanceof ClientError){
         return;
       }
+
       setPostInfo(mapDBToPostInfo(res.post));
     });
   }, []);
