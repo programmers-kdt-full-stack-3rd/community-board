@@ -26,4 +26,5 @@ export const input = style({
 export const invalidInput = style({
   border: "1px solid red",
   backgroundColor: "#ffebee",
+  color: "black",
 });
