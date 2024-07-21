@@ -1,4 +1,6 @@
 import { useUserStore } from "../state/store";
+import { ClientError } from "./errors";
+import { isTokenError, isUnauthorized } from "./users/utils";
 
 export enum HttpMethod {
   POST = "POST",
@@ -9,14 +11,7 @@ export enum HttpMethod {
 }
 
 const setLogoutUser = useUserStore.getState().actions.setLogoutUser;
-
 const isLogin = useUserStore.getState().isLogin;
-
-const isTokenExpired = (message: string) =>
-  message === "Expired Token: 토큰이 만료 되었습니다.";
-
-const isUnauthorized = (message: string) =>
-  message === "Unauthorized: 로그인이 필요합니다.";
 
 export const convertToBody = (body: object) => {
   return JSON.stringify(body);
@@ -54,16 +49,56 @@ export const httpRequest = async (
     }
   }
 
-  if (
-    response.status === 401 &&
-    (isTokenExpired(responseJson.message) ||
-      (isUnauthorized(responseJson.message) && isLogin))
-  ) {
-    setLogoutUser();
-  }
-
   return {
     ...responseJson,
     status: response.status,
   };
+};
+
+export const handleApiError = (error: ClientError, onError : (err: ClientError) => void) => {
+  switch (error.code) {
+    /* bad request */
+    case 400:
+      onError(error);
+      break;
+    /* unauthorized or tokenError */
+    case 401:
+      if (isTokenError(error.message) || isUnauthorized(error.message) && isLogin) {
+        setLogoutUser();
+        onError(error);
+      } else {
+        console.log(error.message);
+      }
+      break;
+    /* not found */
+    case 404:
+      onError(error);
+      console.log(error.message);
+      break;
+    /* server error */
+    case 500:
+      onError(error);
+      console.log(error.message);
+      break;
+    /* 기타 에러 */
+    default:
+      onError(error);
+      console.log(error.message);
+      break;
+  }
+};
+
+export const ApiCall = async(func : () => Promise<any>, onError : (err:ClientError) => void) => {
+    return func().then((res)=>{
+      if(res.status >= 400){
+        throw ClientError.autoFindErrorType(res.code, res.message);
+      }
+      // TODO : 지우기
+      console.log(res);
+      return res;
+    }).catch((err : ClientError)=>{
+      // TODO : 각각의 에러 상황 핸들링하기 + 출력 지우기
+      handleApiError(err, onError);
+      return err;
+    });
 };
