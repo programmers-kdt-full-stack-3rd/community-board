@@ -8,6 +8,8 @@ import { REGEX } from "./constants/constants";
 import { joinWrapper, passwordReqStyle } from "./Join.css";
 import { sendPostJoinRequest } from "../../api/users/crud";
 import { useNavigate } from "react-router-dom";
+import { ClientError } from "../../api/errors";
+import { ApiCall } from "../../api/api";
 
 interface ValidationResult {
   isValid: boolean;
@@ -111,26 +113,39 @@ const Join: FC = () => {
     setInvalidField(validateResult.invalidField);
 
     if (validateResult.isValid) {
-      const result = await sendPostJoinRequest({
+      const body = {
         email,
         password,
         requiredPassword,
         nickname,
-      });
+      };
 
-      if (result.status !== 201) {
-        if (result.message) {
-          let message: string = result.message;
-          message = message.replace("Bad Request: ", "");
-          if (message.includes("이메일")) {
-            setInvalidField("email");
-          } else if (message.includes("닉네임")) {
-            setInvalidField("nickname");
+      const errorHandle = (err: ClientError) => {
+        if (err.code === 400) {
+          if (err.message) {
+            let message: string = err.message;
+            message = message.replace("Bad Request: ", "");
+            if (message.includes("이메일")) {
+              setInvalidField("email");
+            } else if (message.includes("닉네임")) {
+              setInvalidField("nickname");
+            }
+
+            setErrorMessage(message);
           }
-
-          setErrorMessage(message);
         }
-      } else {
+      };
+
+      const result = await ApiCall(
+        () => sendPostJoinRequest(body),
+        errorHandle
+      );
+
+      if (result instanceof ClientError) {
+        return;
+      }
+
+      if (result) {
         alert("회원가입이 완료되었습니다.");
         navigate("/login");
       }
@@ -145,7 +160,6 @@ const Join: FC = () => {
         onChange={handleEmailChange}
         isValid={invalidField !== "email"}
       />
-      {/*TODO: 비밀번호 복사 방지 기능 추가*/}
       <PasswordForm
         password={password}
         onChange={handlePasswordChange}
