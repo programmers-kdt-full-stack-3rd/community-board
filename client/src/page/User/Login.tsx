@@ -8,16 +8,8 @@ import ErrorMessageForm from "../../component/User/ErrorMessageForm";
 import { useUserStore } from "../../state/store";
 import { REGEX } from "./constants/constants";
 import SubmitButton from "../../component/User/SubmitButton";
-
-interface ILogin {
-  message: string;
-  result?: {
-    nickname: string;
-    loginTime: string;
-    isLogin: boolean;
-  };
-  status: number;
-}
+import { ApiCall } from "../../api/api";
+import { ClientError } from "../../api/errors";
 
 interface ValidationResult {
   isValid: boolean;
@@ -97,10 +89,36 @@ const Login: FC = () => {
         email,
         password,
       };
-      const result: ILogin = await sendPostLoginRequest(body);
-      if (result.status === 200 && result.result) {
-        // 로그인 성공
-        console.log("로그인 성공");
+
+      const errorHandle = (err: ClientError) => {
+        if (err.message) {
+          let message: string = err.message;
+          message = message.replace("Bad Request: ", "");
+          if (message.includes("또는")) {
+            setInvalidFields(["email", "password"]);
+            setErrorMessage(message);
+            return;
+          }
+
+          if (message.includes("이메일")) {
+            setInvalidFields(["email"]);
+            setErrorMessage(message);
+            return;
+          }
+          setErrorMessage(message);
+        }
+      };
+
+      const result = await ApiCall(
+        () => sendPostLoginRequest(body),
+        errorHandle
+      );
+
+      if (result instanceof ClientError) {
+        return;
+      }
+
+      if (result.result) {
         const { nickname, loginTime } = result.result;
 
         setLoginUser(nickname, loginTime);
@@ -109,21 +127,6 @@ const Login: FC = () => {
           new URLSearchParams(location.search).get("redirect") || "/";
         navigate(redirect); // 이전 페이지로
       } else {
-        if (result.message) {
-          let message: string = result.message;
-          message = message.replace("Bad Request: ", "");
-          if (message.includes("또는")) {
-            setInvalidFields(["email", "password"]);
-            return;
-          }
-
-          if (message.includes("이메일")) {
-            setInvalidFields(["email"]);
-            return;
-          }
-
-          setErrorMessage(message);
-        }
       }
     }
   };
