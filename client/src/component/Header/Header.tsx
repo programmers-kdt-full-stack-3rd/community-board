@@ -20,6 +20,8 @@ import {
 import { useEffect, useRef, useState } from "react";
 import DropdownMenu from "./DropdownMenu";
 import { useModal } from "../../hook/useModal";
+import { ApiCall } from "../../api/api";
+import { ClientError } from "../../api/errors";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -55,10 +57,16 @@ const Header = () => {
   };
 
   const handleLogout = async () => {
-    const result = await sendPostLogoutRequest();
-    if (result.status === 200) {
-      setLogoutUser();
+    const result = await ApiCall(
+      () => sendPostLogoutRequest(),
+      () => {}
+    );
+
+    if (result instanceof ClientError) {
+      return;
     }
+
+    setLogoutUser();
   };
 
   const handleUserInfo = () => {
