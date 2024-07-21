@@ -112,11 +112,14 @@ const Login: FC = () => {
         if (result.message) {
           let message: string = result.message;
           message = message.replace("Bad Request: ", "");
-          console.log(message);
+          if (message.includes("또는")) {
+            setInvalidFields(["email", "password"]);
+            return;
+          }
+
           if (message.includes("이메일")) {
             setInvalidFields(["email"]);
-          } else if (message.includes("또는")) {
-            setInvalidFields(["email", "password"]);
+            return;
           }
 
           setErrorMessage(message);
