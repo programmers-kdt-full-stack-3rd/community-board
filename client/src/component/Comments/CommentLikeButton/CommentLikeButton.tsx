@@ -7,6 +7,9 @@ import {
 } from "../../../api/likes/crud";
 import { useUserStore } from "../../../state/store";
 import { likeButton } from "./CommentLikeButton.css";
+import { ApiCall } from "../../../api/api";
+import { ClientError } from "../../../api/errors";
+import { useErrorModal } from "../../../state/errorModalStore";
 
 interface ICommentLikeButtonProps {
   commentId: number;
@@ -20,6 +23,7 @@ const CommentLikeButton = ({
   userLiked,
 }: ICommentLikeButtonProps) => {
   const isLogin = useUserStore((state) => state.isLogin);
+  const errorModal = useErrorModal();
 
   const [toggled, setToggled] = useState(false);
 
@@ -32,17 +36,18 @@ const CommentLikeButton = ({
       return;
     }
 
-    let response;
+    const response = await ApiCall(
+      actualUserLiked ?
+      () => sendDeleteCommentLikeRequest(commentId)
+      :
+      () => sendCreateCommentLikeRequest(commentId),
+      (err) => {
+        errorModal.setErrorMessage(err.message);
+        errorModal.open();
+      }
+    );
 
-    if (actualUserLiked) {
-      response = await sendDeleteCommentLikeRequest(commentId);
-    } else {
-      response = await sendCreateCommentLikeRequest(commentId);
-    }
-
-    if (response?.status >= 400) {
-      console.error(response);
-      alert(`좋아요${actualUserLiked ? " 취소" : ""} 실패`);
+    if (response instanceof ClientError) {
       return;
     }
 

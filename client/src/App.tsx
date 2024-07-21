@@ -1,8 +1,5 @@
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import "./root.css";
-import User from "./page/User/User";
-import Posts from "./component/Posts/Posts";
-import Tests from "./component/TestMain/Tests";
 import Login from "./page/User/Login";
 import PostInfoPage from "./page/Posts/PostInfoPage";
 import Join from "./page/User/Join";
@@ -60,13 +57,10 @@ function App() {
         <MainContainer>
           <Routes>
             <Route path="/" element={<Main />} />
-            <Route path="/user" element={<User />} />
             <Route path="/login" element={<Login />} />
             <Route path="/join" element={<Join />} />
             <Route path="/checkPassword" element={<CheckPassword />} />
             <Route path="/profileUpdate" element={<ProfileUpdate />} />
-            <Route path="/test" element={<Tests />} />
-            <Route path="/posts" element={<Posts />} />
             <Route path="/post/:id" element={<PostInfoPage />} />
           </Routes>
         </MainContainer>
