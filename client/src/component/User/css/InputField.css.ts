@@ -22,3 +22,9 @@ export const input = style({
   border: "1px solid #ccc",
   borderRadius: "4px",
 });
+
+export const invalidInput = style({
+  border: "1px solid red",
+  backgroundColor: "#ffebee",
+  color: "black",
+});
