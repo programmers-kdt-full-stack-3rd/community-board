@@ -8,21 +8,58 @@ import ErrorMessageForm from "../../component/User/ErrorMessageForm";
 import { useUserStore } from "../../state/store";
 import { REGEX } from "./constants/constants";
 import SubmitButton from "../../component/User/SubmitButton";
+import { ApiCall } from "../../api/api";
+import { ClientError } from "../../api/errors";
 
-interface ILogin {
-  message: string;
-  result?: {
-    nickname: string;
-    loginTime: string;
-    isLogin: boolean;
-  };
-  status: number;
+interface ValidationResult {
+  isValid: boolean;
+  errorMessage: string;
+  invalidFields: ("email" | "password")[];
 }
+
+const createError = (
+  message: string,
+  fields: ("email" | "password")[]
+): ValidationResult => ({
+  isValid: false,
+  errorMessage: message,
+  invalidFields: fields,
+});
+
+const validateLogin = (email: string, password: string): ValidationResult => {
+  const emailRegex = REGEX.EMAIL;
+  const passwordRegex = REGEX.PASSWORD;
+
+  if (!email) {
+    return createError("이메일을 입력하세요.", ["email"]);
+  }
+
+  if (!password) {
+    return createError("비밀번호를 입력하세요.", ["password"]);
+  }
+
+  if (!emailRegex.test(email) || !passwordRegex.test(password)) {
+    return createError("이메일 또는 비밀번호가 틀렸습니다.", [
+      "email",
+      "password",
+    ]);
+  }
+
+  return {
+    isValid: true,
+    errorMessage: "",
+    invalidFields: [],
+  };
+};
 
 const Login: FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [invalidFields, setInvalidFields] = useState<("email" | "password")[]>(
+    []
+  );
+
   const { setLoginUser } = useUserStore.use.actions();
 
   // zustand 테스트용
@@ -42,48 +79,54 @@ const Login: FC = () => {
   };
 
   const handleLoginButton = async () => {
-    const body = {
-      email,
-      password,
-    };
+    const validateResult = validateLogin(email, password);
 
-    // TODO: 로그인시 유효성검사 따로 분리
-    // 이메일 정규표현식
-    const emailRegex = REGEX.EMAIL;
-    //비밀번호 정규표현식(영대소문자 각각 1개 이상, 숫자 1개이상, 10자리 이상)
-    const passwordRegex = REGEX.PASSWORD;
+    setErrorMessage(validateResult.errorMessage);
+    setInvalidFields(validateResult.invalidFields);
 
-    if (!email) {
-      setErrorMessage("이메일을 입력하세요.");
-      return;
-    }
+    if (validateResult.isValid) {
+      const body = {
+        email,
+        password,
+      };
 
-    if (!password) {
-      setErrorMessage("비밀번호를 입력하세요.");
-      return;
-    }
+      const errorHandle = (err: ClientError) => {
+        if (err.message) {
+          let message: string = err.message;
+          message = message.replace("Bad Request: ", "");
+          if (message.includes("또는")) {
+            setInvalidFields(["email", "password"]);
+            setErrorMessage(message);
+            return;
+          }
 
-    if (!emailRegex.test(email) || !passwordRegex.test(password)) {
-      setErrorMessage("이메일 또는 비밀번호가 틀렸습니다.");
-      return;
-    }
+          if (message.includes("이메일")) {
+            setInvalidFields(["email"]);
+            setErrorMessage(message);
+            return;
+          }
+          setErrorMessage(message);
+        }
+      };
 
-    const result: ILogin = await sendPostLoginRequest(body);
-    if (result.status === 200 && result.result) {
-      // 로그인 성공
-      console.log("로그인 성공");
-      const { nickname, loginTime } = result.result;
+      const result = await ApiCall(
+        () => sendPostLoginRequest(body),
+        errorHandle
+      );
 
-      setLoginUser(nickname, loginTime);
+      if (result instanceof ClientError) {
+        return;
+      }
 
-      const redirect =
-        new URLSearchParams(location.search).get("redirect") || "/";
-      navigate(redirect); // 이전 페이지로
-    } else {
-      if (result.message) {
-        let message: string = result.message;
-        message = message.replace("Bad Request: ", "");
-        setErrorMessage(message);
+      if (result.result) {
+        const { nickname, loginTime } = result.result;
+
+        setLoginUser(nickname, loginTime);
+
+        const redirect =
+          new URLSearchParams(location.search).get("redirect") || "/";
+        navigate(redirect); // 이전 페이지로
+      } else {
       }
     }
   };
@@ -91,11 +134,16 @@ const Login: FC = () => {
   return (
     <div className={loginWrapper}>
       <h1>로그인</h1>
-      <EmailForm email={email} onChange={handleEmailChange} />
+      <EmailForm
+        email={email}
+        onChange={handleEmailChange}
+        isValid={!invalidFields.includes("email")}
+      />
       <PasswordForm
         password={password}
         onChange={handlePasswordChange}
         labelText="비밀번호"
+        isValid={!invalidFields.includes("password")}
       />
       {errorMessage && <ErrorMessageForm>{errorMessage}</ErrorMessageForm>}
       <SubmitButton onClick={handleLoginButton}>로그인 버튼</SubmitButton>

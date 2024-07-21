@@ -17,6 +17,10 @@ import {
   commentWriteSection,
   noComment,
 } from "./Comments.css";
+import { ApiCall } from "../../api/api";
+import { ClientError } from "../../api/errors";
+import { useErrorModal } from "../../state/errorModalStore";
+import { useNavigate, useParams } from "react-router-dom";
 
 interface ICommentsProps {
   postId: number;
@@ -26,7 +30,11 @@ const Comments = ({ postId }: ICommentsProps) => {
   const [comments, setComments] = useState<IComment[]>([]);
   const [total, setTotal] = useState(0);
 
+  const errorModal = useErrorModal();
+  const navigate = useNavigate();
+  const { id } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
+
   const commentListRef = useRef<HTMLDivElement>(null);
 
   const fetchComments = useCallback(async () => {
@@ -40,16 +48,21 @@ const Comments = ({ postId }: ICommentsProps) => {
 
     const queryString = `?${requestSearchParams.toString()}`;
 
-    const data = await sendGetCommentsRequest(queryString);
+    const res = await ApiCall(
+      () => sendGetCommentsRequest(queryString),
+      () => {
+        errorModal.setErrorMessage("error:댓글을 불러오지 못했습니다.");
+        errorModal.setOnError(window.location.reload);
+        errorModal.open();
+      }
+    );
 
-    if (data.status >= 400) {
-      // TODO: 에러 핸들링
-      console.error(data);
+    if (res instanceof ClientError) {
       return;
     }
 
-    setComments(mapDBToComments(data.comments));
-    setTotal(data.total);
+    setComments(mapDBToComments(res.comments));
+    setTotal(res.total);
   }, [postId, searchParams]);
 
   useLayoutEffect(() => {
@@ -61,26 +74,20 @@ const Comments = ({ postId }: ICommentsProps) => {
   }, [postId, searchParams]);
 
   const handleCommentCreate = async (content: string): Promise<boolean> => {
-    try {
-      const response = await sendPostCommentRequest({
-        content,
-        post_id: postId,
-      });
-
-      if (response?.status >= 400) {
-        console.error(response);
-        alert("댓글 작성에 실패했습니다.");
-        return false;
+    const res = await ApiCall(
+      () => sendPostCommentRequest({ content, post_id: postId }),
+      () => {
+        errorModal.setOnError(() => navigate(`/login?redirect=/post/${id}`));
       }
+    );
 
-      fetchComments();
-      alert("댓글을 작성했습니다.");
-    } catch (error) {
-      console.error(error);
-      alert("댓글 작성에 실패했습니다.");
+    if (res instanceof ClientError) {
+      errorModal.setErrorMessage(res.message);
+      errorModal.open();
       return false;
     }
 
+    fetchComments();
     return true;
   };
 

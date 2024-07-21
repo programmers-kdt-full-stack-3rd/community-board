@@ -11,6 +11,8 @@ import { REGEX } from "./constants/constants";
 import { useModal } from "../../hook/useModal";
 import UserDeleteModal from "../../component/Header/UserDeleteModal";
 import { useUserStore } from "../../state/store";
+import { ClientError } from "../../api/errors";
+import { ApiCall } from "../../api/api";
 
 const MODAL_CONFIGS = {
   final: {
@@ -49,16 +51,26 @@ const CheckPassword: FC = () => {
       return;
     }
 
-    const result = await sendPOSTCheckPasswordRequest({ password });
-    if (result.status === 400) {
-      alert("비밀번호가 일치하지 않습니다.");
-      setPassword("");
-      return;
-    }
+    const errorHandle = (err: ClientError) => {
+      if (err.code === 400) {
+        alert("비밀번호가 일치하지 않습니다.");
+        setPassword("");
+        return;
+      }
 
-    if (result.status === 401) {
-      alert("로그인이 필요합니다.");
-      navigate("/login");
+      if (err.code === 401) {
+        alert("로그인이 필요합니다.");
+        navigate("/login");
+        return;
+      }
+    };
+
+    const result = await ApiCall(
+      () => sendPOSTCheckPasswordRequest({ password }),
+      errorHandle
+    );
+
+    if (result instanceof ClientError) {
       return;
     }
 
@@ -66,18 +78,26 @@ const CheckPassword: FC = () => {
       finalModal.open();
       return;
     }
+
     navigate(`/${next}?final=${final}`);
   };
 
   const handleFinalConfirm = async () => {
-    finalModal.close();
-    alert("회원 탈퇴가 완료되었습니다.");
-    const result = await sendDeleteUserRequest();
-    if (result.status !== 200) {
+    const errorHandle = () => {
       alert("회원 탈퇴에 실패했습니다.");
       navigate(`/`);
       return;
+    };
+
+    const result = await ApiCall(() => sendDeleteUserRequest(), errorHandle);
+
+    if (result instanceof ClientError) {
+      return;
     }
+
+    finalModal.close();
+    alert("회원 탈퇴가 완료되었습니다.");
+
     setLogoutUser();
     navigate(`/`);
   };

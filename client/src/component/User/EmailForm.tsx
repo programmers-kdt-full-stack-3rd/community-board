@@ -4,9 +4,14 @@ import InputField from "./InputField";
 interface IEmailFormProps {
   email: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  isValid?: boolean;
 }
 
-const EmailForm: FC<IEmailFormProps> = ({ email, onChange }) => {
+const EmailForm: FC<IEmailFormProps> = ({
+  email,
+  onChange,
+  isValid = true,
+}) => {
   return (
     <InputField
       labelText="이메일"
@@ -15,6 +20,7 @@ const EmailForm: FC<IEmailFormProps> = ({ email, onChange }) => {
       value={email}
       onChange={onChange}
       placeholder="이메일을 입력하세요."
+      isValid={isValid}
     />
   );
 };

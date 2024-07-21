@@ -34,7 +34,6 @@ type TDeleteUserInfo =
 
 interface IUserAuthResult extends RowDataPacket, IUser {}
 
-// TODO: 회원가입시 닉네임 중복 체크 해야함. (SQL문도 변경해야함)
 export const addUser = async (userData: IUserRegData) => {
   let conn: PoolConnection | null = null;
   try {
@@ -53,16 +52,24 @@ export const addUser = async (userData: IUserRegData) => {
       value
     );
 
+    if (rows.affectedRows === 0) {
+      throw ServerError.reference("회원가입 실패");
+    }
+
     return rows;
   } catch (err: any) {
     if (err.code === "ER_DUP_ENTRY") {
-      const isDelete = await isUserDeleted({ email: userData.email });
-
-      if (isDelete) {
-        throw ServerError.badRequest("탈퇴한 회원입니다.");
+      if (err.sqlMessage.includes("email")) {
+        const isDelete = await isUserDeleted({ email: userData.email });
+        if (isDelete) {
+          throw ServerError.badRequest("탈퇴한 회원입니다.");
+        }
+        throw ServerError.badRequest("이미 존재하는 이메일 주소입니다.");
       }
 
-      throw ServerError.badRequest("이미 존재하는 이메일 주소입니다.");
+      if (err.sqlMessage.includes("nickname")) {
+        throw ServerError.badRequest("이미 사용 중인 닉네임입니다.");
+      }
     } else {
       throw err;
     }

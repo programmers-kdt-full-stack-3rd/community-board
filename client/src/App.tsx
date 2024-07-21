@@ -12,6 +12,9 @@ import { AppContainer, justifyCenter, mainContainer } from "./App.css";
 import CheckPassword from "./page/User/CheckPassword";
 import ProfileUpdate from "./page/User/ProfileUpdate";
 import clsx from "clsx";
+import { useErrorModal } from "./state/errorModalStore";
+import { useLayoutEffect } from "react";
+import ErrorModal from "./component/utils/ErrorModal";
 
 function MainContainer({ children }: { children: React.ReactNode }) {
   const location = useLocation();
@@ -36,9 +39,23 @@ function MainContainer({ children }: { children: React.ReactNode }) {
 }
 
 function App() {
+  const errorModal = useErrorModal();
+
+  useLayoutEffect(()=>{
+    errorModal.clear();
+  },[]);
+
   return (
     <div className={AppContainer}>
       <BrowserRouter>
+        {
+          (errorModal.isOpen) &&
+          <ErrorModal
+            message={errorModal.errorMessage}
+            onError={errorModal.onError}
+            close={errorModal.close}
+          />
+        }
         <Header />
         <MainContainer>
           <Routes>

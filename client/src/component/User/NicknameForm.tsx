@@ -5,12 +5,14 @@ interface INicknameFormProps {
   labelText: string;
   nickname: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  isValid?: boolean;
 }
 
 const NicknameForm: FC<INicknameFormProps> = ({
   labelText,
   nickname,
   onChange,
+  isValid = true,
 }) => {
   return (
     <InputField
@@ -20,6 +22,7 @@ const NicknameForm: FC<INicknameFormProps> = ({
       value={nickname}
       onChange={onChange}
       placeholder="닉네임을 입력하세요."
+      isValid={isValid}
     />
   );
 };
