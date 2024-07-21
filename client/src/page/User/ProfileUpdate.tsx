@@ -12,6 +12,8 @@ import ErrorMessageForm from "../../component/User/ErrorMessageForm";
 import { sendPutUpdateUserRequest } from "../../api/users/crud";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useUserStore } from "../../state/store";
+import { ApiCall } from "../../api/api";
+import { ClientError } from "../../api/errors";
 
 interface IProfileUpdateResult {
   status: number;
@@ -71,30 +73,28 @@ const ProfileUpdate: FC = () => {
     return true;
   };
 
-  const handleError = (result: IProfileUpdateResult) => {
-    if (result.status === 400) {
-      let message: string = result.message;
+  const handleError = (err: ClientError) => {
+    if (err.code === 400) {
+      let message: string = err.message;
       message = message.replace("Bad Request: ", "");
       setErrorMessage(message);
-      return true;
+      return;
     }
 
     if (
-      result.status === 401 &&
-      result.message === "Unauthorized: 로그인이 필요합니다."
+      err.code === 401 &&
+      err.message === "Unauthorized: 로그인이 필요합니다."
     ) {
       alert("로그인이 필요합니다.");
       navigate("/login");
-      return true;
+      return;
     }
 
-    if (result.status !== 200) {
+    if (err.code !== 200) {
       alert("검증되지 않은 유저 입니다.");
       navigate(`/checkPassword?next=profileUpdate&final=${final}`);
-      return true;
+      return;
     }
-
-    return false;
   };
 
   const handleNicknameChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -114,12 +114,16 @@ const ProfileUpdate: FC = () => {
       return;
     }
 
-    const result: IProfileUpdateResult = await sendPutUpdateUserRequest({
-      nickname,
-      password,
-    });
+    const result: IProfileUpdateResult = await ApiCall(
+      () =>
+        sendPutUpdateUserRequest({
+          nickname,
+          password,
+        }),
+      handleError
+    );
 
-    if (handleError(result)) {
+    if (result instanceof ClientError) {
       return;
     }
 
