@@ -25,6 +25,44 @@ interface ICommentDelete {
   author_id: number;
 }
 
+export const getTotalComments = async (postId: number) => {
+  let conn: PoolConnection | null = null;
+
+  try {
+    const sql = `
+      SELECT
+        COUNT(*) AS total
+      FROM
+        comments
+      INNER JOIN
+        posts
+        ON comments.post_id = posts.id
+        AND comments.post_id = ?
+      INNER JOIN
+        users
+        ON comments.author_id = users.id
+      WHERE
+        comments.isDelete = FALSE
+        AND users.isDelete = FALSE
+    `;
+    const values = [postId];
+
+    conn = await pool.getConnection();
+    const [rows]: [RowDataPacket[], FieldPacket[]] = await conn.query(
+      sql,
+      values
+    );
+
+    return {
+      total: Number(rows[0]?.total) || 0,
+    };
+  } catch (err) {
+    throw err;
+  } finally {
+    if (conn) conn.release();
+  }
+};
+
 export const readComments = async (
   postId: number,
   index: number,
@@ -34,7 +72,7 @@ export const readComments = async (
   let conn: PoolConnection | null = null;
 
   try {
-    const dataSelectSql = `
+    const sql = `
       SELECT
         comments.id AS id,
         comments.content AS content,
@@ -50,15 +88,6 @@ export const readComments = async (
           WHERE comment_likes.comment_id = comments.id
             AND comment_likes.user_id = ?
         ) AS user_liked
-    `;
-    const dataSelectValues = [userId, userId];
-
-    const countSelectSql = `
-      SELECT
-        COUNT(*) AS total
-    `;
-
-    const sharedFromWhereSql = `
       FROM
         comments
       INNER JOIN
@@ -71,42 +100,21 @@ export const readComments = async (
       WHERE
         comments.isDelete = FALSE
         AND users.isDelete = FALSE
-    `;
-    const sharedFromWhereValues = [postId];
-
-    const dataSortLimitSql = `
       ORDER BY
         comments.created_at,
         comments.id
       LIMIT ? OFFSET ?
     `;
-    const dataSortLimitValues = [perPage, index * perPage];
-
-    const dataSql = [dataSelectSql, sharedFromWhereSql, dataSortLimitSql].join(
-      "\n"
-    );
-    const dataValues = [
-      ...dataSelectValues,
-      ...sharedFromWhereValues,
-      ...dataSortLimitValues,
-    ];
-
-    const countSql = [countSelectSql, sharedFromWhereSql].join("\n");
-    const countValues = [...sharedFromWhereValues];
+    const values = [userId, userId, postId, perPage, index * perPage];
 
     conn = await pool.getConnection();
-    const [dataRows]: [RowDataPacket[], FieldPacket[]] = await conn.query(
-      dataSql,
-      dataValues
-    );
-    const [countRows]: [RowDataPacket[], FieldPacket[]] = await conn.query(
-      countSql,
-      countValues
+    const [rows]: [RowDataPacket[], FieldPacket[]] = await conn.query(
+      sql,
+      values
     );
 
     return {
-      total: Number(countRows[0]?.total) || 0,
-      comments: mapDBToComments(dataRows),
+      comments: mapDBToComments(rows),
     };
   } catch (err) {
     throw err;

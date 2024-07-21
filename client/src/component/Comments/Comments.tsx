@@ -37,14 +37,16 @@ const Comments = ({ postId }: ICommentsProps) => {
 
   const commentListRef = useRef<HTMLDivElement>(null);
 
+  const perPage = Number(searchParams.get("comment_perPage")) || 50;
+  const currentPage =
+    Number(searchParams.get("comment_index")) || Math.ceil(total / perPage);
+
   const fetchComments = useCallback(async () => {
-    const requestSearchParams = new URLSearchParams(
-      [
-        ["post_id", String(postId)],
-        ["index", searchParams.get("comment_index") ?? ""],
-        ["perPage", searchParams.get("comment_perPage") ?? ""],
-      ].filter(([_, value]) => value)
-    );
+    const requestSearchParams = new URLSearchParams({
+      post_id: String(postId),
+      index: String(currentPage),
+      perPage: String(perPage),
+    });
 
     const queryString = `?${requestSearchParams.toString()}`;
 
@@ -136,9 +138,9 @@ const Comments = ({ postId }: ICommentsProps) => {
 
       {total > 50 && (
         <Pagination
-          currentPage={Number(searchParams.get("comment_index")) || 1}
+          currentPage={currentPage}
           totalPosts={total}
-          perPage={Number(searchParams.get("comment_perPage")) || 50}
+          perPage={perPage}
           onChange={handlePageChange}
         />
       )}
