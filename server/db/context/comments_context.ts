@@ -25,19 +25,62 @@ interface ICommentDelete {
   author_id: number;
 }
 
-export const readComments = async (postId: number, userId?: number) => {
+export const getTotalComments = async (postId: number) => {
   let conn: PoolConnection | null = null;
 
   try {
     const sql = `
       SELECT
-        comments.id as id,
-        comments.content as content,
-        comments.author_id as author_id,
-        users.nickname as author_nickname,
+        COUNT(*) AS total
+      FROM
+        comments
+      INNER JOIN
+        posts
+        ON comments.post_id = posts.id
+        AND comments.post_id = ?
+      INNER JOIN
+        users
+        ON comments.author_id = users.id
+      WHERE
+        comments.isDelete = FALSE
+        AND users.isDelete = FALSE
+    `;
+    const values = [postId];
+
+    conn = await pool.getConnection();
+    const [rows]: [RowDataPacket[], FieldPacket[]] = await conn.query(
+      sql,
+      values
+    );
+
+    return {
+      total: Number(rows[0]?.total) || 0,
+    };
+  } catch (err) {
+    throw err;
+  } finally {
+    if (conn) conn.release();
+  }
+};
+
+export const readComments = async (
+  postId: number,
+  index: number,
+  perPage: number,
+  userId?: number
+) => {
+  let conn: PoolConnection | null = null;
+
+  try {
+    const sql = `
+      SELECT
+        comments.id AS id,
+        comments.content AS content,
+        comments.author_id AS author_id,
+        users.nickname AS author_nickname,
         (comments.author_id = ?) AS is_author,
-        comments.created_at as created_at,
-        comments.updated_at as updated_at,
+        comments.created_at AS created_at,
+        comments.updated_at AS updated_at,
         (SELECT COUNT(*) FROM comment_likes WHERE comment_id = comments.id) AS likes,
         EXISTS(
           SELECT *
@@ -60,15 +103,19 @@ export const readComments = async (postId: number, userId?: number) => {
       ORDER BY
         comments.created_at,
         comments.id
+      LIMIT ? OFFSET ?
     `;
-    const values = [userId, userId, postId];
+    const values = [userId, userId, postId, perPage, index * perPage];
 
     conn = await pool.getConnection();
     const [rows]: [RowDataPacket[], FieldPacket[]] = await conn.query(
       sql,
       values
     );
-    return mapDBToComments(rows);
+
+    return {
+      comments: mapDBToComments(rows),
+    };
   } catch (err) {
     throw err;
   } finally {

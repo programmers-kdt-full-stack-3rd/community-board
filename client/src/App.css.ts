@@ -65,6 +65,7 @@ export const mainContainer = style({
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
+  marginBottom: "40px",
 });
 
 export const justifyCenter = style({

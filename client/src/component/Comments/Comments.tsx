@@ -1,9 +1,11 @@
-import { useCallback, useLayoutEffect, useState } from "react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { IComment, mapDBToComments } from "shared";
 import {
   sendGetCommentsRequest,
   sendPostCommentRequest,
 } from "../../api/comments/crud";
+import Pagination from "../common/Pagination/Pagination";
 import CommentForm from "./CommentForm/CommentForm";
 import CommentItem from "./CommentItem/CommentItem";
 import {
@@ -26,14 +28,31 @@ interface ICommentsProps {
 
 const Comments = ({ postId }: ICommentsProps) => {
   const [comments, setComments] = useState<IComment[]>([]);
+  const [total, setTotal] = useState(0);
+
   const errorModal = useErrorModal();
   const navigate = useNavigate();
   const { id } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const commentListRef = useRef<HTMLDivElement>(null);
+
+  const perPage = Number(searchParams.get("comment_perPage")) || 50;
+  const currentPage =
+    Number(searchParams.get("comment_index")) || Math.ceil(total / perPage);
 
   const fetchComments = useCallback(async () => {
+    const requestSearchParams = new URLSearchParams([
+      ["post_id", String(postId)],
+      ["index", searchParams.get("comment_index") || ""],
+      ["perPage", searchParams.get("comment_perPage") || ""],
+    ]);
+
+    const queryString = `?${requestSearchParams.toString()}`;
+
     const res = await ApiCall(
-      ()=>sendGetCommentsRequest(postId),
-      ()=>{
+      () => sendGetCommentsRequest(queryString),
+      () => {
         errorModal.setErrorMessage("error:댓글을 불러오지 못했습니다.");
         errorModal.setOnError(window.location.reload);
         errorModal.open();
@@ -45,7 +64,8 @@ const Comments = ({ postId }: ICommentsProps) => {
     }
 
     setComments(mapDBToComments(res.comments));
-  }, [postId]);
+    setTotal(res.total);
+  }, [postId, searchParams]);
 
   useLayoutEffect(() => {
     if (postId < 1) {
@@ -53,13 +73,23 @@ const Comments = ({ postId }: ICommentsProps) => {
     }
 
     fetchComments();
-  }, [postId]);
+  }, [postId, searchParams]);
+
+  const goToLastPage = async () => {
+    if (searchParams.get("comment_index")) {
+      const nextSearchParams = new URLSearchParams(searchParams);
+      nextSearchParams.delete("comment_index");
+      setSearchParams(nextSearchParams);
+    } else {
+      await fetchComments();
+    }
+  };
 
   const handleCommentCreate = async (content: string): Promise<boolean> => {
     const res = await ApiCall(
-      () => sendPostCommentRequest({content, post_id: postId}),
+      () => sendPostCommentRequest({ content, post_id: postId }),
       () => {
-        errorModal.setOnError(()=>navigate(`/login?redirect=/post/${id}`));
+        errorModal.setOnError(() => navigate(`/login?redirect=/post/${id}`));
       }
     );
 
@@ -69,7 +99,8 @@ const Comments = ({ postId }: ICommentsProps) => {
       return false;
     }
 
-    fetchComments();
+    await goToLastPage();
+
     return true;
   };
 
@@ -77,10 +108,31 @@ const Comments = ({ postId }: ICommentsProps) => {
     await fetchComments();
   };
 
+  const handleCommentDelete = async () => {
+    const isSingleCommentOfLastPage = currentPage > (total - 1) / 50;
+
+    if (isSingleCommentOfLastPage) {
+      await goToLastPage();
+    } else {
+      await fetchComments();
+    }
+  };
+
+  const handlePageChange = async (page: number) => {
+    const nextSearchParams = new URLSearchParams(searchParams);
+    nextSearchParams.set("comment_index", String(page));
+
+    setSearchParams(nextSearchParams);
+
+    const commentListY =
+      window.scrollY + (commentListRef.current?.getBoundingClientRect().y ?? 0);
+    window.scrollTo({ top: commentListY - 40 });
+  };
+
   return (
     <div className={commentSection}>
       <h2 className={commentSectionTitle}>
-        댓글<span className={commentCount}> ({comments.length}개)</span>
+        댓글<span className={commentCount}> ({total}개)</span>
       </h2>
 
       <div className={commentWriteSection}>
@@ -88,13 +140,14 @@ const Comments = ({ postId }: ICommentsProps) => {
         <CommentForm onSubmit={handleCommentCreate} />
       </div>
 
-      <div className={commentList}>
+      <div className={commentList} ref={commentListRef}>
         {comments.length > 0 ? (
           comments.map((comment) => (
             <CommentItem
               key={comment.id}
               comment={comment}
               onUpdate={handleCommentUpdate}
+              onDelete={handleCommentDelete}
             />
           ))
         ) : (
@@ -104,6 +157,15 @@ const Comments = ({ postId }: ICommentsProps) => {
           </p>
         )}
       </div>
+
+      {total > 50 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPosts={total}
+          perPage={perPage}
+          onChange={handlePageChange}
+        />
+      )}
     </div>
   );
 };

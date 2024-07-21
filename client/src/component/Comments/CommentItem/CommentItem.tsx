@@ -25,9 +25,10 @@ import { ClientError } from "../../../api/errors";
 interface ICommentItemProps {
   comment: IComment;
   onUpdate?: () => Promise<void>;
+  onDelete?: () => Promise<void>;
 }
 
-const CommentItem = ({ comment, onUpdate }: ICommentItemProps) => {
+const CommentItem = ({ comment, onUpdate, onDelete }: ICommentItemProps) => {
   const [isEditMode, setIsEditMode] = useState(false);
   const errorModal = useErrorModal();
 
@@ -59,14 +60,14 @@ const CommentItem = ({ comment, onUpdate }: ICommentItemProps) => {
     }
 
     const res = await ApiCall(
-        () => sendPatchCommentRequest({content,id: comment.id}),
-        (err) => {
-          errorModal.setErrorMessage(err.message);
-          errorModal.open();
-        }
+      () => sendPatchCommentRequest({ content, id: comment.id }),
+      (err) => {
+        errorModal.setErrorMessage(err.message);
+        errorModal.open();
+      }
     );
 
-    if(res instanceof ClientError){
+    if (res instanceof ClientError) {
       return false;
     }
 
@@ -96,12 +97,12 @@ const CommentItem = ({ comment, onUpdate }: ICommentItemProps) => {
       }
     );
 
-    if (res instanceof ClientError){
+    if (res instanceof ClientError) {
       return false;
     }
 
-    if (onUpdate) {
-      await onUpdate();
+    if (onDelete) {
+      await onDelete();
     }
 
     setIsEditMode(false);

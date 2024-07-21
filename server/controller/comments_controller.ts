@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import {
   createComment,
   deleteComment,
+  getTotalComments,
   readComments,
   updateComment,
 } from "../db/context/comments_context";
@@ -14,9 +15,16 @@ export const handleCommentsRead = async (
   try {
     const postId = parseInt(String(req.query.post_id), 10);
 
-    const comments = await readComments(postId, req.userId);
+    const { total } = await getTotalComments(postId);
 
-    res.status(200).json({ comments });
+    const perPage = Math.max(1, parseInt(String(req.query.perPage), 10) || 50);
+    const fallbackIndex = Math.max(1, Math.ceil(total / perPage));
+    const index =
+      Math.max(1, parseInt(String(req.query.index), 10) || fallbackIndex) - 1;
+
+    const { comments } = await readComments(postId, index, perPage, req.userId);
+
+    res.status(200).json({ total, comments });
   } catch (err) {
     next(err);
   }
