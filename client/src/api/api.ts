@@ -73,6 +73,7 @@ export const handleApiError = (
         setLogoutUser();
         onError(error);
       } else {
+        onError(error);
         console.log(error.message);
       }
       break;
