@@ -42,11 +42,11 @@ const Comments = ({ postId }: ICommentsProps) => {
     Number(searchParams.get("comment_index")) || Math.ceil(total / perPage);
 
   const fetchComments = useCallback(async () => {
-    const requestSearchParams = new URLSearchParams({
-      post_id: String(postId),
-      index: String(currentPage),
-      perPage: String(perPage),
-    });
+    const requestSearchParams = new URLSearchParams([
+      ["post_id", String(postId)],
+      ["index", searchParams.get("comment_index") || ""],
+      ["perPage", searchParams.get("comment_perPage") || ""],
+    ]);
 
     const queryString = `?${requestSearchParams.toString()}`;
 
@@ -89,7 +89,14 @@ const Comments = ({ postId }: ICommentsProps) => {
       return false;
     }
 
-    fetchComments();
+    if (searchParams.get("comment_index")) {
+      const nextSearchParams = new URLSearchParams(searchParams);
+      nextSearchParams.delete("comment_index");
+      setSearchParams(nextSearchParams);
+    } else {
+      fetchComments();
+    }
+
     return true;
   };
 
