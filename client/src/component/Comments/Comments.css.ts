@@ -5,9 +5,9 @@ export const commentSection = style({
   flexDirection: "column",
   justifyContent: "flex-start",
   alignItems: "stretch",
-  rowGap: "40px",
+  rowGap: "20px",
   boxSizing: "border-box",
-  margin: "40px 0",
+  margin: "20px 0",
   width: "800px",
   textAlign: "left",
 });
@@ -41,7 +41,7 @@ export const commentFormTitle = style({
 export const commentList = style({
   display: "flex",
   flexDirection: "column",
-  rowGap: "40px",
+  rowGap: "20px",
 });
 
 export const noComment = style({
