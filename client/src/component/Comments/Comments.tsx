@@ -75,6 +75,16 @@ const Comments = ({ postId }: ICommentsProps) => {
     fetchComments();
   }, [postId, searchParams]);
 
+  const goToLastPage = async () => {
+    if (searchParams.get("comment_index")) {
+      const nextSearchParams = new URLSearchParams(searchParams);
+      nextSearchParams.delete("comment_index");
+      setSearchParams(nextSearchParams);
+    } else {
+      await fetchComments();
+    }
+  };
+
   const handleCommentCreate = async (content: string): Promise<boolean> => {
     const res = await ApiCall(
       () => sendPostCommentRequest({ content, post_id: postId }),
@@ -89,19 +99,23 @@ const Comments = ({ postId }: ICommentsProps) => {
       return false;
     }
 
-    if (searchParams.get("comment_index")) {
-      const nextSearchParams = new URLSearchParams(searchParams);
-      nextSearchParams.delete("comment_index");
-      setSearchParams(nextSearchParams);
-    } else {
-      fetchComments();
-    }
+    await goToLastPage();
 
     return true;
   };
 
   const handleCommentUpdate = async () => {
     await fetchComments();
+  };
+
+  const handleCommentDelete = async () => {
+    const isSingleCommentOfLastPage = currentPage > (total - 1) / 50;
+
+    if (isSingleCommentOfLastPage) {
+      await goToLastPage();
+    } else {
+      await fetchComments();
+    }
   };
 
   const handlePageChange = async (page: number) => {
@@ -133,6 +147,7 @@ const Comments = ({ postId }: ICommentsProps) => {
               key={comment.id}
               comment={comment}
               onUpdate={handleCommentUpdate}
+              onDelete={handleCommentDelete}
             />
           ))
         ) : (
