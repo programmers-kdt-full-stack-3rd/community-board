@@ -31,8 +31,6 @@ export const handlePostsRead = async (req : Request, res : Response, next : Next
             sortBy : parseInt(req.query.sortBy as string) || undefined
         };
 
-        console.log(values);
-
         const posts = await getPostHeaders(values);
         
         res.json({ total : posts.total, postHeaders : posts.postHeaders });

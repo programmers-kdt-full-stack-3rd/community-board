@@ -63,7 +63,6 @@ export const getPostHeaders = async ( queryString : IReadPostRequest ) => {
             postHeaders
         }
     } catch (err) {
-        console.log(err);
         throw err;
     } finally {
         if (conn) conn.release();
@@ -119,7 +118,6 @@ export const getPostInfo = async (post_id : number, user_id? : number) => {
 
         return postInfo;
     } catch (err){
-        console.log(err);
         throw err;
     } finally {
         if (conn) conn.release();
@@ -215,7 +213,6 @@ export const deletePost = async (post_id : number, user_id : number) => {
             throw ServerError.reference("게시글 삭제 실패");
         }
     } catch (err) {
-        console.log(err);
         throw err;
     } finally {
         if (conn) conn.release();

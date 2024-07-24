@@ -104,8 +104,6 @@ export const ApiCall = async (
       if (res.status >= 400) {
         throw ClientError.autoFindErrorType(res.status, res.message);
       }
-      // TODO : 지우기
-      console.log(res);
       return res;
     })
     .catch((err: ClientError) => {
