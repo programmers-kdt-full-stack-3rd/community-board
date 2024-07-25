@@ -8,6 +8,7 @@
     "moduleResolution": "node", //모듈 해석 방법 설정: 'node' (Node.js)
     "esModuleInterop": true,
     "typeRoots": ["./node_module/@types", "./types/express.d.ts"],
-    "jsx": "react"
+    "jsx": "react",
+    "resolveJsonModule": true
   }
 }

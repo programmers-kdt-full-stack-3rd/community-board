@@ -7,7 +7,7 @@ export const ModalContainer = style({
     left : "50%",
     transform : "translate(-50%, -50%)",
     width : "600px",
-    height : "600px",
+    height : "630px",
     background : vars.color.task,
     borderRadius : "5px",
     textAlign : "center",
@@ -31,7 +31,7 @@ export const ModalBody = style({
     width : "fit",
     height : "100%",
     rowGap : 15,
-    margin : "20px"
+    margin : "0 20px 20px 20px"
 });
 
 export const PostHeaderTitle = style({
@@ -53,6 +53,20 @@ export const CloseBtn = style({
     color : vars.color.deleteButton
 });
 
+export const ApplyBtn = style({
+    backgroundColor : vars.color.applyButton,
+    borderColor : vars.color.applyButton,
+    color : vars.color.brightText,
+    padding : '5px'
+});
+
+export const FilterBtn = style({
+    backgroundColor : vars.color.brightText,
+    borderColor : vars.color.applyButton,
+    color : vars.color.darkText,
+    padding : '5px'
+});
+
 export const InputContainer = style({
     display : 'flex',
     flexDirection : "column",
@@ -61,6 +75,7 @@ export const InputContainer = style({
 
 export const InputIndex = style({
     display : 'flex',
+    justifyContent : "space-between",
     alignItems : "center",
     fontWeight : "bolder",
     color : vars.color.darkText,
