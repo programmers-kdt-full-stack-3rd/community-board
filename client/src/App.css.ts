@@ -17,6 +17,7 @@ export const vars = createGlobalTheme(":root", {
     updatedButton: "rgb(237,180,88)",
     deleteButton: "rgb(237,51,88)",
     successButton: "#36B700",
+    applyButton : '#5871ED'
   },
   fontSizing: {
     T1: "32px",

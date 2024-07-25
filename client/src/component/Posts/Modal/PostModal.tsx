@@ -1,9 +1,10 @@
 import { SetStateAction, useState } from 'react'
-import { CloseBtn, ContentTextArea, InputContainer, InputIndex, ModalBody, ModalContainer, ModalHeader, PostBtn, PostHeaderTitle, TitleInput } from './PostModal.css'
+import { ApplyBtn, CloseBtn, ContentTextArea, FilterBtn, InputContainer, InputIndex, ModalBody, ModalContainer, ModalHeader, PostBtn, PostHeaderTitle, TitleInput } from './PostModal.css'
 import { sendCreatePostRequest, sendUpdatePostRequest } from '../../../api/posts/crud';
 import { ApiCall } from '../../../api/api';
 import { ClientError } from '../../../api/errors';
 import { useErrorModal } from '../../../state/errorModalStore';
+import { useNavigate } from 'react-router-dom';
 
 interface IPostData {
     id : number;
@@ -17,6 +18,7 @@ interface IPostModalProps {
 }
 
 const PostModal : React.FC<IPostModalProps> = ({ close, originalPostData }) => {
+    const navigate = useNavigate();
     const isUpdateMode = originalPostData !== undefined;
 
     const modalMode = isUpdateMode ? "수정" : "생성";
@@ -24,9 +26,10 @@ const PostModal : React.FC<IPostModalProps> = ({ close, originalPostData }) => {
 
     const [title, setTitle] = useState(isUpdateMode ? originalPostData.title : "");
     const [content, setContent] = useState(isUpdateMode ? originalPostData.content : "");
+    const [doFilter, setDoFilter] = useState(false);
 
     const createPost = async() => {
-        const body = { title, content };
+        const body = { title, content, doFilter };
 
         const res = await ApiCall(
             ()=>sendCreatePostRequest(body), 
@@ -40,7 +43,7 @@ const PostModal : React.FC<IPostModalProps> = ({ close, originalPostData }) => {
             return;
         }
 
-        window.location.reload();
+        navigate(`/post/${res.postId}`)
     };
 
     const updatePost = async () => {
@@ -50,7 +53,8 @@ const PostModal : React.FC<IPostModalProps> = ({ close, originalPostData }) => {
 
         const body = {
             title,
-            content
+            content,
+            doFilter
         };
 
         const postId : number = originalPostData.id;
@@ -67,7 +71,7 @@ const PostModal : React.FC<IPostModalProps> = ({ close, originalPostData }) => {
             return;
         }
 
-        window.location.reload();
+        navigate(`/post/${postId}`);
     };
 
     return (
@@ -94,7 +98,14 @@ const PostModal : React.FC<IPostModalProps> = ({ close, originalPostData }) => {
                         placeholder='제목을 입력해주세요'></input>
                 </div>
                 <div className={InputContainer}>
-                    <div className={InputIndex}>내용</div>
+                    <div className={InputIndex}>
+                        <div>
+                            내용
+                        </div>
+                        <button className={doFilter ? ApplyBtn : FilterBtn} onClick={()=>setDoFilter(!doFilter)}>
+                            필터링 (beta)
+                        </button>
+                    </div>
                     <textarea className={ContentTextArea}
                         value={content}
                         onChange={(e)=>setContent(e.target.value)}
