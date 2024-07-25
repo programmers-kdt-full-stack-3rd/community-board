@@ -144,6 +144,7 @@ export const addPost = async (reqBody : ICreatePostRequest) => {
 
         // 게시글 작성에 성공했을 때, client에 반환할 값이 없기 때문에
         // 불필요한 return 제외
+        return rows.insertId;
     } catch (err) {
         throw err;
     } finally {

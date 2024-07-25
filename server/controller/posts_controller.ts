@@ -2,6 +2,9 @@ import { Request, Response, NextFunction } from 'express';
 import { addPost, deletePost, getPostHeaders, getPostInfo, updatePost } from '../db/context/posts_context';
 import { ServerError } from '../middleware/errors';
 import { SortBy } from 'shared';
+import * as fs from 'fs';
+import { changeBadWords, getRegex } from '../utils/bad-word-regex/regexTask';
+import regexs from '../utils/bad-word-regex/regexs.json';
 
 export interface IReadPostRequest {
     index : number;
@@ -57,12 +60,22 @@ export const handlePostCreate = async (req : Request, res : Response, next : Nex
         const reqBody : ICreatePostRequest = {
             title : req.body.title,
             content : req.body.content,
-            author_id : req.userId
+            author_id : req.userId,
         };
 
-        await addPost(reqBody);
+        // 필터링
+        const doFilter = req.body.doFilter;
 
-        res.status(200).json({ message : "게시글 생성 success"});
+        if(doFilter){    
+            const regex = getRegex(regexs);
+            const newText = changeBadWords(reqBody.content, regex);
+            reqBody.content = newText;
+        }
+        // 필터링
+
+        const postId = await addPost(reqBody);
+
+        res.status(200).json({ postId, message : "게시글 생성 success"});
     } catch (err) {
         next(err);
     }
