@@ -24,7 +24,7 @@ const combineSubWords = (sub : Sub) => {
     const comSubs : string[] = [];
     sub.forEach((items)=>{
         if(items.length > 1){
-            comSubs.push(combineWords(items));
+            comSubs.push('('+combineWords(items)+')');
         } else {
             comSubs.push(items[0]);
         }

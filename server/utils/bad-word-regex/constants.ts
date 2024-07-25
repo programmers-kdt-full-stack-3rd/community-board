@@ -1,6 +1,6 @@
 export const BETWEEN = '[^\w]{0,1}';
 
-export const beautiful = ['어머','아이쿠','뾰롱'];
+export const beautiful = ['*어머*','@아이쿠@','$뾰롱$','&무지개&','<유니콘>'];
 
 export const badWordPart = {
     // (MAIN) + SUB : (SI + BAL) + NOM or [SA+KI] | (SYANG) + NOM or [SA+KI] | (BEUNG + SIN) + NOM or [SA+KI]

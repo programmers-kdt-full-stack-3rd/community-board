@@ -8,7 +8,15 @@ export const getRegex = (badWords : string[]) => {
 
 export const changeBadWords = (text : string, regex : RegExp) => {
     const time = new Date().getTime();
-    const beauty = beautiful[time % 2];
+    let index = time % beautiful.length;
 
-    return text.replace(regex, beauty);
+    return text.replace(regex, () => {
+        if(index >= beautiful.length){
+            index = 0;
+        } else {
+            index += 1;
+        }
+
+        return beautiful[index];
+    });
 };
