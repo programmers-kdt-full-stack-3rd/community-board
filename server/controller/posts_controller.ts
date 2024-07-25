@@ -95,6 +95,16 @@ export const handlePostUpdate = async (req : Request, res : Response, next : Nex
             author_id : req.userId
         };
 
+        // 필터링
+        const doFilter = req.body.doFilter;
+
+        if(doFilter && reqBody.content){    
+            const regex = getRegex(regexs);
+            const newText = changeBadWords(reqBody.content, regex);
+            reqBody.content = newText;
+        }
+        // 필터링
+
         await updatePost(post_id, reqBody);
 
         res.status(200).json({ message : "게시글 수정 success"});

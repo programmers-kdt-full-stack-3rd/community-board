@@ -71,7 +71,7 @@ const PostModal : React.FC<IPostModalProps> = ({ close, originalPostData }) => {
             return;
         }
 
-        navigate(`/post/${postId}`);
+        window.location.reload();
     };
 
     return (
