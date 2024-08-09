@@ -1,5 +1,15 @@
 {
-    "name": "community-board",
-    "private": true,
-    "workspaces": ["client", "server", "shared"]
+	"name": "community-board",
+	"private": true,
+	"workspaces": [
+		"client",
+		"server",
+		"shared"
+	],
+	"scripts": {
+		"prettier": "prettier --write --config ./.prettierrc.json \"./**/*\""
+	},
+	"devDependencies": {
+		"prettier": "^3.3.3"
+	}
 }

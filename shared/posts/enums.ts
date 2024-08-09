@@ -1,4 +1,4 @@
 export enum SortBy {
-    VIEWS=1,
-    LIKES=2
+	VIEWS = 1,
+	LIKES = 2,
 }

@@ -1,7 +1,17 @@
-import express from 'express';
-import { handlePostRead, handlePostsRead, handlePostCreate, handlePostUpdate, handlePostDelete } from '../controller/posts_controller';
-import { requireLogin } from '../middleware/auth';
-import { deleteValidation, patchValidation, postValidation } from '../utils/validations/posts/posts';
+import express from "express";
+import {
+	handlePostRead,
+	handlePostsRead,
+	handlePostCreate,
+	handlePostUpdate,
+	handlePostDelete,
+} from "../controller/posts_controller";
+import { requireLogin } from "../middleware/auth";
+import {
+	deleteValidation,
+	patchValidation,
+	postValidation,
+} from "../utils/validations/posts/posts";
 
 const router = express.Router();
 router.use(express.json());

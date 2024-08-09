@@ -1,10 +1,9 @@
 ---
 name: Bug report
 about: 버그 발생 시 추가하는 이슈 템플릿
-title: ''
+title: ""
 labels: bug
 assignees: HungKungE
-
 ---
 
 ## 어떤 버그인가요?

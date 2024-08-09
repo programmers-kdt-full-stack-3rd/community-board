@@ -1,16 +1,16 @@
 import express from "express";
 import {
-  handleCommentCreate,
-  handleCommentDelete,
-  handleCommentsRead,
-  handleCommentUpdate,
+	handleCommentCreate,
+	handleCommentDelete,
+	handleCommentsRead,
+	handleCommentUpdate,
 } from "../controller/comments_controller";
 import { requireLogin } from "../middleware/auth";
 import {
-  deleteCommentValidation,
-  getCommentsValidation,
-  patchCommentValidation,
-  postCommentValidation,
+	deleteCommentValidation,
+	getCommentsValidation,
+	patchCommentValidation,
+	postCommentValidation,
 } from "../utils/validations/comments/comment";
 
 const router = express.Router();
@@ -20,10 +20,10 @@ router.get("/", getCommentsValidation, handleCommentsRead);
 router.post("/", requireLogin, postCommentValidation, handleCommentCreate);
 router.patch("/", requireLogin, patchCommentValidation, handleCommentUpdate);
 router.delete(
-  "/:comment_id",
-  requireLogin,
-  deleteCommentValidation,
-  handleCommentDelete
+	"/:comment_id",
+	requireLogin,
+	deleteCommentValidation,
+	handleCommentDelete
 );
 
 export default router;
