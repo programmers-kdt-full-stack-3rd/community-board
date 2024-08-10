@@ -12,6 +12,9 @@ import clsx from "clsx";
 import { useErrorModal } from "./state/errorModalStore";
 import { useLayoutEffect } from "react";
 import ErrorModal from "./component/utils/ErrorModal";
+import ChatTestPage from "./page/Chat/ChatTestPage";
+import ChatRooms from "./component/Chats/ChatRooms";
+import ChatRoom from "./component/Chats/ChatRoom";
 
 function MainContainer({ children }: { children: React.ReactNode }) {
 	const location = useLocation();
@@ -80,6 +83,18 @@ function App() {
 						<Route
 							path="/post/:id"
 							element={<PostInfoPage />}
+						/>
+						<Route
+							path="/test"
+							element={<ChatTestPage />}
+						/>
+						<Route
+							path="/rooms"
+							element={<ChatRooms />}
+						/>
+						<Route
+							path="/room/:room_id"
+							element={<ChatRoom />}
 						/>
 					</Routes>
 				</MainContainer>
