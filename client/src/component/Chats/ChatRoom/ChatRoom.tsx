@@ -1,21 +1,25 @@
 // import { useParams } from "react-router-dom";
 import { useState } from "react";
-import {
-	chatInput,
-	chatRoomBody,
-	chatRoomContainer,
-	inputContainer,
-	SendButton,
-} from "./ChatRoom.css";
+import { chatRoomBody, chatRoomContainer } from "./ChatRoom.css";
 import ChatRoomHeader from "./ChatRoomHeader";
 import MyChat from "./MyChat";
 import YourChat from "./YourChat";
 import SystemChat from "./SystemChat";
+import ChatInput from "./ChatInput";
 
 const ChatRoom = () => {
 	// const { room_id } = useParams();
 	// console.log(room_id);
-	const [sendMessage, setSendMessage] = useState("");
+	const [message, setMessage] = useState("");
+	const sendMessage = () => {
+		if (!message.length) {
+			return;
+		}
+		// TODO : 메세지를 local state에 추가하는 로직
+		// TODO : socket으로 메세지 보내는 로직
+		// TODO : 스피너 돌리는 로직
+		setMessage("");
+	};
 
 	return (
 		<div className={chatRoomContainer}>
@@ -30,14 +34,11 @@ const ChatRoom = () => {
 					}
 				/>
 			</div>
-			<div className={inputContainer}>
-				<input
-					className={chatInput}
-					value={sendMessage}
-					onChange={e => setSendMessage(e.target.value)}
-				/>
-				<button className={SendButton}>Send</button>
-			</div>
+			<ChatInput
+				message={message}
+				setMessage={setMessage}
+				onClick={sendMessage}
+			/>
 		</div>
 	);
 };
