@@ -7,6 +7,8 @@ import YourChat from "./YourChat";
 import SystemChat from "./SystemChat";
 import ChatInput from "./ChatInput";
 
+// TODO : aside로 옮길 때는 Props로 roomHeader 받아서 사용하기
+
 const ChatRoom = () => {
 	// const { room_id } = useParams();
 	// console.log(room_id);
@@ -20,6 +22,8 @@ const ChatRoom = () => {
 		// TODO : 스피너 돌리는 로직
 		setMessage("");
 	};
+
+	// TODO : 메세지 interface 추가 이후, 메세지 리스트를 이용하여 메세지 컴포넌트를 자동 생성하는 로직 추가
 
 	return (
 		<div className={chatRoomContainer}>
