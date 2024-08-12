@@ -4,7 +4,6 @@ import {
 	chatInput,
 	chatRoomBody,
 	chatRoomContainer,
-	chatRoomHeader,
 	inputContainer,
 	myChat,
 	myChatContainer,
@@ -12,6 +11,7 @@ import {
 	yourChat,
 	yourChatContainer,
 } from "./ChatRoom.css";
+import ChatRoomHeader from "./ChatRoomHeader";
 
 const ChatRoom = () => {
 	// const { room_id } = useParams();
@@ -20,11 +20,7 @@ const ChatRoom = () => {
 
 	return (
 		<div className={chatRoomContainer}>
-			<div className={chatRoomHeader}>
-				<div className="go_back">뒤로가기</div>
-				<div className="title">제목제목</div>
-				<div className="dropdown">드랍다운</div>
-			</div>
+			<ChatRoomHeader title={"임시제목"} />
 			<div className={chatRoomBody}>
 				<div className={myChatContainer}>
 					<div className={myChat}>안녕하세요 코드플레이입니다.</div>
