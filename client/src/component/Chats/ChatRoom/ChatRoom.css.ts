@@ -43,6 +43,13 @@ export const yourChatContainer = style({
 	paddingTop: "20px",
 });
 
+export const systemChatContainer = style({
+	display: "flex",
+	justifyContent: "center",
+	textAlign: "center",
+	paddingTop: "20px",
+});
+
 // TODO : 나와 상대방의 채팅 배경색 결정하기
 export const myChat = style({
 	display: "flex",
@@ -64,6 +71,19 @@ export const yourChat = style({
 	paddingLeft: "20px",
 	paddingRight: "20px",
 	maxWidth: "50%",
+	borderRadius: "10px",
+	border: "1px solid white",
+	background: "",
+});
+
+// TODO : 시스템 채팅 배경색 결정하기
+export const systemChat = style({
+	// display: "flex",
+	paddingTop: "10px",
+	paddingBottom: "10px",
+	paddingLeft: "20px",
+	paddingRight: "20px",
+	width: "80%",
 	borderRadius: "10px",
 	border: "1px solid white",
 	background: "",

@@ -5,13 +5,12 @@ import {
 	chatRoomBody,
 	chatRoomContainer,
 	inputContainer,
-	myChat,
-	myChatContainer,
 	SendButton,
-	yourChat,
-	yourChatContainer,
 } from "./ChatRoom.css";
 import ChatRoomHeader from "./ChatRoomHeader";
+import MyChat from "./MyChat";
+import YourChat from "./YourChat";
+import SystemChat from "./SystemChat";
 
 const ChatRoom = () => {
 	// const { room_id } = useParams();
@@ -22,18 +21,14 @@ const ChatRoom = () => {
 		<div className={chatRoomContainer}>
 			<ChatRoomHeader title={"임시제목"} />
 			<div className={chatRoomBody}>
-				<div className={myChatContainer}>
-					<div className={myChat}>안녕하세요 코드플레이입니다.</div>
-				</div>
-				<div className={yourChatContainer}>
-					<div style={{ display: "flex", flexDirection: "column" }}>
-						<div>상대방이름</div>
-						<div className={yourChat}>
-							코드플레이는 채팅 기능을 포함하는 커뮤니티 사이트를
-							만드는 팀입니다.
-						</div>
-					</div>
-				</div>
+				<SystemChat content="시스템 메세지 입니다." />
+				<MyChat content={"안녕하세요 코드플레이입니다."} />
+				<YourChat
+					name={"상대방"}
+					content={
+						"코드플레이는 채팅 기능을 포함하는 커뮤니티 사이트를 만드는 팀입니다."
+					}
+				/>
 			</div>
 			<div className={inputContainer}>
 				<input
