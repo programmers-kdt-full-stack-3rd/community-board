@@ -13,8 +13,8 @@ import { useErrorModal } from "./state/errorModalStore";
 import { useLayoutEffect } from "react";
 import ErrorModal from "./component/utils/ErrorModal";
 import ChatTestPage from "./page/Chat/ChatTestPage";
-import ChatRooms from "./component/Chats/ChatRooms";
 import ChatRoom from "./component/Chats/ChatRoom/ChatRoom";
+import ChatRooms from "./component/Chats/ChatRooms/ChatRooms";
 
 function MainContainer({ children }: { children: React.ReactNode }) {
 	const location = useLocation();
