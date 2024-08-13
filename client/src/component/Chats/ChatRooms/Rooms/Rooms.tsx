@@ -1,19 +1,7 @@
-import { FC, MouseEvent } from "react";
-import { CiLock } from "react-icons/ci";
+import { container } from "./Rooms.css";
+import Room from "./Room";
 
-import {
-	container,
-	chatContainer,
-	numContainer,
-	roomHeaderContainer,
-	roomContainer,
-	roomWrapper,
-	lockIcon,
-	titleContainer,
-} from "./Rooms.css";
-import { useNavigate } from "react-router-dom";
-
-interface IRoomHeader {
+export interface IRoomHeader {
 	roomId: string;
 	title: string;
 	is_private: boolean;
@@ -27,54 +15,15 @@ interface IRoomsProps {
 	rooms: IRoomHeader[];
 }
 
-const Rooms: FC<IRoomsProps> = ({ isMine, rooms }) => {
-	const navigate = useNavigate();
-
-	const onRoomClick =
-		(roomId: string) => (event: MouseEvent<HTMLDivElement>) => {
-			// TODO: 해당 room으로 이동
-			console.log(roomId);
-
-			// TODO: 비밀방 입장시 비밀번호 입력 모달 생성
-
-			// 테스트용 : /room/1
-			navigate("/room/1");
-		};
-
+const Rooms: React.FC<IRoomsProps> = ({ isMine, rooms }) => {
 	return (
 		<div className={container}>
 			{rooms.map((room, index) => (
-				<div
-					className={roomWrapper}
-					key={index}
-				>
-					<div
-						className={roomContainer}
-						onClick={onRoomClick(room.roomId)}
-					>
-						<div className={roomHeaderContainer}>
-							<div className={titleContainer}>
-								{room.is_private ? (
-									<CiLock className={lockIcon} />
-								) : (
-									" "
-								)}
-								채팅방 이름: {room.title}
-							</div>
-							<div className={numContainer}>
-								{isMine ? (
-									<span>접속 인원: {room.curNum}</span>
-								) : null}
-								<span>참여 인원: {room.participantNum}</span>
-							</div>
-						</div>
-						{isMine ? (
-							<div className={chatContainer}>
-								<span>최근 메시지: {room.lastMessage}</span>
-							</div>
-						) : null}
-					</div>
-				</div>
+				<Room
+					room={room}
+					isMine={isMine}
+					index={index}
+				/>
 			))}
 		</div>
 	);

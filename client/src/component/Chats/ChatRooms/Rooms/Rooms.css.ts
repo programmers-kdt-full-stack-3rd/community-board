@@ -53,3 +53,8 @@ export const numContainer = style({
 export const chatContainer = style({
 	width: "100%",
 });
+
+export const passwordInput = style({
+	width: "50%",
+	height: "34px",
+});
