@@ -7,8 +7,46 @@ import YourChat from "./YourChat";
 import SystemChat from "./SystemChat";
 import ChatInput from "./ChatInput";
 
-// TODO : aside로 옮길 때는 Props로 roomHeader 받아서 사용하기
+// TODO : shared에 IMessage 옮기기
+interface IMessage {
+	roomId: string;
+	nickname: string;
+	message: string;
+	created_at: Date;
+	is_mine: boolean;
+	is_system: boolean;
+}
 
+// TODO : zustand state 사용하는 것으로 바꾸기
+const testMessages: IMessage[] = [
+	{
+		roomId: "123",
+		nickname: "system",
+		message: "방이 생성되었습니다.",
+		created_at: new Date(),
+		is_mine: false,
+		is_system: true,
+	},
+	{
+		roomId: "123",
+		nickname: "testUser1",
+		message: "안녕하세요 코드플레이입니다.",
+		created_at: new Date(),
+		is_mine: true,
+		is_system: false,
+	},
+	{
+		roomId: "123",
+		nickname: "testUser2",
+		message:
+			"코드플레이는 채팅 기능을 포함하는 커뮤니티 사이트를 만드는 팀입니다.",
+		created_at: new Date(),
+		is_mine: false,
+		is_system: false,
+	},
+];
+
+// TODO : IRoomHeader Props로 받기
 const ChatRoom = () => {
 	// const { room_id } = useParams();
 	// console.log(room_id);
@@ -23,21 +61,29 @@ const ChatRoom = () => {
 		setMessage("");
 	};
 
-	// TODO : 메세지 interface 추가 이후, 메세지 리스트를 이용하여 메세지 컴포넌트를 자동 생성하는 로직 추가
+	const renderMessages = () => {
+		return testMessages.map(message => {
+			if (message.is_system) {
+				return <SystemChat content={message.message} />;
+			}
+
+			if (message.is_mine) {
+				return <MyChat content={message.message} />;
+			}
+
+			return (
+				<YourChat
+					name={message.nickname}
+					content={message.message}
+				/>
+			);
+		});
+	};
 
 	return (
 		<div className={chatRoomContainer}>
 			<ChatRoomHeader title={"임시제목"} />
-			<div className={chatRoomBody}>
-				<SystemChat content="시스템 메세지 입니다." />
-				<MyChat content={"안녕하세요 코드플레이입니다."} />
-				<YourChat
-					name={"상대방"}
-					content={
-						"코드플레이는 채팅 기능을 포함하는 커뮤니티 사이트를 만드는 팀입니다."
-					}
-				/>
-			</div>
+			<div className={chatRoomBody}>{renderMessages()}</div>
 			<ChatInput
 				message={message}
 				setMessage={setMessage}
