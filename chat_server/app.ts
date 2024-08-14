@@ -3,7 +3,8 @@ import dotenv from "dotenv";
 import { createServer } from "http";
 import { Server, Socket } from "socket.io";
 import { instrument } from "@socket.io/admin-ui";
-import { handleSocketConnection } from "./controllers/socket_controller";
+import { handleChatConnection } from "./controllers/chat_controller";
+import { handleNotificationConnection } from "./controllers/notification_controller";
 
 const app = express();
 const httpServer = createServer(app);
@@ -24,8 +25,15 @@ instrument(io, {
 	mode: "development",
 });
 
-io.on("connection", (socket: Socket) => {
-	handleSocketConnection(socket);
+// 네임스페이스 설정
+const chatNamespace = io.of("/chat");
+chatNamespace.on("connection", socket => {
+	handleChatConnection(socket);
+});
+
+const notificationNamespace = io.of("/notifications");
+notificationNamespace.on("connection", socket => {
+	handleNotificationConnection(socket);
 });
 
 const PORT = process.env.PORT;
