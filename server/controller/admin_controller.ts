@@ -8,7 +8,13 @@ export const handleGetUsers = async (
 	next: NextFunction
 ) => {
 	try {
-		const result = await getUsersInfo();
+		let index = parseInt(req.query.index as string) - 1 || 0;
+		let perPage = parseInt(req.query.perPage as string) || 10;
+		if (index < 0 || perPage < 0) {
+			index = 0;
+			perPage = 10;
+		}
+		const result = await getUsersInfo({ index, perPage });
 		res.status(200).json(mapUsersInfoToResponse(result));
 	} catch (err: any) {
 		next(err);

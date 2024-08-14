@@ -33,7 +33,7 @@ export const mapUsersInfoToResponse = (
 	});
 
 	return {
-		total: userInfo.length,
+		total: queryResult[0].total,
 		userInfo,
 	};
 };

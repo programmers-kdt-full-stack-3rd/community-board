@@ -1,3 +1,4 @@
+import e from "express";
 import { RowDataPacket } from "mysql2/promise";
 
 export interface IUser {
@@ -10,6 +11,7 @@ export interface IUser {
 }
 
 export interface IUserInfo {
+	total: number;
 	id: number;
 	email: string;
 	nickname: string;
@@ -17,6 +19,16 @@ export interface IUserInfo {
 	isDelete: boolean;
 	comment_count: number;
 	post_count: number;
+}
+
+export interface pagenation {
+	index: number;
+	perPage: number;
+}
+
+export interface GetUsersInfoParams extends pagenation {
+	nickname?: string;
+	email?: string;
 }
 
 export interface IUserInfoRow extends IUserInfo, RowDataPacket {}

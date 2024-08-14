@@ -7,7 +7,7 @@ import {
 import pool from "../connect";
 import { makeHashedPassword, makeSalt } from "../../utils/crypto";
 import { ServerError } from "../../middleware/errors";
-import { IUser, IUserInfoRow } from "../model/users";
+import { GetUsersInfoParams, IUser, IUserInfoRow } from "../model/users";
 import { makeAccessToken, makeRefreshToken } from "../../utils/token";
 import { addRefreshToken } from "./token_context";
 
@@ -187,16 +187,33 @@ export const getUserById = async (userId: number) => {
 	}
 };
 
-export const getUsersInfo = async () => {
+export const getUsersInfo = async ({
+	index,
+	perPage,
+	nickname,
+	email,
+}: GetUsersInfoParams) => {
 	let conn: PoolConnection | null = null;
 	try {
-		const sql = `SELECT u.id, u.email, u.nickname, u.created_at, u.isDelete,
+		let sql = `SELECT (SELECT count(*) FROM users)as total ,u.id, u.email, u.nickname, u.created_at, u.isDelete,
 		(SELECT COUNT(id) FROM comments WHERE author_id = u.id) as comment_count,
 		(SELECT COUNT(id) FROM posts WHERE author_id = u.id) as post_count 
-		FROM users u ;
+		FROM users u 
 		`;
+
+		const value = [];
+
+		const pagenationSQL = ` LIMIT ? OFFSET ?`;
+
+		sql += pagenationSQL;
+		value.push(perPage);
+		value.push(index * perPage);
+
 		conn = await pool.getConnection();
-		const [rows]: [IUserInfoRow[], FieldPacket[]] = await conn.query(sql);
+		const [rows]: [IUserInfoRow[], FieldPacket[]] = await conn.query(
+			sql,
+			value
+		);
 
 		if (rows.length === 0) {
 			throw ServerError.badRequest("유저가 존재하지 않습니다");
