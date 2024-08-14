@@ -7,7 +7,7 @@ import {
 import pool from "../connect";
 import { makeHashedPassword, makeSalt } from "../../utils/crypto";
 import { ServerError } from "../../middleware/errors";
-import { IUser } from "../model/users";
+import { IUser, IUserInfoRow } from "../model/users";
 import { makeAccessToken, makeRefreshToken } from "../../utils/token";
 import { addRefreshToken } from "./token_context";
 
@@ -180,6 +180,29 @@ export const getUserById = async (userId: number) => {
 		}
 
 		return rows[0];
+	} catch (err: any) {
+		throw err;
+	} finally {
+		if (conn) conn.release();
+	}
+};
+
+export const getUsersInfo = async () => {
+	let conn: PoolConnection | null = null;
+	try {
+		const sql = `SELECT u.id, u.email, u.nickname, u.created_at, u.isDelete,
+		(SELECT COUNT(id) FROM comments WHERE author_id = u.id) as comment_count,
+		(SELECT COUNT(id) FROM posts WHERE author_id = u.id) as post_count 
+		FROM users u ;
+		`;
+		conn = await pool.getConnection();
+		const [rows]: [IUserInfoRow[], FieldPacket[]] = await conn.query(sql);
+
+		if (rows.length === 0) {
+			throw ServerError.badRequest("유저가 존재하지 않습니다");
+		}
+
+		return rows;
 	} catch (err: any) {
 		throw err;
 	} finally {
