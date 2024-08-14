@@ -4,5 +4,6 @@ CREATE TABLE IF NOT EXISTS users (
     nickname VARCHAR(50) NOT NULL UNIQUE,
     isDelete Boolean NOT NULL DEFAULT FALSE,
     password TEXT NOT NULL,
-    salt TEXT NOT NULL
+    salt TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
