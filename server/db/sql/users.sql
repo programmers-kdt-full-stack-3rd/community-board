@@ -4,5 +4,7 @@ CREATE TABLE IF NOT EXISTS users (
     nickname VARCHAR(50) NOT NULL UNIQUE,
     isDelete Boolean NOT NULL DEFAULT FALSE,
     password TEXT NOT NULL,
-    salt TEXT NOT NULL
+    salt TEXT NOT NULL,
+    role_id INTEGER NOT NULL DEFAULT 2,
+    FOREIGN KEY (role_id) REFERENCES roles(id)
 );
