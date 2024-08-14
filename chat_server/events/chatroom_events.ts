@@ -9,6 +9,7 @@ import {
 // 일단 서비스 함수 파라미터 roomName으로 작성
 // TODO : DTO기반 수정
 
+// 채팅방 이벤트
 export const handleRoomEvents = (socket: Socket) => {
 	socket.on("get_rooms", () => {
 		const rooms = getRooms();

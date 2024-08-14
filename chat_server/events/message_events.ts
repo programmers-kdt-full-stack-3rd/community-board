@@ -1,9 +1,7 @@
 import { Socket } from "socket.io";
 import { getMessageLogs, sendMessage } from "../services/message_service";
 
-// 일단 서비스 함수 파라미터 roomName, message으로 작성
-// TODO : DTO기반 수정
-
+// 메세지 이벤트
 export const handleMessageEvents = (socket: Socket) => {
 	socket.on("send_message", (roomName, message) => {
 		sendMessage(socket, roomName, message);

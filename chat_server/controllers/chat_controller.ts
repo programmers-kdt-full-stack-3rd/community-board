@@ -1,6 +1,6 @@
 import { Socket } from "socket.io";
-import { handleRoomEvents } from "./chatroom_controller";
-import { handleMessageEvents } from "./message_controller";
+import { handleRoomEvents } from "../events/chatroom_events";
+import { handleMessageEvents } from "../events/message_events";
 
 export const handleChatConnection = (socket: Socket) => {
 	console.log(`새로운 클라이언트 채팅 접속 : ${socket.id}`);
