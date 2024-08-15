@@ -195,13 +195,33 @@ export const getUsersInfo = async ({
 }: GetUsersInfoParams) => {
 	let conn: PoolConnection | null = null;
 	try {
-		let sql = `SELECT (SELECT count(*) FROM users)as total ,u.id, u.email, u.nickname, u.created_at, u.isDelete,
+		let sql = `SELECT COUNT(*) OVER() as total ,u.id, u.email, u.nickname, u.created_at, u.isDelete,
 		(SELECT COUNT(id) FROM comments WHERE author_id = u.id) as comment_count,
 		(SELECT COUNT(id) FROM posts WHERE author_id = u.id) as post_count 
 		FROM users u 
 		`;
 
 		const value = [];
+
+		if (nickname || email) {
+			sql += `WHERE `;
+		}
+
+		if (nickname) {
+			sql += `u.nickname LIKE ? `;
+			value.push(`%${nickname}%`);
+
+			if (email) {
+				sql += `AND `;
+			}
+		}
+
+		if (email) {
+			sql += `u.email LIKE ? `;
+			value.push(`%${email}%`);
+		}
+
+		sql += `ORDER BY u.id ASC`;
 
 		const pagenationSQL = ` LIMIT ? OFFSET ?`;
 

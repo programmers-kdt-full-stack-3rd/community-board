@@ -14,7 +14,10 @@ export const handleGetUsers = async (
 			index = 0;
 			perPage = 10;
 		}
-		const result = await getUsersInfo({ index, perPage });
+
+		let nickname = req.query.nickname as string;
+		let email = req.query.email as string;
+		const result = await getUsersInfo({ index, perPage, nickname, email });
 		res.status(200).json(mapUsersInfoToResponse(result));
 	} catch (err: any) {
 		next(err);
