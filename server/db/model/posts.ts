@@ -3,7 +3,7 @@ import { RowDataPacket } from "mysql2";
 export interface IAdminPost {
 	id: number;
 	title: string;
-	author_id: number;
+	author: string;
 	created_at: Date;
 	updated_at: Date;
 	isDelete: boolean;

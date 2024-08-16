@@ -5,10 +5,10 @@ interface IAdminPostResponse {
 	postHeaders: {
 		id: number;
 		title: string;
-		author_id: number;
-		created_at: Date;
+		author: string;
+		createdAt: Date;
 		isDelete: boolean;
-		is_private: boolean;
+		isPrivate: boolean;
 	}[];
 }
 
@@ -19,10 +19,10 @@ export const mapAdminPostsToResponse = (
 		return {
 			id: row.id,
 			title: row.title,
-			author_id: row.author_id,
-			created_at: row.created_at,
+			author: row.author,
+			createdAt: row.created_at,
 			isDelete: row.isDelete,
-			is_private: row.is_private,
+			isPrivate: row.is_private,
 		};
 	});
 
