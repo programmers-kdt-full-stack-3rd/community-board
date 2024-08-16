@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import { getUsersInfo } from "../db/context/users_context";
+import { deleteUser, getUsersInfo } from "../db/context/users_context";
 import { mapUsersInfoToResponse } from "../db/mapper/users_mapper";
+import { ServerError } from "../middleware/errors";
 
 export const handleGetUsers = async (
 	req: Request,
@@ -19,6 +20,28 @@ export const handleGetUsers = async (
 		let email = req.query.email as string;
 		const result = await getUsersInfo({ index, perPage, nickname, email });
 		res.status(200).json(mapUsersInfoToResponse(result));
+	} catch (err: any) {
+		next(err);
+	}
+};
+
+export const handleAdminDeleteUser = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		if (!req.params.userId) {
+			throw ServerError.badRequest("userId가 존재하지 않습니다.");
+		}
+
+		const userId = parseInt(req.params.userId);
+
+		if (isNaN(userId)) {
+			throw ServerError.badRequest("userId가 숫자가 아닙니다.");
+		}
+		await deleteUser(userId);
+		res.status(200).json({ message: "회원 삭제 성공" });
 	} catch (err: any) {
 		next(err);
 	}
