@@ -154,6 +154,11 @@ export const getAdminPosts = async ({
 		`;
 		const value = [];
 
+		if (keyword) {
+			sql += ` WHERE p.title LIKE ?`;
+			value.push(`%${keyword}%`);
+		}
+
 		sql += ` ORDER BY p.id ASC`;
 
 		sql += " LIMIT ? OFFSET ?";
