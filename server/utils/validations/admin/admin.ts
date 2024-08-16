@@ -7,7 +7,7 @@ import { validate } from "../../../middleware/validate";
   - 각 입력 값에 대한 유효성 검사
 */
 const userIdValidator = param("userId")
-	.isNumeric()
+	.isInt({ min: 1 })
 	.withMessage(ERROR_MESSAGES.INVALID_USER_ID);
 
 /*
