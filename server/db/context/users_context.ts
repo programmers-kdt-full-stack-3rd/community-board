@@ -269,6 +269,28 @@ export const deleteUser = async (userId: number) => {
 	}
 };
 
+export const restoreUser = async (userId: number) => {
+	let conn: PoolConnection | null = null;
+	try {
+		const sql = `UPDATE users SET isDelete=FALSE WHERE id=? AND isDelete=TRUE`;
+		const value = [userId];
+
+		conn = await pool.getConnection();
+		const [rows]: [ResultSetHeader, FieldPacket[]] = await conn.query(
+			sql,
+			value
+		);
+
+		if (rows.affectedRows === 0) {
+			throw ServerError.badRequest("회원 복구 실패");
+		}
+	} catch (err: any) {
+		throw err;
+	} finally {
+		if (conn) conn.release();
+	}
+};
+
 export const isUserDeleted = async (params: TDeleteUserInfo) => {
 	const { email, userId } = params;
 	let conn: PoolConnection | null = null;
