@@ -263,13 +263,18 @@ export const updatePost = async (
 	}
 };
 
-export const deletePost = async (post_id: number, user_id: number) => {
+export const deletePost = async (post_id: number, user_id?: number) => {
 	let conn: PoolConnection | null = null;
 
 	try {
-		let values: number[] = [post_id, user_id];
+		let values: number[] = [post_id];
 
-		let sql = `UPDATE posts SET isDelete = true WHERE id = ? and author_id = ?`;
+		let sql = `UPDATE posts SET isDelete = true WHERE id = ? AND isDelete = FALSE`;
+
+		if (user_id) {
+			sql += ` and author_id = ?`;
+			values.push(user_id);
+		}
 
 		conn = await pool.getConnection();
 		const [rows]: any[] = await conn.query(sql, values);
