@@ -158,7 +158,7 @@ const Login: React.FC = () => {
 
 	return (
 		<div className={loginContainer}>
-			<h2>로그인</h2>
+			<h1>로그인</h1>
 			<div>
 				<EmailForm
 					email={email}

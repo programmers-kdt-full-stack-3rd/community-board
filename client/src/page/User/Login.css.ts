@@ -26,9 +26,6 @@ export const joinLink = style({
 	fontSize: "14px",
 	color: "#007BFF",
 	cursor: "pointer",
-	":hover": {
-		textDecoration: "underline",
-	},
 });
 
 export const socialLoginButtons = style({
@@ -57,6 +54,11 @@ export const googleButton = style([
 	{
 		backgroundColor: "#fff",
 		color: "black",
+		":hover": {
+			backgroundColor: "#f1f1f1",
+			color: "#333",
+			boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
+		},
 	},
 ]);
 
@@ -65,6 +67,11 @@ export const kakaoButton = style([
 	{
 		backgroundColor: "#fee500",
 		color: "#3c1e1e",
+		":hover": {
+			backgroundColor: "#fdd835",
+			color: "#2e1b1b",
+			boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
+		},
 	},
 ]);
 
@@ -73,6 +80,11 @@ export const naverButton = style([
 	{
 		backgroundColor: "#1ec800",
 		color: "white",
+		":hover": {
+			backgroundColor: "#17a500",
+			color: "#e0e0e0",
+			boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
+		},
 	},
 ]);
 
