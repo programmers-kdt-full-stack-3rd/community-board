@@ -1,5 +1,6 @@
 import express from "express";
 import {
+	handleAdminDeletePost,
 	handleAdminDeleteUser,
 	handleAdminGetPosts,
 	handleAdminRestoreUser,
@@ -22,4 +23,5 @@ router
 	.patch(restoreUserValidation, handleAdminRestoreUser);
 
 router.route("/post").get(handleAdminGetPosts);
+router.route("/post/:postId").delete(handleAdminDeletePost);
 export default router;
