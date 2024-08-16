@@ -10,6 +10,7 @@ import { ServerError } from "../../middleware/errors";
 import { IUser } from "../model/users";
 import { makeAccessToken, makeRefreshToken } from "../../utils/token";
 import { addRefreshToken } from "./token_context";
+import { IPermissionRow, IRoleRow } from "../model/rbac";
 
 interface IUserRegData {
 	email: string;
@@ -229,6 +230,61 @@ export const isUserDeleted = async (params: TDeleteUserInfo) => {
 		);
 
 		return rows.length > 0;
+	} catch (err: any) {
+		throw err;
+	} finally {
+		if (conn) conn.release();
+	}
+};
+
+export const getUserRole = async (userId: number) => {
+	let conn: PoolConnection | null = null;
+	try {
+		const sql = `SELECT r.id AS role_id, r.name AS role_name
+		FROM users u
+		LEFT JOIN roles r ON u.role_id = r.id
+		WHERE u.id = ?`;
+		const value = [userId];
+
+		conn = await pool.getConnection();
+		const [rows]: [IRoleRow[], FieldPacket[]] = await conn.query(
+			sql,
+			value
+		);
+
+		if (rows.length === 0) {
+			throw ServerError.badRequest("Role을 찾을 수 없습니다.");
+		}
+
+		return rows[0];
+	} catch (err: any) {
+		throw err;
+	} finally {
+		if (conn) conn.release();
+	}
+};
+
+export const getUserPermission = async (userId: number) => {
+	let conn: PoolConnection | null = null;
+	try {
+		const sql = `SELECT DISTINCT p.id AS permission_id, p.name AS permission_name
+		FROM users u
+		INNER JOIN role_permission rp ON u.role_id = rp.role_id
+		INNER JOIN permissions p ON rp.permission_id = p.id
+		WHERE u.id = ?`;
+		const value = [userId];
+
+		conn = await pool.getConnection();
+		const [rows]: [IPermissionRow[], FieldPacket[]] = await conn.query(
+			sql,
+			value
+		);
+
+		if (rows.length === 0) {
+			throw ServerError.badRequest("Permission을 찾을 수 없습니다.");
+		}
+
+		return rows;
 	} catch (err: any) {
 		throw err;
 	} finally {
