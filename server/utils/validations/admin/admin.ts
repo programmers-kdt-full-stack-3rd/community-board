@@ -14,4 +14,6 @@ const userIdValidator = param("userId")
   Validation
   - 각 API 엔드포인트에 대한 유효성 검사
 */
+export const deleteUserValidation = [userIdValidator, validate];
+
 export const restoreUserValidation = [userIdValidator, validate];

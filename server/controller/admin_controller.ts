@@ -35,15 +35,8 @@ export const handleAdminDeleteUser = async (
 	next: NextFunction
 ) => {
 	try {
-		if (!req.params.userId) {
-			throw ServerError.badRequest("userId가 존재하지 않습니다.");
-		}
-
 		const userId = parseInt(req.params.userId);
 
-		if (isNaN(userId)) {
-			throw ServerError.badRequest("userId가 숫자가 아닙니다.");
-		}
 		await deleteUser(userId);
 		res.status(200).json({ message: "회원 삭제 성공" });
 	} catch (err: any) {
