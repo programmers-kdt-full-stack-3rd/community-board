@@ -1,4 +1,4 @@
-import { PoolConnection } from "mysql2/promise";
+import { FieldPacket, PoolConnection, RowDataPacket } from "mysql2/promise";
 import {
 	ICreatePostRequest,
 	IReadPostRequest,
@@ -8,6 +8,7 @@ import pool from "../connect";
 import { mapDBToPostHeaders, mapDBToPostInfo } from "shared";
 import { ServerError } from "../../middleware/errors";
 import { SortBy } from "shared";
+import { IAdminPostRow } from "../model/posts";
 
 export const getPostHeaders = async (queryString: IReadPostRequest) => {
 	let conn: PoolConnection | null = null;
@@ -125,6 +126,51 @@ export const getPostInfo = async (post_id: number, user_id?: number) => {
 		}
 
 		return postInfo;
+	} catch (err) {
+		throw err;
+	} finally {
+		if (conn) conn.release();
+	}
+};
+
+export const getAdminPosts = async ({
+	index,
+	perPage,
+	keyword,
+}: IReadPostRequest) => {
+	let conn: PoolConnection | null = null;
+
+	try {
+		let sql = `SELECT COUNT(*) OVER() as total,
+		p.id as id, 
+		p.title,
+		u.nickname as author,
+		p.created_at,
+		p.isDelete,
+		p.is_private
+		FROM posts as p
+		LEFT JOIN users as u
+		ON p.author_id = u.id
+		`;
+		const value = [];
+
+		sql += ` ORDER BY p.id ASC`;
+
+		sql += " LIMIT ? OFFSET ?";
+		value.push(perPage, index * perPage);
+
+		conn = await pool.getConnection();
+
+		const [rows]: [IAdminPostRow[], FieldPacket[]] = await conn.query(
+			sql,
+			value
+		);
+
+		if (rows.length === 0) {
+			throw ServerError.notFound("게시글이 존재 하지 않습니다.");
+		}
+
+		return rows;
 	} catch (err) {
 		throw err;
 	} finally {
