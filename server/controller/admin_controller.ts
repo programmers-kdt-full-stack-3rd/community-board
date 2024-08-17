@@ -8,6 +8,7 @@ import { mapUsersInfoToResponse } from "../db/mapper/users_mapper";
 import {
 	deletePost,
 	getAdminPosts,
+	privatePost,
 	publicPost,
 	restorePost,
 } from "../db/context/posts_context";
@@ -123,6 +124,21 @@ export const handleAdminPublicPost = async (
 
 		await publicPost(postId);
 		res.status(200).json({ message: "게시글 공개 성공" });
+	} catch (err: any) {
+		next(err);
+	}
+};
+
+export const handleAdminPrivatePost = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		const postId = parseInt(req.params.postId);
+
+		await privatePost(postId);
+		res.status(200).json({ message: "게시글 비공개 성공" });
 	} catch (err: any) {
 		next(err);
 	}
