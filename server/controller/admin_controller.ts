@@ -8,6 +8,7 @@ import { mapUsersInfoToResponse } from "../db/mapper/users_mapper";
 import {
 	deletePost,
 	getAdminPosts,
+	publicPost,
 	restorePost,
 } from "../db/context/posts_context";
 import { mapAdminPostsToResponse } from "../db/mapper/posts_mapper";
@@ -107,6 +108,21 @@ export const handleAdminRestorePost = async (
 
 		await restorePost(postId);
 		res.status(200).json({ message: "게시글 복구 성공" });
+	} catch (err: any) {
+		next(err);
+	}
+};
+
+export const handleAdminPublicPost = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		const postId = parseInt(req.params.postId);
+
+		await publicPost(postId);
+		res.status(200).json({ message: "게시글 공개 성공" });
 	} catch (err: any) {
 		next(err);
 	}

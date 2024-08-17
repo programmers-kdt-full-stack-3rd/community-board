@@ -3,6 +3,7 @@ import {
 	handleAdminDeletePost,
 	handleAdminDeleteUser,
 	handleAdminGetPosts,
+	handleAdminPublicPost,
 	handleAdminRestorePost,
 	handleAdminRestoreUser,
 	handleGetUsers,
@@ -26,5 +27,6 @@ router
 router.route("/post").get(handleAdminGetPosts);
 router.route("/post/:postId").delete(handleAdminDeletePost);
 router.route("/post/:postId/restore").patch(handleAdminRestorePost);
+router.route("/post/:postId/public").patch(handleAdminPublicPost);
 
 export default router;
