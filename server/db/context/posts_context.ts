@@ -336,3 +336,26 @@ export const publicPost = async (post_id: number) => {
 		if (conn) conn.release();
 	}
 };
+
+export const privatePost = async (post_id: number) => {
+	let conn: PoolConnection | null = null;
+
+	try {
+		let values: number[] = [post_id];
+
+		let sql = `UPDATE posts SET is_private = TRUE WHERE id = ? AND is_private = FALSE`;
+
+		conn = await pool.getConnection();
+		const [rows]: any[] = await conn.query(sql, values);
+
+		if (rows.affectedRows === 0) {
+			// 1. 이미 비공개된 게시글
+			// 2. 원인모를 이유로 실패함
+			throw ServerError.reference("게시글 비공개 실패");
+		}
+	} catch (err) {
+		throw err;
+	} finally {
+		if (conn) conn.release();
+	}
+};
