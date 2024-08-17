@@ -10,6 +10,7 @@ import { ServerError } from "../middleware/errors";
 import { deleteRefreshToken } from "../db/context/token_context";
 import { makeTempToken } from "../utils/token";
 import { makeHashedPassword } from "../utils/crypto";
+import { getKstNow } from "../utils/getKstNow";
 
 export const handleJoinUser = async (
 	req: Request,
@@ -53,17 +54,11 @@ export const handleLoginUser = async (
 			secure: true,
 		});
 
-		const KR_TIME_DIFF = 9 * 60 * 60 * 1000; // 9시간
-
-		const time = new Date(Date.now() + KR_TIME_DIFF)
-			.toISOString()
-			.replace("Z", "+09:00"); // 한국 시간임을 나타내기위한 표준 시간대 지정자 변경
-
 		res.status(200).json({
 			message: "로그인 성공",
 			result: {
 				nickname: result.user.nickname,
-				loginTime: time,
+				loginTime: getKstNow(),
 			},
 		});
 	} catch (err: any) {

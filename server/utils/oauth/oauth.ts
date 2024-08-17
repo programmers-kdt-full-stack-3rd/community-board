@@ -1,5 +1,14 @@
 import { stringify } from "node:querystring";
 import { oAuthProps, TOAuthProvider } from "./constants";
+import { ServerError } from "../../middleware/errors";
+
+interface IOAuthUser {
+	id: string;
+}
+
+interface INaverUser {
+	response: IOAuthUser;
+}
 
 /**
  * 주어진 provider로의 OAuth 로그인 요청 URL을 생성합니다.
@@ -50,4 +59,31 @@ export const buildTokenFetchOptions = (
 		},
 		body: stringify(querystringPairs),
 	};
+};
+
+const isNaverUserResponse = (payload: any): payload is INaverUser => {
+	return "response" in payload && "id" in payload.response;
+};
+
+const isOAuthUserResponse = (payload: any): payload is IOAuthUser => {
+	return "id" in payload;
+};
+
+/**
+ * OAuth 회원 정보 응답 데이터에서 회원번호를 추출합니다.
+ * @param provider
+ * @param payload
+ * @returns
+ */
+export const getOAuthAccountId = (
+	provider: TOAuthProvider,
+	payload: any
+): string => {
+	if (provider === "naver" && isNaverUserResponse(payload)) {
+		return payload.response.id;
+	} else if (isOAuthUserResponse(payload)) {
+		return payload.id;
+	}
+
+	throw ServerError.etcError(500, "소셜 로그인 회원번호 조회 실패");
 };
