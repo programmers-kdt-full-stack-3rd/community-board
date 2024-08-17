@@ -290,3 +290,26 @@ export const deletePost = async (post_id: number, user_id?: number) => {
 		if (conn) conn.release();
 	}
 };
+
+export const restorePost = async (post_id: number) => {
+	let conn: PoolConnection | null = null;
+
+	try {
+		let values: number[] = [post_id];
+
+		let sql = `UPDATE posts SET isDelete = FALSE WHERE id = ? AND isDelete = TRUE`;
+
+		conn = await pool.getConnection();
+		const [rows]: any[] = await conn.query(sql, values);
+
+		if (rows.affectedRows === 0) {
+			// 1. 이미 복구된 게시글
+			// 2. 원인모를 이유로 실패함
+			throw ServerError.reference("게시글 복구 실패");
+		}
+	} catch (err) {
+		throw err;
+	} finally {
+		if (conn) conn.release();
+	}
+};
