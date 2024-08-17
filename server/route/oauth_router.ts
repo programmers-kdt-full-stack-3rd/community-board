@@ -3,12 +3,19 @@ import {
 	handleOAuthLoginUrlRead,
 	handleOAuthLogin,
 } from "../controller/oauth_controller";
+import {
+	getOAuthLoginUrlValidation,
+	postOAuthLoginValidation,
+} from "../utils/validations/oauth/oauth";
 
 const router = express.Router();
 router.use(express.json());
 
-// TODO: {provider}는 TOAuthProvider 타입임을 고려하여 유효성 검사 작성
-router.get("/login-url/:provider", handleOAuthLoginUrlRead);
-router.post("/login", handleOAuthLogin);
+router.get(
+	"/login-url/:provider",
+	getOAuthLoginUrlValidation,
+	handleOAuthLoginUrlRead
+);
+router.post("/login", postOAuthLoginValidation, handleOAuthLogin);
 
 export default router;
