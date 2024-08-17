@@ -3,6 +3,7 @@ import {
 	handleAdminDeletePost,
 	handleAdminDeleteUser,
 	handleAdminGetPosts,
+	handleAdminRestorePost,
 	handleAdminRestoreUser,
 	handleGetUsers,
 } from "../controller/admin_controller";
@@ -24,4 +25,6 @@ router
 
 router.route("/post").get(handleAdminGetPosts);
 router.route("/post/:postId").delete(handleAdminDeletePost);
+router.route("/post/:postId/restore").patch(handleAdminRestorePost);
+
 export default router;

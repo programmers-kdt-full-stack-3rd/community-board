@@ -5,7 +5,11 @@ import {
 	restoreUser,
 } from "../db/context/users_context";
 import { mapUsersInfoToResponse } from "../db/mapper/users_mapper";
-import { deletePost, getAdminPosts } from "../db/context/posts_context";
+import {
+	deletePost,
+	getAdminPosts,
+	restorePost,
+} from "../db/context/posts_context";
 import { mapAdminPostsToResponse } from "../db/mapper/posts_mapper";
 
 export const handleGetUsers = async (
@@ -88,6 +92,21 @@ export const handleAdminDeletePost = async (
 
 		await deletePost(postId);
 		res.status(200).json({ message: "게시글 삭제 성공" });
+	} catch (err: any) {
+		next(err);
+	}
+};
+
+export const handleAdminRestorePost = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		const postId = parseInt(req.params.postId);
+
+		await restorePost(postId);
+		res.status(200).json({ message: "게시글 복구 성공" });
 	} catch (err: any) {
 		next(err);
 	}
