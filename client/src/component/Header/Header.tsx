@@ -87,6 +87,7 @@ const Header = () => {
 				DBDB DEEP
 			</Link>
 			<div className={userAuthPanel}>
+				<button onClick={() => navigate("/test")}>채팅 개발</button>
 				{isLogin && (
 					<div className={nicknameInfo}>
 						{nickname}님 환영 합니다.
