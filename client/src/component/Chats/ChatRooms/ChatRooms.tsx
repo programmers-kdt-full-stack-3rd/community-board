@@ -1,11 +1,4 @@
-import {
-	ChangeEvent,
-	FC,
-	FormEvent,
-	MouseEvent,
-	useEffect,
-	useState,
-} from "react";
+import { ChangeEvent, FC, FormEvent, useEffect, useState } from "react";
 import { CiCirclePlus } from "react-icons/ci";
 
 import {
@@ -21,11 +14,13 @@ import Rooms from "./Rooms/Rooms";
 import Pagenation from "./Pagenation/Pagenation";
 import { IRoomHeader } from "shared";
 import { testMy, testSearch } from "./test-case";
+import CreateRoomModal from "./Modal/CreateRoomModal";
 
 const ChatRooms: FC = () => {
 	const [keyword, setKeyword] = useState<string>("");
 	const [searchCurPage, setSearchCurPage] = useState<number>(1);
 	const [myCurPage, setMyCurPage] = useState<number>(1);
+	const [isOpen, setIsOpen] = useState(false);
 
 	// test 용 state
 	const [searchRooms, setSearchRooms] = useState<IRoomHeader[][] | null>(
@@ -77,14 +72,9 @@ const ChatRooms: FC = () => {
 		}
 	};
 
-	// 채팅창 생성
-	const onClickCreateRoom = (event: MouseEvent<HTMLElement>) => {
-		// TODO: 모달 생성
-		alert("채팅창 모달");
-	};
-
 	return (
 		<div className={container}>
+			{isOpen ? <CreateRoomModal close={setIsOpen} /> : null}
 			<div className={roomsWrapper}>
 				<div className={searchContainer}>
 					<form
@@ -99,7 +89,7 @@ const ChatRooms: FC = () => {
 						/>
 						<button className={searchButton}>검색</button>
 					</form>
-					<div onClick={onClickCreateRoom}>
+					<div onClick={() => setIsOpen(true)}>
 						<CiCirclePlus
 							className={createButton}
 							title="채팅방 생성"
