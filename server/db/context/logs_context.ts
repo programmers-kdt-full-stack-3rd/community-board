@@ -1,15 +1,10 @@
 import { FieldPacket, PoolConnection, ResultSetHeader } from "mysql2/promise";
 import pool from "../connect";
 import { ServerError } from "../../middleware/errors";
-
-interface IUserLogData {
-	user_id: number;
-	title: string;
-	category_id: number;
-}
+import { IAddUserLogInput, IUserLogRow, IUserQueryParams } from "../model/logs";
 
 export const addLog = async (
-	{ user_id, title, category_id }: IUserLogData,
+	{ user_id, title, category_id }: IAddUserLogInput,
 	conn: PoolConnection
 ) => {
 	try {
@@ -28,5 +23,34 @@ export const addLog = async (
 		return;
 	} catch (err: any) {
 		throw err;
+	}
+};
+
+export const getLogs = async ({ userId, index, perPage }: IUserQueryParams) => {
+	let conn: PoolConnection | null = null;
+
+	try {
+		conn = await pool.getConnection();
+
+		const sql = `SELECT COUNT(*) OVER() as total, logs.title, categories.name as category, logs.created_at 
+        FROM user_logs as logs
+        LEFT JOIN user_log_categories as categories
+        ON logs.category_id = categories.id 
+        WHERE logs.user_id = ?
+        ORDER BY logs.created_at DESC
+        LIMIT ? OFFSET ?`;
+
+		const value = [userId, perPage, index * perPage];
+
+		const [rows]: [IUserLogRow[], FieldPacket[]] = await conn.query(
+			sql,
+			value
+		);
+
+		return rows;
+	} catch (err) {
+		throw err;
+	} finally {
+		if (conn) conn.release();
 	}
 };
