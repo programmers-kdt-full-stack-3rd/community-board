@@ -11,6 +11,7 @@ import { SortBy } from "shared";
 import * as fs from "fs";
 import { changeBadWords, getRegex } from "../utils/bad-word-regex/regexTask";
 import regexs from "../utils/bad-word-regex/regexs.json";
+import { addLog } from "../db/context/logs_context";
 
 export interface IReadPostRequest {
 	index: number;
@@ -92,6 +93,12 @@ export const handlePostCreate = async (
 		// 필터링
 
 		const postId = await addPost(reqBody);
+
+		await addLog({
+			user_id: req.userId,
+			title: reqBody.title,
+			category_id: 1,
+		});
 
 		res.status(200).json({ postId, message: "게시글 생성 success" });
 	} catch (err) {
