@@ -6,6 +6,9 @@ import {
 	readComments,
 	updateComment,
 } from "../db/context/comments_context";
+import { addLog } from "../db/context/logs_context";
+import pool from "../db/connect";
+import { PoolConnection } from "mysql2/promise";
 
 export const handleCommentsRead = async (
 	req: Request,
@@ -46,16 +49,39 @@ export const handleCommentCreate = async (
 	res: Response,
 	next: NextFunction
 ) => {
+	let conn: PoolConnection | null = null;
 	try {
-		await createComment({
-			post_id: req.body.post_id,
-			author_id: req.userId,
-			content: req.body.content,
-		});
+		conn = await pool.getConnection();
+		await conn.beginTransaction();
 
+		await createComment(
+			{
+				post_id: req.body.post_id,
+				author_id: req.userId,
+				content: req.body.content,
+			},
+			conn
+		);
+
+		let logTitle = req.body.content.split("\n")[0];
+		logTitle =
+			logTitle.length > 50 ? logTitle.slice(0, 50) + "..." : logTitle;
+
+		await addLog(
+			{
+				user_id: req.userId,
+				title: logTitle,
+				category_id: 2,
+			},
+			conn
+		);
+		await conn.commit();
 		res.status(201).end();
 	} catch (err) {
+		if (conn) await conn.rollback();
 		next(err);
+	} finally {
+		if (conn) conn.release();
 	}
 };
 
