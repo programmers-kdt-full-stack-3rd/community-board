@@ -9,6 +9,7 @@ import {
 import { addLog } from "../db/context/logs_context";
 import pool from "../db/connect";
 import { PoolConnection } from "mysql2/promise";
+import { makeLogTitle } from "../utils/user-logs-utils";
 
 export const handleCommentsRead = async (
 	req: Request,
@@ -63,9 +64,7 @@ export const handleCommentCreate = async (
 			conn
 		);
 
-		let logTitle = req.body.content.split("\n")[0];
-		logTitle =
-			logTitle.length > 50 ? logTitle.slice(0, 50) + "..." : logTitle;
+		const logTitle = makeLogTitle(req.body.content);
 
 		await addLog(
 			{

@@ -15,6 +15,7 @@ import { addLog } from "../db/context/logs_context";
 
 import pool from "../db/connect";
 import { PoolConnection } from "mysql2/promise";
+import { makeLogTitle } from "../utils/user-logs-utils";
 
 export interface IReadPostRequest {
 	index: number;
@@ -101,10 +102,12 @@ export const handlePostCreate = async (
 
 		const postId = await addPost(reqBody, conn);
 
+		const logTitle = makeLogTitle(reqBody.title);
+
 		await addLog(
 			{
 				user_id: req.userId,
-				title: reqBody.title,
+				title: logTitle,
 				category_id: 1,
 			},
 			conn
