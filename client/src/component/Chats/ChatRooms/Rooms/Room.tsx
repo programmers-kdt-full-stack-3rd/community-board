@@ -8,10 +8,10 @@ import {
 	roomWrapper,
 	titleContainer,
 } from "./Rooms.css";
-import { IRoomHeader } from "./Rooms";
 import { CiLock } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { IRoomHeader } from "shared";
 
 interface Props {
 	room: IRoomHeader;
@@ -26,7 +26,7 @@ const Room: React.FC<Props> = ({ room, isMine, index }) => {
 
 	const enterRoom = () => {
 		// TODO: 해당 room으로 이동 -> aside에서 가능하도록 변경
-		if (!room.is_private) {
+		if (!room.isPrivate) {
 			navigate(`/room/${room.roomId}`);
 			return;
 		}
@@ -54,14 +54,14 @@ const Room: React.FC<Props> = ({ room, isMine, index }) => {
 				<div className={roomContainer}>
 					<div className={roomHeaderContainer}>
 						<div className={titleContainer}>
-							{room.is_private ? (
+							{room.isPrivate ? (
 								<CiLock className={lockIcon} />
 							) : (
 								" "
 							)}
 							채팅방 이름: {room.title}
 						</div>
-						{room.is_private ? (
+						{room.isPrivate ? (
 							<input
 								className={passwordInput}
 								value={password}
@@ -78,7 +78,7 @@ const Room: React.FC<Props> = ({ room, isMine, index }) => {
 				>
 					<div className={roomHeaderContainer}>
 						<div className={titleContainer}>
-							{room.is_private ? (
+							{room.isPrivate ? (
 								<CiLock className={lockIcon} />
 							) : (
 								" "
@@ -87,14 +87,19 @@ const Room: React.FC<Props> = ({ room, isMine, index }) => {
 						</div>
 						<div className={numContainer}>
 							{isMine ? (
-								<span>접속 인원: {room.curNum}</span>
+								<span>
+									접속 인원: {room.liveRoomInfo.curNum}
+								</span>
 							) : null}
-							<span>참여 인원: {room.participantNum}</span>
+							<span>참여 인원: {room.totalMembersCount}</span>
 						</div>
 					</div>
 					{isMine ? (
 						<div className={chatContainer}>
-							<span>최근 메시지: {room.lastMessage}</span>
+							<span>
+								최근 메시지:{" "}
+								{room.liveRoomInfo.lastMessage.message}
+							</span>
 						</div>
 					) : null}
 				</div>

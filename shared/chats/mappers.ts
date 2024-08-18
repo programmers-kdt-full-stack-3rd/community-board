@@ -16,6 +16,7 @@ export const mapDBToIRoomHeader = (dbData: any): IRoomHeader => {
 		roomId: dbData.roomId,
 		title: dbData.title,
 		totalMembersCount: dbData.total,
+		isPrivate: dbData.isPrivate,
 		liveRoomInfo: mapDBToLiveRoomInfo(dbData),
 	};
 };
