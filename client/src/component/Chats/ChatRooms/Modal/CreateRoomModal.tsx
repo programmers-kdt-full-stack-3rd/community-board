@@ -13,18 +13,41 @@ import {
 	PostHeaderTitle,
 	TitleInput,
 } from "./CreateRoomModal.css";
-import { ICreateRoomRequest } from "shared";
+import { ICreateRoomRequest, ICreateRoomResponse } from "shared";
+import { ApiCall } from "../../../../api/api";
+import { sendCreateRoomRequest } from "../../../../api/chats/crud";
+import { useErrorModal } from "../../../../state/errorModalStore";
+import { ClientError } from "../../../../api/errors";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
 	close: React.Dispatch<SetStateAction<boolean>>;
 }
 
 const CreateRoomModal: React.FC<Props> = ({ close }) => {
+	const navigate = useNavigate();
 	const [roomInfo, setRoomInfo] = useState<ICreateRoomRequest>({
 		title: "",
 		password: "",
 		isPrivate: false,
 	});
+	const errorModal = useErrorModal();
+
+	const createRoom = async () => {
+		const res: ICreateRoomResponse | ClientError = await ApiCall(
+			() => sendCreateRoomRequest(roomInfo),
+			err => {
+				errorModal.setErrorMessage(err.message);
+				errorModal.open();
+			}
+		);
+
+		if (res instanceof ClientError) {
+			return;
+		}
+
+		navigate(`/room/${res.roomId}`);
+	};
 
 	return (
 		<div className={ModalContainer}>
@@ -32,7 +55,7 @@ const CreateRoomModal: React.FC<Props> = ({ close }) => {
 				<button
 					className={PostBtn}
 					onClick={() => {
-						// TODO : 방 생성
+						createRoom();
 						close(false);
 					}}
 				>
