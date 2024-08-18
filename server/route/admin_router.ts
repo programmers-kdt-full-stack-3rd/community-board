@@ -1,6 +1,7 @@
 import express from "express";
 import {
 	handleAdminDeleteUser,
+	handleAdminGetLogs,
 	handleAdminGetPosts,
 	handleAdminRestoreUser,
 	handleGetUsers,
@@ -22,4 +23,6 @@ router
 	.patch(restoreUserValidation, handleAdminRestoreUser);
 
 router.route("/post").get(handleAdminGetPosts);
+
+router.route("/log/:userId").get(handleAdminGetLogs);
 export default router;

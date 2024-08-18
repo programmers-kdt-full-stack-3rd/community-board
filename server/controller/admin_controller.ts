@@ -7,6 +7,8 @@ import {
 import { mapUsersInfoToResponse } from "../db/mapper/users_mapper";
 import { getAdminPosts } from "../db/context/posts_context";
 import { mapAdminPostsToResponse } from "../db/mapper/posts_mapper";
+import { getLogs } from "../db/context/logs_context";
+import { mapUserLogsToResponse } from "../db/mapper/logs.mapper";
 
 export const handleGetUsers = async (
 	req: Request,
@@ -73,6 +75,24 @@ export const handleAdminGetPosts = async (
 		const posts = await getAdminPosts({ index, perPage, keyword });
 
 		res.json(mapAdminPostsToResponse(posts));
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const handleAdminGetLogs = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		const userId = parseInt(req.params.userId);
+		const index = parseInt(req.query.index as string) - 1 || 0;
+		const perPage = parseInt(req.query.perPage as string) || 10;
+
+		const logs = await getLogs({ userId, index, perPage });
+
+		res.json(mapUserLogsToResponse(logs));
 	} catch (err) {
 		next(err);
 	}
