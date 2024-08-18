@@ -11,6 +11,7 @@ export interface IRoomHeader {
 	roomId: string; // 방 번호
 	title: string; // 채팅방 이름
 	totalMembersCount: number; // 채팅방 멤버 수
+	isPrivate: boolean; // true : 비밀방
 	liveRoomInfo: ILiveRoomInfo; // 소켓을 통해 실시간으로 바뀌는 정보
 }
 
