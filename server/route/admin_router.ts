@@ -1,6 +1,7 @@
 import express from "express";
 import {
 	handleAdminDeleteUser,
+	handleAdminGetPosts,
 	handleAdminRestoreUser,
 	handleGetUsers,
 } from "../controller/admin_controller";
@@ -19,4 +20,6 @@ router
 router
 	.route("/user/:userId/restore")
 	.patch(restoreUserValidation, handleAdminRestoreUser);
+
+router.route("/post").get(handleAdminGetPosts);
 export default router;

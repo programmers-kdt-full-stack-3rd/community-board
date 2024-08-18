@@ -5,7 +5,8 @@ import {
 	restoreUser,
 } from "../db/context/users_context";
 import { mapUsersInfoToResponse } from "../db/mapper/users_mapper";
-import { ServerError } from "../middleware/errors";
+import { getAdminPosts } from "../db/context/posts_context";
+import { mapAdminPostsToResponse } from "../db/mapper/posts_mapper";
 
 export const handleGetUsers = async (
 	req: Request,
@@ -55,6 +56,24 @@ export const handleAdminRestoreUser = async (
 		await restoreUser(userId);
 		res.status(200).json({ message: "회원 복구 성공" });
 	} catch (err: any) {
+		next(err);
+	}
+};
+
+export const handleAdminGetPosts = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		const index = parseInt(req.query.index as string) - 1 || 0;
+		const perPage = parseInt(req.query.perPage as string) || 10;
+		const keyword = req.query.keyword as string;
+
+		const posts = await getAdminPosts({ index, perPage, keyword });
+
+		res.json(mapAdminPostsToResponse(posts));
+	} catch (err) {
 		next(err);
 	}
 };
