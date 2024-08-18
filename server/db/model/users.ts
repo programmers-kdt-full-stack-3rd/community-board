@@ -21,12 +21,12 @@ export interface IUserInfo {
 	post_count: number;
 }
 
-export interface pagenation {
+export interface IPagenation {
 	index: number;
 	perPage: number;
 }
 
-export interface GetUsersInfoParams extends pagenation {
+export interface IGetUsersInfoParams extends IPagenation {
 	nickname?: string;
 	email?: string;
 }

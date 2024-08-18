@@ -7,7 +7,7 @@ import {
 import pool from "../connect";
 import { makeHashedPassword, makeSalt } from "../../utils/crypto";
 import { ServerError } from "../../middleware/errors";
-import { GetUsersInfoParams, IUser, IUserInfoRow } from "../model/users";
+import { IGetUsersInfoParams, IUser, IUserInfoRow } from "../model/users";
 import { makeAccessToken, makeRefreshToken } from "../../utils/token";
 import { addRefreshToken } from "./token_context";
 import { IPermissionRow, IRoleRow } from "../model/rbac";
@@ -193,7 +193,7 @@ export const getUsersInfo = async ({
 	perPage,
 	nickname,
 	email,
-}: GetUsersInfoParams) => {
+}: IGetUsersInfoParams) => {
 	let conn: PoolConnection | null = null;
 	try {
 		let sql = `SELECT COUNT(*) OVER() as total ,u.id, u.email, u.nickname, u.created_at, u.isDelete,
