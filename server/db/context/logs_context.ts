@@ -1,9 +1,4 @@
-import {
-	FieldPacket,
-	PoolConnection,
-	ResultSetHeader,
-	RowDataPacket,
-} from "mysql2/promise";
+import { FieldPacket, PoolConnection, ResultSetHeader } from "mysql2/promise";
 import pool from "../connect";
 import { ServerError } from "../../middleware/errors";
 
@@ -13,12 +8,13 @@ interface IUserLogData {
 	category_id: number;
 }
 
-export const addLog = async ({ user_id, title, category_id }: IUserLogData) => {
-	let conn: PoolConnection | null = null;
+export const addLog = async (
+	{ user_id, title, category_id }: IUserLogData,
+	conn: PoolConnection
+) => {
 	try {
 		const sql = `INSERT INTO user_logs (user_id, title, category_id) VALUES (?, ?, ?)`;
 		const value = [user_id, title, category_id];
-		conn = await pool.getConnection();
 
 		const [rows]: [ResultSetHeader, FieldPacket[]] = await conn.query(
 			sql,
@@ -32,7 +28,5 @@ export const addLog = async ({ user_id, title, category_id }: IUserLogData) => {
 		return;
 	} catch (err: any) {
 		throw err;
-	} finally {
-		if (conn) conn.release();
 	}
 };

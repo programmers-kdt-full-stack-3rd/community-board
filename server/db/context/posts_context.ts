@@ -183,9 +183,10 @@ export const getAdminPosts = async ({
 	}
 };
 
-export const addPost = async (reqBody: ICreatePostRequest) => {
-	let conn: PoolConnection | null = null;
-
+export const addPost = async (
+	reqBody: ICreatePostRequest,
+	conn: PoolConnection
+) => {
 	try {
 		const values: [string, string, number] = [
 			reqBody.title,
@@ -197,8 +198,6 @@ export const addPost = async (reqBody: ICreatePostRequest) => {
                 INSERT INTO posts (title, content, author_id, created_at)
                 VALUES (?, ?, ?, now())
         `;
-
-		conn = await pool.getConnection();
 		const [rows]: any[] = await conn.query(sql, values);
 
 		if (rows.affectedRows === 0) {
@@ -210,8 +209,6 @@ export const addPost = async (reqBody: ICreatePostRequest) => {
 		return rows.insertId;
 	} catch (err) {
 		throw err;
-	} finally {
-		if (conn) conn.release();
 	}
 };
 
