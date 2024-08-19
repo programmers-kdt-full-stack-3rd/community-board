@@ -2,11 +2,14 @@ import { Request, Response, NextFunction } from "express";
 import {
 	ICreateRoomRequest,
 	ICreateRoomResponse,
+	IGetRoomMessageLogsRequest,
+	IGetRoomMessageLogsResponse,
 	IReadRoomRequest,
 	IReadRoomResponse,
 } from "shared";
 import {
 	addRoom,
+	getMessageLogs,
 	getRoomsByKeyword,
 	getRoomsByUserId,
 } from "../db/context/chats_context";
@@ -41,8 +44,6 @@ export const handleRoomsRead = async (
 			keyword: decodeURIComponent(req.query.keyword as string) || "",
 		};
 
-		console.log(body);
-
 		let response: IReadRoomResponse = {
 			totalRoomCount: 0,
 			roomHeaders: [],
@@ -64,6 +65,28 @@ export const handleRoomsRead = async (
 			response.totalRoomCount = result.totalRoomCount;
 			response.roomHeaders = result.roomHeaders;
 		}
+
+		res.status(200).json(response);
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const handleMessageLogsRead = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		const body: IGetRoomMessageLogsRequest = {
+			roomId: parseInt(req.params.room_id),
+		};
+		const userId = req.userId;
+
+		const result = await getMessageLogs(userId, body.roomId);
+		const response: IGetRoomMessageLogsResponse = {
+			messageLogs: result,
+		};
 
 		res.status(200).json(response);
 	} catch (err) {

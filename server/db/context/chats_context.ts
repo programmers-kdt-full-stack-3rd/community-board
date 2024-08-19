@@ -10,6 +10,8 @@ import {
 	ICreateRoomRequest,
 	IReadRoomRequest,
 	IReadRoomResponse,
+	mapDBToIMessage,
+	mapDBToIMessages,
 	mapDBToIRoomHeader,
 	mapDBToIRoomHeaders,
 } from "shared";
@@ -93,7 +95,7 @@ export const getRoomsByKeyword = async (body: IReadRoomRequest) => {
 		values.push(body.page * body.perPage);
 
 		const [dataRows]: any[] = await conn.query(dataSql, values);
-		console.log(dataRows);
+
 		const roomHeaders = mapDBToIRoomHeaders(dataRows);
 
 		return {
@@ -160,6 +162,41 @@ export const getRoomsByUserId = async (
 			totalRoomCount,
 			roomHeaders,
 		};
+	} catch (err) {
+		throw err;
+	} finally {
+		if (conn) conn.release();
+	}
+};
+
+export const getMessageLogs = async (userId: number, roomId: number) => {
+	let conn: PoolConnection | null = null;
+	try {
+		conn = await pool.getConnection();
+
+		// roomId가 일치하는 meesages table의 모든 데이터 가져와 주기
+		// sort by create_at ASC
+		// isMine -> messages.user_id === userId
+		let sql = `
+			SELECT
+			    m.room_id,
+				u.nickname,
+				m.content,
+				m.created_at,
+                m.user_id,
+				m.is_system
+			FROM
+				messages as m
+			LEFT JOIN
+				users as u
+			ON m.user_id = u.id
+			WHERE
+				m.room_id = ?
+		`;
+		const values = [roomId];
+		const [rows]: any[] = await conn.query(sql, values);
+
+		return mapDBToIMessages(userId, rows);
 	} catch (err) {
 		throw err;
 	} finally {
