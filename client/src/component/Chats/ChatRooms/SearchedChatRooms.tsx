@@ -184,7 +184,7 @@ const SearchedChatRooms: React.FC<Props> = ({ open }) => {
 							"검색된 채팅방 없음"
 						) : (
 							<Rooms
-								isMine={true}
+								isMine={false}
 								rooms={searchedRooms.rooms[currentPage]}
 							/>
 						)}
