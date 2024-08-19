@@ -9,6 +9,9 @@ import { getAdminPosts } from "../db/context/posts_context";
 import { mapAdminPostsToResponse } from "../db/mapper/posts_mapper";
 import { getLogs } from "../db/context/logs_context";
 import { mapUserLogsToResponse } from "../db/mapper/logs_mapper";
+import { getIntervalStats, getTotalStats } from "../db/context/stats_context";
+import { TInterval } from "../db/model/stats";
+import { mapStatsToResponse } from "../db/mapper/stats_mapper";
 
 export const handleGetUsers = async (
 	req: Request,
@@ -94,6 +97,31 @@ export const handleAdminGetLogs = async (
 
 		res.json(mapUserLogsToResponse(logs));
 	} catch (err) {
+		next(err);
+	}
+};
+
+export const handleAdminGetStats = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		const startDate = req.query.startDate as string;
+		const endDate = req.query.endDate as string;
+		const interval = (req.query.interval as TInterval) || "daily";
+
+		const totalStats = await getTotalStats();
+		const intervalStats = await getIntervalStats({
+			startDate,
+			endDate,
+			interval,
+		});
+
+		const stats = mapStatsToResponse(totalStats, intervalStats);
+
+		res.status(200).json(stats);
+	} catch (err: any) {
 		next(err);
 	}
 };

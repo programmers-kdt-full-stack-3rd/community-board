@@ -3,6 +3,7 @@ import {
 	handleAdminDeleteUser,
 	handleAdminGetLogs,
 	handleAdminGetPosts,
+	handleAdminGetStats,
 	handleAdminRestoreUser,
 	handleGetUsers,
 } from "../controller/admin_controller";
@@ -25,4 +26,6 @@ router
 router.route("/post").get(handleAdminGetPosts);
 
 router.route("/log/:userId").get(handleAdminGetLogs);
+
+router.route("/stat").get(handleAdminGetStats);
 export default router;
