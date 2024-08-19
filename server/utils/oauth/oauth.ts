@@ -15,7 +15,7 @@ interface INaverUser {
  * @param provider - OAuth provider
  */
 export const buildLoginUrl = (provider: TOAuthProvider) => {
-	const { requestEndpoint, clientId, redirectUri, scope } =
+	const { requestEndpoint, clientId, redirectUri, scope, reconfirmParam } =
 		oAuthProps[provider];
 
 	const loginUrl = new URL(requestEndpoint.login);
@@ -28,8 +28,12 @@ export const buildLoginUrl = (provider: TOAuthProvider) => {
 		loginUrl.searchParams.set("scope", scope);
 	}
 
+	const reconfirmUrl = new URL(loginUrl);
+	reconfirmUrl.searchParams.set(reconfirmParam.key, reconfirmParam.value);
+
 	return {
 		loginUrl: loginUrl.toString(),
+		reconfirmUrl: reconfirmUrl.toString(),
 	};
 };
 
