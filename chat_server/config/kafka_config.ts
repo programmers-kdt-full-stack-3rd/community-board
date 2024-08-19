@@ -1,7 +1,7 @@
 import { Kafka, logLevel } from "kafkajs";
 
 /**
- * kafka API 객체
+ * Kafka API 객체
  */
 let kafka: Kafka | null = null;
 
