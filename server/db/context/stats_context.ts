@@ -89,29 +89,47 @@ export const getIntervalStats = async ({
 
 		const value = [dateFormat];
 
-		const postSql = `
+		const commonSql = `
+			GROUP BY date
+		`;
+
+		let postSql = `
         SELECT COUNT(*) AS count, COALESCE(SUM(views), 0) AS views, DATE_FORMAT(p.created_at, ?) AS date
         FROM posts p
         JOIN users u ON p.author_id = u.id
         WHERE p.isDelete = 0 AND u.isDelete = 0
-        group by date;
         `;
 
-		const commentSql = `
+		let commentSql = `
             SELECT COUNT(*) AS count, DATE_FORMAT(c.created_at, ?) AS date
             FROM comments c
             JOIN users u ON c.author_id = u.id
             JOIN posts p ON c.post_id = p.id
             WHERE c.isDelete = 0 AND u.isDelete = 0 AND p.isDelete = 0
-            group by date;
         `;
 
-		const userSql = `
+		let userSql = `
             SELECT COUNT(*) AS count, DATE_FORMAT(u.created_at, ?) AS date
             FROM users u
             WHERE isDelete = 0
-            group by date;
         `;
+
+		if (startDate) {
+			value.push(startDate);
+			postSql += ` AND p.created_at >= ?`;
+			commentSql += ` AND c.created_at >= ?`;
+			userSql += ` AND u.created_at >= ?`;
+		}
+		if (endDate) {
+			value.push(endDate);
+			postSql += ` AND p.created_at <= DATE_ADD(?, INTERVAL 1 DAY)`;
+			commentSql += ` AND c.created_at <= DATE_ADD(?, INTERVAL 1 DAY)`;
+			userSql += ` AND u.created_at <= DATE_ADD(?, INTERVAL 1 DAY)`;
+		}
+
+		postSql += commonSql;
+		commentSql += commonSql;
+		userSql += commonSql;
 
 		// 유효한 게시물 수와 총 조회수
 		const [postResults]: [IPostResultInterval[], FieldPacket[]] =

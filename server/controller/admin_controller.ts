@@ -12,6 +12,7 @@ import { mapUserLogsToResponse } from "../db/mapper/logs_mapper";
 import { getIntervalStats, getTotalStats } from "../db/context/stats_context";
 import { TInterval } from "../db/model/stats";
 import { mapStatsToResponse } from "../db/mapper/stats_mapper";
+import { ServerError } from "../middleware/errors";
 
 export const handleGetUsers = async (
 	req: Request,
@@ -110,6 +111,21 @@ export const handleAdminGetStats = async (
 		const startDate = req.query.startDate as string;
 		const endDate = req.query.endDate as string;
 		const interval = (req.query.interval as TInterval) || "daily";
+
+		const isDate = (date: string) => {
+			if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+				return false;
+			}
+			return !isNaN(new Date(date).getTime());
+		};
+
+		if (startDate && !isDate(startDate)) {
+			throw ServerError.badRequest("startDate가 잘못되었습니다.");
+		}
+
+		if (endDate && !isDate(endDate)) {
+			throw ServerError.badRequest("endDate가 잘못되었습니다.");
+		}
 
 		const totalStats = await getTotalStats();
 		const intervalStats = await getIntervalStats({
