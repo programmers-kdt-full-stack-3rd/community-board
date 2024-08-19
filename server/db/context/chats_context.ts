@@ -56,7 +56,6 @@ export const getRoomsByKeyword = async (body: IReadRoomRequest) => {
 	let conn: PoolConnection | null = null;
 
 	try {
-		console.log(body);
 		const keyword = `%${body.keyword.trim()}%`;
 
 		let countSql = `
@@ -100,7 +99,66 @@ export const getRoomsByKeyword = async (body: IReadRoomRequest) => {
 			roomHeaders,
 		};
 	} catch (err) {
-		console.log(err);
+		throw err;
+	} finally {
+		if (conn) conn.release();
+	}
+};
+
+export const getRoomsByUserId = async (
+	userId: number,
+	page: number,
+	perPage: number
+) => {
+	let conn: PoolConnection | null = null;
+	try {
+		let countSql = `
+				SELECT
+					COUNT(r.id) as total
+				FROM
+					members AS m
+					LEFT JOIN
+					rooms AS r
+					ON m.room_id = r.id
+				WHERE
+					m.id = ?
+		`;
+		const values = [userId];
+
+		conn = await pool.getConnection();
+		const [countRows]: any[] = await conn.query(countSql, values);
+		const totalRoomCount = countRows[0].total;
+
+		let dataSql = `
+				SELECT
+					r.id,
+                    r.name,
+                    r.is_private,
+                    COUNT(m.id) AS membersCount
+				FROM
+					members AS m
+					LEFT JOIN
+					rooms AS r
+					ON m.room_id = r.id
+				WHERE
+					m.id = ?
+				GROUP BY
+        			r.id, r.name, r.is_private
+				LIMIT ? OFFSET ?;
+		`;
+
+		values.push(perPage);
+		values.push(page * perPage);
+
+		const [dataRows]: any[] = await conn.query(dataSql, values);
+		console.log(dataRows);
+		const roomHeaders = mapDBToIRoomHeaders(dataRows);
+
+		return {
+			totalRoomCount,
+			roomHeaders,
+		};
+	} catch (err) {
 		throw err;
 	} finally {
 		if (conn) conn.release();

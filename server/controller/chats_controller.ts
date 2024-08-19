@@ -5,7 +5,11 @@ import {
 	IReadRoomRequest,
 	IReadRoomResponse,
 } from "shared";
-import { addRoom, getRoomsByKeyword } from "../db/context/chats_context";
+import {
+	addRoom,
+	getRoomsByKeyword,
+	getRoomsByUserId,
+} from "../db/context/chats_context";
 
 export const handleRoomCreate = async (
 	req: Request,
@@ -48,7 +52,15 @@ export const handleRoomsRead = async (
 			response.totalRoomCount = result.totalRoomCount;
 			response.roomHeaders = result.roomHeaders;
 		} else {
-			// 내 채팅방 조회
+			const userId = req.userId;
+			const result = await getRoomsByUserId(
+				userId,
+				body.page,
+				body.perPage
+			);
+
+			response.totalRoomCount = result.totalRoomCount;
+			response.roomHeaders = result.roomHeaders;
 		}
 
 		res.status(200).json(response);
