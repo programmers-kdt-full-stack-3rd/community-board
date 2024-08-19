@@ -20,3 +20,11 @@ export interface ILiveRoomInfo {
 	curNum: number; // 현재 접속한 사용자 수
 	newMessages: number; // 새로운 채팅 수
 }
+
+export interface IKafkaMessageDTO {
+	roomId: number; // 방 번호
+	userId: number; // 사용자 아이디(system: 0)
+	message: string; // 채팅 내용
+	createdAt: Date; // 생성 시간
+	isSystem: boolean; // 시스템 메시지 유무
+}

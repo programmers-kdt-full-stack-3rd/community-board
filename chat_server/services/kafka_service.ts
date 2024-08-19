@@ -1,4 +1,4 @@
-import { IMessage } from "shared";
+import { IKafkaMessageDTO } from "shared";
 import { Kafka, Producer } from "kafkajs";
 
 /**
@@ -30,9 +30,8 @@ const getProducer = (): Producer => {
  */
 
 // Kafka로 message 송신
-const sendMessage = async (messageDTO: IMessage, id: string | null = null) => {
-	const { roomId, message, createdAt, isSystem } = messageDTO;
-	const userId = isSystem ? 0 : id;
+const sendMessage = async (messageDTO: IKafkaMessageDTO) => {
+	const { roomId, userId, message, createdAt, isSystem } = messageDTO;
 
 	if (producer === null) {
 		throw new Error("Kafka Producer is null");
@@ -42,9 +41,9 @@ const sendMessage = async (messageDTO: IMessage, id: string | null = null) => {
 		topic: "chat", // 토픽 이름
 		messages: [
 			{
-				key: roomId, // message key
-				value: JSON.stringify({ userId, message }), // message value (Buffer | string | null)
-				timestamp: createdAt.getTime().toString(), // ISO 형식의 시간 데이터
+				key: JSON.stringify({ roomId, userId }), // message key
+				value: JSON.stringify({ message, isSystem }), // message value (Buffer | string | null)
+				timestamp: createdAt.getTime().toString(), // string 형식의 시간 데이터
 			},
 		],
 		acks: -1, // 리더와 모든 팔로워 파티션이 메시지를 기록했을 때 성공

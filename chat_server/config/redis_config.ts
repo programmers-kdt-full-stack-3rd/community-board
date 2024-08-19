@@ -1,23 +1,27 @@
-import dotenv from "dotenv";
-import { createClient } from "redis";
+import { createClient, RedisClientType } from "redis";
 
-dotenv.config();
+/**
+ * Redis API 객체
+ */
+let redis: RedisClientType | null = null;
 
-const isDev = !process.env.DOCKER_HOST_IP;
-
-const redisClient = createClient({
-	url: isDev
-		? "redis://localhost:6379"
-		: `${process.env.DOCKER_HOST_IP}:${process.env.REDIS_PORT}`,
-});
-
-const connectRedis = async () => {
-	try {
-		await redisClient.connect();
-		console.log("Connected to Redis");
-	} catch (error) {
-		console.error("Could not connect to Redis", error);
+const initRedisAPI = (url: string) => {
+	if (redis === null) {
+		redis = createClient({
+			url,
+		});
 	}
 };
 
-export { redisClient, connectRedis };
+/**
+ * get Redis API
+ */
+const getRedisAPI = (): RedisClientType => {
+	if (redis === null) {
+		throw new Error("Redis API is null");
+	}
+
+	return redis;
+};
+
+export { getRedisAPI, initRedisAPI };
