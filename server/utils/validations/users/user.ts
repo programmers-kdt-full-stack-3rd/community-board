@@ -40,23 +40,23 @@ const passwordValidator = (
 /**
  * 비밀번호 확인 유효성 검사
  */
-const requiredPasswordValidator = body("requiredPassword")
-	.notEmpty()
-	.withMessage(ERROR_MESSAGES.REQUIRED_PASSWORD_MISSING)
-	.bail()
-	.custom((value, { req }) => {
-		if (value !== req.body.password) {
-			throw new Error(ERROR_MESSAGES.REQUIRED_PASSWORD_MISMATCH);
-		}
-		return true;
-	});
+const requiredPasswordValidator = () =>
+	body("requiredPassword")
+		.notEmpty()
+		.withMessage(ERROR_MESSAGES.REQUIRED_PASSWORD_MISSING)
+		.bail()
+		.custom((value, { req }) => {
+			if (value !== req.body.password) {
+				throw new Error(ERROR_MESSAGES.REQUIRED_PASSWORD_MISMATCH);
+			}
+			return true;
+		});
 
 /**
  * 닉네임 유효성 검사
  */
-const nicknameValidator = body("nickname")
-	.notEmpty()
-	.withMessage(ERROR_MESSAGES.NICKNAME_REQUIRED);
+const nicknameValidator = () =>
+	body("nickname").notEmpty().withMessage(ERROR_MESSAGES.NICKNAME_REQUIRED);
 
 /*
   Validation
@@ -69,8 +69,8 @@ const nicknameValidator = body("nickname")
 export const joinValidation = [
 	emailValidator(),
 	passwordValidator(),
-	requiredPasswordValidator,
-	nicknameValidator,
+	requiredPasswordValidator(),
+	nicknameValidator(),
 	validate,
 ];
 
@@ -87,7 +87,7 @@ export const loginValidation = [
  * 회원 정보 수정 API 유효성 검사
  */
 export const updateUserValidation = [
-	nicknameValidator,
+	nicknameValidator(),
 	passwordValidator(),
 	validate,
 ];
