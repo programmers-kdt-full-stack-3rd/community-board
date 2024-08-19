@@ -33,6 +33,31 @@ const ChatRooms: FC = () => {
 	);
 	const [myRooms, setMyRooms] = useState<IRoomHeader[][] | null>(null);
 
+	const GetRoomsByKeyword = async (body: IReadRoomRequest) => {
+		const queryString = `?page=${body.page}&perPage=${body.perPage}&isSearch=${body.isSearch}&keyword=${body.keyword}`;
+
+		const res: IReadRoomResponse | ClientError = await ApiCall(
+			() => sendGetRoomHeadersRequest(queryString),
+			err => {
+				errorModal.setErrorMessage(err.message);
+				errorModal.open();
+			}
+		);
+
+		if (res instanceof ClientError) {
+			return;
+		}
+
+		setSearchRooms(
+			res.roomHeaders.reduce((acc, item, index) => {
+				if (index % 2 === 0) acc.push([item]);
+				else acc[acc.length - 1].push(item);
+
+				return acc;
+			}, [] as IRoomHeader[][])
+		);
+	};
+
 	const GetMyRooms = async (body: IReadRoomRequest) => {
 		const queryString = `?page=${body.page}&perPage=${body.perPage}&isSearch=${body.isSearch}&keyword=${body.keyword}`;
 
@@ -89,17 +114,6 @@ const ChatRooms: FC = () => {
 		}
 	}, []);
 
-	useEffect(() => {
-		const body: IReadRoomRequest = {
-			page: myCurPage,
-			perPage: 2,
-			isSearch: false,
-			keyword,
-		};
-
-		GetMyRooms(body);
-	}, [myCurPage]);
-
 	// 채팅 input Change
 	const onSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
 		setKeyword(event.target.value);
@@ -119,8 +133,19 @@ const ChatRooms: FC = () => {
 		event.preventDefault();
 
 		if (keyword !== "") {
-			// TODO: 검색 시 데이터 가져오기 (alert는 테스트용)
-			alert(`keyword: ${keyword} 채팅방 검색`);
+			const body: IReadRoomRequest = {
+				page: myCurPage,
+				perPage: 2,
+				isSearch: true,
+				keyword: encodeURIComponent(keyword),
+			};
+
+			if (!keyword) {
+				alert("검색어를 입력하세요");
+				return;
+			}
+
+			GetRoomsByKeyword(body);
 			setKeyword("");
 		}
 	};

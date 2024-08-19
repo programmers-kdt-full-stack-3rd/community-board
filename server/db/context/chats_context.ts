@@ -84,6 +84,8 @@ export const getRoomsByKeyword = async (body: IReadRoomRequest) => {
 					ON r.id = m.room_id
 				WHERE
 					name LIKE ?
+				GROUP BY
+        			r.id, r.name, r.is_private
 				LIMIT ? OFFSET ?;
 					`;
 

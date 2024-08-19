@@ -37,9 +37,11 @@ export const handleRoomsRead = async (
 		const body: IReadRoomRequest = {
 			page: parseInt(req.query.page as string) - 1 || 0,
 			perPage: parseInt(req.query.perPage as string) || 2,
-			isSearch: (req.body.isSearch as boolean) || false,
-			keyword: (req.query.keyword as string) || "",
+			isSearch: req.query.isSearch === "true",
+			keyword: decodeURIComponent(req.query.keyword as string) || "",
 		};
+
+		console.log(body);
 
 		let response: IReadRoomResponse = {
 			totalRoomCount: 0,
