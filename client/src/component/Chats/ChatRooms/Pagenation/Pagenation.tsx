@@ -1,4 +1,4 @@
-import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, FC, SetStateAction, useLayoutEffect, useState } from "react";
 
 import { activePage, container, page } from "./pagenation.css";
 import clsx from "clsx";
@@ -7,7 +7,7 @@ interface IPagenationProps {
 	total: number;
 	curPage: number;
 	setCurPage: Dispatch<SetStateAction<number>>;
-	onPageClick: (index: number) => () => void;
+	onPageClick: (index: number) => void;
 }
 
 const Pagenation: FC<IPagenationProps> = ({
@@ -19,7 +19,7 @@ const Pagenation: FC<IPagenationProps> = ({
 	const [pageIndexs, setPageIndexs] = useState<number[][]>([[]]);
 	const [curPageListIndex, setCurPageListIndex] = useState<number>(0);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		// 페이지 리스트 만들기
 		const result = [];
 
@@ -71,7 +71,7 @@ const Pagenation: FC<IPagenationProps> = ({
 					className={clsx(page, {
 						[activePage]: pageIndex === curPage,
 					})}
-					onClick={onPageClick(pageIndex)}
+					onClick={() => onPageClick(pageIndex)}
 				>
 					{pageIndex}
 				</span>
