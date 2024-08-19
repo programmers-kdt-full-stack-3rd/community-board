@@ -5,7 +5,8 @@
 		"client",
 		"server",
 		"shared",
-		"chat_server"
+		"chat_server",
+		"consumer-server"
 	],
 	"scripts": {
 		"prettier": "prettier --write --config ./.prettierrc.json \"./**/*\""

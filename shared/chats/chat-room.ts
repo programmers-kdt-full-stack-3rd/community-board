@@ -1,4 +1,4 @@
-import { IMessage } from "./dto";
+import { IMessage, IRoomHeader } from "./dto";
 
 // 채팅방 생성 --------------------------------------------------
 
@@ -22,7 +22,8 @@ export interface IReadRoomRequest {
 }
 
 export interface IReadRoomResponse {
-	roomId: string; // 생성된 방 번호
+	totalRoomCount: number; // pagenation x 한 검색결과 개수
+	roomHeaders: IRoomHeader[]; // pagenation o 한 검색결과
 }
 
 // 채팅방 가입 --------------------------------------------------
