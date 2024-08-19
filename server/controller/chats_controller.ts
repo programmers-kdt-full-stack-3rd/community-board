@@ -35,10 +35,10 @@ export const handleRoomsRead = async (
 ) => {
 	try {
 		const body: IReadRoomRequest = {
-			page: req.body.page > 0 ? req.body.page - 1 : 0,
-			perPage: req.body.perPage,
-			isSearch: req.body.isSearch,
-			keyword: req.body.keyword,
+			page: parseInt(req.query.page as string) - 1 || 0,
+			perPage: parseInt(req.query.perPage as string) || 2,
+			isSearch: (req.body.isSearch as boolean) || false,
+			keyword: (req.query.keyword as string) || "",
 		};
 
 		let response: IReadRoomResponse = {

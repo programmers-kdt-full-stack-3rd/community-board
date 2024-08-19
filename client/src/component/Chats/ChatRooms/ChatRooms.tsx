@@ -12,15 +12,20 @@ import {
 } from "./ChatRooms.css";
 import Rooms from "./Rooms/Rooms";
 import Pagenation from "./Pagenation/Pagenation";
-import { IRoomHeader } from "shared";
+import { IReadRoomRequest, IReadRoomResponse, IRoomHeader } from "shared";
 import { testMy, testSearch } from "./test-case";
 import CreateRoomModal from "./Modal/CreateRoomModal";
+import { sendGetRoomHeadersRequest } from "../../../api/chats/crud";
+import { ClientError } from "../../../api/errors";
+import { ApiCall } from "../../../api/api";
+import { useErrorModal } from "../../../state/errorModalStore";
 
 const ChatRooms: FC = () => {
 	const [keyword, setKeyword] = useState<string>("");
 	const [searchCurPage, setSearchCurPage] = useState<number>(1);
 	const [myCurPage, setMyCurPage] = useState<number>(1);
 	const [isOpen, setIsOpen] = useState(false);
+	const errorModal = useErrorModal();
 
 	// test 용 state
 	const [searchRooms, setSearchRooms] = useState<IRoomHeader[][] | null>(
@@ -28,24 +33,72 @@ const ChatRooms: FC = () => {
 	);
 	const [myRooms, setMyRooms] = useState<IRoomHeader[][] | null>(null);
 
-	useEffect(() => {
-		setSearchRooms(
-			testSearch.roomHeaders.reduce((acc, item, index) => {
-				if (index % 2 === 0) acc.push([item]);
-				else acc[acc.length - 1].push(item);
+	const GetMyRooms = async (body: IReadRoomRequest) => {
+		const queryString = `?page=${body.page}&perPage=${body.perPage}&isSearch=${body.isSearch}&keyword=${body.keyword}`;
 
-				return acc;
-			}, [] as IRoomHeader[][])
+		const res: IReadRoomResponse | ClientError = await ApiCall(
+			() => sendGetRoomHeadersRequest(queryString),
+			err => {
+				errorModal.setErrorMessage(err.message);
+				errorModal.open();
+			}
 		);
+
+		if (res instanceof ClientError) {
+			return;
+		}
+
 		setMyRooms(
-			testMy.roomHeaders.reduce((acc, item, index) => {
+			res.roomHeaders.reduce((acc, item, index) => {
 				if (index % 2 === 0) acc.push([item]);
 				else acc[acc.length - 1].push(item);
 
 				return acc;
 			}, [] as IRoomHeader[][])
 		);
+	};
+
+	useEffect(() => {
+		// npm run dev : 개발 모드
+		if (!process.env.NODE_ENV || process.env.NODE_ENV == "development") {
+			setSearchRooms(
+				testSearch.roomHeaders.reduce((acc, item, index) => {
+					if (index % 2 === 0) acc.push([item]);
+					else acc[acc.length - 1].push(item);
+
+					return acc;
+				}, [] as IRoomHeader[][])
+			);
+			setMyRooms(
+				testMy.roomHeaders.reduce((acc, item, index) => {
+					if (index % 2 === 0) acc.push([item]);
+					else acc[acc.length - 1].push(item);
+
+					return acc;
+				}, [] as IRoomHeader[][])
+			);
+		} else {
+			const body: IReadRoomRequest = {
+				page: myCurPage,
+				perPage: 2,
+				isSearch: false,
+				keyword,
+			};
+
+			GetMyRooms(body);
+		}
 	}, []);
+
+	useEffect(() => {
+		const body: IReadRoomRequest = {
+			page: myCurPage,
+			perPage: 2,
+			isSearch: false,
+			keyword,
+		};
+
+		GetMyRooms(body);
+	}, [myCurPage]);
 
 	// 채팅 input Change
 	const onSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
