@@ -15,14 +15,17 @@ interface INaverUser {
  * @param provider - OAuth provider
  */
 export const buildLoginUrl = (provider: TOAuthProvider) => {
-	const loginUrl = new URL(oAuthProps[provider].requestEndpoint.login);
+	const { requestEndpoint, clientId, redirectUri, scope } =
+		oAuthProps[provider];
+
+	const loginUrl = new URL(requestEndpoint.login);
 
 	loginUrl.searchParams.set("response_type", "code");
-	loginUrl.searchParams.set("client_id", oAuthProps[provider].clientId);
-	loginUrl.searchParams.set("redirect_uri", oAuthProps[provider].redirectUri);
+	loginUrl.searchParams.set("client_id", clientId);
+	loginUrl.searchParams.set("redirect_uri", redirectUri);
 
-	if (oAuthProps[provider].scope) {
-		loginUrl.searchParams.set("scope", oAuthProps[provider].scope);
+	if (scope) {
+		loginUrl.searchParams.set("scope", scope);
 	}
 
 	return {
@@ -41,15 +44,17 @@ export const buildTokenFetchOptions = (
 	provider: TOAuthProvider,
 	code: string
 ): RequestInit => {
+	const { clientId, redirectUri, clientSecret } = oAuthProps[provider];
+
 	const querystringPairs: { [key: string]: string } = {
 		grant_type: "authorization_code",
-		client_id: oAuthProps[provider].clientId,
-		redirect_uri: oAuthProps[provider].redirectUri,
+		client_id: clientId,
+		redirect_uri: redirectUri,
 		code: code,
 	};
 
-	if (oAuthProps[provider].clientSecret) {
-		querystringPairs.client_secret = oAuthProps[provider].clientSecret;
+	if (clientSecret) {
+		querystringPairs.client_secret = clientSecret;
 	}
 
 	return {
