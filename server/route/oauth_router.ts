@@ -2,9 +2,10 @@ import express from "express";
 import {
 	handleOAuthLoginUrlRead,
 	handleOAuthLogin,
+	handleOAuthReconfirmUrlRead,
 } from "../controller/oauth_controller";
 import {
-	getOAuthLoginUrlValidation,
+	getOAuthLoginUrlValidator,
 	postOAuthLoginValidation,
 } from "../utils/validations/oauth/oauth";
 
@@ -13,9 +14,15 @@ router.use(express.json());
 
 router.get(
 	"/login-url/:provider",
-	getOAuthLoginUrlValidation,
+	getOAuthLoginUrlValidator(),
 	handleOAuthLoginUrlRead
 );
 router.post("/login", postOAuthLoginValidation, handleOAuthLogin);
+
+router.get(
+	"/reconfirm-url/:provider",
+	getOAuthLoginUrlValidator(),
+	handleOAuthReconfirmUrlRead
+);
 
 export default router;

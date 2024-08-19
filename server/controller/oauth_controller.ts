@@ -137,3 +137,18 @@ export const handleOAuthLogin = async (
 		next(err);
 	}
 };
+
+export const handleOAuthReconfirmUrlRead = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		const provider = req.params.provider as TOAuthProvider;
+		const { reconfirmUrl } = buildLoginUrl(provider);
+
+		res.status(200).json({ url: reconfirmUrl });
+	} catch (err) {
+		next(err);
+	}
+};

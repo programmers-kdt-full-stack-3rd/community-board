@@ -3,7 +3,7 @@ import { validate } from "../../../middleware/validate";
 import { oAuthProviders } from "../../oauth/constants";
 import { ERROR_MESSAGES } from "./constants";
 
-export const getOAuthLoginUrlValidation = [
+export const getOAuthLoginUrlValidator = () => [
 	param("provider")
 		.isIn(oAuthProviders)
 		.withMessage(ERROR_MESSAGES.INVALID_OAUTH_PROVIDER),
