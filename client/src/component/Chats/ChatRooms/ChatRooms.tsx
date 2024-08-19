@@ -12,39 +12,120 @@ import {
 } from "./ChatRooms.css";
 import Rooms from "./Rooms/Rooms";
 import Pagenation from "./Pagenation/Pagenation";
-import { IRoomHeader } from "shared";
+import { IReadRoomRequest, IReadRoomResponse, IRoomHeader } from "shared";
 import { testMy, testSearch } from "./test-case";
 import CreateRoomModal from "./Modal/CreateRoomModal";
+import { sendGetRoomHeadersRequest } from "../../../api/chats/crud";
+import { ClientError } from "../../../api/errors";
+import { ApiCall } from "../../../api/api";
+import { useErrorModal } from "../../../state/errorModalStore";
+import { isDevMode } from "../../../utils/detectMode";
+
+interface RoomListInfo {
+	totalRoomCount: number;
+	rooms: IRoomHeader[][];
+}
 
 const ChatRooms: FC = () => {
-	const [keyword, setKeyword] = useState<string>("");
 	const [searchCurPage, setSearchCurPage] = useState<number>(1);
 	const [myCurPage, setMyCurPage] = useState<number>(1);
 	const [isOpen, setIsOpen] = useState(false);
+	const [keyword, setKeyword] = useState("");
+	const errorModal = useErrorModal();
 
 	// test 용 state
-	const [searchRooms, setSearchRooms] = useState<IRoomHeader[][] | null>(
-		null
-	);
-	const [myRooms, setMyRooms] = useState<IRoomHeader[][] | null>(null);
+	const [searchRooms, setSearchRooms] = useState<RoomListInfo>({
+		totalRoomCount: 0,
+		rooms: [],
+	});
+	const [myRooms, setMyRooms] = useState<RoomListInfo>({
+		totalRoomCount: 0,
+		rooms: [],
+	});
+
+	const GetRoomsByKeyword = async (body: IReadRoomRequest) => {
+		const queryString = `?page=${body.page}&perPage=${body.perPage}&isSearch=${body.isSearch}&keyword=${body.keyword}`;
+
+		const res: IReadRoomResponse | ClientError = await ApiCall(
+			() => sendGetRoomHeadersRequest(queryString),
+			err => {
+				errorModal.setErrorMessage(err.message);
+				errorModal.open();
+			}
+		);
+
+		if (res instanceof ClientError) {
+			return;
+		}
+
+		setSearchRooms({
+			totalRoomCount: res.totalRoomCount,
+			rooms: res.roomHeaders.reduce((acc, item, index) => {
+				if (index % 2 === 0) acc.push([item]);
+				else acc[acc.length - 1].push(item);
+
+				return acc;
+			}, [] as IRoomHeader[][]),
+		});
+	};
+
+	const GetMyRooms = async (body: IReadRoomRequest) => {
+		const queryString = `?page=${body.page}&perPage=${body.perPage}&isSearch=${body.isSearch}&keyword=${body.keyword}`;
+
+		const res: IReadRoomResponse | ClientError = await ApiCall(
+			() => sendGetRoomHeadersRequest(queryString),
+			err => {
+				errorModal.setErrorMessage(err.message);
+				errorModal.open();
+			}
+		);
+
+		if (res instanceof ClientError) {
+			return;
+		}
+
+		setMyRooms({
+			totalRoomCount: res.totalRoomCount,
+			rooms: res.roomHeaders.reduce((acc, item, index) => {
+				if (index % 2 === 0) acc.push([item]);
+				else acc[acc.length - 1].push(item);
+
+				return acc;
+			}, [] as IRoomHeader[][]),
+		});
+	};
 
 	useEffect(() => {
-		setSearchRooms(
-			testSearch.roomHeaders.reduce((acc, item, index) => {
-				if (index % 2 === 0) acc.push([item]);
-				else acc[acc.length - 1].push(item);
+		// npm run dev : 개발 모드
+		if (isDevMode()) {
+			setSearchRooms({
+				totalRoomCount: 2,
+				rooms: testSearch.roomHeaders.reduce((acc, item, index) => {
+					if (index % 2 === 0) acc.push([item]);
+					else acc[acc.length - 1].push(item);
 
-				return acc;
-			}, [] as IRoomHeader[][])
-		);
-		setMyRooms(
-			testMy.roomHeaders.reduce((acc, item, index) => {
-				if (index % 2 === 0) acc.push([item]);
-				else acc[acc.length - 1].push(item);
+					return acc;
+				}, [] as IRoomHeader[][]),
+			});
+			setMyRooms({
+				totalRoomCount: 2,
+				rooms: testMy.roomHeaders.reduce((acc, item, index) => {
+					if (index % 2 === 0) acc.push([item]);
+					else acc[acc.length - 1].push(item);
 
-				return acc;
-			}, [] as IRoomHeader[][])
-		);
+					return acc;
+				}, [] as IRoomHeader[][]),
+			});
+		} else {
+			const body: IReadRoomRequest = {
+				page: myCurPage,
+				perPage: 2,
+				isSearch: false,
+				keyword,
+			};
+
+			GetMyRooms(body);
+		}
 	}, []);
 
 	// 채팅 input Change
@@ -66,8 +147,19 @@ const ChatRooms: FC = () => {
 		event.preventDefault();
 
 		if (keyword !== "") {
-			// TODO: 검색 시 데이터 가져오기 (alert는 테스트용)
-			alert(`keyword: ${keyword} 채팅방 검색`);
+			const body: IReadRoomRequest = {
+				page: myCurPage,
+				perPage: 2,
+				isSearch: true,
+				keyword: encodeURIComponent(keyword),
+			};
+
+			if (!keyword) {
+				alert("검색어를 입력하세요");
+				return;
+			}
+
+			GetRoomsByKeyword(body);
 			setKeyword("");
 		}
 	};
@@ -96,17 +188,17 @@ const ChatRooms: FC = () => {
 						/>
 					</div>
 				</div>
-				{searchRooms === null ? (
+				{searchRooms.rooms.length === 0 ? (
 					"검색된 채팅방 없음"
 				) : (
 					<>
 						<Rooms
 							isMine={false}
-							rooms={searchRooms[searchCurPage - 1]}
+							rooms={searchRooms.rooms[searchCurPage - 1]}
 						/>
 						{testSearch.totalRoomCount > 2 ? (
 							<Pagenation
-								total={testSearch.totalRoomCount}
+								total={searchRooms.totalRoomCount}
 								curPage={searchCurPage}
 								setCurPage={setSearchCurPage}
 								onPageClick={onSearchPageClick}
@@ -117,17 +209,17 @@ const ChatRooms: FC = () => {
 			</div>
 			<h3>내 채팅방</h3>
 			<div className={roomsWrapper}>
-				{myRooms === null ? (
+				{myRooms.rooms.length === 0 ? (
 					"내 채팅방 없음"
 				) : (
 					<>
 						<Rooms
 							isMine={true}
-							rooms={myRooms[myCurPage - 1]}
+							rooms={myRooms.rooms[myCurPage - 1]}
 						/>
 						{testMy.totalRoomCount > 2 ? (
 							<Pagenation
-								total={testMy.totalRoomCount}
+								total={myRooms.totalRoomCount}
 								curPage={myCurPage}
 								setCurPage={setMyCurPage}
 								onPageClick={onMyPageClick}
