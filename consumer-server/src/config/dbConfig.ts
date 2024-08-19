@@ -1,20 +1,35 @@
 import dotenv from "dotenv";
-import mariaDB, { PoolOptions } from "mysql2/promise";
+import mariaDB, { Pool, PoolOptions } from "mysql2/promise";
 
 dotenv.config();
 
-const isDev = !process.env.DOCKER_HOST_IP;
+/**
+ * DB Pool 객체
+ */
+let pool: Pool | null = null;
 
-const port = process.env.DB_PORT | 3306;
-const config: PoolOptions = {
-	connectionLimit: 1000,
-	host: process.env.DB_HOST,
-	user: process.env.DB_USER,
-	database: process.env.DB_NAME,
-	password: process.env.DB_PSWORD,
-	port: port,
-	multipleStatements: true,
+/**
+ * init DB Pool
+ */
+const initDBPool = (config: PoolOptions): void => {
+	if (pool === null) {
+		pool = mariaDB.createPool({
+			...config,
+			connectionLimit: 1000,
+			multipleStatements: true,
+		});
+		console.log("DB Pool 생성");
+	}
 };
-const pool = mariaDB.createPool(config);
 
-export default pool;
+/**
+ * get DB Pool
+ */
+const getDBPool = () => {
+	if (!pool) {
+		throw new Error("DB Pool is null");
+	}
+	return pool;
+};
+
+export { getDBPool, initDBPool };
