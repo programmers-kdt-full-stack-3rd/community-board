@@ -8,7 +8,7 @@ import { mapUsersInfoToResponse } from "../db/mapper/users_mapper";
 import { getAdminPosts } from "../db/context/posts_context";
 import { mapAdminPostsToResponse } from "../db/mapper/posts_mapper";
 import { getLogs } from "../db/context/logs_context";
-import { mapUserLogsToResponse } from "../db/mapper/logs.mapper";
+import { mapUserLogsToResponse } from "../db/mapper/logs_mapper";
 
 export const handleGetUsers = async (
 	req: Request,
