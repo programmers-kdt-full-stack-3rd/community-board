@@ -2,7 +2,7 @@
 	"scripts": {
 		"start": "node dist/app.js",
 		"build": "tsc -p .",
-		"dev": "nodemon --watch \"*.ts\" --exec \"ts-node\" --files ./app.ts"
+		"dev": "nodemon --watch \"*.ts\" --exec \"ts-node\" --files ./index.ts"
 	},
 	"dependencies": {
 		"@socket.io/admin-ui": "^0.5.1",
