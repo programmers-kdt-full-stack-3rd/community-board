@@ -24,7 +24,7 @@ const Pagenation: FC<IPagenationProps> = ({
 		const result = [];
 
 		let temp = [];
-		for (let i = 1; i <= total / 2 + 1; i++) {
+		for (let i = 1; i <= total / 2; i++) {
 			temp.push(i);
 
 			// 각 페이지는 5개가 default

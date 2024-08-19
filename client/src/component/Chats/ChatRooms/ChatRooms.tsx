@@ -19,19 +19,29 @@ import { sendGetRoomHeadersRequest } from "../../../api/chats/crud";
 import { ClientError } from "../../../api/errors";
 import { ApiCall } from "../../../api/api";
 import { useErrorModal } from "../../../state/errorModalStore";
+import { isDevMode } from "../../../utils/detectMode";
+
+interface RoomListInfo {
+	totalRoomCount: number;
+	rooms: IRoomHeader[][];
+}
 
 const ChatRooms: FC = () => {
-	const [keyword, setKeyword] = useState<string>("");
 	const [searchCurPage, setSearchCurPage] = useState<number>(1);
 	const [myCurPage, setMyCurPage] = useState<number>(1);
 	const [isOpen, setIsOpen] = useState(false);
+	const [keyword, setKeyword] = useState("");
 	const errorModal = useErrorModal();
 
 	// test 용 state
-	const [searchRooms, setSearchRooms] = useState<IRoomHeader[][] | null>(
-		null
-	);
-	const [myRooms, setMyRooms] = useState<IRoomHeader[][] | null>(null);
+	const [searchRooms, setSearchRooms] = useState<RoomListInfo>({
+		totalRoomCount: 0,
+		rooms: [],
+	});
+	const [myRooms, setMyRooms] = useState<RoomListInfo>({
+		totalRoomCount: 0,
+		rooms: [],
+	});
 
 	const GetRoomsByKeyword = async (body: IReadRoomRequest) => {
 		const queryString = `?page=${body.page}&perPage=${body.perPage}&isSearch=${body.isSearch}&keyword=${body.keyword}`;
@@ -48,14 +58,15 @@ const ChatRooms: FC = () => {
 			return;
 		}
 
-		setSearchRooms(
-			res.roomHeaders.reduce((acc, item, index) => {
+		setSearchRooms({
+			totalRoomCount: res.totalRoomCount,
+			rooms: res.roomHeaders.reduce((acc, item, index) => {
 				if (index % 2 === 0) acc.push([item]);
 				else acc[acc.length - 1].push(item);
 
 				return acc;
-			}, [] as IRoomHeader[][])
-		);
+			}, [] as IRoomHeader[][]),
+		});
 	};
 
 	const GetMyRooms = async (body: IReadRoomRequest) => {
@@ -73,35 +84,38 @@ const ChatRooms: FC = () => {
 			return;
 		}
 
-		setMyRooms(
-			res.roomHeaders.reduce((acc, item, index) => {
+		setMyRooms({
+			totalRoomCount: res.totalRoomCount,
+			rooms: res.roomHeaders.reduce((acc, item, index) => {
 				if (index % 2 === 0) acc.push([item]);
 				else acc[acc.length - 1].push(item);
 
 				return acc;
-			}, [] as IRoomHeader[][])
-		);
+			}, [] as IRoomHeader[][]),
+		});
 	};
 
 	useEffect(() => {
 		// npm run dev : 개발 모드
-		if (!process.env.NODE_ENV || process.env.NODE_ENV == "development") {
-			setSearchRooms(
-				testSearch.roomHeaders.reduce((acc, item, index) => {
+		if (isDevMode()) {
+			setSearchRooms({
+				totalRoomCount: 2,
+				rooms: testSearch.roomHeaders.reduce((acc, item, index) => {
 					if (index % 2 === 0) acc.push([item]);
 					else acc[acc.length - 1].push(item);
 
 					return acc;
-				}, [] as IRoomHeader[][])
-			);
-			setMyRooms(
-				testMy.roomHeaders.reduce((acc, item, index) => {
+				}, [] as IRoomHeader[][]),
+			});
+			setMyRooms({
+				totalRoomCount: 2,
+				rooms: testMy.roomHeaders.reduce((acc, item, index) => {
 					if (index % 2 === 0) acc.push([item]);
 					else acc[acc.length - 1].push(item);
 
 					return acc;
-				}, [] as IRoomHeader[][])
-			);
+				}, [] as IRoomHeader[][]),
+			});
 		} else {
 			const body: IReadRoomRequest = {
 				page: myCurPage,
@@ -174,17 +188,17 @@ const ChatRooms: FC = () => {
 						/>
 					</div>
 				</div>
-				{searchRooms === null ? (
+				{searchRooms.rooms.length === 0 ? (
 					"검색된 채팅방 없음"
 				) : (
 					<>
 						<Rooms
 							isMine={false}
-							rooms={searchRooms[searchCurPage - 1]}
+							rooms={searchRooms.rooms[searchCurPage - 1]}
 						/>
 						{testSearch.totalRoomCount > 2 ? (
 							<Pagenation
-								total={testSearch.totalRoomCount}
+								total={searchRooms.totalRoomCount}
 								curPage={searchCurPage}
 								setCurPage={setSearchCurPage}
 								onPageClick={onSearchPageClick}
@@ -195,17 +209,17 @@ const ChatRooms: FC = () => {
 			</div>
 			<h3>내 채팅방</h3>
 			<div className={roomsWrapper}>
-				{myRooms === null ? (
+				{myRooms.rooms.length === 0 ? (
 					"내 채팅방 없음"
 				) : (
 					<>
 						<Rooms
 							isMine={true}
-							rooms={myRooms[myCurPage - 1]}
+							rooms={myRooms.rooms[myCurPage - 1]}
 						/>
 						{testMy.totalRoomCount > 2 ? (
 							<Pagenation
-								total={testMy.totalRoomCount}
+								total={myRooms.totalRoomCount}
 								curPage={myCurPage}
 								setCurPage={setMyCurPage}
 								onPageClick={onMyPageClick}
