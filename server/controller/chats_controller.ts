@@ -1,6 +1,11 @@
 import { Request, Response, NextFunction } from "express";
-import { ICreateRoomRequest, ICreateRoomResponse } from "shared";
-import { addRoom } from "../db/context/chats_context";
+import {
+	ICreateRoomRequest,
+	ICreateRoomResponse,
+	IReadRoomRequest,
+	IReadRoomResponse,
+} from "shared";
+import { addRoom, getRoomsByKeyword } from "../db/context/chats_context";
 
 export const handleRoomCreate = async (
 	req: Request,
@@ -14,6 +19,39 @@ export const handleRoomCreate = async (
 		const createdRoomId = await addRoom(userId, body);
 
 		res.status(200).json({ roomId: createdRoomId } as ICreateRoomResponse);
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const handleRoomsRead = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		const body: IReadRoomRequest = {
+			page: req.body.page > 0 ? req.body.page - 1 : 0,
+			perPage: req.body.perPage,
+			isSearch: req.body.isSearch,
+			keyword: req.body.keyword,
+		};
+
+		let response: IReadRoomResponse = {
+			totalRoomCount: 0,
+			roomHeaders: [],
+		};
+
+		if (body.isSearch) {
+			const result = await getRoomsByKeyword(body);
+
+			response.totalRoomCount = result.totalRoomCount;
+			response.roomHeaders = result.roomHeaders;
+		} else {
+			// 내 채팅방 조회
+		}
+
+		res.status(200).json(response);
 	} catch (err) {
 		next(err);
 	}

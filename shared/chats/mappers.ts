@@ -11,14 +11,36 @@ export const mapDBToIMessage = (userId: number, dbData: any): IMessage => {
 	};
 };
 
-export const mapDBToIRoomHeader = (dbData: any): IRoomHeader => {
+export const mapDBToIRoomHeader = (
+	dbData: any,
+	liveRoomInfo: ILiveRoomInfo
+): IRoomHeader => {
 	return {
-		roomId: dbData.roomId,
-		title: dbData.title,
-		totalMembersCount: dbData.total,
-		isPrivate: dbData.isPrivate,
-		liveRoomInfo: mapDBToLiveRoomInfo(dbData),
+		roomId: dbData.id,
+		title: dbData.name,
+		totalMembersCount: dbData.membersCount,
+		isPrivate: dbData.is_private,
+		liveRoomInfo: liveRoomInfo,
 	};
+};
+
+export const mapDBToIRoomHeaders = (dbDatas: any[]): IRoomHeader[] => {
+	const liveRoomInfo = {
+		lastMessage: {
+			roomId: "",
+			nickname: "",
+			message: "",
+			createdAt: new Date(),
+			isMine: false,
+			isSystem: false,
+		},
+		curNum: 0,
+		newMessages: 0,
+	};
+
+	return dbDatas.map(dbData => {
+		return mapDBToIRoomHeader(dbData, liveRoomInfo);
+	});
 };
 
 export const mapDBToLiveRoomInfo = (dbData: any): ILiveRoomInfo => {
