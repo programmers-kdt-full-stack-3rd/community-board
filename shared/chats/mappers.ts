@@ -2,13 +2,22 @@ import { ILiveRoomInfo, IMessage, IRoomHeader } from "./dto";
 
 export const mapDBToIMessage = (userId: number, dbData: any): IMessage => {
 	return {
-		roomId: dbData.roomId,
+		roomId: dbData.room_id,
 		nickname: dbData.nickname,
 		message: dbData.message,
-		createdAt: dbData.createdAt,
-		isMine: dbData.senderId === userId,
-		isSystem: dbData.senderId === 0,
+		createdAt: dbData.created_at,
+		isMine: dbData.user_id === userId,
+		isSystem: dbData.is_system,
 	};
+};
+
+export const mapDBToIMessages = (
+	userId: number,
+	dbDatas: any[]
+): IMessage[] => {
+	return dbDatas.map(dbData => {
+		return mapDBToIMessage(userId, dbData);
+	});
 };
 
 export const mapDBToIRoomHeader = (
@@ -27,7 +36,7 @@ export const mapDBToIRoomHeader = (
 export const mapDBToIRoomHeaders = (dbDatas: any[]): IRoomHeader[] => {
 	const liveRoomInfo = {
 		lastMessage: {
-			roomId: "",
+			roomId: 0,
 			nickname: "",
 			message: "",
 			createdAt: new Date(),

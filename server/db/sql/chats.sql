@@ -7,6 +7,18 @@ CREATE TABLE IF NOT EXISTS rooms (
     updated_at TIMESTAMP ON UPDATE NOW()
 );
 
+/* user_id, room_id에 대한 index 고려하기 */
+CREATE TABLE IF NOT EXISTS messages (
+    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    room_id INT NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    is_system BOOLEAN NOT NULL,
+    FOREIGN KEY (room_id) REFERENCES rooms(id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
 CREATE TABLE IF NOT EXISTS members (
     id INT NOT NULL,
     room_id INT NOT NULL,
@@ -18,16 +30,4 @@ CREATE TABLE IF NOT EXISTS members (
     FOREIGN KEY (room_id) REFERENCES rooms(id),
     FOREIGN KEY (id) REFERENCES users(id),
     FOREIGN KEY (last_message_id) REFERENCES messages(id)
-);
-
-/* user_id, room_id에 대한 index 고려하기 */
-CREATE TABLE IF NOT EXISTS messages (
-    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    user_id INT NOT NULL,
-    room_id INT NOT NULL,
-    content TEXT NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    is_system BOOLEAN NOT NULL,
-    FOREIGN KEY (room_id) REFERENCES rooms(id),
-    FOREIGN KEY (user_id) REFERENCES users(id)
 );
