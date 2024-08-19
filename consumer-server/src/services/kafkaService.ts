@@ -1,5 +1,7 @@
 import { Consumer, EachMessagePayload, Kafka } from "kafkajs";
 
+import { insertMessage } from "./messageService";
+
 /**
  * Kafka Consumer 객체
  */
@@ -44,15 +46,23 @@ const getConsumer = (): Consumer => {
 const processMessage = async ({
 	message: { key, value, timestamp, offset },
 }: EachMessagePayload) => {
-	const roomId = key;
-	const { message, userId } = JSON.parse(value!.toString());
+	// key랑 value가 null이면 error
+	if (key === null || value === null) {
+		throw Error("데이터가 없습니다.");
+	}
 
-	// TEST: 추후에 삭제할 것
-	console.log(
-		`consume message:\nroomId: ${roomId}\nuserId: ${userId}\nmessage: ${message}\ntimestamp: ${timestamp}`
-	);
+	const { roomId, userId } = JSON.parse(key!.toString());
+	const { message, isSystem } = JSON.parse(value!.toString());
 
-	// TODO: DB Access Layer
+	insertMessage({
+		roomId,
+		userId,
+		message,
+		createdAt: new Date(parseInt(timestamp)),
+		isSystem,
+	});
 };
+
+// TODO: 해당 서버 장애 시 카프카에 남아있는 모든 메시지 DB에 저장하는 함수
 
 export { initConsumer, getConsumer, processMessage };
