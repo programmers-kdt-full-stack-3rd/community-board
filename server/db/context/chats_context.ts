@@ -1,18 +1,10 @@
 import { ServerError } from "../../middleware/errors";
-import {
-	FieldPacket,
-	PoolConnection,
-	ResultSetHeader,
-	RowDataPacket,
-} from "mysql2/promise";
+import { PoolConnection } from "mysql2/promise";
 import pool from "../connect";
 import {
 	ICreateRoomRequest,
 	IReadRoomRequest,
-	IReadRoomResponse,
-	mapDBToIMessage,
 	mapDBToIMessages,
-	mapDBToIRoomHeader,
 	mapDBToIRoomHeaders,
 } from "shared";
 
@@ -197,6 +189,45 @@ export const getMessageLogs = async (userId: number, roomId: number) => {
 		const [rows]: any[] = await conn.query(sql, values);
 
 		return mapDBToIMessages(userId, rows);
+	} catch (err) {
+		throw err;
+	} finally {
+		if (conn) conn.release();
+	}
+};
+
+export const addUserToRoom = async (
+	userId: number,
+	roomId: number,
+	content: string
+) => {
+	let conn: PoolConnection | null = null;
+
+	try {
+		let sql = `INSERT INTO members (id, room_id) VALUES (?, ?)`;
+		let values: (string | number | boolean)[] = [userId, roomId];
+		conn = await pool.getConnection();
+		conn.beginTransaction();
+		const [insertMemberRows]: any[] = await conn.query(sql, values);
+
+		if (insertMemberRows.affectedRows === 0) {
+			conn.rollback();
+			throw ServerError.reference("가입 실패");
+		}
+
+		const content = (sql = `
+				INSERT INTO messages (user_id, room_id, content, is_system)
+				VALUES (?,?,?,?)`);
+		values = [userId, roomId, content, true];
+		const [insertSystemMessageRows]: any[] = await conn.query(sql, values);
+
+		if (insertSystemMessageRows.affectedRows === 0) {
+			conn.rollback();
+			throw ServerError.reference("가입 실패");
+		}
+
+		return roomId;
+		// system message 넣기
 	} catch (err) {
 		throw err;
 	} finally {

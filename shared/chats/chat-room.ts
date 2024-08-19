@@ -29,12 +29,14 @@ export interface IReadRoomResponse {
 // 채팅방 가입 --------------------------------------------------
 
 export interface IJoinRoomRequest {
-	roomId: string; // 가입 할 채팅방 번호
+	roomId: number; // 가입 할 채팅방 번호
+	content: string; // socket에서 생성한 가입 축하 인사, 이 대신 nickname 보내도 됨
+	isPrivate: boolean; // 비밀 방 여부
 	password: string; // 방 비밀번호 (null 허용)
 }
 
 export interface IJoinRoomResponse {
-	roomId: string; // 가입 된 채팅방 번호
+	roomId: number; // 가입 된 채팅방 번호
 }
 
 // 가입 성공 시, 채팅방의 사람들이 받는 socket event response
