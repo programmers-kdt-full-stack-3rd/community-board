@@ -3,7 +3,7 @@ import { IMessage } from "./dto";
 // 채팅방의 이전 메세지 기록 조회 ------------------------------------
 
 export interface IGetRoomMessageLogsRequest {
-	roomId: string; // 해당 방 번호
+	roomId: number; // 해당 방 번호
 }
 
 export interface IGetRoomMessageLogsResponse {
