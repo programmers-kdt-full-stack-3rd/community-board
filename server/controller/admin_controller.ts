@@ -15,7 +15,11 @@ import {
 import { mapAdminPostsToResponse } from "../db/mapper/posts_mapper";
 import { getLogs } from "../db/context/logs_context";
 import { mapUserLogsToResponse } from "../db/mapper/logs_mapper";
-import { getIntervalStats, getTotalStats } from "../db/context/stats_context";
+import {
+	getIntervalStats,
+	getTotalStats,
+	getUserStat,
+} from "../db/context/stats_context";
 import { TInterval } from "../db/model/stats";
 import { mapStatsToResponse } from "../db/mapper/stats_mapper";
 import { ServerError } from "../middleware/errors";
@@ -203,6 +207,22 @@ export const handleAdminGetStats = async (
 		const stats = mapStatsToResponse(totalStats, intervalStats);
 
 		res.status(200).json(stats);
+	} catch (err: any) {
+		next(err);
+	}
+};
+
+export const handleAdminGetUserStat = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		const userId = parseInt(req.params.userId);
+
+		const stats = await getUserStat(userId);
+
+		res.status(200).json({ stats });
 	} catch (err: any) {
 		next(err);
 	}

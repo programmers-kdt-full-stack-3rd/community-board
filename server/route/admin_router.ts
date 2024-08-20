@@ -8,6 +8,7 @@ import {
 	handleAdminPublicPost,
 	handleAdminRestorePost,
 	handleAdminGetStats,
+	handleAdminGetUserStat,
 	handleAdminRestoreUser,
 	handleGetUsers,
 } from "../controller/admin_controller";
@@ -48,4 +49,7 @@ router
 router.route("/log/:userId").get(handleAdminGetLogs);
 
 router.route("/stat").get(handleAdminGetStats);
+
+router.route("/stat/:userId").get(handleAdminGetUserStat);
+
 export default router;
