@@ -168,9 +168,10 @@ export const getUserStat = async (userId: number): Promise<IUserStat> => {
 		`;
 
 		const commentSql = `
-			SELECT COUNT(*) AS count
-			FROM comments c
-			WHERE author_id = ? AND isDelete = 0
+		SELECT COUNT(*) AS count
+		FROM comments c
+		JOIN posts p ON c.post_id = p.id
+		WHERE c.author_id = 1 AND c.isDelete = 0 AND p.isDelete = 0
 		`;
 
 		// 유효한 게시물 수와 총 조회수
