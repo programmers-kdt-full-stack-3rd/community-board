@@ -5,13 +5,7 @@ import {
 	restoreUser,
 } from "../db/context/users_context";
 import { mapUsersInfoToResponse } from "../db/mapper/users_mapper";
-import {
-	deletePost,
-	getAdminPosts,
-	privatePost,
-	publicPost,
-	restorePost,
-} from "../db/context/posts_context";
+import { getAdminPosts } from "../db/context/posts_context";
 import { mapAdminPostsToResponse } from "../db/mapper/posts_mapper";
 
 export const handleGetUsers = async (
@@ -80,66 +74,6 @@ export const handleAdminGetPosts = async (
 
 		res.json(mapAdminPostsToResponse(posts));
 	} catch (err) {
-		next(err);
-	}
-};
-
-export const handleAdminDeletePost = async (
-	req: Request,
-	res: Response,
-	next: NextFunction
-) => {
-	try {
-		const postId = parseInt(req.params.postId);
-
-		await deletePost(postId);
-		res.status(200).json({ message: "게시글 삭제 성공" });
-	} catch (err: any) {
-		next(err);
-	}
-};
-
-export const handleAdminRestorePost = async (
-	req: Request,
-	res: Response,
-	next: NextFunction
-) => {
-	try {
-		const postId = parseInt(req.params.postId);
-
-		await restorePost(postId);
-		res.status(200).json({ message: "게시글 복구 성공" });
-	} catch (err: any) {
-		next(err);
-	}
-};
-
-export const handleAdminPublicPost = async (
-	req: Request,
-	res: Response,
-	next: NextFunction
-) => {
-	try {
-		const postId = parseInt(req.params.postId);
-
-		await publicPost(postId);
-		res.status(200).json({ message: "게시글 공개 성공" });
-	} catch (err: any) {
-		next(err);
-	}
-};
-
-export const handleAdminPrivatePost = async (
-	req: Request,
-	res: Response,
-	next: NextFunction
-) => {
-	try {
-		const postId = parseInt(req.params.postId);
-
-		await privatePost(postId);
-		res.status(200).json({ message: "게시글 비공개 성공" });
-	} catch (err: any) {
 		next(err);
 	}
 };
