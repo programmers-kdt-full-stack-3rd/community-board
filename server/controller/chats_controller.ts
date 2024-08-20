@@ -4,12 +4,15 @@ import {
 	ICreateRoomResponse,
 	IGetRoomMessageLogsRequest,
 	IGetRoomMessageLogsResponse,
+	IJoinRoomRequest,
+	IJoinRoomResponse,
 	IReadRoomRequest,
 	IReadRoomResponse,
 } from "shared";
 import {
 	addRoom,
 	getAllRoomMembers,
+	addUserToRoom,
 	getMessageLogs,
 	getRoomsByKeyword,
 	getRoomsByUserId,
@@ -87,6 +90,32 @@ export const handleMessageLogsRead = async (
 		const result = await getMessageLogs(userId, body.roomId);
 		const response: IGetRoomMessageLogsResponse = {
 			messageLogs: result,
+		};
+
+		res.status(200).json(response);
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const handleRoomJoin = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		const body: IJoinRoomRequest = {
+			roomId: parseInt(req.body.roomId),
+			content: req.body.content,
+			isPrivate: req.body.isPrivate === "true",
+			password: req.body.password || "",
+		};
+		const userId = req.userId;
+
+		const result = await addUserToRoom(userId, body.roomId, body.content);
+
+		const response: IJoinRoomResponse = {
+			roomId: result,
 		};
 
 		res.status(200).json(response);
