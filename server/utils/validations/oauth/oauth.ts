@@ -10,7 +10,7 @@ export const getOAuthLoginUrlValidator = () => [
 	validate,
 ];
 
-export const postOAuthLoginValidation = [
+export const postOAuthLoginValidatior = () => [
 	body("provider")
 		.isIn(oAuthProviders)
 		.withMessage(ERROR_MESSAGES.INVALID_OAUTH_PROVIDER),

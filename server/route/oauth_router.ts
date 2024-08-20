@@ -3,10 +3,12 @@ import {
 	handleOAuthLoginUrlRead,
 	handleOAuthLogin,
 	handleOAuthReconfirmUrlRead,
+	handleOAuthReconfirm,
 } from "../controller/oauth_controller";
+import { requireLogin } from "../middleware/auth";
 import {
 	getOAuthLoginUrlValidator,
-	postOAuthLoginValidation,
+	postOAuthLoginValidatior,
 } from "../utils/validations/oauth/oauth";
 
 const router = express.Router();
@@ -17,12 +19,18 @@ router.get(
 	getOAuthLoginUrlValidator(),
 	handleOAuthLoginUrlRead
 );
-router.post("/login", postOAuthLoginValidation, handleOAuthLogin);
+router.post("/login", postOAuthLoginValidatior(), handleOAuthLogin);
 
 router.get(
 	"/reconfirm-url/:provider",
 	getOAuthLoginUrlValidator(),
 	handleOAuthReconfirmUrlRead
+);
+router.post(
+	"/reconfirm",
+	requireLogin,
+	postOAuthLoginValidatior(),
+	handleOAuthReconfirm
 );
 
 export default router;
