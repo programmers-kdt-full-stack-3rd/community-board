@@ -27,3 +27,7 @@ export const deletePostValidation = [postIdValidator(), validate];
 export const restorePostValidation = [postIdValidator(), validate];
 export const publicPostValidation = [postIdValidator(), validate];
 export const privatePostValidation = [postIdValidator(), validate];
+
+export const getUserLogsValidation = [userIdValidator(), validate];
+
+export const getUserStatValidation = [userIdValidator(), validate];

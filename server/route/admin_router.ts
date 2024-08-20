@@ -15,6 +15,8 @@ import {
 import {
 	deletePostValidation,
 	deleteUserValidation,
+	getUserLogsValidation,
+	getUserStatValidation,
 	privatePostValidation,
 	publicPostValidation,
 	restorePostValidation,
@@ -46,10 +48,12 @@ router
 	.route("/post/:postId/private")
 	.patch(privatePostValidation, handleAdminPrivatePost);
 
-router.route("/log/:userId").get(handleAdminGetLogs);
+router.route("/log/:userId").get(getUserLogsValidation, handleAdminGetLogs);
 
 router.route("/stat").get(handleAdminGetStats);
 
-router.route("/stat/:userId").get(handleAdminGetUserStat);
+router
+	.route("/stat/:userId")
+	.get(getUserStatValidation, handleAdminGetUserStat);
 
 export default router;
