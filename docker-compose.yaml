@@ -4,21 +4,21 @@ services:
         container_name: kafka-kraft-1
         hostname: kafka-kraft-1
         ports:
-            - ${KAFKA_1_PORT:-9092}:9092
+            - ${KAFKA_PORT_1:-9092}:9092
         restart: unless-stopped
         volumes:
-            - ${LOGS_PATH:-.}/logs/kafka/kafka-kraft-1:/var/lib/kafka/data
+            - ${KAFKA_DATA_PATH:-./datas}/kafka/kafka-kraft-1:/var/lib/kafka/data
         environment:
             KAFKA_NODE_ID: 1
             KAFKA_PROCESS_ROLES: broker,controller
             KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
-            KAFKA_LISTENERS: INTERNAL://kafka-kraft-1:29092,CONTROLLER://kafka-kraft-1:29093,EXTERNAL://0.0.0.0:${KAFKA_1_PORT:-9092}
-            KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-kraft-1:29092,EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:${KAFKA_1_PORT:-9092}
+            KAFKA_LISTENERS: INTERNAL://kafka-kraft-1:29092,CONTROLLER://kafka-kraft-1:29093,EXTERNAL://0.0.0.0:${KAFKA_PORT_1:-9092}
+            KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-kraft-1:29092,EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:${KAFKA_PORT_1:-9092}
             KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-kraft-1:29093,2@kafka-kraft-2:29093,3@kafka-kraft-3:29093
             KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
             KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
             KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-            KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
+            KAFKA_AUTO_CREATE_TOPICS_ENABLE: false
             CLUSTER_ID: ${KAFKA_CLUSTER_ID:-q1Sh-9_ISia_zwGINzRvyQ}
 
     kafka-kraft-2:
@@ -26,21 +26,21 @@ services:
         container_name: kafka-kraft-2
         hostname: kafka-kraft-2
         ports:
-            - ${KAFKA_2_PORT:-9093}:9093
+            - ${KAFKA_PORT_2:-9093}:9093
         restart: unless-stopped
         volumes:
-            - ${LOGS_PATH:-.}/logs/kafka/kafka-kraft-2:/var/lib/kafka/data
+            - ${KAFKA_DATA_PATH:-./datas}/kafka/kafka-kraft-2:/var/lib/kafka/data
         environment:
             KAFKA_NODE_ID: 2
             KAFKA_PROCESS_ROLES: broker,controller
             KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
-            KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-kraft-2:29092,EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:${KAFKA_2_PORT:-9093}
-            KAFKA_LISTENERS: INTERNAL://kafka-kraft-2:29092,CONTROLLER://kafka-kraft-2:29093,EXTERNAL://0.0.0.0:${KAFKA_2_PORT:-9093}
+            KAFKA_LISTENERS: INTERNAL://kafka-kraft-2:29092,CONTROLLER://kafka-kraft-2:29093,EXTERNAL://0.0.0.0:${KAFKA_PORT_2:-9093}
+            KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-kraft-2:29092,EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:${KAFKA_PORT_2:-9093}
             KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-kraft-1:29093,2@kafka-kraft-2:29093,3@kafka-kraft-3:29093
             KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
             KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
             KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-            KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
+            KAFKA_AUTO_CREATE_TOPICS_ENABLE: false
             CLUSTER_ID: ${KAFKA_CLUSTER_ID:-q1Sh-9_ISia_zwGINzRvyQ}
 
     kafka-kraft-3:
@@ -48,21 +48,21 @@ services:
         container_name: kafka-kraft-3
         hostname: kafka-kraft-3
         ports:
-            - ${KAFKA_3_PORT:-9094}:9094
+            - ${KAFKA_PORT_3:-9094}:9094
         restart: unless-stopped
         volumes:
-            - ${LOGS_PATH:-.}/logs/kafka/kafka-kraft-3:/var/lib/kafka/data
+            - ${KAFKA_DATA_PATH:-./datas}/kafka/kafka-kraft-3:/var/lib/kafka/data
         environment:
             KAFKA_NODE_ID: 3
             KAFKA_PROCESS_ROLES: broker,controller
             KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
-            KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-kraft-3:29092,EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:${KAFKA_3_PORT:-9094}
-            KAFKA_LISTENERS: INTERNAL://kafka-kraft-3:29092,CONTROLLER://kafka-kraft-3:29093,EXTERNAL://0.0.0.0:${KAFKA_3_PORT:-9094}
+            KAFKA_LISTENERS: INTERNAL://kafka-kraft-3:29092,CONTROLLER://kafka-kraft-3:29093,EXTERNAL://0.0.0.0:${KAFKA_PORT_3:-9094}
+            KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-kraft-3:29092,EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:${KAFKA_PORT_3:-9094}
             KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-kraft-1:29093,2@kafka-kraft-2:29093,3@kafka-kraft-3:29093
             KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
             KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
             KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-            KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
+            KAFKA_AUTO_CREATE_TOPICS_ENABLE: false
             CLUSTER_ID: ${KAFKA_CLUSTER_ID:-q1Sh-9_ISia_zwGINzRvyQ}
 
     kafka-ui:
