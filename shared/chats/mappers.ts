@@ -1,4 +1,4 @@
-import { ILiveRoomInfo, IMessage, IRoomHeader } from "./dto";
+import { ILiveRoomInfo, IMessage, IRoomHeader, IRoomMembers } from "./dto";
 
 export const mapDBToIMessage = (userId: number, dbData: any): IMessage => {
 	return {
@@ -58,4 +58,18 @@ export const mapDBToLiveRoomInfo = (dbData: any): ILiveRoomInfo => {
 		curNum: dbData.curNum,
 		newMessages: dbData.newMessages,
 	};
+};
+
+export const mapDBToIRoomMembers = (dbDatas: any[]) => {
+	const roomMembers: IRoomMembers = {};
+
+	dbDatas.forEach((dbData: any) => {
+		if (roomMembers[dbData.room_id]) {
+			roomMembers[dbData.room_id].push(dbData.id);
+		} else {
+			roomMembers[dbData.room_id] = [dbData.id];
+		}
+	});
+
+	return roomMembers;
 };
