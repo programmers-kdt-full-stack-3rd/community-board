@@ -19,24 +19,15 @@ const addRoom = async (
 
 	// 메시지
 	for (const message of messages) {
-		await addMessage(client, roomId, message);
+		await client.lPush(`room:${roomId}:messages`, JSON.stringify(message));
 	}
 
 	// 접속
 	for (const [userId, socketSet] of members) {
 		for (const socketId of socketSet) {
-			addConnect(client, roomId, userId, socketId);
+			await addConnect(client, roomId, userId, socketId);
 		}
 	}
-};
-
-// 메시지
-const addMessage = async (
-	client: RedisClientType,
-	roomId: number,
-	message: IRedisMessageDTO
-) => {
-	await client.lPush(`room:${roomId}:messages`, JSON.stringify(message));
 };
 
 // 접속
@@ -60,7 +51,8 @@ const getRoom = async (client: RedisClientType, roomId: number) => {
 	if (Object.keys(roomInfo).length === 0) return null; // miss
 
 	// 메시지
-	const messages = await getMessages(client, roomId);
+	const msgData = await client.lRange(`room:${roomId}:messages`, 0, -1);
+	const messages = msgData.map(msg => JSON.parse(msg) as IRedisMessageDTO);
 
 	// 참여자 및 접속자 수
 	const { memberNum, connectNum } = await getMemberAndConnectNum(
@@ -77,15 +69,6 @@ const getRoom = async (client: RedisClientType, roomId: number) => {
 		memberNum,
 		connectNum,
 	};
-};
-
-// 특정 채팅방 메시지
-const getMessages = async (
-	client: RedisClientType,
-	roomId: number
-): Promise<IRedisMessageDTO[]> => {
-	const messagesData = await client.lRange(`room:${roomId}:messages`, 0, -1);
-	return messagesData.map(msg => JSON.parse(msg) as IRedisMessageDTO);
 };
 
 // 참여자 및 접속자 수
@@ -130,11 +113,9 @@ const deleteConnect = async (
 
 export {
 	addConnect,
-	addMessage,
 	addRoom,
 	deleteConnect,
 	deleteMember,
 	getMemberAndConnectNum,
-	getMessages,
 	getRoom,
 };
