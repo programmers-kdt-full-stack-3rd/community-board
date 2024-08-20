@@ -9,6 +9,7 @@ import {
 } from "shared";
 import {
 	addRoom,
+	getAllRoomMembers,
 	getMessageLogs,
 	getRoomsByKeyword,
 	getRoomsByUserId,
@@ -89,6 +90,19 @@ export const handleMessageLogsRead = async (
 		};
 
 		res.status(200).json(response);
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const handleALLRoomMembersRead = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		const result = await getAllRoomMembers();
+		res.status(200).json(result);
 	} catch (err) {
 		next(err);
 	}
