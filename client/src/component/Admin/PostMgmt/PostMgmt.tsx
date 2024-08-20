@@ -3,6 +3,8 @@ import { IUserPost } from 'shared';
 import { AdminPostListStyle, AdminPostListDetail, AdminPostTiTle, SearchPost, SearchPostInput } from './PostMgmt.css';
 import Pagination from '../../common/Pagination/Pagination';
 import PostItem from './PostMgmtItem';
+import { HttpMethod, httpRequest } from '../../../api/api';
+import { ClientError } from '../../../api/errors';
 
 interface IPostListProps {
     initialPage?: number;
@@ -19,15 +21,21 @@ const PostList = ({ initialPage = 1, itemsPerPage = 5 }: IPostListProps) => {
     const [keyword, setKeyword] = useState<string>("");
 
     const fetchPostsData = async (currentPage: number, itemsPerPage: number, keyword: string) => {
-        const url = `/api/admin/post?index=${currentPage}&perPage=${itemsPerPage}${keyword ? `&keyword=${encodeURIComponent(keyword)}` : ''}`;
-        const response = await fetch(url);
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error(`Fetch error: ${response.status} : ${response.statusText}`, errorText);
-            throw new Error(`Error: ${response.statusText}`);
+        const url = `admin/post?index=${currentPage}&perPage=${itemsPerPage}${keyword ? `&keyword=${encodeURIComponent(keyword)}` : ''}`;
+        try {
+            const response = await httpRequest(url, HttpMethod.GET);
+            return response;
+        } catch (err) {
+            if (err instanceof ClientError) {
+                console.error(`ClientError : ${err.code} : ${err.message}`, err);
+                throw new Error(`Error: ${err.message}`);
+            } else {
+                console.error("Error : ", err);
+                throw new Error("Error");
+            }
         }
-        return await response.json();
     };
+
 
     const fetchPosts = async () => {
         setLoading(true);
