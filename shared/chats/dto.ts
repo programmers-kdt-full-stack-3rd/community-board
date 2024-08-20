@@ -28,3 +28,9 @@ export interface IKafkaMessageDTO {
 	createdAt: Date; // 생성 시간
 	isSystem: boolean; // 시스템 메시지 유무
 }
+
+export interface IRoomMembers {
+	// key = roomId
+	// value = room member의 id list
+	[key: number]: number[];
+}

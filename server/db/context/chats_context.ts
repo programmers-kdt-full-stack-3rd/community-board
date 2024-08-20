@@ -6,6 +6,7 @@ import {
 	IReadRoomRequest,
 	mapDBToIMessages,
 	mapDBToIRoomHeaders,
+	mapDBToIRoomMembers,
 } from "shared";
 
 export const addRoom = async (userId: number, body: ICreateRoomRequest) => {
@@ -234,3 +235,29 @@ export const addUserToRoom = async (
 		if (conn) conn.release();
 	}
 };
+    
+export const getAllRoomMembers = async () => {
+	let conn: PoolConnection | null = null;
+	try {
+		conn = await pool.getConnection();
+
+		// members 모두 select
+		// 이 데이터를 room_id : user_id[] 형태로 바꿈
+		let sql = `
+			SELECT
+				id,
+				room_id
+			FROM
+				members
+		`;
+		const [rows]: any[] = await conn.query(sql);
+
+		return mapDBToIRoomMembers(rows);
+	} catch (err) {
+		console.error(err);
+		throw err;
+	} finally {
+		if (conn) conn.release();
+	}
+};
+
