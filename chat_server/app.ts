@@ -11,7 +11,7 @@ const httpServer = createServer(app);
 // socket.io 서버 설정
 const io = new Server(httpServer, {
 	cors: {
-		origin: "*",
+		origin: process.env.API_SERVER_ADDRESS || "http://localhost:8000",
 		credentials: true,
 	},
 });
