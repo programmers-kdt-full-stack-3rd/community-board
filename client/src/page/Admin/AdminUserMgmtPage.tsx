@@ -1,5 +1,6 @@
 import { useNavigate } from "../../../../node_modules/react-router-dom/dist/index";
 import { AdminSidebar } from "../../component/Admin/AdminSidebar";
+import UserList from "../../component/Admin/UserMgmt/UserList";
 import { Container } from "./AdminUserMgmtPage.css";
 
 export const AdminUserMgmtPage = () => {
@@ -11,7 +12,8 @@ export const AdminUserMgmtPage = () => {
                 <AdminSidebar navigate={navigate} />
             </div>
 
-            <div>유저 관리</div>
+            <h3>사용자 관리 페이지</h3>
+            <UserList />
         </div>
     )
 }
