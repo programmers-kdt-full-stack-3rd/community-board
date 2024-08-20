@@ -21,10 +21,29 @@ export interface ILiveRoomInfo {
 	newMessages: number; // 새로운 채팅 수
 }
 
+/////////////////kafka & redis//////////////////
+
 export interface IKafkaMessageDTO {
 	roomId: number; // 방 번호
-	userId: number; // 사용자 아이디(system: 0)
+	userId: number; // 사용자 아이디 ( system 메시지 일 경우 시스템 메시지를 만든 userId )
 	message: string; // 채팅 내용
 	createdAt: Date; // 생성 시간
 	isSystem: boolean; // 시스템 메시지 유무
+}
+
+export interface IRedisMessageDTO {
+	userId: number;
+	isSystem: boolean;
+	message: string;
+	nickname: string;
+	createdAt: Date;
+}
+
+export interface IRedisRoomDTO {
+	roomId: number;
+	name: string;
+	isPrivate: boolean;
+	password?: string;
+	messages: IRedisMessageDTO[];
+	members: Map<number, Set<string>>; // key: userId, value: Set { socket.id }
 }
