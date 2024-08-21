@@ -4,6 +4,7 @@ import {
 	handleMessageLogsRead,
 	handleRoomCreate,
 	handleRoomJoin,
+	handleRoomLeave,
 	handleRoomsRead,
 } from "../controller/chats_controller";
 
@@ -15,5 +16,6 @@ router.get("/room/:room_id", handleMessageLogsRead);
 router.get("/rooms", handleRoomsRead);
 router.post("/room", handleRoomCreate);
 router.post("/join", handleRoomJoin);
+router.post("/leave", handleRoomLeave);
 
 export default router;

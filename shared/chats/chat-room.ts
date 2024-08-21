@@ -47,10 +47,5 @@ export interface IJoinUserResponse {
 // 채팅방 탈퇴 --------------------------------------------------
 
 export interface ILeaveRoomRequest {
-	roomId: string; // 해당 방 번호
-}
-
-// 탈퇴 성공 시, 채팅방의 사람들이 받는 socket event response
-export interface ILeaveUserResponse {
-	message: IMessage; // 시스템 메세지 - 탈퇴 안내
+	roomId: number; // 해당 방 번호
 }
