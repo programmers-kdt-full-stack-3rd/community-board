@@ -12,6 +12,7 @@ import clsx from "clsx";
 import { useErrorModal } from "./state/errorModalStore";
 import { useLayoutEffect } from "react";
 import ErrorModal from "./component/utils/ErrorModal";
+import OAuthRedirectHandler from "./page/OAuthRedirectHandler";
 
 function MainContainer({ children }: { children: React.ReactNode }) {
 	const location = useLocation();
@@ -68,6 +69,10 @@ function App() {
 						<Route
 							path="/join"
 							element={<Join />}
+						/>
+						<Route
+							path="/oauth/redirect/:provider"
+							element={<OAuthRedirectHandler />}
 						/>
 						<Route
 							path="/checkPassword"

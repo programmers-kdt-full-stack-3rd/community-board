@@ -21,6 +21,7 @@ import { useUserStore } from "../../state/store";
 import { ApiCall } from "../../api/api";
 import { ClientError } from "../../api/errors";
 import { sendPostLoginRequest } from "../../api/users/crud";
+import { getOAuthLoginUrl } from "../../api/users/oauth";
 
 interface ValidationResult {
 	isValid: boolean;
@@ -141,19 +142,43 @@ const Login: React.FC = () => {
 		}
 	};
 
-	const handleGoogleLogin = () => {
-		alert("구글 로그인 구현 예정");
-		navigate("/");
+	const handleGoogleLogin = async () => {
+		try {
+			const url = await getOAuthLoginUrl("google");
+			if (url) {
+				window.location.href = url;
+			}
+		} catch (error) {
+			console.error("Google 로그인 에러", error);
+			alert("Google 로그인 실패");
+			navigate("/");
+		}
 	};
 
-	const handleKakaoLogin = () => {
-		alert("카카오 로그인 구현 예정");
-		navigate("/");
+	const handleKakaoLogin = async () => {
+		try {
+			const url = await getOAuthLoginUrl("kakao");
+			if (url) {
+				window.location.href = url;
+			}
+		} catch (error) {
+			console.error("kakao 로그인 에러", error);
+			alert("kakao 로그인 실패");
+			navigate("/");
+		}
 	};
 
-	const handleNaverLogin = () => {
-		alert("네이버 로그인 구현 예정");
-		navigate("/");
+	const handleNaverLogin = async () => {
+		try {
+			const url = await getOAuthLoginUrl("naver");
+			if (url) {
+				window.location.href = url;
+			}
+		} catch (error) {
+			console.error("naver 로그인 에러", error);
+			alert("naver 로그인 실패");
+			navigate("/");
+		}
 	};
 
 	return (
