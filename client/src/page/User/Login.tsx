@@ -10,7 +10,6 @@ import { REGEX } from "./constants/constants";
 import SubmitButton from "../../component/User/SubmitButton";
 import { ApiCall } from "../../api/api";
 import { ClientError } from "../../api/errors";
-import { io, Socket } from "socket.io-client";
 
 interface ValidationResult {
 	isValid: boolean;
@@ -123,26 +122,6 @@ const Login: FC = () => {
 				const { nickname, loginTime } = result.result;
 
 				setLoginUser(nickname, loginTime);
-
-				// 로그인 성공 시 chat_server에 소켓 연결
-				const socket: Socket = io(
-					`${import.meta.env.VITE_CHAT_ADDRESS}/chat`
-				);
-
-				socket.on("connect", () => {
-					console.log(
-						"Connected to chat server with socket ID:",
-						socket.id
-					);
-				});
-
-				socket.on("disconnect", () => {
-					console.log("Disconnected from chat server");
-				});
-
-				socket.on("update_user_list", userList => {
-					console.log("현재 접속 중인 사용자 목록:", userList);
-				});
 
 				const redirect =
 					new URLSearchParams(location.search).get("redirect") || "/";
