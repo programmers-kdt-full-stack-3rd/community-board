@@ -17,6 +17,10 @@ import ChatRoom from "./component/Chats/ChatRoom/ChatRoom";
 import ChatRooms from "./component/Chats/ChatRooms/ChatRooms";
 import { useUserStore } from "./state/store";
 import { io, Socket } from "socket.io-client";
+import { AdminUserMgmtPage } from "./page/Admin/AdminUserMgmtPage";
+import { AdminPostMgmtPage } from "./page/Admin/AdminPostMgmtPage";
+import { AdminStatsPage } from "./page/Admin/AdminStatsPage";
+
 
 function MainContainer({ children }: { children: React.ReactNode }) {
 	const location = useLocation();
@@ -125,6 +129,18 @@ function App() {
 						<Route
 							path="/room/:room_id"
 							element={<ChatRoom />}
+						/>
+						<Route
+							path="/admin/userMgmt"
+							element={<AdminUserMgmtPage />}
+						/>
+						<Route
+							path="/admin/postMgmt"
+							element={<AdminPostMgmtPage />}
+						/>
+						<Route
+							path="/admin/stats"
+							element={<AdminStatsPage />}
 						/>
 					</Routes>
 				</MainContainer>
