@@ -10,7 +10,7 @@ import CheckPassword from "./page/User/CheckPassword";
 import ProfileUpdate from "./page/User/ProfileUpdate";
 import clsx from "clsx";
 import { useErrorModal } from "./state/errorModalStore";
-import { useEffect, useLayoutEffect } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import ErrorModal from "./component/utils/ErrorModal";
 import ChatTestPage from "./page/Chat/ChatTestPage";
 import ChatRoom from "./component/Chats/ChatRoom/ChatRoom";
@@ -43,35 +43,37 @@ function MainContainer({ children }: { children: React.ReactNode }) {
 }
 
 function App() {
+	const [socket, setSocket] = useState<Socket | null>(null);
 	const errorModal = useErrorModal();
+	const isLogin = useUserStore(state => state.isLogin);
 
 	useLayoutEffect(() => {
 		errorModal.clear();
 	}, []);
 
-	const isLogin = useUserStore(state => state.isLogin);
-
 	useEffect(() => {
 		if (isLogin) {
 			// 로그인 성공 시 chat_server에 소켓 연결
-			const socket: Socket = io(
+			const socketInstance: Socket = io(
 				`${import.meta.env.VITE_CHAT_ADDRESS}/chat`
 			);
 
-			socket.on("connect", () => {
+			socketInstance.on("connect", () => {
 				console.log(
 					"Connected to chat server with socket ID:",
-					socket.id
+					socketInstance.id
 				);
 			});
 
-			socket.on("disconnect", () => {
+			socketInstance.on("disconnect", () => {
 				console.log("Disconnected from chat server");
 			});
 
-			socket.on("update_user_list", userList => {
+			socketInstance.on("update_user_list", userList => {
 				console.log("현재 접속 중인 사용자 목록:", userList);
 			});
+
+			setSocket(socketInstance);
 		}
 	}, [isLogin]);
 
@@ -85,7 +87,7 @@ function App() {
 						close={errorModal.close}
 					/>
 				)}
-				<Header />
+				<Header socket={socket} />
 				<MainContainer>
 					<Routes>
 						<Route
