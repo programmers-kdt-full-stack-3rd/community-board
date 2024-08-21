@@ -7,3 +7,4 @@ export * from "./chats/chat-room";
 export * from "./chats/message";
 export * from "./chats/dto";
 export * from "./chats/mappers";
+export * from "./admin/users";
