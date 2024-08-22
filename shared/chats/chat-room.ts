@@ -54,3 +54,9 @@ export interface ILeaveRoomRequest {
 export interface ILeaveUserResponse {
 	message: IMessage; // 시스템 메세지 - 탈퇴 안내
 }
+
+// 내가 속한 채팅방 조회 socket event request -------------------
+
+export interface IGetMyRoomRequestEvent {
+	nickname: string;
+}
