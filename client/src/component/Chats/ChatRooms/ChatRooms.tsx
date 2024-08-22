@@ -10,6 +10,8 @@ export interface RoomsInfo {
 	rooms: {
 		[key: number]: IRoomHeader[];
 	};
+	// key : 현재 page
+	// values : 현재 page에서 보여 줄 채팅방 정보
 }
 
 const ChatRooms: FC = () => {
