@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { sendOAuthLoginRequest } from "../api/users/oauth";
+import { useUserStore } from "../state/store";
 
 //사용자 인증 완료 후 리디렉션된 후 처리
 const OAuthRedirectHandler = () => {
@@ -9,21 +10,24 @@ const OAuthRedirectHandler = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
 
+	const { setLoginUser } = useUserStore.use.actions();
+
 	const handleOAuthLogin = async (provider: string, code: string) => {
 		try {
 			const response = await sendOAuthLoginRequest(provider, code);
 
-			if (response.ok) {
+			if (response.status === 200) {
+				const { nickname, loginTime } = response.result;
+
+				setLoginUser(nickname, loginTime);
 				navigate("/");
 			} else {
 				const error = await response.json();
-				console.log("Server error:", error);
 				setError(error.message || "OAuth 로그인 실패");
 				navigate("/login");
 			}
 		} catch (error) {
-			console.error("OAuth 로그인 실패..", error);
-			setError("OAuth 로그인에 실패..");
+			setError("OAuth 로그인에 실패");
 			navigate("/login");
 		} finally {
 			setLoading(false);
