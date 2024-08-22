@@ -5,6 +5,7 @@ import commentRouter from "./comments_router";
 import likeRouter from "./likes_router";
 import chatRouter from "./chats_router";
 import adminRouter from "./admin_router";
+import oauthRouter from "./oauth_router";
 
 const router = express.Router();
 router.use(express.json());
@@ -16,5 +17,6 @@ router.use("/user", userRouter);
 router.use("/like", likeRouter);
 router.use("/chat", chatRouter);
 router.use("/admin", adminRouter);
+router.use("/oauth", oauthRouter);
 
 export default router;
