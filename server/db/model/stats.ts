@@ -23,6 +23,8 @@ export interface IStats {
 	users: number;
 }
 
+export interface IUserStat extends Omit<IStats, "users"> {}
+
 export interface IStatsInterval {
 	posts: IPostResultInterval[];
 	comments: IStatResultInterval[];

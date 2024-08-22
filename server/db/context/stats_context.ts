@@ -9,6 +9,7 @@ import {
 	IStats,
 	IStatsInterval,
 	IStatsIntervalInput,
+	IUserStat,
 } from "../model/stats";
 
 export const getTotalStats = async (): Promise<IStats> => {
@@ -147,6 +148,46 @@ export const getIntervalStats = async ({
 			posts: postResults,
 			comments: commentResults,
 			users: userResults,
+		};
+	} catch (err: any) {
+		throw err;
+	} finally {
+		if (conn) conn.release();
+	}
+};
+
+export const getUserStat = async (userId: number): Promise<IUserStat> => {
+	let conn: PoolConnection | null = null;
+	try {
+		conn = await pool.getConnection();
+
+		const postSql = `
+			SELECT COUNT(*) AS count, COALESCE(SUM(views), 0) AS views
+			FROM posts
+			WHERE author_id = ? AND isDelete = 0
+		`;
+
+		const commentSql = `
+		SELECT COUNT(*) AS count
+		FROM comments c
+		JOIN posts p ON c.post_id = p.id
+		WHERE c.author_id = 1 AND c.isDelete = 0 AND p.isDelete = 0
+		`;
+
+		// 유효한 게시물 수와 총 조회수
+		const [postResults]: [IPostResult[], FieldPacket[]] = await conn.query(
+			postSql,
+			[userId]
+		);
+
+		// 유효한 댓글 수
+		const [commentResults]: [IStatResult[], FieldPacket[]] =
+			await conn.query(commentSql, [userId]);
+
+		return {
+			posts: postResults[0].count,
+			views: postResults[0].views || 0,
+			comments: commentResults[0].count,
 		};
 	} catch (err: any) {
 		throw err;
