@@ -1,5 +1,4 @@
 import { useLayoutEffect, useState } from "react";
-import { RoomsInfo } from "./ChatRooms";
 import { IReadRoomRequest, IReadRoomResponse } from "shared";
 import { ClientError } from "../../../api/errors";
 import { ApiCall } from "../../../api/api";
@@ -10,15 +9,13 @@ import Rooms from "./Rooms/Rooms";
 import Pagenation from "./Pagenation/Pagenation";
 import { isDevMode } from "../../../utils/detectMode";
 import { testMy } from "./test-case";
+import { useChatRoom } from "../../../state/ChatRoomStore";
 
 const MyChatRooms = () => {
 	const [isRendered, setIsRendered] = useState(false);
 	const [currentPage, setCurrentPage] = useState<number>(1);
-	const [myRooms, setMyRooms] = useState<RoomsInfo>({
-		totalRoomCount: 0,
-		rooms: {},
-	});
 	const errorModal = useErrorModal();
+	const roomState = useChatRoom();
 
 	const GetRooms = async (body: IReadRoomRequest) => {
 		const queryString = `?page=${body.page}&perPage=${body.perPage}&isSearch=${body.isSearch}&keyword=${body.keyword}`;
@@ -35,13 +32,8 @@ const MyChatRooms = () => {
 			return;
 		}
 
-		setMyRooms({
-			totalRoomCount: res.totalRoomCount,
-			rooms: {
-				...myRooms.rooms,
-				[currentPage]: res.roomHeaders,
-			},
-		});
+		roomState.setMyRoomInfo(res.totalRoomCount, body.page, res.roomHeaders);
+
 		setIsRendered(true);
 	};
 
@@ -54,22 +46,9 @@ const MyChatRooms = () => {
 	};
 
 	useLayoutEffect(() => {
-		console.log(currentPage);
-		console.log(myRooms.rooms);
 		if (isDevMode()) {
-			setMyRooms({
-				totalRoomCount: 2,
-				rooms: {
-					...myRooms.rooms,
-					[currentPage]: testMy.roomHeaders,
-				},
-			});
+			roomState.setMyRoomInfo(2, 1, testMy.roomHeaders);
 		} else if (!isRendered) {
-			if (myRooms.rooms[currentPage]) {
-				setIsRendered(true);
-				return;
-			}
-
 			const body: IReadRoomRequest = {
 				page: currentPage,
 				perPage: 2,
@@ -92,19 +71,20 @@ const MyChatRooms = () => {
 			>
 				{isRendered && (
 					<div className={roomsWrapper}>
-						{Object.keys(myRooms.rooms).length === 0 ? (
+						{Object.keys(roomState.myRoomInfo.rooms).length ===
+						0 ? (
 							"내 채팅방 없음"
 						) : (
 							<Rooms
 								isMine={true}
-								rooms={myRooms.rooms[currentPage]}
+								rooms={roomState.myRoomInfo.rooms[currentPage]}
 							/>
 						)}
 					</div>
 				)}
-				{myRooms.totalRoomCount > 2 ? (
+				{roomState.myRoomInfo.totalRoomCount > 2 ? (
 					<Pagenation
-						total={myRooms.totalRoomCount}
+						total={roomState.myRoomInfo.totalRoomCount}
 						curPage={currentPage}
 						setCurPage={setCurrentPage}
 						onPageClick={onMyPageClick}
