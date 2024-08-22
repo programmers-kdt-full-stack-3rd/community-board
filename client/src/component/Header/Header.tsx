@@ -5,10 +5,10 @@ import {
 	FiUserPlus,
 	FiChevronDown,
 } from "react-icons/fi";
+import { FaComments } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { sendPostLogoutRequest } from "../../api/users/crud";
 import { useUserStore } from "../../state/store";
-import { RiAliensFill } from "react-icons/ri";
 import {
 	button,
 	header,
@@ -92,8 +92,8 @@ const Header: React.FC<HeaderProps> = ({ socket }) => {
 				to="/"
 				className={siteTitle}
 			>
-				<RiAliensFill />
-				DBDB DEEP
+				<FaComments />
+				<span>CODEPLAY</span>
 			</Link>
 			<div className={userAuthPanel}>
 				<button onClick={() => navigate("/test")}>채팅 개발</button>

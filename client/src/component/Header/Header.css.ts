@@ -13,6 +13,9 @@ export const header = style({
 });
 
 export const siteTitle = style({
+	display: "flex",
+	alignItems: "center",
+	gap: "8px",
 	fontSize: "24px",
 	color: "white",
 	fontWeight: "bold",
@@ -22,7 +25,6 @@ export const siteTitle = style({
 		cursor: "pointer",
 	},
 });
-
 export const userAuthPanel = style({
 	display: "flex",
 	flexDirection: "row",

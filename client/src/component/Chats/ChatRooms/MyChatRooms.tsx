@@ -36,7 +36,10 @@ const MyChatRooms: FC<MyChatRoomsProps> = ({ socket }) => {
 			};
 			GetRooms();
 		}
+
 	}, [socket, currentPage]);
+
+
 
 	const onMyPageClick = (page: number) => {
 		if (page === currentPage) {
@@ -47,16 +50,8 @@ const MyChatRooms: FC<MyChatRoomsProps> = ({ socket }) => {
 	};
 
 	useLayoutEffect(() => {
-		console.log(currentPage);
-		console.log(myRooms.rooms);
 		if (isDevMode()) {
-			setMyRooms({
-				totalRoomCount: 2,
-				rooms: {
-					...myRooms.rooms,
-					[currentPage]: testMy.roomHeaders,
-				},
-			});
+			roomState.setMyRoomInfo(2, 1, testMy.roomHeaders);
 		} else if (!isRendered) {
 			if (myRooms.rooms[currentPage]) {
 				setIsRendered(true);
@@ -77,19 +72,20 @@ const MyChatRooms: FC<MyChatRoomsProps> = ({ socket }) => {
 			>
 				{isRendered && (
 					<div className={roomsWrapper}>
-						{Object.keys(myRooms.rooms).length === 0 ? (
+						{Object.keys(roomState.myRoomInfo.rooms).length ===
+						0 ? (
 							"내 채팅방 없음"
 						) : (
 							<Rooms
 								isMine={true}
-								rooms={myRooms.rooms[currentPage]}
+								rooms={roomState.myRoomInfo.rooms[currentPage]}
 							/>
 						)}
 					</div>
 				)}
-				{myRooms.totalRoomCount > 2 ? (
+				{roomState.myRoomInfo.totalRoomCount > 2 ? (
 					<Pagenation
-						total={myRooms.totalRoomCount}
+						total={roomState.myRoomInfo.totalRoomCount}
 						curPage={currentPage}
 						setCurPage={setCurrentPage}
 						onPageClick={onMyPageClick}

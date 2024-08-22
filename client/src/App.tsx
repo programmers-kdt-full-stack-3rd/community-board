@@ -12,6 +12,7 @@ import clsx from "clsx";
 import { useErrorModal } from "./state/errorModalStore";
 import { useEffect, useLayoutEffect, useState } from "react";
 import ErrorModal from "./component/utils/ErrorModal";
+import OAuthRedirectHandler from "./page/OAuthRedirectHandler";
 import ChatTestPage from "./page/Chat/ChatTestPage";
 import ChatRoom from "./component/Chats/ChatRoom/ChatRoom";
 import ChatRooms from "./component/Chats/ChatRooms/ChatRooms";
@@ -104,6 +105,10 @@ function App() {
 						<Route
 							path="/join"
 							element={<Join />}
+						/>
+						<Route
+							path="/oauth/redirect/:provider"
+							element={<OAuthRedirectHandler />}
 						/>
 						<Route
 							path="/checkPassword"

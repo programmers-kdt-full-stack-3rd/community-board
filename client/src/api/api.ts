@@ -22,9 +22,11 @@ export const httpRequest = async (
 	method: HttpMethod,
 	body?: string
 ) => {
-	const requestAddress = `${
+	let requestAddress = `${
 		import.meta.env.VITE_SERVER_ADDRESS
 	}/api/${address}`;
+
+	requestAddress = requestAddress.replace(/([^:]\/)\/+/g, "$1");
 
 	const response = await fetch(requestAddress, {
 		method: method,

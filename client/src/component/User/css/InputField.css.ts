@@ -10,7 +10,7 @@ export const inputBox = style({
 
 export const label = style({
 	width: "100%",
-	fontSize: "20px",
+	fontSize: "15px",
 	fontWeight: "bold",
 });
 
@@ -18,7 +18,7 @@ export const input = style({
 	width: "100%",
 	height: "40px",
 	padding: "0px",
-	fontSize: "20px",
+	fontSize: "14px",
 	border: "1px solid #ccc",
 	borderRadius: "4px",
 });
