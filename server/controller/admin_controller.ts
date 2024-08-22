@@ -13,6 +13,16 @@ import {
 	restorePost,
 } from "../db/context/posts_context";
 import { mapAdminPostsToResponse } from "../db/mapper/posts_mapper";
+import { getLogs } from "../db/context/logs_context";
+import { mapUserLogsToResponse } from "../db/mapper/logs_mapper";
+import {
+	getIntervalStats,
+	getTotalStats,
+	getUserStat,
+} from "../db/context/stats_context";
+import { TInterval } from "../db/model/stats";
+import { mapStatsToResponse } from "../db/mapper/stats_mapper";
+import { ServerError } from "../middleware/errors";
 
 export const handleGetUsers = async (
 	req: Request,
@@ -139,6 +149,80 @@ export const handleAdminPrivatePost = async (
 
 		await privatePost(postId);
 		res.status(200).json({ message: "게시글 비공개 성공" });
+	} catch (err: any) {
+		next(err);
+	}
+};
+
+export const handleAdminGetLogs = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		const userId = parseInt(req.params.userId);
+		const index = parseInt(req.query.index as string) - 1 || 0;
+		const perPage = parseInt(req.query.perPage as string) || 10;
+
+		const logs = await getLogs({ userId, index, perPage });
+
+		res.json(mapUserLogsToResponse(logs));
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const handleAdminGetStats = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		const startDate = req.query.startDate as string;
+		const endDate = req.query.endDate as string;
+		const interval = (req.query.interval as TInterval) || "daily";
+
+		const isDate = (date: string) => {
+			if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+				return false;
+			}
+			return !isNaN(new Date(date).getTime());
+		};
+
+		if (startDate && !isDate(startDate)) {
+			throw ServerError.badRequest("startDate가 잘못되었습니다.");
+		}
+
+		if (endDate && !isDate(endDate)) {
+			throw ServerError.badRequest("endDate가 잘못되었습니다.");
+		}
+
+		const totalStats = await getTotalStats();
+		const intervalStats = await getIntervalStats({
+			startDate,
+			endDate,
+			interval,
+		});
+
+		const stats = mapStatsToResponse(totalStats, intervalStats);
+
+		res.status(200).json(stats);
+	} catch (err: any) {
+		next(err);
+	}
+};
+
+export const handleAdminGetUserStat = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		const userId = parseInt(req.params.userId);
+
+		const stats = await getUserStat(userId);
+
+		res.status(200).json({ stats });
 	} catch (err: any) {
 		next(err);
 	}

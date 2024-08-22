@@ -123,9 +123,10 @@ export const readComments = async (
 	}
 };
 
-export const createComment = async (commentInsertion: ICommentInsertion) => {
-	let conn: PoolConnection | null = null;
-
+export const createComment = async (
+	commentInsertion: ICommentInsertion,
+	conn: PoolConnection
+) => {
 	const { post_id, author_id, content } = commentInsertion;
 
 	try {
@@ -136,8 +137,6 @@ export const createComment = async (commentInsertion: ICommentInsertion) => {
         (?, ?, ?)
     `;
 		const values = [post_id, author_id, content];
-
-		conn = await pool.getConnection();
 		const [result]: [ResultSetHeader, FieldPacket[]] = await conn.query(
 			sql,
 			values
@@ -155,8 +154,6 @@ export const createComment = async (commentInsertion: ICommentInsertion) => {
 		}
 
 		throw err;
-	} finally {
-		if (conn) conn.release();
 	}
 };
 
