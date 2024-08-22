@@ -1,13 +1,15 @@
 import { Socket } from "socket.io";
+import { IGetRoomMessageLogsResponse } from "shared";
+
 import {
 	createRoom,
 	getRooms,
 	joinRoom,
 	leaveRoom,
 } from "../services/chatroom_service";
+import { httpRequest } from "../services/api_service";
 
 // 일단 서비스 함수 파라미터 roomName으로 작성
-// TODO : DTO기반 수정
 
 // 채팅방 이벤트
 export const handleRoomEvents = (socket: Socket) => {
@@ -31,5 +33,20 @@ export const handleRoomEvents = (socket: Socket) => {
 		leaveRoom(socket, roomName);
 		socket.leave(roomName);
 		socket.to(roomName).emit("user_left", socket.id);
+	});
+
+	// 채팅방 입장
+	socket.on("enter_room", async (roomId, callback) => {
+		socket.join(`${roomId}`); // TEST : join room
+
+		// TODO : 캐싱 메시지 조회(redis -> http)
+
+		const { messageLogs }: IGetRoomMessageLogsResponse = await httpRequest(
+			`api/chat/room/${roomId}`,
+			"GET",
+			{}
+		);
+
+		callback(messageLogs);
 	});
 };
