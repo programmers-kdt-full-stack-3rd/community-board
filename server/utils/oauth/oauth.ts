@@ -10,12 +10,22 @@ interface INaverUser {
 	response: IOAuthUser;
 }
 
+interface IOAuthTokens {
+	token_type: string;
+	access_token: string;
+	id_token?: string;
+	expires_in: number;
+	refresh_token: string;
+	refresh_token_expires_in?: number;
+	scope?: string;
+}
+
 /**
  * 주어진 provider로의 OAuth 로그인 요청 URL을 생성합니다.
  * @param provider - OAuth provider
  */
 export const buildLoginUrl = (provider: TOAuthProvider) => {
-	const { requestEndpoint, clientId, redirectUri, scope } =
+	const { requestEndpoint, clientId, redirectUri, scope, reconfirmParam } =
 		oAuthProps[provider];
 
 	const loginUrl = new URL(requestEndpoint.login);
@@ -28,8 +38,12 @@ export const buildLoginUrl = (provider: TOAuthProvider) => {
 		loginUrl.searchParams.set("scope", scope);
 	}
 
+	const reconfirmUrl = new URL(loginUrl);
+	reconfirmUrl.searchParams.set(reconfirmParam.key, reconfirmParam.value);
+
 	return {
 		loginUrl: loginUrl.toString(),
+		reconfirmUrl: reconfirmUrl.toString(),
 	};
 };
 
@@ -40,7 +54,7 @@ export const buildLoginUrl = (provider: TOAuthProvider) => {
  * @param code - 사용자가 로그인하여 redirect URI를 통해 받은 authorization code
  * @returns `fetch()`의 두 번째 인수로 넘길 수 있는, access token 요청 옵션
  */
-export const buildTokenFetchOptions = (
+const buildTokenFetchOptions = (
 	provider: TOAuthProvider,
 	code: string
 ): RequestInit => {
@@ -66,6 +80,43 @@ export const buildTokenFetchOptions = (
 	};
 };
 
+const fetchOAuthTokensByAuthCode = async (
+	provider: TOAuthProvider,
+	authorizationCode: string
+) => {
+	const oAuthTokenResponse = await fetch(
+		oAuthProps[provider].requestEndpoint.token,
+		buildTokenFetchOptions(provider, authorizationCode)
+	);
+
+	if (oAuthTokenResponse.status >= 500) {
+		throw ServerError.etcError(
+			500,
+			"소셜 로그인 서비스 제공사 오류로 로그인에 실패했습니다."
+		);
+	} else if (oAuthTokenResponse.status >= 400) {
+		throw ServerError.badRequest(
+			"인가 코드가 유효하지 않아서 소셜 로그인에 실패했습니다."
+		);
+	}
+
+	return (await oAuthTokenResponse.json()) as IOAuthTokens;
+};
+
+const fetchOAuthUserByAccessToken = async (
+	provider: TOAuthProvider,
+	accessToken: string
+) => {
+	const url = oAuthProps[provider].requestEndpoint.user;
+	const headers = {
+		Authorization: `Bearer ${accessToken}`,
+		"Content-type": "application/x-www-form-urlencoded;charset=utf-8",
+	};
+
+	const oAuthUserResponse = await fetch(url, { headers });
+	return await oAuthUserResponse.json();
+};
+
 const isNaverUserResponse = (payload: any): payload is INaverUser => {
 	return "response" in payload && "id" in payload.response;
 };
@@ -80,7 +131,7 @@ const isOAuthUserResponse = (payload: any): payload is IOAuthUser => {
  * @param payload
  * @returns
  */
-export const getOAuthAccountId = (
+const extractOAuthAccountId = (
 	provider: TOAuthProvider,
 	payload: any
 ): string => {
@@ -91,4 +142,21 @@ export const getOAuthAccountId = (
 	}
 
 	throw ServerError.etcError(500, "소셜 로그인 회원번호 조회 실패");
+};
+
+export const verifyAuthorizationCode = async (
+	provider: TOAuthProvider,
+	authorizationCode: string
+) => {
+	const oAuthTokens = await fetchOAuthTokensByAuthCode(
+		provider,
+		authorizationCode
+	);
+
+	const oAuthUser = await fetchOAuthUserByAccessToken(
+		provider,
+		oAuthTokens.access_token
+	);
+
+	return extractOAuthAccountId(provider, oAuthUser);
 };

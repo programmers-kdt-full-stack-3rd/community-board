@@ -2,25 +2,15 @@ import { Request, Response, NextFunction } from "express";
 import { createOAuthConnection } from "../db/context/oauth_context";
 import { addRefreshToken } from "../db/context/token_context";
 import { addOAuthUser, readUserByOAuth } from "../db/context/users_context";
-import { ServerError } from "../middleware/errors";
 import { getKstNow } from "../utils/getKstNow";
-import { oAuthProps, TOAuthProvider } from "../utils/oauth/constants";
+import { ServerError } from "../middleware/errors";
+import { TOAuthProvider } from "../utils/oauth/constants";
+import { buildLoginUrl, verifyAuthorizationCode } from "../utils/oauth/oauth";
 import {
-	buildLoginUrl,
-	buildTokenFetchOptions,
-	getOAuthAccountId,
-} from "../utils/oauth/oauth";
-import { makeAccessToken, makeRefreshToken } from "../utils/token";
-
-interface IOAuthTokens {
-	token_type: string;
-	access_token: string;
-	id_token?: string;
-	expires_in: number;
-	refresh_token: string;
-	refresh_token_expires_in?: number;
-	scope?: string;
-}
+	makeAccessToken,
+	makeRefreshToken,
+	makeTempToken,
+} from "../utils/token";
 
 export const handleOAuthLoginUrlRead = async (
 	req: Request,
@@ -46,40 +36,10 @@ export const handleOAuthLogin = async (
 		const provider = req.body.provider as TOAuthProvider;
 		const authorizationCode = req.body.code as string;
 
-		// Authorization Code로 Access Token 요청
-		const oAuthTokenResponse = await fetch(
-			oAuthProps[provider].requestEndpoint.token,
-			buildTokenFetchOptions(provider, authorizationCode)
+		let oAuthAccountId = await verifyAuthorizationCode(
+			provider,
+			authorizationCode
 		);
-
-		if (oAuthTokenResponse.status >= 500) {
-			throw ServerError.etcError(
-				500,
-				"소셜 로그인 서비스 제공사 오류로 로그인에 실패했습니다."
-			);
-		} else if (oAuthTokenResponse.status >= 400) {
-			throw ServerError.badRequest(
-				"인가 코드가 유효하지 않아서 소셜 로그인에 실패했습니다."
-			);
-		}
-
-		const oAuthTokens = (await oAuthTokenResponse.json()) as IOAuthTokens;
-
-		// Access Token으로 회원 정보를 요청
-		const oAuthUserResponse = await fetch(
-			oAuthProps[provider].requestEndpoint.user,
-			{
-				headers: {
-					Authorization: `Bearer ${oAuthTokens.access_token}`,
-					"Content-type":
-						"application/x-www-form-urlencoded;charset=utf-8",
-				},
-			}
-		);
-		const oAuthUser = await oAuthUserResponse.json();
-
-		// 회원번호를 확인하여 유저 조회
-		const oAuthAccountId = getOAuthAccountId(provider, oAuthUser);
 		let user = await readUserByOAuth(provider, oAuthAccountId);
 
 		// TODO: 회원 등록부터 리프레시 토큰 등록까지의 동작에 트랜잭션 적용
@@ -103,7 +63,7 @@ export const handleOAuthLogin = async (
 		}
 
 		if (!user.id || !user.nickname) {
-			throw new Error();
+			throw ServerError.reference("사용자 정보 오류");
 		}
 
 		// 토큰 발급
@@ -133,6 +93,57 @@ export const handleOAuthLogin = async (
 				loginTime: getKstNow(),
 			},
 		});
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const handleOAuthReconfirmUrlRead = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		const provider = req.params.provider as TOAuthProvider;
+		const { reconfirmUrl } = buildLoginUrl(provider);
+
+		res.status(200).json({ url: reconfirmUrl });
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const handleOAuthReconfirm = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		const provider = req.body.provider as TOAuthProvider;
+		const authorizationCode = req.body.code as string;
+
+		let oAuthAccountId = await verifyAuthorizationCode(
+			provider,
+			authorizationCode
+		);
+		let userByOAuth = await readUserByOAuth(provider, oAuthAccountId);
+
+		if (!userByOAuth || userByOAuth.id !== req.userId) {
+			throw ServerError.unauthorized(
+				"로그인한 유저와 연동하지 않은 소셜 계정입니다."
+			);
+		} else if (!userByOAuth.id || !userByOAuth.nickname) {
+			throw ServerError.reference("사용자 정보 오류");
+		} else if (userByOAuth.email) {
+			throw ServerError.badRequest(
+				"이메일, 비밀번호를 등록한 계정은 비밀번호 재확인으로 인증해야 합니다."
+			);
+		}
+
+		const tempToken = makeTempToken(userByOAuth.id);
+		res.cookie("tempToken", tempToken, { maxAge: 1000 * 60 * 60 }); // 유효기간 1시간
+
+		res.status(200).json({ message: "소셜 계정 확인 성공" });
 	} catch (err) {
 		next(err);
 	}

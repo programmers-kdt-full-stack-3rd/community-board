@@ -18,6 +18,11 @@ type TOAuthProps = {
 		token: string;
 		user: string;
 	};
+
+	reconfirmParam: {
+		key: string;
+		value: string;
+	};
 };
 
 const getRedirectUri = (provider: TOAuthProvider) => {
@@ -37,6 +42,11 @@ export const oAuthProps: TOAuthVariable<TOAuthProps> = {
 			token: "https://oauth2.googleapis.com/token",
 			user: "https://www.googleapis.com/oauth2/v2/userinfo",
 		},
+
+		reconfirmParam: {
+			key: "prompt",
+			value: "consent",
+		},
 	},
 
 	kakao: {
@@ -50,6 +60,11 @@ export const oAuthProps: TOAuthVariable<TOAuthProps> = {
 			token: "https://kauth.kakao.com/oauth/token",
 			user: "https://kapi.kakao.com/v2/user/me",
 		},
+
+		reconfirmParam: {
+			key: "prompt",
+			value: "login",
+		},
 	},
 
 	naver: {
@@ -62,6 +77,11 @@ export const oAuthProps: TOAuthVariable<TOAuthProps> = {
 			login: "https://nid.naver.com/oauth2.0/authorize",
 			token: "https://nid.naver.com/oauth2.0/token",
 			user: "https://openapi.naver.com/v1/nid/me",
+		},
+
+		reconfirmParam: {
+			key: "auth_type",
+			value: "reauthenticate",
 		},
 	},
 };
