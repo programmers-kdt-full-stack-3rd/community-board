@@ -6,6 +6,10 @@ import {
 	readComments,
 	updateComment,
 } from "../db/context/comments_context";
+import { addLog } from "../db/context/logs_context";
+import pool from "../db/connect";
+import { PoolConnection } from "mysql2/promise";
+import { makeLogTitle } from "../utils/user-logs-utils";
 
 export const handleCommentsRead = async (
 	req: Request,
@@ -46,16 +50,37 @@ export const handleCommentCreate = async (
 	res: Response,
 	next: NextFunction
 ) => {
+	let conn: PoolConnection | null = null;
 	try {
-		await createComment({
-			post_id: req.body.post_id,
-			author_id: req.userId,
-			content: req.body.content,
-		});
+		conn = await pool.getConnection();
+		await conn.beginTransaction();
 
+		await createComment(
+			{
+				post_id: req.body.post_id,
+				author_id: req.userId,
+				content: req.body.content,
+			},
+			conn
+		);
+
+		const logTitle = makeLogTitle(req.body.content);
+
+		await addLog(
+			{
+				user_id: req.userId,
+				title: logTitle,
+				category_id: 2,
+			},
+			conn
+		);
+		await conn.commit();
 		res.status(201).end();
 	} catch (err) {
+		if (conn) await conn.rollback();
 		next(err);
+	} finally {
+		if (conn) conn.release();
 	}
 };
 

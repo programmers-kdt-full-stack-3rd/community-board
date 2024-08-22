@@ -1,8 +1,11 @@
 CREATE TABLE IF NOT EXISTS users (
     id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    email VARCHAR(50) NOT NULL UNIQUE,
+    email VARCHAR(50) UNIQUE,
     nickname VARCHAR(50) NOT NULL UNIQUE,
     isDelete Boolean NOT NULL DEFAULT FALSE,
-    password TEXT NOT NULL,
-    salt TEXT NOT NULL
+    password TEXT,
+    salt TEXT,
+    role_id INTEGER NOT NULL DEFAULT 2,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    FOREIGN KEY (role_id) REFERENCES roles(id)
 );

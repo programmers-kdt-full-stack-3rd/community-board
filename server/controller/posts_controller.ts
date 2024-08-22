@@ -11,6 +11,11 @@ import { SortBy } from "shared";
 import * as fs from "fs";
 import { changeBadWords, getRegex } from "../utils/bad-word-regex/regexTask";
 import regexs from "../utils/bad-word-regex/regexs.json";
+import { addLog } from "../db/context/logs_context";
+
+import pool from "../db/connect";
+import { PoolConnection } from "mysql2/promise";
+import { makeLogTitle } from "../utils/user-logs-utils";
 
 export interface IReadPostRequest {
 	index: number;
@@ -74,7 +79,11 @@ export const handlePostCreate = async (
 	res: Response,
 	next: NextFunction
 ) => {
+	let conn: PoolConnection | null = null;
 	try {
+		conn = await pool.getConnection();
+		await conn.beginTransaction();
+
 		const reqBody: ICreatePostRequest = {
 			title: req.body.title,
 			content: req.body.content,
@@ -91,11 +100,26 @@ export const handlePostCreate = async (
 		}
 		// 필터링
 
-		const postId = await addPost(reqBody);
+		const postId = await addPost(reqBody, conn);
 
+		const logTitle = makeLogTitle(reqBody.title);
+
+		await addLog(
+			{
+				user_id: req.userId,
+				title: logTitle,
+				category_id: 1,
+			},
+			conn
+		);
+
+		await conn.commit();
 		res.status(200).json({ postId, message: "게시글 생성 success" });
 	} catch (err) {
+		if (conn) await conn.rollback();
 		next(err);
+	} finally {
+		if (conn) conn.release();
 	}
 };
 

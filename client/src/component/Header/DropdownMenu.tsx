@@ -35,6 +35,10 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
 		navigate(`/checkPassword?next=accountDelete`);
 	};
 
+	const handleAdminPageClick = () => {
+		navigate(`/admin/userMgmt`);
+	};
+
 	return (
 		<div
 			ref={ref}
@@ -51,6 +55,13 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
 				className={dropdownMenuItem}
 			>
 				회원 탈퇴
+			</div>
+			{/* 권한 확인 과정 구현 필요*/}
+			<div
+				onClick={handleAdminPageClick}
+				className={dropdownMenuItem}
+			>
+				관리자 페이지
 			</div>
 
 			<UserDeleteModal

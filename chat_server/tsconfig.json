@@ -1,0 +1,14 @@
+{
+	"compilerOptions": {
+		"target": "es6", // 사용할 특정 ECMAScript 버전 설정
+		"module": "commonjs", // 모듈을 위한 코드 생성 설정(컴파일 방식)
+		"outDir": "./dist", // 컴파일되어 생성된 파일이 저장되는 위치를 설정
+		"rootDir": ".", // 프로젝트 루트 디렉토리 설정
+		"strict": true, // 엄격한 type-check 활성화
+		"moduleResolution": "node", // 모듈 해석방법 설정
+		"esModuleInterop": true, // commonjs와 esModule간의 호환성 개선 설정
+		"typeRoots": ["./node_module/@types", "./types/express.d.ts"], // 타입 정의를 포함할 폴더 목록.
+		"jsx": "react", // .tsx 파일 확장자를 갖는 파일의 트랜스파일링 방식 결정
+		"resolveJsonModule": true // json 파일 모듈로 인식하도록 설정
+	}
+}

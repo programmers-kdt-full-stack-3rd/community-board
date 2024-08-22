@@ -1,4 +1,4 @@
-import { PoolConnection } from "mysql2/promise";
+import { FieldPacket, PoolConnection, RowDataPacket } from "mysql2/promise";
 import {
 	ICreatePostRequest,
 	IReadPostRequest,
@@ -8,6 +8,7 @@ import pool from "../connect";
 import { mapDBToPostHeaders, mapDBToPostInfo } from "shared";
 import { ServerError } from "../../middleware/errors";
 import { SortBy } from "shared";
+import { IAdminPostRow } from "../model/posts";
 
 export const getPostHeaders = async (queryString: IReadPostRequest) => {
 	let conn: PoolConnection | null = null;
@@ -132,9 +133,60 @@ export const getPostInfo = async (post_id: number, user_id?: number) => {
 	}
 };
 
-export const addPost = async (reqBody: ICreatePostRequest) => {
+export const getAdminPosts = async ({
+	index,
+	perPage,
+	keyword,
+}: IReadPostRequest) => {
 	let conn: PoolConnection | null = null;
 
+	try {
+		let sql = `SELECT COUNT(*) OVER() as total,
+		p.id as id, 
+		p.title,
+		u.nickname as author,
+		p.created_at,
+		p.isDelete,
+		p.is_private
+		FROM posts as p
+		LEFT JOIN users as u
+		ON p.author_id = u.id
+		`;
+		const value = [];
+
+		if (keyword) {
+			sql += ` WHERE p.title LIKE ?`;
+			value.push(`%${keyword}%`);
+		}
+
+		sql += ` ORDER BY p.id ASC`;
+
+		sql += " LIMIT ? OFFSET ?";
+		value.push(perPage, index * perPage);
+
+		conn = await pool.getConnection();
+
+		const [rows]: [IAdminPostRow[], FieldPacket[]] = await conn.query(
+			sql,
+			value
+		);
+
+		if (rows.length === 0) {
+			throw ServerError.notFound("게시글이 존재 하지 않습니다.");
+		}
+
+		return rows;
+	} catch (err) {
+		throw err;
+	} finally {
+		if (conn) conn.release();
+	}
+};
+
+export const addPost = async (
+	reqBody: ICreatePostRequest,
+	conn: PoolConnection
+) => {
 	try {
 		const values: [string, string, number] = [
 			reqBody.title,
@@ -146,8 +198,6 @@ export const addPost = async (reqBody: ICreatePostRequest) => {
                 INSERT INTO posts (title, content, author_id, created_at)
                 VALUES (?, ?, ?, now())
         `;
-
-		conn = await pool.getConnection();
 		const [rows]: any[] = await conn.query(sql, values);
 
 		if (rows.affectedRows === 0) {
@@ -159,8 +209,6 @@ export const addPost = async (reqBody: ICreatePostRequest) => {
 		return rows.insertId;
 	} catch (err) {
 		throw err;
-	} finally {
-		if (conn) conn.release();
 	}
 };
 
@@ -212,13 +260,18 @@ export const updatePost = async (
 	}
 };
 
-export const deletePost = async (post_id: number, user_id: number) => {
+export const deletePost = async (post_id: number, user_id?: number) => {
 	let conn: PoolConnection | null = null;
 
 	try {
-		let values: number[] = [post_id, user_id];
+		let values: number[] = [post_id];
 
-		let sql = `UPDATE posts SET isDelete = true WHERE id = ? and author_id = ?`;
+		let sql = `UPDATE posts SET isDelete = true WHERE id = ? AND isDelete = FALSE`;
+
+		if (user_id) {
+			sql += ` and author_id = ?`;
+			values.push(user_id);
+		}
 
 		conn = await pool.getConnection();
 		const [rows]: any[] = await conn.query(sql, values);
@@ -227,6 +280,75 @@ export const deletePost = async (post_id: number, user_id: number) => {
 			// 1. 게시글 author_id와 수정 요청한 user_id가 다름 -> client에서 막아야 함
 			// 2. 원인모를 이유로 실패함
 			throw ServerError.reference("게시글 삭제 실패");
+		}
+	} catch (err) {
+		throw err;
+	} finally {
+		if (conn) conn.release();
+	}
+};
+
+export const restorePost = async (post_id: number) => {
+	let conn: PoolConnection | null = null;
+
+	try {
+		let values: number[] = [post_id];
+
+		let sql = `UPDATE posts SET isDelete = FALSE WHERE id = ? AND isDelete = TRUE`;
+
+		conn = await pool.getConnection();
+		const [rows]: any[] = await conn.query(sql, values);
+
+		if (rows.affectedRows === 0) {
+			// 1. 이미 복구된 게시글
+			// 2. 원인모를 이유로 실패함
+			throw ServerError.reference("게시글 복구 실패");
+		}
+	} catch (err) {
+		throw err;
+	} finally {
+		if (conn) conn.release();
+	}
+};
+
+export const publicPost = async (post_id: number) => {
+	let conn: PoolConnection | null = null;
+
+	try {
+		let values: number[] = [post_id];
+
+		let sql = `UPDATE posts SET is_private = FALSE WHERE id = ? AND is_private = TRUE`;
+
+		conn = await pool.getConnection();
+		const [rows]: any[] = await conn.query(sql, values);
+
+		if (rows.affectedRows === 0) {
+			// 1. 이미 공개된 게시글
+			// 2. 원인모를 이유로 실패함
+			throw ServerError.reference("게시글 공개 실패");
+		}
+	} catch (err) {
+		throw err;
+	} finally {
+		if (conn) conn.release();
+	}
+};
+
+export const privatePost = async (post_id: number) => {
+	let conn: PoolConnection | null = null;
+
+	try {
+		let values: number[] = [post_id];
+
+		let sql = `UPDATE posts SET is_private = TRUE WHERE id = ? AND is_private = FALSE`;
+
+		conn = await pool.getConnection();
+		const [rows]: any[] = await conn.query(sql, values);
+
+		if (rows.affectedRows === 0) {
+			// 1. 이미 비공개된 게시글
+			// 2. 원인모를 이유로 실패함
+			throw ServerError.reference("게시글 비공개 실패");
 		}
 	} catch (err) {
 		throw err;
