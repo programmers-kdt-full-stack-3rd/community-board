@@ -22,7 +22,6 @@ import { AdminUserMgmtPage } from "./page/Admin/AdminUserMgmtPage";
 import { AdminPostMgmtPage } from "./page/Admin/AdminPostMgmtPage";
 import { AdminStatsPage } from "./page/Admin/AdminStatsPage";
 
-
 function MainContainer({ children }: { children: React.ReactNode }) {
 	const location = useLocation();
 
@@ -129,7 +128,7 @@ function App() {
 						/>
 						<Route
 							path="/rooms"
-							element={<ChatRooms />}
+							element={<ChatRooms socket={socket} />}
 						/>
 						<Route
 							path="/room/:room_id"
