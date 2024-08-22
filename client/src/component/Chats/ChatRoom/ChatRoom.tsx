@@ -1,78 +1,127 @@
-// import { useParams } from "react-router-dom";
-import { useState } from "react";
+import { useLayoutEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { IMessage } from "shared";
+
 import { chatRoomBody, chatRoomContainer } from "./ChatRoom.css";
+import ChatInput from "./ChatInput";
 import ChatRoomHeader from "./ChatRoomHeader";
 import MyChat from "./MyChat";
-import YourChat from "./YourChat";
 import SystemChat from "./SystemChat";
-import ChatInput from "./ChatInput";
+import YourChat from "./YourChat";
+import { useUserStore } from "../../../state/store";
 
-// TODO : shared에 IMessage 옮기기
-interface IMessage {
-	roomId: string;
-	nickname: string;
-	message: string;
-	created_at: Date;
-	is_mine: boolean;
-	is_system: boolean;
-}
-
-// TODO : zustand state 사용하는 것으로 바꾸기
-const testMessages: IMessage[] = [
-	{
-		roomId: "123",
-		nickname: "system",
-		message: "방이 생성되었습니다.",
-		created_at: new Date(),
-		is_mine: false,
-		is_system: true,
-	},
-	{
-		roomId: "123",
-		nickname: "testUser1",
-		message: "안녕하세요 코드플레이입니다.",
-		created_at: new Date(),
-		is_mine: true,
-		is_system: false,
-	},
-	{
-		roomId: "123",
-		nickname: "testUser2",
-		message:
-			"코드플레이는 채팅 기능을 포함하는 커뮤니티 사이트를 만드는 팀입니다.",
-		created_at: new Date(),
-		is_mine: false,
-		is_system: false,
-	},
-];
-
-// TODO : IRoomHeader Props로 받기
+// TODO : props로 roomId, title 받을 것
 const ChatRoom = () => {
-	// const { room_id } = useParams();
-	// console.log(room_id);
+	const navigate = useNavigate(); // TEST : 채팅방 페이지
+
+	// 전역 상태
+	const isLogin = useUserStore.use.isLogin();
+	const nickname = useUserStore.use.nickname();
+	const socket = useUserStore.use.socket();
+	// TODO : zustand에서 해당 채팅방에 대한 메시지 꺼내오기
+
+	// 컴포넌트 상태
 	const [message, setMessage] = useState("");
-	const sendMessage = () => {
+	// TODO : messageLogs zustand에 저장할 것
+	const [messageLogs, setMessageLogs] = useState<IMessage[]>([]); // TEST : 컴포넌트 상태 저장
+	const [roomLoading, setRoomLoading] = useState(true);
+	const [chatLoading, setChatLoading] = useState(false);
+
+	// TODO : roomId zustand에서 꺼내올 것
+	const { room_id } = useParams(); // TEST: 채팅방 임시 데이터
+	const roomId = parseInt(room_id!);
+
+	useLayoutEffect(() => {
+		if (!isLogin) {
+			// TODO : aside로 개발 시 로그인 안되있음을 표시 및 로그인 페이지 바로가기 버튼 생성
+			navigate(`/login?redirect=/room/${roomId}`); // TEST: 로그인 페이지로 route
+			return;
+		}
+
+		if (socket) {
+			// 이전 메시지 모두 불러오기
+			socket.emit("enter_room", roomId, (response: IMessage[]) => {
+				setMessageLogs(response);
+				setRoomLoading(false);
+			});
+
+			// 실시간 메시지 수신 설정
+			socket.on("receive_message", (newMessage: IMessage) => {
+				setMessageLogs(prevLogs => [...prevLogs, newMessage]);
+			});
+
+			return () => {
+				// 소켓 이벤트 핸들러 제거
+				if (socket) {
+					socket.off("enter_room");
+					socket.off("send_message");
+				}
+			};
+		}
+	}, [isLogin, roomId, socket, navigate]);
+
+	const chatInputClick = () => {
 		if (!message.length) {
 			return;
 		}
-		// TODO : 메세지를 local state에 추가하는 로직
-		// TODO : socket으로 메세지 보내는 로직
-		// TODO : 스피너 돌리는 로직
+
+		const msg: IMessage = {
+			roomId,
+			nickname,
+			message,
+			createdAt: new Date(),
+			isMine: true,
+			isSystem: false,
+		};
+
+		setChatLoading(true);
+
+		if (socket) {
+			socket.emit("send_message", msg, (isSuccess: boolean) => {
+				if (isSuccess) {
+					setMessageLogs(prev => [...prev, msg]);
+					// TODO : zustand에 저장
+				} else {
+					console.error(msg);
+					// TODO : 재전송 로직 추가
+				}
+
+				setChatLoading(false);
+			});
+		}
+
 		setMessage("");
 	};
 
 	const renderMessages = () => {
-		return testMessages.map(message => {
-			if (message.is_system) {
-				return <SystemChat content={message.message} />;
+		if (roomLoading) {
+			// TODO : spinner 추가
+			return <p>Loading...</p>;
+		}
+
+		return messageLogs.map((message, index) => {
+			if (message.isSystem) {
+				return (
+					<SystemChat
+						key={index}
+						content={message.message}
+					/>
+				);
+			} else if (message.isMine) {
+				return (
+					<MyChat
+						key={index}
+						content={message.message}
+					/>
+				);
 			}
 
-			if (message.is_mine) {
-				return <MyChat content={message.message} />;
-			}
-
-			return (
+			return chatLoading ? (
+				// TODO : spinner 추가
+				<p>Loading...</p>
+			) : (
 				<YourChat
+					key={index}
 					name={message.nickname}
 					content={message.message}
 				/>
@@ -82,12 +131,13 @@ const ChatRoom = () => {
 
 	return (
 		<div className={chatRoomContainer}>
-			<ChatRoomHeader title={"임시제목"} />
+			{/* TODO : title zustand에서 꺼내오기 */}
+			<ChatRoomHeader title={"임시 채팅방 제목"} />
 			<div className={chatRoomBody}>{renderMessages()}</div>
 			<ChatInput
 				message={message}
 				setMessage={setMessage}
-				onClick={sendMessage}
+				onClick={chatInputClick}
 			/>
 		</div>
 	);
