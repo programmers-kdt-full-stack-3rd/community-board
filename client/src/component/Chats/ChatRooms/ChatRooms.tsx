@@ -34,7 +34,7 @@ const ChatRooms: FC<ChatRoomsProps> = ({ socket }) => {
 		<div className={container}>
 			{isOpen ? <CreateRoomModal close={setIsOpen} /> : null}
 			<SearchedChatRooms open={setIsOpen} />
-			<MyChatRooms />
+			<MyChatRooms socket={socket} />
 		</div>
 	);
 };
