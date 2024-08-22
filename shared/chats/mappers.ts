@@ -7,7 +7,7 @@ export const mapDBToIMessage = (userId: number, dbData: any): IMessage => {
 		message: dbData.message,
 		createdAt: dbData.created_at,
 		isMine: dbData.user_id === userId,
-		isSystem: dbData.is_system,
+		isSystem: Boolean(dbData.is_system),
 	};
 };
 
