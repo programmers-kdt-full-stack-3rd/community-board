@@ -1,4 +1,4 @@
-import { IUserInfoRow } from "../model/users";
+import { IUser, IUserInfoRow } from "../model/users";
 
 export interface IUserInfoResponse {
 	total: number;
@@ -35,5 +35,16 @@ export const mapUsersInfoToResponse = (
 	return {
 		total: queryResult[0].total,
 		userInfo,
+	};
+};
+
+export const mapDBToPartialUser = (data: any): Partial<IUser> => {
+	return {
+		id: data.id,
+		email: data.email,
+		nickname: data.nickname,
+		isDelete: data.isDelete ? true : false,
+		password: data.password,
+		salt: data.salt,
 	};
 };

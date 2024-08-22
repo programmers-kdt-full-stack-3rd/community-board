@@ -11,6 +11,7 @@ import { IGetUsersInfoParams, IUser, IUserInfoRow } from "../model/users";
 import { makeAccessToken, makeRefreshToken } from "../../utils/token";
 import { addRefreshToken } from "./token_context";
 import { IPermissionRow, IRoleRow } from "../model/rbac";
+import { mapDBToPartialUser } from "../mapper/users_mapper";
 
 interface IUserRegData {
 	email: string;
@@ -76,6 +77,92 @@ export const addUser = async (userData: IUserRegData) => {
 		} else {
 			throw err;
 		}
+	} finally {
+		if (conn) conn.release();
+	}
+};
+
+/**
+ * @returns 추가된 레코드의 id 컬럼 값
+ */
+export const addOAuthUser = async (nickname: string) => {
+	let conn: PoolConnection | null = null;
+	try {
+		const sql = `INSERT INTO users (nickname) VALUES (?)`;
+		const value = [nickname];
+
+		conn = await pool.getConnection();
+		const [rows]: [ResultSetHeader, FieldPacket[]] = await conn.query(
+			sql,
+			value
+		);
+
+		if (rows.affectedRows === 0) {
+			throw ServerError.etcError(500, "소셜 로그인으로 회원가입 실패");
+		}
+
+		return rows.insertId;
+	} catch (err: any) {
+		if (err.code === "ER_DUP_ENTRY") {
+			throw ServerError.reference("이미 사용 중인 닉네임입니다.");
+		}
+
+		throw err;
+	} finally {
+		if (conn) conn.release();
+	}
+};
+
+/**
+ * @param provider - OAuth 서비스 제공자
+ * @param oAuthAccountId - OAuth access token으로 얻은 회원 정보상의 고유번호
+ * @returns 주어진 소셜 계정으로 연동한 이력이 없으면 `null`, 연동한 활성 회원이
+ *          있으면 해당 회원 정보(`Partial<IUser>`)
+ */
+export const readUserByOAuth = async (
+	provider: string,
+	oAuthAccountId: string
+) => {
+	let conn: PoolConnection | null = null;
+	try {
+		const sql = `
+			SELECT
+				users.id,
+				users.email,
+				users.nickname,
+				users.isDelete
+			FROM
+				users
+			INNER JOIN
+				oauth_connections
+				ON oauth_connections.user_id = users.id
+				AND oauth_connections.oauth_account_id = ?
+			INNER JOIN
+				oauth_providers
+				ON oauth_providers.id = oauth_connections.oauth_provider_id
+				AND oauth_providers.name = ?
+		`;
+		const value = [oAuthAccountId, provider];
+
+		conn = await pool.getConnection();
+		const [rows]: [RowDataPacket[], FieldPacket[]] = await conn.query(
+			sql,
+			value
+		);
+
+		if (rows.length === 0) {
+			return null;
+		}
+
+		const user: Partial<IUser> = mapDBToPartialUser(rows[0]);
+
+		if (user.isDelete) {
+			throw ServerError.badRequest("탈퇴한 회원입니다.");
+		}
+
+		return user;
+	} catch (err: any) {
+		throw err;
 	} finally {
 		if (conn) conn.release();
 	}
