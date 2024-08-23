@@ -130,3 +130,34 @@ export const updateOAuthRefreshToken = async (
 		if (conn) conn.release();
 	}
 };
+
+export const clearOAuthConnection = async (userId: number) => {
+	let conn: PoolConnection | null = null;
+
+	try {
+		const sql = `
+			UPDATE
+				oauth_connections
+			SET
+				oauth_refresh_token = NULL,
+				isDelete = TRUE
+			WHERE
+				user_id = ?
+		`;
+		const values = [userId];
+
+		conn = await pool.getConnection();
+		const [result]: [ResultSetHeader, FieldPacket[]] = await conn.query(
+			sql,
+			values
+		);
+
+		if (result.affectedRows === 0) {
+			throw ServerError.reference("소셜 로그인 전체 연동 해제 실패");
+		}
+	} catch (err) {
+		throw err;
+	} finally {
+		if (conn) conn.release();
+	}
+};
