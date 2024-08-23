@@ -235,7 +235,7 @@ export const addUserToRoom = async (
 		if (conn) conn.release();
 	}
 };
-    
+
 export const getAllRoomMembers = async () => {
 	let conn: PoolConnection | null = null;
 	try {
@@ -261,3 +261,27 @@ export const getAllRoomMembers = async () => {
 	}
 };
 
+export const leaveRoom = async (userId: number, roomId: number) => {
+	let conn: PoolConnection | null = null;
+	try {
+		conn = await pool.getConnection();
+
+		let sql = `
+			UPDATE members SET is_deleted = true WHERE id = ? and room_id = ?
+		`;
+
+		const values = [userId, roomId];
+		const [rows]: any[] = await conn.query(sql, values);
+
+		if (rows.affectedRows === 0) {
+			throw ServerError.reference("탈퇴 실패");
+		}
+
+		return true;
+	} catch (err) {
+		console.error(err);
+		throw err;
+	} finally {
+		if (conn) conn.release();
+	}
+};

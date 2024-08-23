@@ -7,9 +7,10 @@ import Pagination from '../../common/Pagination/Pagination';
 import { EmptyUserList } from './EmptyUserList';
 import { deleteButton, restoreButton, SearchUser, UserListDetail, UserListStyle, UserSearchInput } from './UserList.css';
 
+
 interface IUserListProps {
-    initialPage?: number;
-    itemsPerPage?: number;
+	initialPage?: number;
+	itemsPerPage?: number;
 }
 
 const UserList = ({ initialPage = 1, itemsPerPage = 5 }: IUserListProps) => {
@@ -182,6 +183,7 @@ const UserList = ({ initialPage = 1, itemsPerPage = 5 }: IUserListProps) => {
             />
         </div>
     );
+
 };
 
 export default UserList;

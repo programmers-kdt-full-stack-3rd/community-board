@@ -6,6 +6,7 @@ import {
 	IGetRoomMessageLogsResponse,
 	IJoinRoomRequest,
 	IJoinRoomResponse,
+	ILeaveRoomRequest,
 	IReadRoomRequest,
 	IReadRoomResponse,
 } from "shared";
@@ -16,6 +17,7 @@ import {
 	getMessageLogs,
 	getRoomsByKeyword,
 	getRoomsByUserId,
+	leaveRoom,
 } from "../db/context/chats_context";
 
 export const handleRoomCreate = async (
@@ -59,7 +61,8 @@ export const handleRoomsRead = async (
 			response.totalRoomCount = result.totalRoomCount;
 			response.roomHeaders = result.roomHeaders;
 		} else {
-			const userId = req.userId;
+			// const userId = req.userId;
+			const userId = 1; // for. Token 검증 없이 기능 구현
 			const result = await getRoomsByUserId(
 				userId,
 				body.page,
@@ -132,6 +135,26 @@ export const handleALLRoomMembersRead = async (
 	try {
 		const result = await getAllRoomMembers();
 		res.status(200).json(result);
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const handleRoomLeave = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		const body: ILeaveRoomRequest = {
+			roomId: parseInt(req.body.roomId),
+		};
+
+		const userId = req.userId;
+
+		await leaveRoom(userId, body.roomId);
+
+		res.status(200).json();
 	} catch (err) {
 		next(err);
 	}

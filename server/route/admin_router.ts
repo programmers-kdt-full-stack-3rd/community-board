@@ -2,16 +2,21 @@ import express from "express";
 import {
 	handleAdminDeletePost,
 	handleAdminDeleteUser,
+	handleAdminGetLogs,
 	handleAdminGetPosts,
 	handleAdminPrivatePost,
 	handleAdminPublicPost,
 	handleAdminRestorePost,
+	handleAdminGetStats,
+	handleAdminGetUserStat,
 	handleAdminRestoreUser,
 	handleGetUsers,
 } from "../controller/admin_controller";
 import {
 	deletePostValidation,
 	deleteUserValidation,
+	getUserLogsValidation,
+	getUserStatValidation,
 	privatePostValidation,
 	publicPostValidation,
 	restorePostValidation,
@@ -42,5 +47,13 @@ router
 router
 	.route("/post/:postId/private")
 	.patch(privatePostValidation, handleAdminPrivatePost);
+
+router.route("/log/:userId").get(getUserLogsValidation, handleAdminGetLogs);
+
+router.route("/stat").get(handleAdminGetStats);
+
+router
+	.route("/stat/:userId")
+	.get(getUserStatValidation, handleAdminGetUserStat);
 
 export default router;

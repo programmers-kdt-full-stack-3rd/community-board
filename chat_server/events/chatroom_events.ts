@@ -1,35 +1,36 @@
 import { Socket } from "socket.io";
-import {
-	createRoom,
-	getRooms,
-	joinRoom,
-	leaveRoom,
-} from "../services/chatroom_service";
-
-// 일단 서비스 함수 파라미터 roomName으로 작성
-// TODO : DTO기반 수정
+import { IGetMyRoomRequestEvent, IReadRoomRequest, IRoomHeader } from "shared";
+import { getMyRoomsToApi } from "../utils/api";
 
 // 채팅방 이벤트
 export const handleRoomEvents = (socket: Socket) => {
-	socket.on("get_rooms", () => {
-		const rooms = getRooms();
-		socket.emit("rooms_list", rooms);
-	});
+	socket.on("get_my_rooms", async (data: IGetMyRoomRequestEvent) => {
+		console.log("get_my_room 이벤트 on");
 
-	socket.on("create_room", roomName => {
-		createRoom(roomName);
-		socket.emit("room_created", roomName);
-	});
+		// API 요청을 위해 IReadRoomRequest 타입 데이터
+		// TODO : IReadRoomRequest 데이터 "?:" 로 수정.
+		const requestData: IReadRoomRequest = {
+			page: 1,
+			perPage: 4,
+			isSearch: false,
+			keyword: "",
+		};
 
-	socket.on("join_room", roomName => {
-		joinRoom(socket, roomName);
-		socket.join(roomName);
-		socket.to(roomName).emit("user_joined", socket.id);
-	});
+		try {
+			const response = await getMyRoomsToApi(requestData);
+			socket.emit("get_my_rooms", response.data);
+			console.log(response.data);
 
-	socket.on("leave_room", roomName => {
-		leaveRoom(socket, roomName);
-		socket.leave(roomName);
-		socket.to(roomName).emit("user_left", socket.id);
+			// 내가 속한 채팅방 socket.join
+			response.data.roomHeaders.forEach((room: IRoomHeader) => {
+				const roomId = room.roomId.toString();
+				socket.join(roomId);
+			});
+		} catch (error) {
+			console.error("Error fetching chat rooms:", error);
+			socket.emit("my_rooms_error", {
+				message: "Failed to retrieve chat rooms",
+			});
+		}
 	});
 };

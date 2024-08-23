@@ -5,10 +5,10 @@ import {
 	FiUserPlus,
 	FiChevronDown,
 } from "react-icons/fi";
+import { FaComments } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { sendPostLogoutRequest } from "../../api/users/crud";
 import { useUserStore } from "../../state/store";
-import { RiAliensFill } from "react-icons/ri";
 import {
 	button,
 	header,
@@ -22,8 +22,13 @@ import DropdownMenu from "./DropdownMenu";
 import { useModal } from "../../hook/useModal";
 import { ApiCall } from "../../api/api";
 import { ClientError } from "../../api/errors";
+import { Socket } from "socket.io-client";
 
-const Header = () => {
+interface HeaderProps {
+	socket: Socket | null;
+}
+
+const Header: React.FC<HeaderProps> = ({ socket }) => {
 	const navigate = useNavigate();
 	const isLogin = useUserStore.use.isLogin();
 	const nickname = useUserStore.use.nickname();
@@ -66,6 +71,10 @@ const Header = () => {
 			return;
 		}
 
+		if (socket) {
+			socket.disconnect();
+			console.log("로그아웃, socket disconnect");
+		}
 		setLogoutUser();
 	};
 
@@ -83,8 +92,8 @@ const Header = () => {
 				to="/"
 				className={siteTitle}
 			>
-				<RiAliensFill />
-				DBDB DEEP
+				<FaComments />
+				<span>CODEPLAY</span>
 			</Link>
 			<div className={userAuthPanel}>
 				<button onClick={() => navigate("/test")}>채팅 개발</button>
