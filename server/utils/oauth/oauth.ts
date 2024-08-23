@@ -171,5 +171,8 @@ export const verifyAuthorizationCode = async (
 		oAuthTokens.access_token
 	);
 
-	return extractOAuthAccountId(provider, oAuthUser);
+	return {
+		oAuthAccountId: extractOAuthAccountId(provider, oAuthUser),
+		oAuthRefreshToken: oAuthTokens.refresh_token,
+	};
 };
