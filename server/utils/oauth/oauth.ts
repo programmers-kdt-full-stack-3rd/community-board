@@ -3,6 +3,8 @@ import { TOAuthProvider } from "../../db/model/oauth";
 import { ServerError } from "../../middleware/errors";
 import { oAuthProps } from "./constants";
 
+type TOAuthTokenRequestGrantType = "authorization_code" | "refresh_token";
+
 interface IOAuthUser {
 	id: string;
 }
@@ -20,6 +22,11 @@ interface IOAuthTokens {
 	refresh_token_expires_in?: number;
 	scope?: string;
 }
+
+const grantTypeToKey: { [key in TOAuthTokenRequestGrantType]: string } = {
+	authorization_code: "code",
+	refresh_token: "refresh_token",
+};
 
 /**
  * 주어진 provider로의 OAuth 로그인 요청 URL을 생성합니다.
@@ -62,23 +69,26 @@ export const buildLoginUrl = (provider: TOAuthProvider) => {
 };
 
 /**
- * 주어진 provider로 전송할 access token 요청의 옵션을, Fetch API에서 사용할 수
- * 있는 형태로 생성합니다.
- * @param provider - OAuth provider
- * @param code - 사용자가 로그인하여 redirect URI를 통해 받은 authorization code
+ * 주어진 프로바이더로 전송할 token 요청의 옵션을, Fetch API에서 사용할 수 있는
+ * 형태로 생성합니다.
+ * @param provider - OAuth 프로바이더
+ * @param grantType - 토큰을 받기 위해 전달할 인가 수단의 유형
+ * @param grantValue - grantType에 따른 인가 수단 (authorization code, refresh
+ *                     token 등)
  * @returns `fetch()`의 두 번째 인수로 넘길 수 있는, access token 요청 옵션
  */
 const buildTokenFetchOptions = (
 	provider: TOAuthProvider,
-	code: string
+	grantType: "authorization_code" | "refresh_token",
+	grantValue: string
 ): RequestInit => {
 	const { clientId, redirectUri, clientSecret } = oAuthProps[provider];
 
 	const querystringPairs: { [key: string]: string } = {
-		grant_type: "authorization_code",
+		grant_type: grantType,
 		client_id: clientId,
 		redirect_uri: redirectUri,
-		code: code,
+		[grantTypeToKey[grantType]]: grantValue,
 	};
 
 	if (clientSecret) {
@@ -94,23 +104,24 @@ const buildTokenFetchOptions = (
 	};
 };
 
-const fetchOAuthTokensByAuthCode = async (
+const fetchOAuthTokens = async (
 	provider: TOAuthProvider,
-	authorizationCode: string
+	grantType: TOAuthTokenRequestGrantType,
+	grantValue: string
 ) => {
 	const oAuthTokenResponse = await fetch(
 		oAuthProps[provider].requestEndpoint.token,
-		buildTokenFetchOptions(provider, authorizationCode)
+		buildTokenFetchOptions(provider, grantType, grantValue)
 	);
 
 	if (oAuthTokenResponse.status >= 500) {
 		throw ServerError.etcError(
 			500,
-			"소셜 로그인 서비스 제공사 오류로 로그인에 실패했습니다."
+			"OAuth 서비스 제공사 오류로 OAuth 토큰 조회에 실패했습니다."
 		);
 	} else if (oAuthTokenResponse.status >= 400) {
 		throw ServerError.badRequest(
-			"인가 코드가 유효하지 않아서 소셜 로그인에 실패했습니다."
+			"인가 수단이 유효하지 않아서 OAuth 토큰 조회에 실패했습니다."
 		);
 	}
 
@@ -162,8 +173,9 @@ export const verifyAuthorizationCode = async (
 	provider: TOAuthProvider,
 	authorizationCode: string
 ) => {
-	const oAuthTokens = await fetchOAuthTokensByAuthCode(
+	const oAuthTokens = await fetchOAuthTokens(
 		provider,
+		"authorization_code",
 		authorizationCode
 	);
 
@@ -175,5 +187,20 @@ export const verifyAuthorizationCode = async (
 	return {
 		oAuthAccountId: extractOAuthAccountId(provider, oAuthUser),
 		oAuthRefreshToken: oAuthTokens.refresh_token,
+	};
+};
+
+export const refreshOAuthAccessToken = async (
+	provider: TOAuthProvider,
+	oAuthRefreshToken: string
+) => {
+	const oAuthTokens = await fetchOAuthTokens(
+		provider,
+		"refresh_token",
+		oAuthRefreshToken
+	);
+
+	return {
+		oAuthAccessToken: oAuthTokens.access_token,
 	};
 };
