@@ -5,9 +5,9 @@ import {
 } from "../db/context/oauth_context";
 import { addRefreshToken } from "../db/context/token_context";
 import { addOAuthUser, readUserByOAuth } from "../db/context/users_context";
+import { TOAuthProvider } from "../db/model/oauth";
 import { getKstNow } from "../utils/getKstNow";
 import { ServerError } from "../middleware/errors";
-import { TOAuthProvider } from "../utils/oauth/constants";
 import { buildLoginUrl, verifyAuthorizationCode } from "../utils/oauth/oauth";
 import {
 	makeAccessToken,

@@ -1,6 +1,7 @@
 import { stringify } from "node:querystring";
-import { oAuthProps, TOAuthProvider } from "./constants";
+import { TOAuthProvider } from "../../db/model/oauth";
 import { ServerError } from "../../middleware/errors";
+import { oAuthProps } from "./constants";
 
 interface IOAuthUser {
 	id: string;

@@ -1,6 +1,4 @@
-export const oAuthProviders = ["google", "kakao", "naver"] as const;
-
-export type TOAuthProvider = (typeof oAuthProviders)[number];
+import { TOAuthProvider } from "../../db/model/oauth";
 
 type TOAuthVariable<T> = {
 	[provider in TOAuthProvider]: T;

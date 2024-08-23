@@ -1,7 +1,7 @@
 import { FieldPacket, PoolConnection, ResultSetHeader } from "mysql2/promise";
 import { ServerError } from "../../middleware/errors";
-import { TOAuthProvider } from "../../utils/oauth/constants";
 import pool from "../connect";
+import { TOAuthProvider } from "../model/oauth";
 
 export const createOAuthConnection = async (
 	provider: string,
