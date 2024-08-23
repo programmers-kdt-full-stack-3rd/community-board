@@ -1,5 +1,7 @@
+import { IGetRoomMessageLogsResponse, IGetMyRoomRequestEvent, IReadRoomRequest, IRoomHeader } from "shared";
 import { Socket } from "socket.io";
-import { IGetMyRoomRequestEvent, IReadRoomRequest, IRoomHeader } from "shared";
+
+import { httpRequest } from "../services/api_service";
 import { getMyRoomsToApi } from "../utils/api";
 
 // 채팅방 이벤트
@@ -32,5 +34,20 @@ export const handleRoomEvents = (socket: Socket) => {
 				message: "Failed to retrieve chat rooms",
 			});
 		}
+	});
+
+	// 채팅방 입장
+	socket.on("enter_room", async (roomId, callback) => {
+		socket.join(`${roomId}`); // TEST : join room
+
+		// TODO : 캐싱 메시지 조회(redis -> http)
+
+		const { messageLogs }: IGetRoomMessageLogsResponse = await httpRequest(
+			`api/chat/room/${roomId}`,
+			"GET",
+			{}
+		);
+
+		callback(messageLogs);
 	});
 };

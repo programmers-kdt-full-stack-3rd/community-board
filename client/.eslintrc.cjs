@@ -10,6 +10,10 @@ module.exports = {
 	parser: "@typescript-eslint/parser",
 	plugins: ["react-refresh"],
 	rules: {
+		"@typescript-eslint/no-unused-vars": [
+			"error",
+			{ argsIgnorePattern: "^_", varsIgnorePattern: "^_" }, // '_'로 시작하는 arg | var error
+		],
 		"react-refresh/only-export-components": [
 			"warn",
 			{ allowConstantExport: true },

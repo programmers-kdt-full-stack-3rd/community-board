@@ -1,14 +1,10 @@
 import dotenv from "dotenv";
-import { IKafkaMessageDTO } from "shared";
 
 import httpServer from "./app";
 import { getRedisAPI, initRedisAPI } from "./config/redis_config";
 import { getKafkaAPI, initKafkaAPI } from "./config/kafka_config";
-import {
-	getProducer,
-	initProducer,
-	sendMessage,
-} from "./services/kafka_service";
+import { getProducer, initProducer } from "./services/kafka_service";
+import { initURL } from "./services/api_service";
 
 dotenv.config();
 
@@ -27,6 +23,9 @@ async function startServer() {
 	// 채팅 소켓 PORT
 	const CHAT_PORT = process.env.CHAT_PORT || 3000;
 
+	// HTTP PORT
+	const HTTP_PORT = process.env.HTTP_PORT || 8000;
+
 	// 레디스 서버 URL
 	const REDIS_URL = `redis://${HOST_IP}:${REDIS_PORT}`;
 
@@ -36,6 +35,9 @@ async function startServer() {
 		`${HOST_IP}:${KAFKA_PORT_2}`,
 		`${HOST_IP}:${KAFKA_PORT_3}`,
 	];
+
+	// HTTP URL
+	const HTTP_URL = `http://${HOST_IP}:${HTTP_PORT}`;
 
 	try {
 		// Redis 연결
@@ -56,26 +58,8 @@ async function startServer() {
 		await producer.connect();
 		console.log("Kafka Producer 연결 성공");
 
-		// TEST START: 추후 지울 것! (Kafka로 message 보내기)
-		const testMessage: IKafkaMessageDTO = {
-			roomId: 1,
-			userId: 1,
-			message: "test입니다.",
-			createdAt: new Date(),
-			isSystem: true,
-		};
-		console.log(
-			`
-producer message:
-roomId: ${testMessage.roomId}
-userId: ${testMessage.userId}
-message: ${testMessage.message}
-createdAt: ${testMessage.createdAt}
-isSystem: ${testMessage.isSystem}
-			`
-		);
-		sendMessage(testMessage);
-		// TEST END
+		// HTTP URL 초기화
+		initURL(HTTP_URL);
 
 		// 채팅 서버 실행
 		httpServer.listen(CHAT_PORT, () => {
