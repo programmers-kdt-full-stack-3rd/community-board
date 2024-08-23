@@ -12,8 +12,6 @@ export const AdminUserMgmtPage = () => {
             <div className={Container}>
                 <AdminSidebar navigate={navigate} />
             </div>
-
-            <h3>사용자 목록</h3>
             <UserList />
 
 

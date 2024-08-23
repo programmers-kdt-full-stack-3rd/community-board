@@ -15,7 +15,7 @@ export interface IUserLog {
 	total: number;
 	title: string;
 	category: string;
-	created_at: Date;
+	createdAt: Date;
 }
 
 export interface IUserLogRow extends IUserLog, RowDataPacket {}

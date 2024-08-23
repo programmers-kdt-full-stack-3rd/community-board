@@ -1,5 +1,13 @@
 import { style } from "@vanilla-extract/css";
 
+
+export const AdminPostHeader = style({
+    display: 'flex',
+    justifyContent: 'space-between', 
+    alignItems: 'center', 
+    fontWeight: 'bold',
+});
+
 export const AdminPostListStyle = style({
     display: 'grid',
     gridTemplateColumns: '6fr 2fr 2fr 2fr 1fr',
@@ -15,9 +23,6 @@ export const AdminPostListDetail = style({
 
 export const SearchPost = style({
     display: 'flex',       
-    justifyContent: 'flex-end', 
-    marginBottom: '30px',    
-    marginTop : '10px',
 });
 export const SearchPostInput = style({
     marginRight: '8px' 
@@ -46,7 +51,7 @@ export const Private = style({
 });
 
 export const AdminPostTiTle = style({
-    color : 'white',
+    color : '#cfcfcf',
     ':hover': {
         color: '#808080',
     },

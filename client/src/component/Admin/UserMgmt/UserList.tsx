@@ -6,14 +6,12 @@ import { dateToStr } from '../../../utils/date-to-str';
 import Pagination from '../../common/Pagination/Pagination';
 import { EmptyUserList } from './EmptyUserList';
 import { deleteButton, restoreButton, SearchUser, UserListDetail, UserListStyle, UserSearchInput } from './UserList.css';
+import { Link } from 'react-router-dom';
+import { AdminPostHeader } from '../PostMgmt/PostMgmt.css';
 
-
-interface IUserListProps {
-	initialPage?: number;
-	itemsPerPage?: number;
-}
-
-const UserList = ({ initialPage = 1, itemsPerPage = 5 }: IUserListProps) => {
+const UserList = () => {
+    const initialPage = 1;
+    const itemsPerPage = 10;
     const [users, setUsers] = useState<IUser[] | null>(null);
     const [totalUsers, setTotalUsers] = useState<number>(0);
     const [currentPage, setCurrentPage] = useState<number>(initialPage);
@@ -48,7 +46,7 @@ const UserList = ({ initialPage = 1, itemsPerPage = 5 }: IUserListProps) => {
 
     useEffect(() => {
         fetchUsers();
-    }, [currentPage, nickname, email]);
+    }, [nickname, email]);
 
     //사용자 삭제 
     const handleDelete = async (userId: number) => {
@@ -104,16 +102,20 @@ const UserList = ({ initialPage = 1, itemsPerPage = 5 }: IUserListProps) => {
 
     return (
         <div>
-            <div className={SearchUser}>
-                <input
-                    className={UserSearchInput}
-                    type="text"
-                    placeholder="이메일을 입력해주세요"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                />
-                <button onClick={handleSearch}>검색</button>
+            <div className={AdminPostHeader}>
+                <h2>사용자 목록</h2>
+                <div className={SearchUser}>
+                    <input
+                        className={UserSearchInput}
+                        type="text"
+                        placeholder="이메일을 입력해주세요"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                    />
+                    <button onClick={handleSearch}>검색</button>
+                </div>
             </div>
+
             <hr></hr>
             <div className={UserListStyle}>
                 <div>닉네임</div>
@@ -137,38 +139,45 @@ const UserList = ({ initialPage = 1, itemsPerPage = 5 }: IUserListProps) => {
                     />
                 ) : (
                     users.map(user => (
-                        <div
-                            key={user.id}
-                            className={UserListDetail}
-                        >
-                            <div>{user.nickname}</div>
-                            <div>{user.email}</div>
-                            <div>{dateToStr(new Date(user.createdAt), true)}</div>
-                            <div>{user.statistics.comments}</div>
-                            <div>{user.statistics.posts}</div>
-                            <div>
-                                {user.isDelete ? (
-                                    <button className={restoreButton}
-                                        onClick={() => {
-                                            if (window.confirm("해당 사용자를 복구하시겠습니까?")) {
-                                                handleRestore(user.id);
-                                            }
-                                        }}
-                                    >
-                                        복구
-                                    </button>
-                                ) : (
-                                    <button className={deleteButton}
-                                        onClick={() => {
-                                            if (window.confirm("해당 사용자를 삭제하시겠습니까?")) {
-                                                handleDelete(user.id);
-                                            }
-                                        }}
-                                    >
-                                        삭제
-                                    </button>
-                                )}
+                        <div>
+
+                            <div
+                                key={user.id}
+                                className={UserListDetail}
+                            >
+                                <Link to={`/admin/userLog/${user.id}`}>
+                                    {user.nickname}
+                                </Link>
+                                <div>{user.email}</div>
+                                <div>{dateToStr(new Date(user.createdAt), true)}</div>
+                                <div>{user.statistics.comments}</div>
+                                <div>{user.statistics.posts}</div>
+                                <div>
+                                    {user.isDelete ? (
+                                        <button className={restoreButton}
+                                            onClick={() => {
+                                                if (window.confirm("해당 사용자를 복구하시겠습니까?")) {
+                                                    handleRestore(user.id);
+                                                }
+                                            }}
+                                        >
+                                            복구
+                                        </button>
+                                    ) : (
+                                        <button className={deleteButton}
+                                            onClick={() => {
+                                                if (window.confirm("해당 사용자를 삭제하시겠습니까?")) {
+                                                    handleDelete(user.id);
+                                                }
+                                            }}
+                                        >
+                                            삭제
+                                        </button>
+                                    )}
+                                </div>
                             </div>
+
+                            <hr style={{ borderColor: 'rgba(0, 0, 0, 0.8)', borderWidth: '1px' }} />
                         </div>
                     ))
                 )}

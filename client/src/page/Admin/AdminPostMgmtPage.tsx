@@ -10,7 +10,6 @@ export const AdminPostMgmtPage = () => {
             <div className={Container}>
                 <AdminSidebar navigate={navigate} />
             </div>
-            <h3>게시글 목록</h3>
             <PostMgmt />
         </div>
     )

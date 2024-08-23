@@ -21,6 +21,7 @@ import { AdminPostMgmtPage } from "./page/Admin/AdminPostMgmtPage";
 import { AdminStatsPage } from "./page/Admin/AdminStatsPage";
 import { useUserStore } from "./state/store";
 import { io } from "socket.io-client";
+import { AdminUserLogPage } from "./page/Admin/AdminUserLogPage";
 
 function MainContainer({ children }: { children: React.ReactNode }) {
 	const location = useLocation();
@@ -140,6 +141,11 @@ function App() {
 						<Route
 							path="/admin/stats"
 							element={<AdminStatsPage />}
+						/>
+
+						<Route
+							path="/admin/userLog/:userId"
+							element={<AdminUserLogPage />}
 						/>
 					</Routes>
 				</MainContainer>
