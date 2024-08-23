@@ -207,3 +207,67 @@ export const refreshOAuthAccessToken = async (
 		oAuthAccessToken: oAuthTokens.access_token,
 	};
 };
+
+const buildRevokeFetchParameters = (
+	provider: TOAuthProvider,
+	oAuthAccessToken: string
+): [string, RequestInit] => {
+	const {
+		requestEndpoint: { revoke: revokeEndpoint },
+		getAdditionalRequestOptionsFor,
+	} = oAuthProps[provider];
+
+	let searchParams, headers, body;
+
+	if (getAdditionalRequestOptionsFor?.revoke) {
+		const requestOptions = getAdditionalRequestOptionsFor.revoke({
+			accessToken: oAuthAccessToken,
+		});
+		({ searchParams = null, headers = null, body = null } = requestOptions);
+	} else {
+		searchParams = null;
+		headers = null;
+		body = null;
+	}
+
+	const url = new URL(revokeEndpoint);
+	if (searchParams) {
+		for (const key in searchParams) {
+			url.searchParams.set(key, searchParams[key]);
+		}
+	}
+
+	const fetchOptions: RequestInit = {
+		method: "POST",
+	};
+	if (headers) {
+		fetchOptions.headers = { ...headers };
+	}
+	if (body) {
+		fetchOptions.body = stringify(body);
+	}
+
+	return [url.toString(), fetchOptions];
+};
+
+export const revokeOAuth = async (
+	provider: TOAuthProvider,
+	oAuthAccessToken: string
+) => {
+	const oAuthRevokeResponse = await fetch(
+		...buildRevokeFetchParameters(provider, oAuthAccessToken)
+	);
+
+	console.log(await oAuthRevokeResponse.json());
+
+	if (oAuthRevokeResponse.status >= 500) {
+		throw ServerError.etcError(
+			500,
+			"OAuth 서비스 제공사 오류로 OAuth 연동 해제에 실패했습니다."
+		);
+	} else if (oAuthRevokeResponse.status >= 400) {
+		throw ServerError.badRequest(
+			"인가 수단이 유효하지 않아서 OAuth 연동 해제에 실패했습니다."
+		);
+	}
+};
