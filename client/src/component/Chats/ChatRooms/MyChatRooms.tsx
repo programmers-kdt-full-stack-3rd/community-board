@@ -7,6 +7,7 @@ import Pagenation from "./Pagenation/Pagenation";
 import { isDevMode } from "../../../utils/detectMode";
 import { testMy } from "./test-case";
 import { Socket } from "socket.io-client";
+import { useChatRoom } from "../../../state/ChatRoomStore";
 
 interface MyChatRoomsProps {
 	socket: Socket | null;
@@ -19,6 +20,7 @@ const MyChatRooms: FC<MyChatRoomsProps> = ({ socket }) => {
 		totalRoomCount: 0,
 		rooms: {},
 	});
+	const roomState = useChatRoom();
 
 	useEffect(() => {
 		if (socket) {
@@ -36,10 +38,7 @@ const MyChatRooms: FC<MyChatRoomsProps> = ({ socket }) => {
 			};
 			GetRooms();
 		}
-
 	}, [socket, currentPage]);
-
-
 
 	const onMyPageClick = (page: number) => {
 		if (page === currentPage) {
