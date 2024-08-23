@@ -8,3 +8,4 @@ export * from "./chats/message";
 export * from "./chats/dto";
 export * from "./chats/mappers";
 export * from "./admin/users";
+export * from "./admin/posts";
