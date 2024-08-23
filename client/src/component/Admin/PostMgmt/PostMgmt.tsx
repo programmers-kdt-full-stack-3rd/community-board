@@ -49,7 +49,7 @@ const PostList = () => {
 
     useEffect(() => {
         fetchPosts();
-    }, [currentPage, keyword]);
+    }, [keyword]);
 
     const handlePageChange = (page: number) => {
         setCurrentPage(page);

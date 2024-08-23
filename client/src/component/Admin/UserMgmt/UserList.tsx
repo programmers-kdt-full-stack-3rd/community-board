@@ -46,7 +46,7 @@ const UserList = () => {
 
     useEffect(() => {
         fetchUsers();
-    }, [currentPage, nickname, email]);
+    }, [nickname, email]);
 
     //사용자 삭제 
     const handleDelete = async (userId: number) => {
