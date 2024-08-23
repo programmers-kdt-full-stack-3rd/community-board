@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { IUserPost } from 'shared';
-import { AdminPostListStyle, AdminPostListDetail, AdminPostTiTle, SearchPost, SearchPostInput } from './PostMgmt.css';
+import { AdminPostListStyle, SearchPost, SearchPostInput } from './PostMgmt.css';
 import Pagination from '../../common/Pagination/Pagination';
 import PostItem from './PostMgmtItem';
 import { HttpMethod, httpRequest } from '../../../api/api';

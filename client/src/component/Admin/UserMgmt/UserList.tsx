@@ -5,7 +5,7 @@ import { ClientError } from '../../../api/errors';
 import { dateToStr } from '../../../utils/date-to-str';
 import Pagination from '../../common/Pagination/Pagination';
 import { EmptyUserList } from './EmptyUserList';
-import { deleteButton, PageBtn, restoreButton, SearchUser, UserListDetail, UserListPage, UserListStyle, UserSearchInput } from './UserList.css';
+import { deleteButton, restoreButton, SearchUser, UserListDetail, UserListStyle, UserSearchInput } from './UserList.css';
 
 interface IUserListProps {
     initialPage?: number;
@@ -18,7 +18,7 @@ const UserList = ({ initialPage = 1, itemsPerPage = 5 }: IUserListProps) => {
     const [currentPage, setCurrentPage] = useState<number>(initialPage);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-    const [nickname, setNickname] = useState<string>("");
+    const nickname = "";
     const [email, setEmail] = useState<string>("");
 
     const fetchUsers = async () => {
