@@ -49,3 +49,9 @@ export interface IJoinUserResponse {
 export interface ILeaveRoomRequest {
 	roomId: number; // 해당 방 번호
 }
+
+// 내가 속한 채팅방 조회 socket event request -------------------
+
+export interface IGetMyRoomRequestEvent {
+	nickname: string;
+}

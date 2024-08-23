@@ -1,41 +1,44 @@
-import { useLayoutEffect, useState } from "react";
-import { IReadRoomRequest, IReadRoomResponse } from "shared";
-import { ClientError } from "../../../api/errors";
-import { ApiCall } from "../../../api/api";
-import { sendGetRoomHeadersRequest } from "../../../api/chats/crud";
-import { useErrorModal } from "../../../state/errorModalStore";
+import { FC, useEffect, useLayoutEffect, useState } from "react";
+import { RoomsInfo } from "./ChatRooms";
+import { IReadRoomResponse } from "shared";
 import { roomsWrapper } from "./ChatRooms.css";
 import Rooms from "./Rooms/Rooms";
 import Pagenation from "./Pagenation/Pagenation";
 import { isDevMode } from "../../../utils/detectMode";
 import { testMy } from "./test-case";
+import { Socket } from "socket.io-client";
 import { useChatRoom } from "../../../state/ChatRoomStore";
 
-const MyChatRooms = () => {
+interface MyChatRoomsProps {
+	socket: Socket | null;
+}
+
+const MyChatRooms: FC<MyChatRoomsProps> = ({ socket }) => {
 	const [isRendered, setIsRendered] = useState(false);
 	const [currentPage, setCurrentPage] = useState<number>(1);
-	const errorModal = useErrorModal();
+	const [myRooms, setMyRooms] = useState<RoomsInfo>({
+		totalRoomCount: 0,
+		rooms: {},
+	});
 	const roomState = useChatRoom();
 
-	const GetRooms = async (body: IReadRoomRequest) => {
-		const queryString = `?page=${body.page}&perPage=${body.perPage}&isSearch=${body.isSearch}&keyword=${body.keyword}`;
-
-		const res: IReadRoomResponse | ClientError = await ApiCall(
-			() => sendGetRoomHeadersRequest(queryString),
-			err => {
-				errorModal.setErrorMessage(err.message);
-				errorModal.open();
-			}
-		);
-
-		if (res instanceof ClientError) {
-			return;
+	useEffect(() => {
+		if (socket) {
+			const GetRooms = async () => {
+				socket.on("get_my_rooms", (res: IReadRoomResponse) => {
+					setMyRooms(prevMyRooms => ({
+						totalRoomCount: res.totalRoomCount,
+						rooms: {
+							...prevMyRooms.rooms,
+							[currentPage]: res.roomHeaders,
+						},
+					}));
+					setIsRendered(true);
+				});
+			};
+			GetRooms();
 		}
-
-		roomState.setMyRoomInfo(res.totalRoomCount, body.page, res.roomHeaders);
-
-		setIsRendered(true);
-	};
+	}, [socket, currentPage]);
 
 	const onMyPageClick = (page: number) => {
 		if (page === currentPage) {
@@ -49,13 +52,10 @@ const MyChatRooms = () => {
 		if (isDevMode()) {
 			roomState.setMyRoomInfo(2, 1, testMy.roomHeaders);
 		} else if (!isRendered) {
-			const body: IReadRoomRequest = {
-				page: currentPage,
-				perPage: 2,
-				isSearch: false,
-				keyword: "",
-			};
-			GetRooms(body);
+			if (myRooms.rooms[currentPage]) {
+				setIsRendered(true);
+				return;
+			}
 		}
 	}, [currentPage]);
 

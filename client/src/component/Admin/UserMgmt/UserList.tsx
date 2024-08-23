@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react';
 import { IUser } from 'shared';
+import { HttpMethod, httpRequest } from '../../../api/api';
+import { ClientError } from '../../../api/errors';
 import { dateToStr } from '../../../utils/date-to-str';
 import Pagination from '../../common/Pagination/Pagination';
 import { EmptyUserList } from './EmptyUserList';
-import { deleteButton, PageBtn, restoreButton, SearchUser, UserListDetail, UserListPage, UserListStyle, UserSearchInput } from './UserList.css';
+import { deleteButton, restoreButton, SearchUser, UserListDetail, UserListStyle, UserSearchInput } from './UserList.css';
+
 
 interface IUserListProps {
-    initialPage?: number;
-    itemsPerPage?: number;
+	initialPage?: number;
+	itemsPerPage?: number;
 }
 
 const UserList = ({ initialPage = 1, itemsPerPage = 5 }: IUserListProps) => {
@@ -16,30 +19,27 @@ const UserList = ({ initialPage = 1, itemsPerPage = 5 }: IUserListProps) => {
     const [currentPage, setCurrentPage] = useState<number>(initialPage);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-    const [nickname, setNickname] = useState<string>("");
+    const nickname = "";
     const [email, setEmail] = useState<string>("");
 
     const fetchUsers = async () => {
         setLoading(true);
         setError(null);
         try {
-            const url = `/api/admin/user?index=${currentPage}&perPage=${itemsPerPage}${nickname ? `&nickname=${encodeURIComponent(nickname)}` : ''}${email ? `&email=${encodeURIComponent(email)}` : ''}`;
-            //닉네임이나 이메일에 특수문자가 들어가는 경우 오류가 발생할 수 있기 때문에 encodeURIComponent 사용 추천
-            const response = await fetch(url);
+            const url = `admin/user?index=${currentPage}&perPage=${itemsPerPage}${nickname ? `&nickname=${encodeURIComponent(nickname)}` : ''}${email ? `&email=${encodeURIComponent(email)}` : ''}`;
+            const response = await httpRequest(url, HttpMethod.GET);
 
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error(`Fetch error: ${response.status} : ${response.statusText}`, errorText);
-                throw new Error(`Error: ${response.statusText}`);
+            if (response.status >= 400) {
+                throw ClientError.autoFindErrorType(response.status, response.message || response.statusText);
             }
-
-            const data = await response.json();
-            console.log('Data:', data);
-
-            setUsers(data.userInfo);
-            setTotalUsers(data.total);
+            setUsers(response.userInfo || []);
+            setTotalUsers(response.total || 0);
         } catch (err) {
-            console.error('Fetch error:', err);
+            if (err instanceof ClientError) {
+                console.error(`ClientError : ${err.code} : ${err.message}`);
+            } else {
+                console.error('error:', err);
+            }
             setError("사용자 불러오기 실패");
         } finally {
             setLoading(false);
@@ -53,41 +53,42 @@ const UserList = ({ initialPage = 1, itemsPerPage = 5 }: IUserListProps) => {
     //사용자 삭제 
     const handleDelete = async (userId: number) => {
         try {
-            const response = await fetch(`/api/admin/user/${userId}`, {
-                method: 'DELETE',
-            });
+            const response = await httpRequest(`admin/user/${userId}`, HttpMethod.DELETE);
 
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error(`사용자 삭제 오류 : ${response.status} :  ${response.statusText}`, errorText);
-                throw new Error(`Error : ${response.statusText}`);
+            if (response.status >= 400) {
+                throw ClientError.autoFindErrorType(response.status, response.message || '사용자 삭제 실패');
             }
 
             setUsers(users => users?.map(user => user.id === userId ? { ...user, isDelete: true } : user) || null);
+            alert('사용자가 성공적으로 삭제되었습니다.');
         } catch (err) {
-            console.error('Error :', err);
-            alert('사용자 삭제에 실패했습니다.');
+            if (err instanceof ClientError) {
+                console.error(`Error ${err.code}: ${err.message}`);
+            } else {
+                console.error('error:', err);
+            }
+            alert('사용자 삭제 실패');
         }
     };
 
     //사용자 복구
     const handleRestore = async (userId: number) => {
         try {
-            const response = await fetch(`/api/admin/user/${userId}/restore`, {
-                method: 'PATCH',
-            });
+            const response = await httpRequest(`admin/user/${userId}/restore`, HttpMethod.PATCH);
 
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error(`사용자 복구 오류 : ${response.status} : ${response.statusText}`, errorText);
-                throw new Error(`Error: ${response.statusText}`);
+            if (response.status >= 400) {
+                throw ClientError.autoFindErrorType(response.status, response.message || '사용자 복구 실패');
             }
 
-
             setUsers(users => users?.map(user => user.id === userId ? { ...user, isDelete: false } : user) || null);
+            alert('사용자가 성공적으로 복구되었습니다.');
         } catch (err) {
-            console.error('Error :', err);
-            alert('사용자 복구에 실패했습니다.');
+            if (err instanceof ClientError) {
+                console.error(`Error ${err.code}: ${err.message}`);
+            } else {
+                console.error('error:', err);
+            }
+            alert('사용자 복구 실패');
         }
     };
 
@@ -182,6 +183,7 @@ const UserList = ({ initialPage = 1, itemsPerPage = 5 }: IUserListProps) => {
             />
         </div>
     );
+
 };
 
 export default UserList;

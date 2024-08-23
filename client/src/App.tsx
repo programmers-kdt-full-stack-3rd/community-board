@@ -123,7 +123,7 @@ function App() {
 						/>
 						<Route
 							path="/rooms"
-							element={<ChatRooms />}
+							element={<ChatRooms socket={socket} />}
 						/>
 						<Route
 							path="/room/:room_id"
