@@ -1,7 +1,7 @@
 import { stringify } from "node:querystring";
 import { TOAuthProvider } from "../../db/model/oauth";
 import { ServerError } from "../../middleware/errors";
-import { oAuthProps } from "./constants";
+import { oAuthProps, oAuthRequestContentType } from "./constants";
 
 type TOAuthTokenRequestGrantType = "authorization_code" | "refresh_token";
 
@@ -38,8 +38,8 @@ export const buildLoginUrl = (provider: TOAuthProvider) => {
 		clientId,
 		redirectUri,
 		scope,
-		requestAdditionalParam,
-		reconfirmParam,
+		getAdditionalRequestOptionsFor,
+		reconfirmParams,
 	} = oAuthProps[provider];
 
 	const loginUrl = new URL(requestEndpoint.login);
@@ -52,15 +52,18 @@ export const buildLoginUrl = (provider: TOAuthProvider) => {
 		loginUrl.searchParams.set("scope", scope);
 	}
 
-	if (requestAdditionalParam?.login) {
-		loginUrl.searchParams.set(
-			requestAdditionalParam.login.key,
-			requestAdditionalParam.login.value
-		);
+	if (getAdditionalRequestOptionsFor?.login) {
+		const { searchParams = {} } = getAdditionalRequestOptionsFor.login();
+
+		for (const key in searchParams) {
+			loginUrl.searchParams.set(key, searchParams[key]);
+		}
 	}
 
 	const reconfirmUrl = new URL(loginUrl);
-	reconfirmUrl.searchParams.set(reconfirmParam.key, reconfirmParam.value);
+	for (const key in reconfirmParams) {
+		reconfirmUrl.searchParams.set(key, reconfirmParams[key]);
+	}
 
 	return {
 		loginUrl: loginUrl.toString(),
@@ -98,7 +101,7 @@ const buildTokenFetchOptions = (
 	return {
 		method: "POST",
 		headers: {
-			"Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+			"Content-Type": oAuthRequestContentType,
 		},
 		body: stringify(querystringPairs),
 	};
@@ -135,7 +138,7 @@ const fetchOAuthUserByAccessToken = async (
 	const url = oAuthProps[provider].requestEndpoint.user;
 	const headers = {
 		Authorization: `Bearer ${accessToken}`,
-		"Content-type": "application/x-www-form-urlencoded;charset=utf-8",
+		"Content-type": oAuthRequestContentType,
 	};
 
 	const oAuthUserResponse = await fetch(url, { headers });

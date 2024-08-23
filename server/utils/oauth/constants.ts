@@ -4,9 +4,10 @@ type TOAuthVariable<T> = {
 	[provider in TOAuthProvider]: T;
 };
 
-interface IKeyValuePair {
-	key: string;
-	value: string;
+type TOAuthRequestType = "login" | "token" | "user";
+
+interface IKeyValuePairs {
+	[key: string]: string;
 }
 
 type TOAuthProps = {
@@ -17,23 +18,26 @@ type TOAuthProps = {
 	redirectUri: string;
 
 	requestEndpoint: {
-		login: string;
-		token: string;
-		user: string;
+		[key in TOAuthRequestType]: string;
 	};
 
-	requestAdditionalParam?: {
-		login?: IKeyValuePair;
-		token?: IKeyValuePair;
-		user?: IKeyValuePair;
+	getAdditionalRequestOptionsFor?: {
+		[key in TOAuthRequestType]?: (options?: any) => {
+			headers?: IKeyValuePairs;
+			searchParams?: IKeyValuePairs;
+			body?: IKeyValuePairs;
+		};
 	};
 
-	reconfirmParam: IKeyValuePair;
+	reconfirmParams: IKeyValuePairs;
 };
 
 const getRedirectUri = (provider: TOAuthProvider) => {
 	return `http://localhost:${process.env.PORT}/oauth/redirect/${provider}`;
 };
+
+export const oAuthRequestContentType =
+	"application/x-www-form-urlencoded;charset=utf-8";
 
 export const oAuthProps: TOAuthVariable<TOAuthProps> = {
 	google: {
@@ -49,16 +53,16 @@ export const oAuthProps: TOAuthVariable<TOAuthProps> = {
 			user: "https://www.googleapis.com/oauth2/v2/userinfo",
 		},
 
-		requestAdditionalParam: {
-			login: {
-				key: "access_type",
-				value: "offline",
-			},
+		getAdditionalRequestOptionsFor: {
+			login: () => ({
+				searchParams: {
+					access_type: "offline",
+				},
+			}),
 		},
 
-		reconfirmParam: {
-			key: "prompt",
-			value: "consent",
+		reconfirmParams: {
+			prompt: "consent",
 		},
 	},
 
@@ -74,9 +78,8 @@ export const oAuthProps: TOAuthVariable<TOAuthProps> = {
 			user: "https://kapi.kakao.com/v2/user/me",
 		},
 
-		reconfirmParam: {
-			key: "prompt",
-			value: "login",
+		reconfirmParams: {
+			prompt: "login",
 		},
 	},
 
@@ -92,9 +95,8 @@ export const oAuthProps: TOAuthVariable<TOAuthProps> = {
 			user: "https://openapi.naver.com/v1/nid/me",
 		},
 
-		reconfirmParam: {
-			key: "auth_type",
-			value: "reauthenticate",
+		reconfirmParams: {
+			auth_type: "reauthenticate",
 		},
 	},
 };
