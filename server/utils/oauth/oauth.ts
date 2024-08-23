@@ -258,7 +258,7 @@ export const revokeOAuth = async (
 		...buildRevokeFetchParameters(provider, oAuthAccessToken)
 	);
 
-	console.log(await oAuthRevokeResponse.json());
+	const payload = await oAuthRevokeResponse.json();
 
 	if (oAuthRevokeResponse.status >= 500) {
 		throw ServerError.etcError(
@@ -268,6 +268,11 @@ export const revokeOAuth = async (
 	} else if (oAuthRevokeResponse.status >= 400) {
 		throw ServerError.badRequest(
 			"인가 수단이 유효하지 않아서 OAuth 연동 해제에 실패했습니다."
+		);
+	} else if (payload.error) {
+		throw ServerError.etcError(
+			500,
+			"서버의 요청 구성 문제로 OAuth 연동 해제에 실패했습니다."
 		);
 	}
 };
