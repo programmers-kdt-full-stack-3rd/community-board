@@ -10,3 +10,4 @@ export * from "./chats/mappers";
 export * from "./admin/users";
 export * from "./admin/posts";
 export * from "../server/db/model/logs";
+export * from "../server/db/model/stats";

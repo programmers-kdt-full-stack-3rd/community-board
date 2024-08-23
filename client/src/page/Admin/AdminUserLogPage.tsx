@@ -3,7 +3,7 @@ import Pagination from '../../component/common/Pagination/Pagination';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { IUserLog } from 'shared';
-import { fetchUserLogs } from '../../component/Admin/UserLog/UserLog';
+import { fetchUserLogs, fetchUserStats } from '../../component/Admin/UserLog/UserLog';
 import {
     LogContainer,
     LogListStyle,
@@ -30,6 +30,7 @@ export const AdminUserLogPage = () => {
     const [currentPage, setCurrentPage] = useState<number>(initialPage);
     const [totalPostCount, setTotalPostCount] = useState<number>(0);
     const [totalCommentCount, setTotalCommentCount] = useState<number>(0);
+    const [totalViewCount, setTotalViewCount] = useState<number>(0);
     const [onlyPost, setOnlyPost] = useState<boolean>(false);
     const [onlyComment, setOnlyComment] = useState<boolean>(false);
 
@@ -39,12 +40,15 @@ export const AdminUserLogPage = () => {
         try {
             const data = await fetchUserLogs(userIdNum, initialPage, 100);
             const allLogs = data.logs || [];
+            console.log(allLogs);
             setLogs(allLogs);
 
-            const posts = allLogs.filter((log: { category: string; }) => log.category === '게시글').length;
-            const comments = allLogs.filter((log: { category: string; }) => log.category === '댓글').length;
-            setTotalPostCount(posts);
-            setTotalCommentCount(comments);
+            const statsData = await fetchUserStats(userIdNum);
+            console.log(statsData);
+            setTotalPostCount(statsData.stats.posts || 0);
+            setTotalCommentCount(statsData.stats.comments || 0);
+            setTotalViewCount(statsData.stats.views || 0);
+
         } catch (err) {
             console.error("fetch 실패", err);
         }
@@ -109,8 +113,7 @@ export const AdminUserLogPage = () => {
                     <div>
                         <HiCursorClick className={StatsIcon} />
                         <div className={StatsCount}>조회수</div>
-                        <h2>124</h2>
-                        {/* 임시 조회수 */}
+                        <h2>{totalViewCount}</h2>
                     </div>
                 </div>
 
