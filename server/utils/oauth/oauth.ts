@@ -28,6 +28,12 @@ const grantTypeToKey: { [key in TOAuthTokenRequestGrantType]: string } = {
 	refresh_token: "refresh_token",
 };
 
+const buildOAuthState = (loginType: "login" | "reconfirm") => {
+	return stringify({
+		login_type: loginType,
+	});
+};
+
 /**
  * 주어진 provider로의 OAuth 로그인 요청 URL을 생성합니다.
  * @param provider - OAuth provider
@@ -47,6 +53,7 @@ export const buildLoginUrl = (provider: TOAuthProvider) => {
 	loginUrl.searchParams.set("response_type", "code");
 	loginUrl.searchParams.set("client_id", clientId);
 	loginUrl.searchParams.set("redirect_uri", redirectUri);
+	loginUrl.searchParams.set("state", buildOAuthState("login"));
 
 	if (scope) {
 		loginUrl.searchParams.set("scope", scope);
@@ -61,6 +68,7 @@ export const buildLoginUrl = (provider: TOAuthProvider) => {
 	}
 
 	const reconfirmUrl = new URL(loginUrl);
+	reconfirmUrl.searchParams.set("state", buildOAuthState("reconfirm"));
 	for (const key in reconfirmParams) {
 		reconfirmUrl.searchParams.set(key, reconfirmParams[key]);
 	}
