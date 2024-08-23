@@ -1,7 +1,48 @@
-import { FieldPacket, PoolConnection, ResultSetHeader } from "mysql2/promise";
+import {
+	FieldPacket,
+	PoolConnection,
+	ResultSetHeader,
+	RowDataPacket,
+} from "mysql2/promise";
 import { ServerError } from "../../middleware/errors";
 import pool from "../connect";
+import { mapDBToOAuthConnections } from "../mapper/oauth_mapper";
 import { TOAuthProvider } from "../model/oauth";
+
+export const readOAuthConnections = async (userId: number) => {
+	let conn: PoolConnection | null = null;
+
+	try {
+		const sql = `
+			SELECT
+				oauth_connections.id,
+				oauth_connections.user_id,
+				oauth_providers.name AS oauth_provider_name,
+				oauth_connections.oauth_account_id,
+				oauth_connections.oauth_refresh_token
+			FROM
+				oauth_connections
+			INNER JOIN
+				oauth_providers
+				ON oauth_connections.oauth_provider_id = oauth_providers.id
+				AND oauth_connections.user_id = ?
+				AND oauth_connections.isDelete = FALSE
+		`;
+		const values = [userId];
+
+		conn = await pool.getConnection();
+		const [result]: [RowDataPacket[], FieldPacket[]] = await conn.query(
+			sql,
+			values
+		);
+
+		return mapDBToOAuthConnections(result);
+	} catch (err: any) {
+		throw err;
+	} finally {
+		if (conn) conn.release();
+	}
+};
 
 export const createOAuthConnection = async (
 	provider: string,
