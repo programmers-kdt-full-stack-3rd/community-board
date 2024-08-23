@@ -10,18 +10,18 @@ import CheckPassword from "./page/User/CheckPassword";
 import ProfileUpdate from "./page/User/ProfileUpdate";
 import clsx from "clsx";
 import { useErrorModal } from "./state/errorModalStore";
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useLayoutEffect } from "react";
 import ErrorModal from "./component/utils/ErrorModal";
 import OAuthRedirectHandler from "./page/OAuthRedirectHandler";
 import ChatTestPage from "./page/Chat/ChatTestPage";
 import ChatRoom from "./component/Chats/ChatRoom/ChatRoom";
 import ChatRooms from "./component/Chats/ChatRooms/ChatRooms";
-import { useUserStore } from "./state/store";
-import { io, Socket } from "socket.io-client";
 import { AdminUserMgmtPage } from "./page/Admin/AdminUserMgmtPage";
 import { AdminPostMgmtPage } from "./page/Admin/AdminPostMgmtPage";
 import { AdminStatsPage } from "./page/Admin/AdminStatsPage";
 import { AdminUserLogPage } from "./page/Admin/AdminUserLogPage";
+import { useUserStore } from "./state/store";
+import { io } from "socket.io-client";
 
 function MainContainer({ children }: { children: React.ReactNode }) {
 	const location = useLocation();
