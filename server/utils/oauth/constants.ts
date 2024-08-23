@@ -6,6 +6,11 @@ type TOAuthVariable<T> = {
 	[provider in TOAuthProvider]: T;
 };
 
+interface IKeyValuePair {
+	key: string;
+	value: string;
+}
+
 type TOAuthProps = {
 	clientId: string;
 	clientSecret?: string;
@@ -19,10 +24,13 @@ type TOAuthProps = {
 		user: string;
 	};
 
-	reconfirmParam: {
-		key: string;
-		value: string;
+	requestAdditionalParam?: {
+		login?: IKeyValuePair;
+		token?: IKeyValuePair;
+		user?: IKeyValuePair;
 	};
+
+	reconfirmParam: IKeyValuePair;
 };
 
 const getRedirectUri = (provider: TOAuthProvider) => {
@@ -41,6 +49,13 @@ export const oAuthProps: TOAuthVariable<TOAuthProps> = {
 			login: "https://accounts.google.com/o/oauth2/v2/auth",
 			token: "https://oauth2.googleapis.com/token",
 			user: "https://www.googleapis.com/oauth2/v2/userinfo",
+		},
+
+		requestAdditionalParam: {
+			login: {
+				key: "access_type",
+				value: "offline",
+			},
 		},
 
 		reconfirmParam: {

@@ -25,8 +25,14 @@ interface IOAuthTokens {
  * @param provider - OAuth provider
  */
 export const buildLoginUrl = (provider: TOAuthProvider) => {
-	const { requestEndpoint, clientId, redirectUri, scope, reconfirmParam } =
-		oAuthProps[provider];
+	const {
+		requestEndpoint,
+		clientId,
+		redirectUri,
+		scope,
+		requestAdditionalParam,
+		reconfirmParam,
+	} = oAuthProps[provider];
 
 	const loginUrl = new URL(requestEndpoint.login);
 
@@ -36,6 +42,13 @@ export const buildLoginUrl = (provider: TOAuthProvider) => {
 
 	if (scope) {
 		loginUrl.searchParams.set("scope", scope);
+	}
+
+	if (requestAdditionalParam?.login) {
+		loginUrl.searchParams.set(
+			requestAdditionalParam.login.key,
+			requestAdditionalParam.login.value
+		);
 	}
 
 	const reconfirmUrl = new URL(loginUrl);
