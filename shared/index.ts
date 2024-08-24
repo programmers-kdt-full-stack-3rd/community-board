@@ -11,3 +11,4 @@ export * from "./admin/users";
 export * from "./admin/posts";
 export * from "../server/db/model/logs";
 export * from "../server/db/model/stats";
+export * from "../server/db/mapper/stats_mapper";
