@@ -1,8 +1,7 @@
-import UserLogItem from '../../component/Admin/UserLog/UserLogItem';
 import Pagination from '../../component/common/Pagination/Pagination';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { IUserLog } from 'shared';
+import { IUserLogResponse } from 'shared';
 import { fetchUserLogs, fetchUserStats } from '../../component/Admin/UserLog/UserLog';
 import {
     LogContainer,
@@ -12,22 +11,28 @@ import {
     UserStats,
     PaginationContainer,
     LogStyle,
-    Title
+    Title,
+    LogListDetail
 } from '../../component/Admin/UserLog/UserLog.css';
 import { useUserStore } from '../../state/store';
 import { FaBookOpen } from "react-icons/fa";
 import { IoChatbubbleEllipsesSharp } from "react-icons/io5";
 import { HiCursorClick } from "react-icons/hi";
+import { dateToStr } from '../../utils/date-to-str';
 
 const useFetchUserData = (userId: number, initialPage: number, itemsPerPage: number) => {
-    const [logs, setLogs] = useState<IUserLog[]>([]);
+    const [logs, setLogs] = useState<IUserLogResponse>({
+        total: 0,
+        logs: []
+    });
     const [stats, setStats] = useState({ posts: 0, comments: 0, views: 0 });
     const [error, setError] = useState<string | null>(null);
 
     const fetchLogs = async () => {
         try {
             const data = await fetchUserLogs(userId, initialPage, itemsPerPage);
-            setLogs(data.logs || []);
+            setLogs(data);
+            console.log(logs);
         } catch (err) {
             setError("로그를 가져오는 데 실패했습니다.");
         }
@@ -66,17 +71,9 @@ export const AdminUserLogPage = () => {
     const [currentPage, setCurrentPage] = useState<number>(initialPage);
     const [onlyPost, setOnlyPost] = useState<boolean>(false);
     const [onlyComment, setOnlyComment] = useState<boolean>(false);
-
+    console.log(onlyPost);
+    console.log(onlyComment);
     const { logs, stats, error } = useFetchUserData(userIdNum, currentPage, itemsPerPage);
-
-    const filteredLogs = logs.filter(log => {
-        if (onlyPost) return log.category === '게시글';
-        if (onlyComment) return log.category === '댓글';
-        return true;
-    });
-
-    const paginatedFilteredLogs = filteredLogs.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
     const nickname = useUserStore.use.nickname();
 
     return (
@@ -114,12 +111,17 @@ export const AdminUserLogPage = () => {
                     </div>
                     <hr />
                     <div>
+
                         {error ? (
                             <p>{error}</p>
-                        ) : paginatedFilteredLogs.length > 0 ? (
-                            paginatedFilteredLogs.map((log) => (
-                                <div key={log.total}>
-                                    <UserLogItem log={log} />
+                        ) : logs.total > 0 ? (
+                            logs.logs.map((log) => (
+                                <div key={logs.total}>
+                                    <div className={LogListDetail}>
+                                        <div>{log.title}</div>
+                                        <div>{log.category}</div>
+                                        <div>{dateToStr(new Date(log.createdAt), true)}</div>
+                                    </div>
                                     <hr style={{ borderColor: 'rgba(0, 0, 0, 0.8)', borderWidth: '1px' }} />
                                 </div>
                             ))
@@ -133,7 +135,7 @@ export const AdminUserLogPage = () => {
                 <div className={PaginationContainer}>
                     <Pagination
                         currentPage={currentPage}
-                        totalPosts={filteredLogs.length}
+                        totalPosts={logs.total}
                         perPage={itemsPerPage}
                         onChange={setCurrentPage}
                     />
