@@ -28,6 +28,13 @@ export interface IReadRoomResponse {
 
 // 채팅방 가입 --------------------------------------------------
 
+export interface IJoinRoomRequestEvent {
+	roomId: number; // 가입 할 채팅방 번호
+	nickname: string;
+	isPrivate: boolean; // 비밀 방 여부
+	password: string; // 방 비밀번호 (null 허용)
+}
+
 export interface IJoinRoomRequest {
 	roomId: number; // 가입 할 채팅방 번호
 	isPrivate: boolean; // 비밀 방 여부
