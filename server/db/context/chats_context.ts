@@ -174,7 +174,7 @@ export const getMessageLogs = async (userId: number, roomId: number) => {
 			SELECT
 			    m.room_id,
 				u.nickname,
-				m.content,
+				m.message,
 				m.created_at,
                 m.user_id,
 				m.is_system
