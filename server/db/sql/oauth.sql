@@ -8,6 +8,8 @@ CREATE TABLE IF NOT EXISTS oauth_connections (
     user_id INT NOT NULL,
     oauth_provider_id INT NOT NULL,
     oauth_account_id VARCHAR(255) NOT NULL,
+    oauth_refresh_token TEXT NULL,
+    isDelete Boolean NOT NULL DEFAULT FALSE,
 
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (oauth_provider_id) REFERENCES oauth_providers(id),

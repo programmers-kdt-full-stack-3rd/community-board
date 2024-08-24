@@ -22,21 +22,30 @@ interface ChatRoomsProps {
 
 const ChatRooms: FC<ChatRoomsProps> = ({ socket }) => {
 	const [isOpen, setIsOpen] = useState(false);
+	const [currentPage, setCurrentPage] = useState<number>(1);
 	const isAsideOpen = true; // TODO : Aside UI 만들때 State 관리
 	const nickname = useUserStore(state => state.nickname);
 
 	useEffect(() => {
 		if (isAsideOpen) {
-			const data: IGetMyRoomRequestEvent = { nickname };
+			console.log(currentPage);
+			const data: IGetMyRoomRequestEvent = {
+				page: currentPage,
+				nickname,
+			};
 			socket?.emit("get_my_rooms", data);
 		}
-	}, [isAsideOpen, socket]);
+	}, [isAsideOpen, socket, currentPage]);
 
 	return (
 		<div className={container}>
 			{isOpen ? <CreateRoomModal close={setIsOpen} /> : null}
 			<SearchedChatRooms open={setIsOpen} />
-			<MyChatRooms socket={socket} />
+			<MyChatRooms
+				socket={socket}
+				currentPage={currentPage}
+				setCurrentPage={setCurrentPage}
+			/>
 		</div>
 	);
 };

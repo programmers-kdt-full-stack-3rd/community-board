@@ -1,5 +1,4 @@
 import { FC, useEffect, useLayoutEffect, useState } from "react";
-import { RoomsInfo } from "./ChatRooms";
 import { IReadRoomResponse } from "shared";
 import { roomsWrapper } from "./ChatRooms.css";
 import Rooms from "./Rooms/Rooms";
@@ -10,33 +9,33 @@ import { Socket } from "socket.io-client";
 import { useChatRoom } from "../../../state/ChatRoomStore";
 
 interface MyChatRoomsProps {
+	currentPage: number;
+	setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
 	socket: Socket | null;
 }
 
-const MyChatRooms: FC<MyChatRoomsProps> = ({ socket }) => {
+const MyChatRooms: FC<MyChatRoomsProps> = ({
+	socket,
+	currentPage,
+	setCurrentPage,
+}) => {
 	const [isRendered, setIsRendered] = useState(false);
-	const [currentPage, setCurrentPage] = useState<number>(1);
-	const [myRooms, setMyRooms] = useState<RoomsInfo>({
-		totalRoomCount: 0,
-		rooms: {},
-	});
 	const roomState = useChatRoom();
 
 	useEffect(() => {
 		if (socket) {
-			const GetRooms = async () => {
-				socket.on("get_my_rooms", (res: IReadRoomResponse) => {
-					setMyRooms(prevMyRooms => ({
-						totalRoomCount: res.totalRoomCount,
-						rooms: {
-							...prevMyRooms.rooms,
-							[currentPage]: res.roomHeaders,
-						},
-					}));
-					setIsRendered(true);
-				});
+			socket.on("get_my_rooms", (res: IReadRoomResponse) => {
+				roomState.setMyRoomInfo(
+					res.totalRoomCount,
+					currentPage,
+					res.roomHeaders
+				);
+				setIsRendered(true);
+			});
+
+			return () => {
+				socket.off("get_my_rooms");
 			};
-			GetRooms();
 		}
 	}, [socket, currentPage]);
 
@@ -52,7 +51,7 @@ const MyChatRooms: FC<MyChatRoomsProps> = ({ socket }) => {
 		if (isDevMode()) {
 			roomState.setMyRoomInfo(2, 1, testMy.roomHeaders);
 		} else if (!isRendered) {
-			if (myRooms.rooms[currentPage]) {
+			if (roomState.myRoomInfo.rooms[currentPage]) {
 				setIsRendered(true);
 				return;
 			}

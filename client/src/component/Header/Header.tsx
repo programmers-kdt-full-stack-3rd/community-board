@@ -22,16 +22,12 @@ import DropdownMenu from "./DropdownMenu";
 import { useModal } from "../../hook/useModal";
 import { ApiCall } from "../../api/api";
 import { ClientError } from "../../api/errors";
-import { Socket } from "socket.io-client";
 
-interface HeaderProps {
-	socket: Socket | null;
-}
-
-const Header: React.FC<HeaderProps> = ({ socket }) => {
+const Header: React.FC = () => {
 	const navigate = useNavigate();
 	const isLogin = useUserStore.use.isLogin();
 	const nickname = useUserStore.use.nickname();
+	const socket = useUserStore.use.socket();
 	const { setLogoutUser } = useUserStore.use.actions();
 	const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 	const dropdownMenuRef = useRef<HTMLDivElement>(null);
@@ -75,6 +71,7 @@ const Header: React.FC<HeaderProps> = ({ socket }) => {
 			socket.disconnect();
 			console.log("로그아웃, socket disconnect");
 		}
+
 		setLogoutUser();
 	};
 
