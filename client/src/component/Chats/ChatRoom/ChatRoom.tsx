@@ -26,6 +26,7 @@ const ChatRoom = () => {
 	const [messageLogs, setMessageLogs] = useState<IMessage[]>([]); // TEST : 컴포넌트 상태 저장
 	const [roomLoading, setRoomLoading] = useState(true);
 	const [chatLoading, setChatLoading] = useState(false);
+	const [memberId, setMemberId] = useState<number>(0);
 
 	// TODO : roomId zustand에서 꺼내올 것
 	const { room_id } = useParams(); // TEST: 채팅방 임시 데이터
@@ -39,27 +40,30 @@ const ChatRoom = () => {
 		}
 
 		if (socket) {
+			const handleReceiveMessage = (newMessage: IMessage) => {
+				setMessageLogs(prev => [...prev, newMessage]);
+			};
+
 			// 이전 메시지 모두 불러오기
-			socket.emit("enter_room", roomId, (response: IMessage[]) => {
-				setMessageLogs(response);
-				setRoomLoading(false);
-			});
+			socket.emit(
+				"enter_room",
+				roomId,
+				(response: { memberId: number; messageLogs: IMessage[] }) => {
+					setMemberId(response.memberId);
+					setMessageLogs(response.messageLogs);
+					setRoomLoading(false);
+				}
+			);
 
 			// 실시간 메시지 수신 설정
-			socket.on("receive_message", (newMessage: IMessage) => {
-				console.log("시스템 메세지 테스트", newMessage);
-				setMessageLogs(prevLogs => [...prevLogs, newMessage]);
-			});
+			socket.on("receive_message", handleReceiveMessage);
 
 			return () => {
 				// 소켓 이벤트 핸들러 제거
-				if (socket) {
-					socket.off("enter_room");
-					socket.off("send_message");
-				}
+				socket.off("receive_message", handleReceiveMessage);
 			};
 		}
-	}, [isLogin, roomId, socket, navigate]);
+	}, [isLogin, roomId, socket, navigate, memberId]);
 
 	const chatInputClick = () => {
 		if (!message.length) {
@@ -67,6 +71,7 @@ const ChatRoom = () => {
 		}
 
 		const msg: IMessage = {
+			memberId,
 			roomId,
 			nickname,
 			message,
