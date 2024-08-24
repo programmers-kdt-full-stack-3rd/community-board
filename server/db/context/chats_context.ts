@@ -174,7 +174,7 @@ export const getMessageLogs = async (userId: number, roomId: number) => {
 			SELECT
 			    m.room_id,
 				u.nickname,
-				m.content,
+				m.message,
 				m.created_at,
                 m.user_id,
 				m.is_system
@@ -197,38 +197,20 @@ export const getMessageLogs = async (userId: number, roomId: number) => {
 	}
 };
 
-export const addUserToRoom = async (
-	userId: number,
-	roomId: number,
-	content: string
-) => {
+export const addUserToRoom = async (userId: number, roomId: number) => {
 	let conn: PoolConnection | null = null;
 
 	try {
-		let sql = `INSERT INTO members (id, room_id) VALUES (?, ?)`;
-		let values: (string | number | boolean)[] = [userId, roomId];
+		const sql = `INSERT INTO members (id, room_id) VALUES (?, ?)`;
+		const values: (string | number | boolean)[] = [userId, roomId];
 		conn = await pool.getConnection();
-		conn.beginTransaction();
 		const [insertMemberRows]: any[] = await conn.query(sql, values);
 
 		if (insertMemberRows.affectedRows === 0) {
-			conn.rollback();
-			throw ServerError.reference("가입 실패");
-		}
-
-		const content = (sql = `
-				INSERT INTO messages (user_id, room_id, content, is_system)
-				VALUES (?,?,?,?)`);
-		values = [userId, roomId, content, true];
-		const [insertSystemMessageRows]: any[] = await conn.query(sql, values);
-
-		if (insertSystemMessageRows.affectedRows === 0) {
-			conn.rollback();
 			throw ServerError.reference("가입 실패");
 		}
 
 		return roomId;
-		// system message 넣기
 	} catch (err) {
 		throw err;
 	} finally {

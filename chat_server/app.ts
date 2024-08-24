@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import cookie from "cookie";
 import { createServer } from "http";
 import jwt from "jsonwebtoken";

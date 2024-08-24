@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS messages (
     id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
     room_id INT NOT NULL,
-    content TEXT NOT NULL,
+    message TEXT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     is_system BOOLEAN NOT NULL,
     FOREIGN KEY (room_id) REFERENCES rooms(id),
