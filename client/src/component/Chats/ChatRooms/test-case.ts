@@ -10,6 +10,7 @@ export const testSearch: IReadRoomResponse = {
 			isPrivate: false,
 			liveRoomInfo: {
 				lastMessage: {
+					memberId: 1,
 					roomId: 1,
 					nickname: "user1",
 					message: "Hello",
@@ -28,6 +29,7 @@ export const testSearch: IReadRoomResponse = {
 			isPrivate: true,
 			liveRoomInfo: {
 				lastMessage: {
+					memberId: 1,
 					roomId: 2,
 					nickname: "user2",
 					message: "Hello2",
@@ -46,6 +48,7 @@ export const testSearch: IReadRoomResponse = {
 			isPrivate: false,
 			liveRoomInfo: {
 				lastMessage: {
+					memberId: 1,
 					roomId: 3,
 					nickname: "user3",
 					message: "Hello3",
@@ -70,6 +73,7 @@ export const testMy: IReadRoomResponse = {
 			isPrivate: false,
 			liveRoomInfo: {
 				lastMessage: {
+					memberId: 1,
 					roomId: 1,
 					nickname: "user1",
 					message: "Hello",
@@ -88,6 +92,7 @@ export const testMy: IReadRoomResponse = {
 			isPrivate: true,
 			liveRoomInfo: {
 				lastMessage: {
+					memberId: 1,
 					roomId: 2,
 					nickname: "user2",
 					message: "Hello2",
@@ -106,6 +111,7 @@ export const testMy: IReadRoomResponse = {
 			isPrivate: false,
 			liveRoomInfo: {
 				lastMessage: {
+					memberId: 1,
 					roomId: 3,
 					nickname: "user3",
 					message: "Hello3",
