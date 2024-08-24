@@ -8,6 +8,7 @@ import {
 	authUser,
 	deleteUser,
 	getUserById,
+	registerUserEmail,
 	updateUser,
 } from "../db/context/users_context";
 import { ServerError } from "../middleware/errors";
@@ -118,22 +119,39 @@ export const handleUpdateUser = async (
 ) => {
 	try {
 		const values = {
-			nickname: req.body.nickname,
-			password: req.body.password,
+			email: req.body.email as string | undefined,
+			nickname: req.body.nickname as string,
+			password: req.body.password as string,
 			userId: req.userId,
 		};
 
 		const currentUser = await getUserById(values.userId);
-		const newHashedPassword = await makeHashedPassword(
-			values.password,
-			currentUser.salt
-		);
 
-		if (currentUser.password === newHashedPassword) {
-			throw ServerError.badRequest("기존 비밀번호와 동일합니다.");
+		if (currentUser.email && values.email) {
+			throw ServerError.badRequest(
+				"한번 등록한 이메일은 변경할 수 없습니다."
+			);
+		} else if (!currentUser.email && !values.email) {
+			throw ServerError.badRequest(
+				"소셜 로그인으로 가입한 유저는 최초 정보 수정 시 이메일을 등록해야 합니다."
+			);
 		}
 
-		await updateUser(values);
+		if (currentUser.email) {
+			const newHashedPassword = await makeHashedPassword(
+				values.password,
+				currentUser.salt
+			);
+
+			if (currentUser.password === newHashedPassword) {
+				throw ServerError.badRequest("비밀번호가 현재와 동일합니다.");
+			}
+
+			await updateUser(values);
+		} else {
+			await registerUserEmail(values);
+		}
+
 		res.status(200).json({ message: "회원정보 수정 성공" });
 	} catch (err: any) {
 		next(err);
