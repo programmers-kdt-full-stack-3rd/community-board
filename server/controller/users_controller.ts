@@ -88,6 +88,29 @@ export const handleLogoutUser = async (
 	}
 };
 
+export const handleReadUser = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		const userId = req.userId;
+
+		const user = await getUserById(req.userId);
+		const oAuthConnections = await readOAuthConnections(userId);
+
+		res.status(200).json({
+			email: user.email,
+			nickname: user.nickname,
+			connected_oauth: oAuthConnections.map(
+				({ oauth_provider_name }) => oauth_provider_name
+			),
+		});
+	} catch (err: any) {
+		next(err);
+	}
+};
+
 export const handleUpdateUser = async (
 	req: Request,
 	res: Response,
