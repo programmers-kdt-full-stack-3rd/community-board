@@ -1,63 +1,62 @@
 import { useEffect, useState } from 'react';
-import { IUser } from 'shared';
+import { IUserInfoResponse } from 'shared';
 import { HttpMethod, httpRequest } from '../../../api/api';
 import { ClientError } from '../../../api/errors';
+import { deleteButton, restoreButton, SearchUser, UserListDetail, UserListStyle, UserSearchInput } from './UserList.css';
+import { AdminPostHeader } from '../PostMgmt/PostMgmt.css';
+import { EmptyUserList } from './EmptyUserList';
+import { Link } from 'react-router-dom';
 import { dateToStr } from '../../../utils/date-to-str';
 import Pagination from '../../common/Pagination/Pagination';
-import { EmptyUserList } from './EmptyUserList';
-import { deleteButton, restoreButton, SearchUser, UserListDetail, UserListStyle, UserSearchInput } from './UserList.css';
-import { Link } from 'react-router-dom';
-import { AdminPostHeader } from '../PostMgmt/PostMgmt.css';
 
 const UserList = () => {
     const initialPage = 1;
     const itemsPerPage = 10;
-    const [users, setUsers] = useState<IUser[] | null>(null);
-    const [totalUsers, setTotalUsers] = useState<number>(0);
+    const [users, setUsers] = useState<IUserInfoResponse>({
+        total: 0,
+        userInfo: []
+    });
     const [currentPage, setCurrentPage] = useState<number>(initialPage);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
     const nickname = "";
     const [email, setEmail] = useState<string>("");
 
     const fetchUsers = async () => {
-        setLoading(true);
-        setError(null);
         try {
             const url = `admin/user?index=${currentPage}&perPage=${itemsPerPage}${nickname ? `&nickname=${encodeURIComponent(nickname)}` : ''}${email ? `&email=${encodeURIComponent(email)}` : ''}`;
             const response = await httpRequest(url, HttpMethod.GET);
+            setUsers(response);
+            console.log(response);
 
-            if (response.status >= 400) {
-                throw ClientError.autoFindErrorType(response.status, response.message || response.statusText);
-            }
-            setUsers(response.userInfo || []);
-            setTotalUsers(response.total || 0);
         } catch (err) {
             if (err instanceof ClientError) {
                 console.error(`ClientError : ${err.code} : ${err.message}`);
             } else {
                 console.error('error:', err);
             }
-            setError("사용자 불러오기 실패");
-        } finally {
-            setLoading(false);
         }
     };
 
     useEffect(() => {
         fetchUsers();
-    }, [nickname, email]);
+        console.log(users.total);
+        console.log(users.userInfo);
 
-    //사용자 삭제 
+    }, [nickname, email, users]);
+
     const handleDelete = async (userId: number) => {
         try {
             const response = await httpRequest(`admin/user/${userId}`, HttpMethod.DELETE);
-
             if (response.status >= 400) {
                 throw ClientError.autoFindErrorType(response.status, response.message || '사용자 삭제 실패');
             }
 
-            setUsers(users => users?.map(user => user.id === userId ? { ...user, isDelete: true } : user) || null);
+            setUsers(prevUsers => ({
+                ...prevUsers,
+                userInfo: prevUsers.userInfo.map(user =>
+                    user.id === userId ? { ...user, isDelete: true } : user
+                )
+            }));
+
             alert('사용자가 성공적으로 삭제되었습니다.');
         } catch (err) {
             if (err instanceof ClientError) {
@@ -69,16 +68,19 @@ const UserList = () => {
         }
     };
 
-    //사용자 복구
     const handleRestore = async (userId: number) => {
         try {
             const response = await httpRequest(`admin/user/${userId}/restore`, HttpMethod.PATCH);
-
             if (response.status >= 400) {
                 throw ClientError.autoFindErrorType(response.status, response.message || '사용자 복구 실패');
             }
+            setUsers(prevUsers => ({
+                ...prevUsers,
+                userInfo: prevUsers.userInfo.map(user =>
+                    user.id === userId ? { ...user, isDelete: false } : user
+                )
+            }));
 
-            setUsers(users => users?.map(user => user.id === userId ? { ...user, isDelete: false } : user) || null);
             alert('사용자가 성공적으로 복구되었습니다.');
         } catch (err) {
             if (err instanceof ClientError) {
@@ -90,11 +92,11 @@ const UserList = () => {
         }
     };
 
+
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
     };
 
-    //사용자 검색
     const handleSearch = () => {
         setCurrentPage(1);
         fetchUsers();
@@ -128,17 +130,13 @@ const UserList = () => {
             <hr></hr>
 
             <div>
-                {loading ? (
-                    <p>Loading...</p>
-                ) : error ? (
-                    <p>{error}</p>
-                ) : users === null || users.length === 0 ? (
+                {users === null || users.total === 0 ? (
                     <EmptyUserList
                         isFetchFailed={false}
                         keyword=""
                     />
                 ) : (
-                    users.map(user => (
+                    users.userInfo.map(user => (
                         <div>
 
                             <div
@@ -184,9 +182,10 @@ const UserList = () => {
             </div>
             <hr></hr>
 
+
             <Pagination
                 currentPage={currentPage}
-                totalPosts={totalUsers}
+                totalPosts={users.total}
                 perPage={itemsPerPage}
                 onChange={handlePageChange}
             />
