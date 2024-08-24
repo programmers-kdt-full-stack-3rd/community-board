@@ -19,8 +19,10 @@ import ChatRooms from "./component/Chats/ChatRooms/ChatRooms";
 import { AdminUserMgmtPage } from "./page/Admin/AdminUserMgmtPage";
 import { AdminPostMgmtPage } from "./page/Admin/AdminPostMgmtPage";
 import { AdminStatsPage } from "./page/Admin/AdminStatsPage";
+import NotFound from "./page/error/NotFound";
 import { useUserStore } from "./state/store";
 import { io } from "socket.io-client";
+
 
 function MainContainer({ children }: { children: React.ReactNode }) {
 	const location = useLocation();
@@ -140,6 +142,10 @@ function App() {
 						<Route
 							path="/admin/stats"
 							element={<AdminStatsPage />}
+						/>
+						<Route
+							path="*"
+							element={<NotFound />}
 						/>
 					</Routes>
 				</MainContainer>

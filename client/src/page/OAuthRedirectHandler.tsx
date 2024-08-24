@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { sendOAuthLoginRequest } from "../api/users/oauth";
 import { useUserStore } from "../state/store";
+import Loader from "../component/common/Loader/Loader";
 
 //사용자 인증 완료 후 리디렉션된 후 처리
 const OAuthRedirectHandler = () => {
@@ -57,11 +58,13 @@ const OAuthRedirectHandler = () => {
 	return (
 		<div>
 			{loading ? (
-				<p>OAuth 로그인 처리 중</p>
+				<div>
+					<Loader />
+				</div>
 			) : error ? (
 				<p>{error}</p>
 			) : (
-				<p>OAuth 로그인 처리 완료</p>
+				<p>로그인 완료</p>
 			)}
 		</div>
 	);
