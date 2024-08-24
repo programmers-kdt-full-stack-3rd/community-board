@@ -51,12 +51,11 @@ const processMessage = async ({
 		throw Error("데이터가 없습니다.");
 	}
 
-	const { roomId, userId } = JSON.parse(key!.toString());
+	const memberId = parseInt(key!.toString());
 	const { message, isSystem } = JSON.parse(value!.toString());
 
 	insertMessage({
-		roomId,
-		userId,
+		memberId,
 		message,
 		createdAt: new Date(parseInt(timestamp)),
 		isSystem,
