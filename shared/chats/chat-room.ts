@@ -30,7 +30,6 @@ export interface IReadRoomResponse {
 
 export interface IJoinRoomRequest {
 	roomId: number; // 가입 할 채팅방 번호
-	content: string; // socket에서 생성한 가입 축하 인사, 이 대신 nickname 보내도 됨
 	isPrivate: boolean; // 비밀 방 여부
 	password: string; // 방 비밀번호 (null 허용)
 }

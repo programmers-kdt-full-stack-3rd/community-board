@@ -109,13 +109,12 @@ export const handleRoomJoin = async (
 	try {
 		const body: IJoinRoomRequest = {
 			roomId: parseInt(req.body.roomId),
-			content: req.body.content,
 			isPrivate: req.body.isPrivate === "true",
 			password: req.body.password || "",
 		};
 		const userId = req.userId;
 
-		const result = await addUserToRoom(userId, body.roomId, body.content);
+		const result = await addUserToRoom(userId, body.roomId);
 
 		const response: IJoinRoomResponse = {
 			roomId: result,
