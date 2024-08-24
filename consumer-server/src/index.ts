@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+dotenv.config();
 
 import { getDBPool, initDBPool } from "./config/dbConfig";
 import { getKafkaAPI, initKafkaAPI } from "./config/kafkaConfig";
@@ -7,8 +8,6 @@ import {
 	initConsumer,
 	processMessage,
 } from "./services/kafkaService";
-
-dotenv.config();
 
 const startServer = async () => {
 	// 호스트 IP
@@ -20,12 +19,21 @@ const startServer = async () => {
 	// DB config
 	const DB_USER = process.env.DB_USER || "root";
 	const DB_PSWORD = process.env.DB_PSWORD || "root";
-	const DB_NAME = process.env.DB_USER || "community_board";
+	const DB_NAME = process.env.DB_NAME || "community_board";
 
 	// 카프카 PORT
 	const KAFKA_PORT_1 = process.env.KAFKA_PORT_1 || "9092";
 	const KAFKA_PORT_2 = process.env.KAFKA_PORT_2 || "9093";
 	const KAFKA_PORT_3 = process.env.KAFKA_PORT_3 || "9094";
+
+	console.log(`HOST_IP: ${HOST_IP}`);
+	console.log(`DB_PORT: ${DB_PORT}`);
+	console.log(`DB_USER: ${DB_USER}`);
+	console.log(`DB_PSWORD: ${DB_PSWORD}`);
+	console.log(`DB_NAME: ${DB_NAME}`);
+	console.log(`KAFKA_PORT_1: ${KAFKA_PORT_1}`);
+	console.log(`KAFKA_PORT_2: ${KAFKA_PORT_2}`);
+	console.log(`KAFKA_PORT_3: ${KAFKA_PORT_3}`);
 
 	// Broker URLs
 	const brokers: string[] = [
