@@ -1,5 +1,9 @@
 import axios from "axios";
-import { IJoinRoomRequest, IReadRoomRequest } from "shared";
+import {
+	IJoinRoomRequest,
+	IGetRoomMessageLogsRequest,
+	IReadRoomRequest,
+} from "shared";
 
 const apiClient = axios.create({
 	baseURL: process.env.API_SERVER_ADDRESS || "http://localhost:8000",
@@ -31,4 +35,8 @@ export const joinRoomToApi = async (
 			Cookie: `${cookies}`,
 		},
 	});
+};
+
+export const getMessageLogs = async (params: IGetRoomMessageLogsRequest) => {
+	return apiClient.get(`/api/chat/room/${params.roomId}`);
 };

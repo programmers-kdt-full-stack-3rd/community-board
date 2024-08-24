@@ -7,17 +7,11 @@ import { getDBPool } from "../config/dbConfig";
 const insertMessage = async (messageDTO: IKafkaMessageDTO): Promise<number> => {
 	let conn: PoolConnection | null = null;
 
-	const {
-		roomId,
-		userId,
-		message: content,
-		createdAt,
-		isSystem,
-	} = messageDTO;
-	const values = [userId, roomId, content, createdAt, isSystem];
+	const { roomId, userId, message, createdAt, isSystem } = messageDTO;
+	const values = [userId, roomId, message, createdAt, isSystem];
 
 	const query = `
-    INSERT INTO messages (user_id, room_id, content, created_at, is_system)
+    INSERT INTO messages (user_id, room_id, message, created_at, is_system)
     VALUES (?, ?, ?, ?, ?)
     `;
 

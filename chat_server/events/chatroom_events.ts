@@ -11,9 +11,8 @@ import {
 } from "shared";
 import { Socket } from "socket.io";
 
-import { httpRequest } from "../services/api_service";
-import { getMyRoomsToApi, joinRoomToApi } from "../utils/api";
 import { sendMessage } from "../services/kafka_service";
+import { getMessageLogs, getMyRoomsToApi, joinRoomToApi } from "../utils/api";
 
 // 채팅방 이벤트
 export const handleRoomEvents = (socket: Socket) => {
@@ -104,17 +103,24 @@ export const handleRoomEvents = (socket: Socket) => {
 	});
 
 	// 채팅방 입장
-	// socket.on("enter_room", async (roomId, callback) => {
-	// 	socket.join(`${roomId}`); // TEST : join room
+	socket.on(
+		"enter_room",
+		async (roomId: number, callback: (msgs: IMessage[]) => void) => {
+			try {
+				// TODO : 캐싱 메시지 조회(redis -> http)
 
-	// 	// TODO : 캐싱 메시지 조회(redis -> http)
+				const response = await getMessageLogs({
+					roomId,
+				});
 
-	// 	const { messageLogs }: IGetRoomMessageLogsResponse = await httpRequest(
-	// 		`api/chat/room/${roomId}`,
-	// 		"GET",
-	// 		{}
-	// 	);
+				const { messageLogs } =
+					response.data as IGetRoomMessageLogsResponse;
 
-	// 	callback(messageLogs);
-	// });
+				callback(messageLogs);
+			} catch (error) {
+				console.error(error);
+				socket.disconnect();
+			}
+		}
+	);
 };
