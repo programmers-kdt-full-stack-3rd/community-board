@@ -28,7 +28,7 @@ const grantTypeToKey: { [key in TOAuthTokenRequestGrantType]: string } = {
 	refresh_token: "refresh_token",
 };
 
-const buildOAuthState = (loginType: "login" | "reconfirm") => {
+const buildOAuthState = (loginType: "login" | "reconfirm" | "link") => {
 	return stringify({
 		login_type: loginType,
 	});
@@ -73,9 +73,13 @@ export const buildLoginUrl = (provider: TOAuthProvider) => {
 		reconfirmUrl.searchParams.set(key, reconfirmParams[key]);
 	}
 
+	const linkUrl = new URL(loginUrl);
+	linkUrl.searchParams.set("state", buildOAuthState("link"));
+
 	return {
 		loginUrl: loginUrl.toString(),
 		reconfirmUrl: reconfirmUrl.toString(),
+		linkUrl: linkUrl.toString(),
 	};
 };
 
