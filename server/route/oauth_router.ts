@@ -4,6 +4,7 @@ import {
 	handleOAuthReconfirm,
 	handleOAuthLinkCreate,
 	handleOAuthUrlReadFor,
+	handleOAuthLinkDelete,
 } from "../controller/oauth_controller";
 import { requireLogin } from "../middleware/auth";
 import {
@@ -43,6 +44,13 @@ router.post(
 	requireLogin,
 	postOAuthLoginValidatior(),
 	handleOAuthLinkCreate
+);
+
+router.delete(
+	"/link/:provider",
+	requireLogin,
+	getOAuthLoginUrlValidator(), // TODO: validator 정리
+	handleOAuthLinkDelete
 );
 
 export default router;

@@ -131,6 +131,47 @@ export const updateOAuthRefreshToken = async (
 	}
 };
 
+export const deleteOAuthConnection = async (
+	provider: TOAuthProvider,
+	userId: number
+) => {
+	let conn: PoolConnection | null = null;
+
+	try {
+		const sql = `
+			UPDATE
+				oauth_connections
+			INNER JOIN
+				users
+				ON oauth_connections.user_id = users.id
+				AND users.id = ?
+			INNER JOIN
+				oauth_providers
+				ON oauth_connections.oauth_provider_id = oauth_providers.id
+				AND oauth_providers.name = ?
+			SET
+				oauth_connections.isDelete = TRUE
+			WHERE
+				oauth_connections.isDelete = FALSE
+		`;
+		const values = [userId, provider];
+
+		conn = await pool.getConnection();
+		const [result]: [ResultSetHeader, FieldPacket[]] = await conn.query(
+			sql,
+			values
+		);
+
+		if (result.affectedRows === 0) {
+			throw ServerError.reference("소셜 로그인 개별 연동 해제 실패");
+		}
+	} catch (err) {
+		throw err;
+	} finally {
+		if (conn) conn.release();
+	}
+};
+
 export const clearOAuthConnection = async (userId: number) => {
 	let conn: PoolConnection | null = null;
 
