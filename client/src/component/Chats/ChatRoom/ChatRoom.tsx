@@ -47,6 +47,7 @@ const ChatRoom = () => {
 
 			// 실시간 메시지 수신 설정
 			socket.on("receive_message", (newMessage: IMessage) => {
+				console.log("시스템 메세지 테스트", newMessage);
 				setMessageLogs(prevLogs => [...prevLogs, newMessage]);
 			});
 
