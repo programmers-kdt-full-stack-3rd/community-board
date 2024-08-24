@@ -9,27 +9,29 @@ import { addOAuthUser, readUserByOAuth } from "../db/context/users_context";
 import { TOAuthProvider } from "../db/model/oauth";
 import { getKstNow } from "../utils/getKstNow";
 import { ServerError } from "../middleware/errors";
-import { buildLoginUrl, verifyAuthorizationCode } from "../utils/oauth/oauth";
+import {
+	buildLoginUrl,
+	TOAuthLoginType,
+	verifyAuthorizationCode,
+} from "../utils/oauth/oauth";
 import {
 	makeAccessToken,
 	makeRefreshToken,
 	makeTempToken,
 } from "../utils/token";
 
-export const handleOAuthLoginUrlRead = (
-	req: Request,
-	res: Response,
-	next: NextFunction
-) => {
-	try {
-		const provider = req.params.provider as TOAuthProvider;
-		const { loginUrl } = buildLoginUrl(provider);
+export const handleOAuthUrlReadFor =
+	(loginType: TOAuthLoginType) =>
+	(req: Request, res: Response, next: NextFunction) => {
+		try {
+			const provider = req.params.provider as TOAuthProvider;
+			const { [loginType]: url } = buildLoginUrl(provider);
 
-		res.status(200).json({ url: loginUrl });
-	} catch (err) {
-		next(err);
-	}
-};
+			res.status(200).json({ url });
+		} catch (err) {
+			next(err);
+		}
+	};
 
 export const handleOAuthLogin = async (
 	req: Request,
@@ -113,21 +115,6 @@ export const handleOAuthLogin = async (
 	}
 };
 
-export const handleOAuthReconfirmUrlRead = (
-	req: Request,
-	res: Response,
-	next: NextFunction
-) => {
-	try {
-		const provider = req.params.provider as TOAuthProvider;
-		const { reconfirmUrl } = buildLoginUrl(provider);
-
-		res.status(200).json({ url: reconfirmUrl });
-	} catch (err) {
-		next(err);
-	}
-};
-
 export const handleOAuthReconfirm = async (
 	req: Request,
 	res: Response,
@@ -165,21 +152,6 @@ export const handleOAuthReconfirm = async (
 		res.cookie("tempToken", tempToken, { maxAge: 1000 * 60 * 60 }); // 유효기간 1시간
 
 		res.status(200).json({ message: "소셜 계정 확인 성공" });
-	} catch (err) {
-		next(err);
-	}
-};
-
-export const handleOAuthLinkUrlRead = (
-	req: Request,
-	res: Response,
-	next: NextFunction
-) => {
-	try {
-		const provider = req.params.provider as TOAuthProvider;
-		const { linkUrl } = buildLoginUrl(provider);
-
-		res.status(200).json({ url: linkUrl });
 	} catch (err) {
 		next(err);
 	}

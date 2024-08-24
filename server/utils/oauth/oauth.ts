@@ -4,6 +4,7 @@ import { ServerError } from "../../middleware/errors";
 import { oAuthProps, oAuthRequestContentType } from "./constants";
 
 type TOAuthTokenRequestGrantType = "authorization_code" | "refresh_token";
+export type TOAuthLoginType = "login" | "reconfirm" | "link";
 
 interface IOAuthUser {
 	id: string;
@@ -28,7 +29,7 @@ const grantTypeToKey: { [key in TOAuthTokenRequestGrantType]: string } = {
 	refresh_token: "refresh_token",
 };
 
-const buildOAuthState = (loginType: "login" | "reconfirm" | "link") => {
+const buildOAuthState = (loginType: TOAuthLoginType) => {
 	return stringify({
 		login_type: loginType,
 	});
@@ -38,7 +39,9 @@ const buildOAuthState = (loginType: "login" | "reconfirm" | "link") => {
  * 주어진 provider로의 OAuth 로그인 요청 URL을 생성합니다.
  * @param provider - OAuth provider
  */
-export const buildLoginUrl = (provider: TOAuthProvider) => {
+export const buildLoginUrl = (
+	provider: TOAuthProvider
+): { [key in TOAuthLoginType]: string } => {
 	const {
 		requestEndpoint,
 		clientId,
@@ -77,9 +80,9 @@ export const buildLoginUrl = (provider: TOAuthProvider) => {
 	linkUrl.searchParams.set("state", buildOAuthState("link"));
 
 	return {
-		loginUrl: loginUrl.toString(),
-		reconfirmUrl: reconfirmUrl.toString(),
-		linkUrl: linkUrl.toString(),
+		login: loginUrl.toString(),
+		reconfirm: reconfirmUrl.toString(),
+		link: linkUrl.toString(),
 	};
 };
 
