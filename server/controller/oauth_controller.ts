@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import {
 	createOAuthConnection,
+	readOAuthConnections,
 	updateOAuthRefreshToken,
 } from "../db/context/oauth_context";
 import { addRefreshToken } from "../db/context/token_context";
@@ -15,7 +16,7 @@ import {
 	makeTempToken,
 } from "../utils/token";
 
-export const handleOAuthLoginUrlRead = async (
+export const handleOAuthLoginUrlRead = (
 	req: Request,
 	res: Response,
 	next: NextFunction
@@ -112,7 +113,7 @@ export const handleOAuthLogin = async (
 	}
 };
 
-export const handleOAuthReconfirmUrlRead = async (
+export const handleOAuthReconfirmUrlRead = (
 	req: Request,
 	res: Response,
 	next: NextFunction
@@ -164,6 +165,61 @@ export const handleOAuthReconfirm = async (
 		res.cookie("tempToken", tempToken, { maxAge: 1000 * 60 * 60 }); // 유효기간 1시간
 
 		res.status(200).json({ message: "소셜 계정 확인 성공" });
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const handleOAuthLinkUrlRead = (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		const provider = req.params.provider as TOAuthProvider;
+		const { linkUrl } = buildLoginUrl(provider);
+
+		res.status(200).json({ url: linkUrl });
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const handleOAuthLinkCreate = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		const provider = req.body.provider as TOAuthProvider;
+		const authorizationCode = req.body.code as string;
+
+		const { oAuthAccountId, oAuthRefreshToken } =
+			await verifyAuthorizationCode(provider, authorizationCode);
+		let userByOAuth = await readUserByOAuth(provider, oAuthAccountId);
+
+		if (userByOAuth) {
+			throw ServerError.badRequest("이미 연동한 소셜 계정입니다.");
+		}
+
+		const oAuthConnections = await readOAuthConnections(req.userId);
+		const isProviderLinked = oAuthConnections.find(
+			({ oauth_provider_name }) => oauth_provider_name === provider
+		);
+		if (isProviderLinked) {
+			throw ServerError.badRequest(
+				"같은 서비스의 다른 소셜 계정을 이미 연동한 상태입니다."
+			);
+		}
+
+		await createOAuthConnection(
+			provider,
+			req.userId,
+			oAuthAccountId,
+			oAuthRefreshToken
+		);
+
+		res.status(200).json({ message: "소셜 계정 연동 성공" });
 	} catch (err) {
 		next(err);
 	}

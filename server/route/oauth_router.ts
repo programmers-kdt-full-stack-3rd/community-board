@@ -4,6 +4,8 @@ import {
 	handleOAuthLogin,
 	handleOAuthReconfirmUrlRead,
 	handleOAuthReconfirm,
+	handleOAuthLinkUrlRead,
+	handleOAuthLinkCreate,
 } from "../controller/oauth_controller";
 import { requireLogin } from "../middleware/auth";
 import {
@@ -31,6 +33,18 @@ router.post(
 	requireLogin,
 	postOAuthLoginValidatior(),
 	handleOAuthReconfirm
+);
+
+router.get(
+	"/link-url/:provider",
+	getOAuthLoginUrlValidator(),
+	handleOAuthLinkUrlRead
+);
+router.post(
+	"/link",
+	requireLogin,
+	postOAuthLoginValidatior(),
+	handleOAuthLinkCreate
 );
 
 export default router;
