@@ -1,6 +1,7 @@
 import axios from "axios";
 import {
 	IJoinRoomRequest,
+	IEnterRoomRequest,
 	IGetRoomMessageLogsRequest,
 	IReadRoomRequest,
 } from "shared";
@@ -37,6 +38,24 @@ export const joinRoomToApi = async (
 	});
 };
 
-export const getMessageLogs = async (params: IGetRoomMessageLogsRequest) => {
-	return apiClient.get(`/api/chat/room/${params.roomId}`);
+export const getMyMemberId = async (
+	params: IEnterRoomRequest,
+	cookies: string
+) => {
+	return apiClient.post(`/api/chat/enter`, params, {
+		headers: {
+			Cookie: `${cookies}`,
+		},
+	});
+};
+
+export const getMessageLogs = async (
+	params: IGetRoomMessageLogsRequest,
+	cookies: string
+) => {
+	return apiClient.get(`/api/chat/room/${params.roomId}`, {
+		headers: {
+			Cookie: `${cookies}`,
+		},
+	});
 };

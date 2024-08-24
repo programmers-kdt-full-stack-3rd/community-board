@@ -1,4 +1,5 @@
 import {
+	IEnterRoomResponse,
 	IGetRoomMessageLogsResponse,
 	IGetMyRoomRequestEvent,
 	IReadRoomRequest,
@@ -12,7 +13,12 @@ import {
 import { Socket } from "socket.io";
 
 import { sendMessage } from "../services/kafka_service";
-import { getMessageLogs, getMyRoomsToApi, joinRoomToApi } from "../utils/api";
+import {
+	getMessageLogs,
+	getMyMemberId,
+	getMyRoomsToApi,
+	joinRoomToApi,
+} from "../utils/api";
 
 // 채팅방 이벤트
 export const handleRoomEvents = (socket: Socket) => {
@@ -105,18 +111,44 @@ export const handleRoomEvents = (socket: Socket) => {
 	// 채팅방 입장
 	socket.on(
 		"enter_room",
-		async (roomId: number, callback: (msgs: IMessage[]) => void) => {
+		async (
+			roomId: number,
+			callback: (response: {
+				memberId: number;
+				messageLogs: IMessage[];
+			}) => void
+		) => {
 			try {
+				// 멤버 ID
+				const memIdData = await getMyMemberId(
+					{
+						roomId,
+					},
+					socket.handshake.headers.cookie!
+				);
+
 				// TODO : 캐싱 메시지 조회(redis -> http)
 
-				const response = await getMessageLogs({
-					roomId,
-				});
+				const { memberId } = memIdData.data as IEnterRoomResponse;
+
+				// 채팅 내역
+				const messageLogsData = await getMessageLogs(
+					{
+						roomId,
+					},
+					socket.handshake.headers.cookie!
+				);
 
 				const { messageLogs } =
-					response.data as IGetRoomMessageLogsResponse;
+					messageLogsData.data as IGetRoomMessageLogsResponse;
 
-				callback(messageLogs);
+				callback({
+					memberId,
+					messageLogs: messageLogs.map(msg => ({
+						...msg,
+						isMine: memberId === msg.memberId,
+					})),
+				});
 			} catch (error) {
 				console.error(error);
 				socket.disconnect();
