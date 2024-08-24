@@ -11,7 +11,8 @@ import {
 import { CiLock } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { IRoomHeader } from "shared";
+import { IJoinRoomRequestEvent, IRoomHeader } from "shared";
+import { useUserStore } from "../../../../state/store";
 
 interface Props {
 	room: IRoomHeader;
@@ -23,6 +24,35 @@ const Room: React.FC<Props> = ({ room, isMine, index }) => {
 	const navigate = useNavigate();
 	const [open, setOpen] = useState(false);
 	const [password, setPassword] = useState("");
+	const nickname = useUserStore.use.nickname();
+	const socket = useUserStore.use.socket();
+
+	// 채팅방 가입
+	const joinRoom = () => {
+		if (!room.isPrivate) {
+			// join_room 이벤트
+			const data: IJoinRoomRequestEvent = {
+				roomId: room.roomId,
+				nickname: nickname,
+				isPrivate: room.isPrivate,
+				password,
+			};
+			socket?.emit("join_room", data);
+		}
+
+		socket?.on("join_result", isSuccess => {
+			if (isSuccess) {
+				navigate(`/room/${room.roomId}`);
+				console.log("채팅방 가입 성공");
+				return;
+			} else {
+				console.log("채팅방 가입 실패");
+			}
+		});
+
+		// 서버로 비밀번호 확인 요청
+		// 비밀번호 일치하면 방 입장
+	};
 
 	const enterRoom = () => {
 		// TODO: 해당 room으로 이동 -> aside에서 가능하도록 변경
@@ -68,7 +98,7 @@ const Room: React.FC<Props> = ({ room, isMine, index }) => {
 								onChange={e => setPassword(e.target.value)}
 							/>
 						) : null}
-						<button onClick={enterRoom}>입장하기</button>
+						<button onClick={() => joinRoom()}>입장하기</button>
 					</div>
 				</div>
 			) : (
