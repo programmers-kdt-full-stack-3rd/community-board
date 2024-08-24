@@ -52,5 +52,6 @@ export interface ILeaveRoomRequest {
 // 내가 속한 채팅방 조회 socket event request -------------------
 
 export interface IGetMyRoomRequestEvent {
+	page: number;
 	nickname: string;
 }

@@ -62,7 +62,7 @@ export const handleRoomsRead = async (
 			response.roomHeaders = result.roomHeaders;
 		} else {
 			// const userId = req.userId;
-			const userId = 1; // for. Token 검증 없이 기능 구현
+			const userId = req.userId;
 			const result = await getRoomsByUserId(
 				userId,
 				body.page,

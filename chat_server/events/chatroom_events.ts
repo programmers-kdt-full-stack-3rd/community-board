@@ -1,4 +1,9 @@
-import { IGetRoomMessageLogsResponse, IGetMyRoomRequestEvent, IReadRoomRequest, IRoomHeader } from "shared";
+import {
+	IGetRoomMessageLogsResponse,
+	IGetMyRoomRequestEvent,
+	IReadRoomRequest,
+	IRoomHeader,
+} from "shared";
 import { Socket } from "socket.io";
 
 import { httpRequest } from "../services/api_service";
@@ -12,14 +17,17 @@ export const handleRoomEvents = (socket: Socket) => {
 		// API 요청을 위해 IReadRoomRequest 타입 데이터
 		// TODO : IReadRoomRequest 데이터 "?:" 로 수정.
 		const requestData: IReadRoomRequest = {
-			page: 1,
-			perPage: 4,
+			page: data.page,
+			perPage: 2,
 			isSearch: false,
 			keyword: "",
 		};
 
 		try {
-			const response = await getMyRoomsToApi(requestData);
+			const response = await getMyRoomsToApi(
+				requestData,
+				socket.handshake.headers.cookie!
+			);
 			socket.emit("get_my_rooms", response.data);
 			console.log(response.data);
 

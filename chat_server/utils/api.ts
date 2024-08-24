@@ -9,8 +9,14 @@ const apiClient = axios.create({
 	},
 });
 
-export const getMyRoomsToApi = async (params: IReadRoomRequest) => {
+export const getMyRoomsToApi = async (
+	params: IReadRoomRequest,
+	cookies: string
+) => {
 	return apiClient.get(`/api/chat/rooms`, {
 		params,
+		headers: {
+			Cookie: `${cookies}`,
+		},
 	});
 };
