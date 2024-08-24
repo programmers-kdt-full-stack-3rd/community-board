@@ -1,10 +1,13 @@
 import { Request, Response, NextFunction } from "express";
-import { createOAuthConnection } from "../db/context/oauth_context";
+import {
+	createOAuthConnection,
+	updateOAuthRefreshToken,
+} from "../db/context/oauth_context";
 import { addRefreshToken } from "../db/context/token_context";
 import { addOAuthUser, readUserByOAuth } from "../db/context/users_context";
+import { TOAuthProvider } from "../db/model/oauth";
 import { getKstNow } from "../utils/getKstNow";
 import { ServerError } from "../middleware/errors";
-import { TOAuthProvider } from "../utils/oauth/constants";
 import { buildLoginUrl, verifyAuthorizationCode } from "../utils/oauth/oauth";
 import {
 	makeAccessToken,
@@ -36,24 +39,35 @@ export const handleOAuthLogin = async (
 		const provider = req.body.provider as TOAuthProvider;
 		const authorizationCode = req.body.code as string;
 
-		let oAuthAccountId = await verifyAuthorizationCode(
-			provider,
-			authorizationCode
-		);
+		const { oAuthAccountId, oAuthRefreshToken } =
+			await verifyAuthorizationCode(provider, authorizationCode);
 		let user = await readUserByOAuth(provider, oAuthAccountId);
 
 		// TODO: 회원 등록부터 리프레시 토큰 등록까지의 동작에 트랜잭션 적용
 		//       (회원 등록 이후 과정이 실패했을 때 변경사항 롤백 필요)
 
-		// 유저가 존재하지 않으면 신규 회원가입 처리(랜덤 닉네임 부여)
-		if (!user) {
+		if (user && oAuthRefreshToken) {
+			await updateOAuthRefreshToken(
+				provider,
+				oAuthAccountId,
+				oAuthRefreshToken
+			);
+		} else if (!user) {
+			// 유저가 존재하지 않으면 신규 회원가입 처리(랜덤 닉네임 부여)
 			// TODO: 자연스러운 닉네임 생성
 			const nickname =
 				"신규 " +
-				(0x1000000 * Math.random()).toString(16).padStart(6, "0");
+				Math.floor(0x1000000 * Math.random())
+					.toString(16)
+					.padStart(6, "0");
 
 			const newUserId = await addOAuthUser(nickname);
-			await createOAuthConnection(provider, newUserId, oAuthAccountId);
+			await createOAuthConnection(
+				provider,
+				newUserId,
+				oAuthAccountId,
+				oAuthRefreshToken
+			);
 
 			user = {
 				nickname,
@@ -122,10 +136,8 @@ export const handleOAuthReconfirm = async (
 		const provider = req.body.provider as TOAuthProvider;
 		const authorizationCode = req.body.code as string;
 
-		let oAuthAccountId = await verifyAuthorizationCode(
-			provider,
-			authorizationCode
-		);
+		const { oAuthAccountId, oAuthRefreshToken } =
+			await verifyAuthorizationCode(provider, authorizationCode);
 		let userByOAuth = await readUserByOAuth(provider, oAuthAccountId);
 
 		if (!userByOAuth || userByOAuth.id !== req.userId) {
@@ -137,6 +149,14 @@ export const handleOAuthReconfirm = async (
 		} else if (userByOAuth.email) {
 			throw ServerError.badRequest(
 				"이메일, 비밀번호를 등록한 계정은 비밀번호 재확인으로 인증해야 합니다."
+			);
+		}
+
+		if (oAuthRefreshToken) {
+			await updateOAuthRefreshToken(
+				provider,
+				oAuthAccountId,
+				oAuthRefreshToken
 			);
 		}
 

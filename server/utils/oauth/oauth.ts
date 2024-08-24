@@ -1,6 +1,9 @@
 import { stringify } from "node:querystring";
-import { oAuthProps, TOAuthProvider } from "./constants";
+import { TOAuthProvider } from "../../db/model/oauth";
 import { ServerError } from "../../middleware/errors";
+import { oAuthProps, oAuthRequestContentType } from "./constants";
+
+type TOAuthTokenRequestGrantType = "authorization_code" | "refresh_token";
 
 interface IOAuthUser {
 	id: string;
@@ -20,26 +23,55 @@ interface IOAuthTokens {
 	scope?: string;
 }
 
+const grantTypeToKey: { [key in TOAuthTokenRequestGrantType]: string } = {
+	authorization_code: "code",
+	refresh_token: "refresh_token",
+};
+
+const buildOAuthState = (loginType: "login" | "reconfirm") => {
+	return stringify({
+		login_type: loginType,
+	});
+};
+
 /**
  * 주어진 provider로의 OAuth 로그인 요청 URL을 생성합니다.
  * @param provider - OAuth provider
  */
 export const buildLoginUrl = (provider: TOAuthProvider) => {
-	const { requestEndpoint, clientId, redirectUri, scope, reconfirmParam } =
-		oAuthProps[provider];
+	const {
+		requestEndpoint,
+		clientId,
+		redirectUri,
+		scope,
+		getAdditionalRequestOptionsFor,
+		reconfirmParams,
+	} = oAuthProps[provider];
 
 	const loginUrl = new URL(requestEndpoint.login);
 
 	loginUrl.searchParams.set("response_type", "code");
 	loginUrl.searchParams.set("client_id", clientId);
 	loginUrl.searchParams.set("redirect_uri", redirectUri);
+	loginUrl.searchParams.set("state", buildOAuthState("login"));
 
 	if (scope) {
 		loginUrl.searchParams.set("scope", scope);
 	}
 
+	if (getAdditionalRequestOptionsFor?.login) {
+		const { searchParams = {} } = getAdditionalRequestOptionsFor.login();
+
+		for (const key in searchParams) {
+			loginUrl.searchParams.set(key, searchParams[key]);
+		}
+	}
+
 	const reconfirmUrl = new URL(loginUrl);
-	reconfirmUrl.searchParams.set(reconfirmParam.key, reconfirmParam.value);
+	reconfirmUrl.searchParams.set("state", buildOAuthState("reconfirm"));
+	for (const key in reconfirmParams) {
+		reconfirmUrl.searchParams.set(key, reconfirmParams[key]);
+	}
 
 	return {
 		loginUrl: loginUrl.toString(),
@@ -48,23 +80,26 @@ export const buildLoginUrl = (provider: TOAuthProvider) => {
 };
 
 /**
- * 주어진 provider로 전송할 access token 요청의 옵션을, Fetch API에서 사용할 수
- * 있는 형태로 생성합니다.
- * @param provider - OAuth provider
- * @param code - 사용자가 로그인하여 redirect URI를 통해 받은 authorization code
+ * 주어진 프로바이더로 전송할 token 요청의 옵션을, Fetch API에서 사용할 수 있는
+ * 형태로 생성합니다.
+ * @param provider - OAuth 프로바이더
+ * @param grantType - 토큰을 받기 위해 전달할 인가 수단의 유형
+ * @param grantValue - grantType에 따른 인가 수단 (authorization code, refresh
+ *                     token 등)
  * @returns `fetch()`의 두 번째 인수로 넘길 수 있는, access token 요청 옵션
  */
 const buildTokenFetchOptions = (
 	provider: TOAuthProvider,
-	code: string
+	grantType: "authorization_code" | "refresh_token",
+	grantValue: string
 ): RequestInit => {
 	const { clientId, redirectUri, clientSecret } = oAuthProps[provider];
 
 	const querystringPairs: { [key: string]: string } = {
-		grant_type: "authorization_code",
+		grant_type: grantType,
 		client_id: clientId,
 		redirect_uri: redirectUri,
-		code: code,
+		[grantTypeToKey[grantType]]: grantValue,
 	};
 
 	if (clientSecret) {
@@ -74,29 +109,30 @@ const buildTokenFetchOptions = (
 	return {
 		method: "POST",
 		headers: {
-			"Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+			"Content-Type": oAuthRequestContentType,
 		},
 		body: stringify(querystringPairs),
 	};
 };
 
-const fetchOAuthTokensByAuthCode = async (
+const fetchOAuthTokens = async (
 	provider: TOAuthProvider,
-	authorizationCode: string
+	grantType: TOAuthTokenRequestGrantType,
+	grantValue: string
 ) => {
 	const oAuthTokenResponse = await fetch(
 		oAuthProps[provider].requestEndpoint.token,
-		buildTokenFetchOptions(provider, authorizationCode)
+		buildTokenFetchOptions(provider, grantType, grantValue)
 	);
 
 	if (oAuthTokenResponse.status >= 500) {
 		throw ServerError.etcError(
 			500,
-			"소셜 로그인 서비스 제공사 오류로 로그인에 실패했습니다."
+			"OAuth 서비스 제공사 오류로 OAuth 토큰 조회에 실패했습니다."
 		);
 	} else if (oAuthTokenResponse.status >= 400) {
 		throw ServerError.badRequest(
-			"인가 코드가 유효하지 않아서 소셜 로그인에 실패했습니다."
+			"인가 수단이 유효하지 않아서 OAuth 토큰 조회에 실패했습니다."
 		);
 	}
 
@@ -110,7 +146,7 @@ const fetchOAuthUserByAccessToken = async (
 	const url = oAuthProps[provider].requestEndpoint.user;
 	const headers = {
 		Authorization: `Bearer ${accessToken}`,
-		"Content-type": "application/x-www-form-urlencoded;charset=utf-8",
+		"Content-type": oAuthRequestContentType,
 	};
 
 	const oAuthUserResponse = await fetch(url, { headers });
@@ -148,8 +184,9 @@ export const verifyAuthorizationCode = async (
 	provider: TOAuthProvider,
 	authorizationCode: string
 ) => {
-	const oAuthTokens = await fetchOAuthTokensByAuthCode(
+	const oAuthTokens = await fetchOAuthTokens(
 		provider,
+		"authorization_code",
 		authorizationCode
 	);
 
@@ -158,5 +195,92 @@ export const verifyAuthorizationCode = async (
 		oAuthTokens.access_token
 	);
 
-	return extractOAuthAccountId(provider, oAuthUser);
+	return {
+		oAuthAccountId: extractOAuthAccountId(provider, oAuthUser),
+		oAuthRefreshToken: oAuthTokens.refresh_token,
+	};
+};
+
+export const refreshOAuthAccessToken = async (
+	provider: TOAuthProvider,
+	oAuthRefreshToken: string
+) => {
+	const oAuthTokens = await fetchOAuthTokens(
+		provider,
+		"refresh_token",
+		oAuthRefreshToken
+	);
+
+	return {
+		oAuthAccessToken: oAuthTokens.access_token,
+	};
+};
+
+const buildRevokeFetchParameters = (
+	provider: TOAuthProvider,
+	oAuthAccessToken: string
+): [string, RequestInit] => {
+	const {
+		requestEndpoint: { revoke: revokeEndpoint },
+		getAdditionalRequestOptionsFor,
+	} = oAuthProps[provider];
+
+	let searchParams, headers, body;
+
+	if (getAdditionalRequestOptionsFor?.revoke) {
+		const requestOptions = getAdditionalRequestOptionsFor.revoke({
+			accessToken: oAuthAccessToken,
+		});
+		({ searchParams = null, headers = null, body = null } = requestOptions);
+	} else {
+		searchParams = null;
+		headers = null;
+		body = null;
+	}
+
+	const url = new URL(revokeEndpoint);
+	if (searchParams) {
+		for (const key in searchParams) {
+			url.searchParams.set(key, searchParams[key]);
+		}
+	}
+
+	const fetchOptions: RequestInit = {
+		method: "POST",
+	};
+	if (headers) {
+		fetchOptions.headers = { ...headers };
+	}
+	if (body) {
+		fetchOptions.body = stringify(body);
+	}
+
+	return [url.toString(), fetchOptions];
+};
+
+export const revokeOAuth = async (
+	provider: TOAuthProvider,
+	oAuthAccessToken: string
+) => {
+	const oAuthRevokeResponse = await fetch(
+		...buildRevokeFetchParameters(provider, oAuthAccessToken)
+	);
+
+	const payload = await oAuthRevokeResponse.json();
+
+	if (oAuthRevokeResponse.status >= 500) {
+		throw ServerError.etcError(
+			500,
+			"OAuth 서비스 제공사 오류로 OAuth 연동 해제에 실패했습니다."
+		);
+	} else if (oAuthRevokeResponse.status >= 400) {
+		throw ServerError.badRequest(
+			"인가 수단이 유효하지 않아서 OAuth 연동 해제에 실패했습니다."
+		);
+	} else if (payload.error) {
+		throw ServerError.etcError(
+			500,
+			"서버의 요청 구성 문제로 OAuth 연동 해제에 실패했습니다."
+		);
+	}
 };

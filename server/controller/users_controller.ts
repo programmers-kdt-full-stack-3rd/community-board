@@ -1,5 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import {
+	clearOAuthConnection,
+	readOAuthConnections,
+} from "../db/context/oauth_context";
+import {
 	addUser,
 	authUser,
 	deleteUser,
@@ -11,6 +15,7 @@ import { deleteRefreshToken } from "../db/context/token_context";
 import { makeTempToken } from "../utils/token";
 import { makeHashedPassword } from "../utils/crypto";
 import { getKstNow } from "../utils/getKstNow";
+import { refreshOAuthAccessToken, revokeOAuth } from "../utils/oauth/oauth";
 
 export const handleJoinUser = async (
 	req: Request,
@@ -144,11 +149,30 @@ export const handleDeleteUser = async (
 ) => {
 	try {
 		const userId = req.userId;
+		const oAuthConnections = await readOAuthConnections(userId);
+
+		if (oAuthConnections.length > 0) {
+			for (const connection of oAuthConnections) {
+				const { oAuthAccessToken } = await refreshOAuthAccessToken(
+					connection.oauth_provider_name,
+					connection.oauth_refresh_token
+				);
+
+				await revokeOAuth(
+					connection.oauth_provider_name,
+					oAuthAccessToken
+				);
+			}
+
+			await clearOAuthConnection(userId);
+		}
+
+		await deleteRefreshToken(userId);
 		await deleteUser(userId);
 
 		res.clearCookie("accessToken");
 		res.clearCookie("refreshToken");
-		await deleteRefreshToken(userId);
+
 		res.status(200).json({ message: "회원탈퇴 성공" });
 	} catch (err: any) {
 		next(err);

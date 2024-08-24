@@ -1,6 +1,6 @@
 import { body, param } from "express-validator";
+import { oAuthProviders } from "../../../db/model/oauth";
 import { validate } from "../../../middleware/validate";
-import { oAuthProviders } from "../../oauth/constants";
 import { ERROR_MESSAGES } from "./constants";
 
 export const getOAuthLoginUrlValidator = () => [

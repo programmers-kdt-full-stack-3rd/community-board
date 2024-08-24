@@ -1,4 +1,4 @@
-import { oAuthProviders } from "../../oauth/constants";
+import { oAuthProviders } from "../../../db/model/oauth";
 
 const oAuthProviderDomain = oAuthProviders.join(", ");
 
