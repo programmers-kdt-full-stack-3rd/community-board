@@ -1,24 +1,4 @@
-import { ILiveRoomInfo, IMessage, IRoomHeader, IRoomMembers } from "./dto";
-
-export const mapDBToIMessage = (userId: number, dbData: any): IMessage => {
-	return {
-		roomId: dbData.room_id,
-		nickname: dbData.nickname,
-		message: dbData.message,
-		createdAt: dbData.created_at,
-		isMine: dbData.user_id === userId,
-		isSystem: Boolean(dbData.is_system),
-	};
-};
-
-export const mapDBToIMessages = (
-	userId: number,
-	dbDatas: any[]
-): IMessage[] => {
-	return dbDatas.map(dbData => {
-		return mapDBToIMessage(userId, dbData);
-	});
-};
+import { ILiveRoomInfo, IRoomHeader } from "./dto";
 
 export const mapDBToIRoomHeader = (
 	dbData: any,
@@ -36,6 +16,7 @@ export const mapDBToIRoomHeader = (
 export const mapDBToIRoomHeaders = (dbDatas: any[]): IRoomHeader[] => {
 	const liveRoomInfo = {
 		lastMessage: {
+			memberId: 1,
 			roomId: 0,
 			nickname: "",
 			message: "",
@@ -58,18 +39,4 @@ export const mapDBToLiveRoomInfo = (dbData: any): ILiveRoomInfo => {
 		curNum: dbData.curNum,
 		newMessages: dbData.newMessages,
 	};
-};
-
-export const mapDBToIRoomMembers = (dbDatas: any[]) => {
-	const roomMembers: IRoomMembers = {};
-
-	dbDatas.forEach((dbData: any) => {
-		if (roomMembers[dbData.room_id]) {
-			roomMembers[dbData.room_id].push(dbData.id);
-		} else {
-			roomMembers[dbData.room_id] = [dbData.id];
-		}
-	});
-
-	return roomMembers;
 };

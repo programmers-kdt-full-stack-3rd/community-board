@@ -1,10 +1,13 @@
 export interface IMessage {
+	id?: number; // 채팅 번호
+	memberId: number; // 입장자 번호
 	roomId: number; // 방 번호
 	nickname?: string; // 보낸 사람 이름
 	message: string; // 채팅 내용
 	createdAt: Date; // 생성 시간
-	isMine: boolean; // true : 내 메세지
 	isSystem: boolean; // true : 시스템 메세지
+	isDeleted?: boolean; // true : 사용자 탈퇴
+	isMine?: boolean; // true : 내 메세지
 }
 
 export interface IRoomHeader {
@@ -21,25 +24,24 @@ export interface ILiveRoomInfo {
 	newMessages: number; // 새로운 채팅 수
 }
 
+export interface IRoomMember {
+	roomId: number;
+	memberId: number;
+}
+
 export interface ISocketMessageDTO {
+	memberId: number; // 입장자 번호
 	roomId: number; // 방 번호
 	nickname: string; // 보낸 사람 이름
 	message: string; // 채팅 내용
 	createdAt: string; // 생성 시간
-	isMine?: boolean; // true : 내 메세지
 	isSystem: boolean; // true : 시스템 메세지
+	isMine?: boolean; // true : 내 메세지
 }
 
 export interface IKafkaMessageDTO {
-	roomId: number; // 방 번호
-	userId: number; // 사용자 아이디(system: 0)
+	memberId: number; // 입장자 번호
 	message: string; // 채팅 내용
 	createdAt: Date; // 생성 시간
 	isSystem: boolean; // 시스템 메시지 유무
-}
-
-export interface IRoomMembers {
-	// key = roomId
-	// value = room member의 id list
-	[key: number]: number[];
 }

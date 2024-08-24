@@ -50,6 +50,15 @@ export interface IJoinUserResponse {
 	message: IMessage; // 시스템 메세지 - 가입 환영
 }
 
+// 채팅방 입장 --------------------------------------------------
+export interface IEnterRoomRequest {
+	roomId: number; // 채팅방 번호
+}
+
+export interface IEnterRoomResponse {
+	memberId: number; // 입장 번호
+}
+
 // 채팅방 탈퇴 --------------------------------------------------
 
 export interface ILeaveRoomRequest {
