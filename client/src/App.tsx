@@ -19,6 +19,7 @@ import ChatRooms from "./component/Chats/ChatRooms/ChatRooms";
 import { AdminUserMgmtPage } from "./page/Admin/AdminUserMgmtPage";
 import { AdminPostMgmtPage } from "./page/Admin/AdminPostMgmtPage";
 import { AdminStatsPage } from "./page/Admin/AdminStatsPage";
+import { AdminUserLogPage } from "./page/Admin/AdminUserLogPage";
 import NotFound from "./page/error/NotFound";
 import { useUserStore } from "./state/store";
 import { io } from "socket.io-client";
@@ -143,6 +144,9 @@ function App() {
 							path="/admin/stats"
 							element={<AdminStatsPage />}
 						/>
+						<Route
+							path="/admin/userLog/:userId"
+							element={<AdminUserLogPage />}
 						<Route
 							path="*"
 							element={<NotFound />}

@@ -7,5 +7,6 @@ export * from "./chats/chat-room";
 export * from "./chats/message";
 export * from "./chats/dto";
 export * from "./chats/mappers";
-export * from "./admin/users";
-export * from "./admin/posts";
+export * from "../server/db/mapper/users_mapper";
+export * from "../server/db/mapper/posts_mapper";
+export * from "../server/db/mapper/logs_mapper";

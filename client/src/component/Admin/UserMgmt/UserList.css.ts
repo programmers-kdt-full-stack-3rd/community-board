@@ -1,13 +1,8 @@
 import { style } from "@vanilla-extract/css";
 
-
-
-export const UserContainer = style({
-    width : '100%',
-});
-
 export const UserListStyle = style({
     display: 'grid',
+    width : '90vw',
     gridTemplateColumns: '1fr 4fr 3fr 2fr 2fr 2fr', 
     fontWeight: 'bold',
     marginLeft : '10px',
@@ -33,8 +28,7 @@ export const PageBtn = style({
 export const SearchUser = style({
     display: 'flex',       
     justifyContent: 'flex-end', 
-    marginBottom: '30px',    
-    marginTop : '10px',
+
 });
 
 export const UserSearchInput = style({
@@ -62,3 +56,4 @@ export const restoreButton = style({
         backgroundColor: '#0047AB',
     },
 });
+

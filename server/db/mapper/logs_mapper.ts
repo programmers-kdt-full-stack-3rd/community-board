@@ -1,6 +1,6 @@
 import { IUserLogRow } from "../model/logs";
 
-interface IUserLogResponse {
+export interface IUserLogResponse {
 	total: number;
 	logs: {
 		title: string;
