@@ -14,9 +14,10 @@ interface MyChatRoomsProps {
 }
 
 const MyChatRooms: FC<MyChatRoomsProps> = ({ currentPage, setCurrentPage }) => {
+	const socket = useUserStore.use.socket();
+
 	const [isRendered, setIsRendered] = useState(false);
 	const roomState = useChatRoom();
-	const socket = useUserStore.use.socket();
 
 	useEffect(() => {
 		if (socket) {

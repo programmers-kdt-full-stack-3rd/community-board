@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { FC, useLayoutEffect, useState } from "react";
 import { container } from "./ChatRooms.css";
 import { IGetMyRoomRequestEvent, IRoomHeader } from "shared";
 import CreateRoomModal from "./Modal/CreateRoomModal";
 import MyChatRooms from "./MyChatRooms";
 import SearchedChatRooms from "./SearchedChatRooms";
 import { useUserStore } from "../../../state/store";
+import { useNavigate } from "react-router-dom";
 
 export interface RoomsInfo {
 	totalRoomCount: number;
@@ -15,23 +16,33 @@ export interface RoomsInfo {
 	// values : 현재 page에서 보여 줄 채팅방 정보
 }
 
-const ChatRooms = () => {
+const ChatRooms: FC = () => {
+	const navigate = useNavigate(); // TEST : 채팅방 페이지
+
 	const [isOpen, setIsOpen] = useState(false);
 	const [currentPage, setCurrentPage] = useState<number>(1);
-	const isAsideOpen = true; // TODO : Aside UI 만들때 State 관리
-	const nickname = useUserStore(state => state.nickname);
+	// const isAsideOpen = true; // TODO : Aside UI 만들때 State 관리
+
+	// 전역 상태
+	const isLogin = useUserStore.use.isLogin();
+	const nickname = useUserStore.use.nickname();
 	const socket = useUserStore.use.socket();
 
-	useEffect(() => {
-		if (isAsideOpen) {
-			console.log(currentPage);
+	useLayoutEffect(() => {
+		if (!isLogin) {
+			// TODO : aside로 개발 시 로그인 안되있음을 표시 및 로그인 페이지 바로가기 버튼 생성
+			navigate(`/login?redirect=/rooms`); // TEST: 로그인 페이지로 route
+			return;
+		}
+
+		if (socket) {
 			const data: IGetMyRoomRequestEvent = {
 				page: currentPage,
 				nickname,
 			};
-			socket?.emit("get_my_rooms", data);
+			socket.emit("get_my_rooms", data);
 		}
-	}, [isAsideOpen, socket, currentPage]);
+	}, [currentPage, isLogin, navigate, nickname, socket]);
 
 	return (
 		<div className={container}>
