@@ -16,7 +16,6 @@ const PostList = () => {
         total: 0,
         postHeaders: []
     });
-
     const [currentPage, setCurrentPage] = useState<number>(initialPage);
     const [keyword, setKeyword] = useState<string>("");
 

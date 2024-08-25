@@ -40,7 +40,6 @@ const UserList = () => {
         fetchUsers();
         console.log(users.total);
         console.log(users.userInfo);
-
     }, [nickname, email, users]);
 
     const handleDelete = async (userId: number) => {
@@ -136,6 +135,7 @@ const UserList = () => {
                         keyword=""
                     />
                 ) : (
+
                     users.userInfo.map(user => (
                         <div>
 

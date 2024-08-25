@@ -18,6 +18,7 @@ import { useUserStore } from '../../state/store';
 import { FaBookOpen } from "react-icons/fa";
 import { IoChatbubbleEllipsesSharp } from "react-icons/io5";
 import { HiCursorClick } from "react-icons/hi";
+
 import { dateToStr } from '../../utils/date-to-str';
 
 const useFetchUserData = (userId: number, initialPage: number, itemsPerPage: number) => {
@@ -111,7 +112,6 @@ export const AdminUserLogPage = () => {
                     </div>
                     <hr />
                     <div>
-
                         {error ? (
                             <p>{error}</p>
                         ) : logs.total > 0 ? (
