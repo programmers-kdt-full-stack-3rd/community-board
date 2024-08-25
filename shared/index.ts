@@ -10,3 +10,7 @@ export * from "./chats/mappers";
 export * from "../server/db/mapper/users_mapper";
 export * from "../server/db/mapper/posts_mapper";
 export * from "../server/db/mapper/logs_mapper";
+export * from "../server/db/mapper/stats_mapper";
+export * from "../server/db/model/logs";
+export * from "../server/db/model/stats";
+export * from "../server/db/model/users";
