@@ -1,28 +1,25 @@
 import {
 	IEnterRoomResponse,
 	IGetRoomMessageLogsResponse,
-	IGetMyRoomRequestEvent,
-	IReadRoomRequest,
-	IRoomHeader,
 	IJoinRoomRequest,
 	IJoinRoomResponse,
-	IKafkaMessageDTO,
 	IMessage,
-	IJoinRoomRequestEvent,
+	IReadRoomRequest,
+	IRoomHeader,
 } from "shared";
 import { Socket } from "socket.io";
 
-import { sendMessage } from "../services/kafka_service";
 import {
 	getMessageLogs,
 	getMyMemberId,
 	getMyRoomsToApi,
 	joinRoomToApi,
 } from "../utils/api";
+import { sendMessage } from "../services/kafka_service";
 
 // 채팅방 이벤트
 export const handleRoomEvents = (socket: Socket) => {
-	socket.on("get_my_rooms", async (data: IGetMyRoomRequestEvent) => {
+	socket.on("get_my_rooms", async (data: IReadRoomRequest) => {
 		const requestData: IReadRoomRequest = {
 			page: data.page,
 			perPage: 2,
@@ -52,71 +49,69 @@ export const handleRoomEvents = (socket: Socket) => {
 	});
 
 	// 채팅방 가입
-	socket.on("join_room", async (data: IJoinRoomRequestEvent) => {
-		console.log("join_room 이벤트 데이터: ", data);
-		try {
-			// BUG: 현재 API 에러!!
-			// const response = await joinRoomToApi(
-			// 	data,
-			// 	socket.handshake.headers.cookie!
-			// );
-
-			// TEST: API 응답 가정(roomId 상수값)
-			const testResponse: IJoinRoomResponse = {
-				roomId: data.roomId,
-			};
-			const roomId = testResponse.roomId.toString();
-			socket.join(roomId);
-
-			// 1. message DB에 저장(kafka)
-			const createdAt = new Date();
-			const joinMessage = `${data.nickname}가 입장했습니다.`;
-
-			const msg: IKafkaMessageDTO = {
-				roomId: testResponse.roomId,
-				userId: (socket as unknown as Socket & { userId: number })
-					.userId,
-				message: joinMessage,
-				createdAt, // 생성 시간
-				isSystem: true, // 시스템 메시지 유무
-			};
-
-			const receiveMsg: IMessage = {
-				...msg,
-				isMine: false,
-			};
-
+	socket.on(
+		"join_room",
+		async (
+			data: IJoinRoomRequest,
+			callback: (isSuccess: boolean) => void
+		) => {
 			try {
-				// kafka 시스템 메세지 저장
-				await sendMessage(msg);
-
-				// TODO : 캐시 저장
-
-				console.log("kafka 시스템 메세지 저장 성공");
-				socket.broadcast.to(roomId).emit("receive_message", receiveMsg);
-				// join_result
-				const isSuccess = true;
-				socket.emit("join_result", isSuccess);
-			} catch (error) {
-				console.error(
-					"Error sending message or broadcasting to room:",
-					error
+				// 채팅방 가입
+				const joinData = await joinRoomToApi(
+					data,
+					socket.handshake.headers.cookie!
 				);
+				const { roomId } = joinData.data as IJoinRoomResponse;
+
+				// 멤버 ID
+				const memIdData = await getMyMemberId(
+					{
+						roomId,
+					},
+					socket.handshake.headers.cookie!
+				);
+				const { memberId } = memIdData.data as IEnterRoomResponse;
+
+				// system 메시지
+				const message: IMessage = {
+					memberId,
+					roomId,
+					nickname: data.nickname!,
+					message: `${data.nickname}님이 가입했습니다.`,
+					createdAt: new Date(),
+					isSystem: true,
+					isMine: false,
+				};
+
+				// kafka 시스템 메세지 저장
+				await sendMessage(message);
+
+				// join room
+				socket.join(`${roomId}`);
+
+				callback(true);
+
+				socket.to(`${data.roomId}`).emit("receive_message", message);
+			} catch (error) {
+				console.error(error);
+				callback(false);
 			}
-		} catch (error) {
-			console.error("Error fetching join room:");
 		}
-	});
+	);
 
 	// 채팅방 입장
 	socket.on(
 		"enter_room",
 		async (
 			roomId: number,
-			callback: (response: {
-				memberId: number;
-				messageLogs: IMessage[];
-			}) => void
+			callback: (
+				response:
+					| {
+							memberId: number;
+							messageLogs: IMessage[];
+					  }
+					| boolean
+			) => void
 		) => {
 			try {
 				// 멤버 ID
@@ -151,6 +146,7 @@ export const handleRoomEvents = (socket: Socket) => {
 				});
 			} catch (error) {
 				console.error(error);
+				callback(false);
 				socket.disconnect();
 			}
 		}

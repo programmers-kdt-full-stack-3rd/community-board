@@ -1,8 +1,8 @@
 import axios from "axios";
 import {
-	IJoinRoomRequest,
 	IEnterRoomRequest,
 	IGetRoomMessageLogsRequest,
+	IJoinRoomRequest,
 	IReadRoomRequest,
 } from "shared";
 
@@ -30,8 +30,7 @@ export const joinRoomToApi = async (
 	params: IJoinRoomRequest,
 	cookies: string
 ) => {
-	return apiClient.post(`/api/chat/join`, {
-		params,
+	return apiClient.post(`/api/chat/join`, params, {
 		headers: {
 			Cookie: `${cookies}`,
 		},

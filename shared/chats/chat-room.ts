@@ -37,6 +37,7 @@ export interface IJoinRoomRequestEvent {
 
 export interface IJoinRoomRequest {
 	roomId: number; // 가입 할 채팅방 번호
+	nickname?: string; // 보낸 사람 이름
 	isPrivate: boolean; // 비밀 방 여부
 	password: string; // 방 비밀번호 (null 허용)
 }
