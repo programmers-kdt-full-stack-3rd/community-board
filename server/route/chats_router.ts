@@ -1,8 +1,8 @@
 import express from "express";
 import {
-	handleALLRoomMembersRead,
 	handleMessageLogsRead,
 	handleRoomCreate,
+	handleRoomEnter,
 	handleRoomJoin,
 	handleRoomLeave,
 	handleRoomsRead,
@@ -11,9 +11,9 @@ import {
 const router = express.Router();
 router.use(express.json());
 
-router.get("/room_members", handleALLRoomMembersRead);
 router.get("/room/:room_id", handleMessageLogsRead);
 router.get("/rooms", handleRoomsRead);
+router.post("/enter", handleRoomEnter);
 router.post("/room", handleRoomCreate);
 router.post("/join", handleRoomJoin);
 router.post("/leave", handleRoomLeave);

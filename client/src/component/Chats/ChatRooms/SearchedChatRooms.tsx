@@ -20,15 +20,14 @@ import {
 } from "./ChatRooms.css";
 import Rooms from "./Rooms/Rooms";
 import Pagenation from "./Pagenation/Pagenation";
-import { isDevMode } from "../../../utils/detectMode";
-import { testMy } from "./test-case";
 import { CiCirclePlus } from "react-icons/ci";
 
 interface Props {
 	open: React.Dispatch<SetStateAction<boolean>>;
+	setSelectedRoom: (room: { title: string; roomId: number }) => void;
 }
 
-const SearchedChatRooms: React.FC<Props> = ({ open }) => {
+const SearchedChatRooms: React.FC<Props> = ({ open, setSelectedRoom }) => {
 	const [isRendered, setIsRendered] = useState(false);
 	const [currentPage, setCurrentPage] = useState<number>(1);
 	const [searchedRooms, setSearchedRooms] = useState<RoomsInfo>({
@@ -36,6 +35,7 @@ const SearchedChatRooms: React.FC<Props> = ({ open }) => {
 		rooms: {},
 	});
 	const [keyword, setKeyword] = useState("");
+	const [curKeyword, setCurKeyword] = useState("");
 	const errorModal = useErrorModal();
 
 	const GetRooms = async (body: IReadRoomRequest) => {
@@ -94,7 +94,7 @@ const SearchedChatRooms: React.FC<Props> = ({ open }) => {
 			});
 
 			const body: IReadRoomRequest = {
-				page: currentPage,
+				page: 1,
 				perPage: 2,
 				isSearch: true,
 				keyword: encodeURIComponent(keyword),
@@ -106,22 +106,14 @@ const SearchedChatRooms: React.FC<Props> = ({ open }) => {
 			}
 
 			GetRooms(body);
+			setCurrentPage(1);
+			setCurKeyword(keyword);
 			setKeyword("");
 		}
 	};
 
 	useLayoutEffect(() => {
-		console.log(currentPage);
-		console.log(searchedRooms.rooms);
-		if (isDevMode()) {
-			setSearchedRooms({
-				totalRoomCount: 2,
-				rooms: {
-					...searchedRooms.rooms,
-					[currentPage]: testMy.roomHeaders,
-				},
-			});
-		} else if (!isRendered) {
+		if (!isRendered) {
 			if (Object.keys(searchedRooms.rooms).length === 0) {
 				setIsRendered(true);
 				return;
@@ -130,8 +122,8 @@ const SearchedChatRooms: React.FC<Props> = ({ open }) => {
 			const body: IReadRoomRequest = {
 				page: currentPage,
 				perPage: 2,
-				isSearch: false,
-				keyword: "",
+				isSearch: true,
+				keyword: curKeyword,
 			};
 			GetRooms(body);
 		}
@@ -186,6 +178,7 @@ const SearchedChatRooms: React.FC<Props> = ({ open }) => {
 							<Rooms
 								isMine={false}
 								rooms={searchedRooms.rooms[currentPage]}
+								setSelectedRoom={setSelectedRoom}
 							/>
 						)}
 					</div>

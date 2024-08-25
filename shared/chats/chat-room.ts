@@ -37,6 +37,7 @@ export interface IJoinRoomRequestEvent {
 
 export interface IJoinRoomRequest {
 	roomId: number; // 가입 할 채팅방 번호
+	nickname?: string; // 보낸 사람 이름
 	isPrivate: boolean; // 비밀 방 여부
 	password: string; // 방 비밀번호 (null 허용)
 }
@@ -48,6 +49,15 @@ export interface IJoinRoomResponse {
 // 가입 성공 시, 채팅방의 사람들이 받는 socket event response
 export interface IJoinUserResponse {
 	message: IMessage; // 시스템 메세지 - 가입 환영
+}
+
+// 채팅방 입장 --------------------------------------------------
+export interface IEnterRoomRequest {
+	roomId: number; // 채팅방 번호
+}
+
+export interface IEnterRoomResponse {
+	memberId: number; // 입장 번호
 }
 
 // 채팅방 탈퇴 --------------------------------------------------

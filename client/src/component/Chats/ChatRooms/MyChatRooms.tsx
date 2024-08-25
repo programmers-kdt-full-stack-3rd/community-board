@@ -3,20 +3,24 @@ import { IReadRoomResponse } from "shared";
 import { roomsWrapper } from "./ChatRooms.css";
 import Rooms from "./Rooms/Rooms";
 import Pagenation from "./Pagenation/Pagenation";
-import { isDevMode } from "../../../utils/detectMode";
-import { testMy } from "./test-case";
 import { useChatRoom } from "../../../state/ChatRoomStore";
 import { useUserStore } from "../../../state/store";
 
-interface MyChatRoomsProps {
+interface Props {
 	currentPage: number;
 	setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
+	setSelectedRoom: (room: { title: string; roomId: number }) => void;
 }
 
-const MyChatRooms: FC<MyChatRoomsProps> = ({ currentPage, setCurrentPage }) => {
+const MyChatRooms: FC<Props> = ({
+	currentPage,
+	setCurrentPage,
+	setSelectedRoom,
+}) => {
+	const socket = useUserStore.use.socket();
+
 	const [isRendered, setIsRendered] = useState(false);
 	const roomState = useChatRoom();
-	const socket = useUserStore.use.socket();
 
 	useEffect(() => {
 		if (socket) {
@@ -44,9 +48,7 @@ const MyChatRooms: FC<MyChatRoomsProps> = ({ currentPage, setCurrentPage }) => {
 	};
 
 	useLayoutEffect(() => {
-		if (isDevMode()) {
-			roomState.setMyRoomInfo(2, 1, testMy.roomHeaders);
-		} else if (!isRendered) {
+		if (!isRendered) {
 			if (roomState.myRoomInfo.rooms[currentPage]) {
 				setIsRendered(true);
 				return;
@@ -73,6 +75,7 @@ const MyChatRooms: FC<MyChatRoomsProps> = ({ currentPage, setCurrentPage }) => {
 							<Rooms
 								isMine={true}
 								rooms={roomState.myRoomInfo.rooms[currentPage]}
+								setSelectedRoom={setSelectedRoom}
 							/>
 						)}
 					</div>

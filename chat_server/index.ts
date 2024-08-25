@@ -4,7 +4,6 @@ import httpServer from "./app";
 import { getRedisAPI, initRedisAPI } from "./config/redis_config";
 import { getKafkaAPI, initKafkaAPI } from "./config/kafka_config";
 import { getProducer, initProducer } from "./services/kafka_service";
-import { initURL } from "./services/api_service";
 
 dotenv.config();
 
@@ -57,9 +56,6 @@ async function startServer() {
 		// Kafka Producer 연결
 		await producer.connect();
 		console.log("Kafka Producer 연결 성공");
-
-		// HTTP URL 초기화
-		initURL(HTTP_URL);
 
 		// 채팅 서버 실행
 		httpServer.listen(CHAT_PORT, () => {

@@ -31,7 +31,7 @@ const getProducer = (): Producer => {
 
 // Kafka로 message 송신
 const sendMessage = async (messageDTO: IKafkaMessageDTO) => {
-	const { userId, roomId, message, createdAt, isSystem } = messageDTO;
+	const { memberId, message, createdAt, isSystem } = messageDTO;
 
 	const timestamp = new Date(createdAt).getTime().toString();
 
@@ -43,7 +43,7 @@ const sendMessage = async (messageDTO: IKafkaMessageDTO) => {
 		topic: "chat", // 토픽 이름
 		messages: [
 			{
-				key: JSON.stringify({ roomId, userId }), // message key
+				key: `${memberId}`, // member Id
 				value: JSON.stringify({ message, isSystem }), // message value (Buffer | string | null)
 				timestamp, // string 형식의 시간 데이터
 			},

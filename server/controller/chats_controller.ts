@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import {
 	ICreateRoomRequest,
 	ICreateRoomResponse,
+	IEnterRoomResponse,
 	IGetRoomMessageLogsRequest,
 	IGetRoomMessageLogsResponse,
 	IJoinRoomRequest,
@@ -12,8 +13,8 @@ import {
 } from "shared";
 import {
 	addRoom,
-	getAllRoomMembers,
 	addUserToRoom,
+	enterUserToRoom,
 	getMessageLogs,
 	getRoomsByKeyword,
 	getRoomsByUserId,
@@ -47,7 +48,9 @@ export const handleRoomsRead = async (
 			page: parseInt(req.query.page as string) - 1 || 0,
 			perPage: parseInt(req.query.perPage as string) || 2,
 			isSearch: req.query.isSearch === "true",
-			keyword: decodeURIComponent(req.query.keyword as string) || "",
+			keyword: req.query.keyword
+				? decodeURIComponent(req.query.keyword as string)
+				: "",
 		};
 
 		let response: IReadRoomResponse = {
@@ -61,7 +64,6 @@ export const handleRoomsRead = async (
 			response.totalRoomCount = result.totalRoomCount;
 			response.roomHeaders = result.roomHeaders;
 		} else {
-			// const userId = req.userId;
 			const userId = req.userId;
 			const result = await getRoomsByUserId(
 				userId,
@@ -88,9 +90,8 @@ export const handleMessageLogsRead = async (
 		const body: IGetRoomMessageLogsRequest = {
 			roomId: parseInt(req.params.room_id),
 		};
-		const userId = req.userId;
 
-		const result = await getMessageLogs(userId, body.roomId);
+		const result = await getMessageLogs(body.roomId);
 		const response: IGetRoomMessageLogsResponse = {
 			messageLogs: result,
 		};
@@ -126,14 +127,22 @@ export const handleRoomJoin = async (
 	}
 };
 
-export const handleALLRoomMembersRead = async (
+export const handleRoomEnter = async (
 	req: Request,
 	res: Response,
 	next: NextFunction
 ) => {
 	try {
-		const result = await getAllRoomMembers();
-		res.status(200).json(result);
+		const userId = req.userId;
+		const roomId = parseInt(req.body.roomId);
+
+		const result = await enterUserToRoom(userId, roomId);
+
+		const response: IEnterRoomResponse = {
+			memberId: result,
+		};
+
+		res.status(200).json(response);
 	} catch (err) {
 		next(err);
 	}

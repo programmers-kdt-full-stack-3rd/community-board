@@ -2,12 +2,13 @@ import { container } from "./Rooms.css";
 import Room from "./Room";
 import { IRoomHeader } from "shared";
 
-interface IRoomsProps {
+interface Props {
 	isMine: boolean;
 	rooms: IRoomHeader[];
+	setSelectedRoom: (room: { title: string; roomId: number }) => void;
 }
 
-const Rooms: React.FC<IRoomsProps> = ({ isMine, rooms }) => {
+const Rooms: React.FC<Props> = ({ isMine, rooms, setSelectedRoom }) => {
 	return (
 		<div className={container}>
 			{rooms.map((room, index) => (
@@ -15,6 +16,7 @@ const Rooms: React.FC<IRoomsProps> = ({ isMine, rooms }) => {
 					room={room}
 					isMine={isMine}
 					index={index}
+					setSelectedRoom={setSelectedRoom}
 				/>
 			))}
 		</div>

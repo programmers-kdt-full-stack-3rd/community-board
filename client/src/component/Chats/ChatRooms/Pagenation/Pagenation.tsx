@@ -48,10 +48,12 @@ const Pagenation: FC<IPagenationProps> = ({
 			const nextPageListIndex = curPageListIndex + 1;
 			setCurPage(pageIndexs[nextPageListIndex][0]);
 			setCurPageListIndex(nextPageListIndex);
+			onPageClick(pageIndexs[nextPageListIndex][0]);
 		} else {
 			const prePageListIndex = curPageListIndex - 1;
 			setCurPage(pageIndexs[prePageListIndex][0]);
 			setCurPageListIndex(prePageListIndex);
+			onPageClick(pageIndexs[prePageListIndex][0]);
 		}
 	};
 

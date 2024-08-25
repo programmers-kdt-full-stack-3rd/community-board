@@ -18,14 +18,13 @@ import { ApiCall } from "../../../../api/api";
 import { sendCreateRoomRequest } from "../../../../api/chats/crud";
 import { useErrorModal } from "../../../../state/errorModalStore";
 import { ClientError } from "../../../../api/errors";
-import { useNavigate } from "react-router-dom";
 
 interface Props {
 	close: React.Dispatch<SetStateAction<boolean>>;
+	setSelectedRoom: (room: { title: string; roomId: number }) => void;
 }
 
-const CreateRoomModal: React.FC<Props> = ({ close }) => {
-	const navigate = useNavigate();
+const CreateRoomModal: React.FC<Props> = ({ close, setSelectedRoom }) => {
 	const [roomInfo, setRoomInfo] = useState<ICreateRoomRequest>({
 		title: "",
 		password: "",
@@ -46,7 +45,10 @@ const CreateRoomModal: React.FC<Props> = ({ close }) => {
 			return;
 		}
 
-		navigate(`/room/${res.roomId}`);
+		setSelectedRoom({
+			roomId: parseInt(res.roomId),
+			title: roomInfo.title,
+		});
 	};
 
 	return (
