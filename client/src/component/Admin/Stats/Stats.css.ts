@@ -81,6 +81,7 @@ export const GraphStyle = style({
     marginTop: '10px',
     marginRight: '10px',
     boxSizing: 'border-box', 
-    overflow: 'hidden' 
+    overflow: 'hidden', 
+    minWidth : '500px'
 });
 
