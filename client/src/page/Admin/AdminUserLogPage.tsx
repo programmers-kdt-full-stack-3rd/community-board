@@ -14,7 +14,6 @@ import {
     Title,
     LogListDetail
 } from '../../component/Admin/UserLog/UserLog.css';
-import { useUserStore } from '../../state/store';
 import { FaBookOpen } from "react-icons/fa";
 import { IoChatbubbleEllipsesSharp } from "react-icons/io5";
 import { HiCursorClick } from "react-icons/hi";
@@ -28,6 +27,7 @@ const useFetchUserData = (userId: number, initialPage: number, itemsPerPage: num
     });
     const [stats, setStats] = useState({ posts: 0, comments: 0, views: 0 });
     const [error, setError] = useState<string | null>(null);
+    const [nickname, setNickname] = useState<string | null>(null);
 
     const fetchLogs = async () => {
         try {
@@ -42,6 +42,7 @@ const useFetchUserData = (userId: number, initialPage: number, itemsPerPage: num
     const fetchStats = async () => {
         try {
             const statsData = await fetchUserStats(userId);
+            setNickname(statsData.nickname);
             setStats({
                 posts: statsData.stats.posts || 0,
                 comments: statsData.stats.comments || 0,
@@ -59,7 +60,7 @@ const useFetchUserData = (userId: number, initialPage: number, itemsPerPage: num
         }
     }, [userId, initialPage]);
 
-    return { logs, stats, error };
+    return { logs, stats, error, nickname };
 };
 
 export const AdminUserLogPage = () => {
@@ -74,8 +75,7 @@ export const AdminUserLogPage = () => {
     const [onlyComment, setOnlyComment] = useState<boolean>(false);
     console.log(onlyPost);
     console.log(onlyComment);
-    const { logs, stats, error } = useFetchUserData(userIdNum, currentPage, itemsPerPage);
-    const nickname = useUserStore.use.nickname();
+    const { logs, stats, error,nickname } = useFetchUserData(userIdNum, currentPage, itemsPerPage);
 
     return (
         <div>
