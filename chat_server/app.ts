@@ -1,6 +1,4 @@
 import dotenv from "dotenv";
-dotenv.config();
-
 import cookie from "cookie";
 import { createServer } from "http";
 import jwt from "jsonwebtoken";
@@ -11,6 +9,8 @@ import { instrument } from "@socket.io/admin-ui";
 import { handleChatConnection } from "./controllers/chat_controller";
 import { handleNotificationConnection } from "./controllers/notification_controller";
 import { Socket } from "dgram";
+
+dotenv.config();
 
 const httpServer = createServer();
 

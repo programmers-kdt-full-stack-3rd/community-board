@@ -136,6 +136,7 @@ function App() {
 						<Route
 							path="/admin/userLog/:userId"
 							element={<AdminUserLogPage />}
+						/>
 						<Route
 							path="*"
 							element={<NotFound />}

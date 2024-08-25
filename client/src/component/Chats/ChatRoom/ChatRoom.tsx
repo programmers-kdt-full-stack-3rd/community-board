@@ -124,7 +124,7 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 			) : (
 				<YourChat
 					key={index}
-					name={message.nickname}
+					name={nickname}
 					content={message.message}
 				/>
 			);
