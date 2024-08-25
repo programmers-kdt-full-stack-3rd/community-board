@@ -1,10 +1,13 @@
 import axios from "axios";
+import dotenv from "dotenv";
 import {
 	IEnterRoomRequest,
 	IGetRoomMessageLogsRequest,
 	IJoinRoomRequest,
 	IReadRoomRequest,
 } from "shared";
+
+dotenv.config();
 
 const apiClient = axios.create({
 	baseURL: process.env.API_SERVER_ADDRESS || "http://localhost:8000",
