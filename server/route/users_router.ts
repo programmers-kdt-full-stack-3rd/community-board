@@ -6,6 +6,7 @@ import {
 	handleUpdateUser,
 	handleCheckPassword,
 	handleDeleteUser,
+	handleReadUser,
 } from "../controller/users_controller";
 import { requireLogin, requirePassword } from "../middleware/auth";
 import {
@@ -21,6 +22,7 @@ router.use(express.json());
 router.post("/join", joinValidation, handleJoinUser);
 router.post("/login", loginValidation, handleLoginUser);
 router.post("/logout", requireLogin, handleLogoutUser);
+router.get("/", requireLogin, handleReadUser);
 router.put(
 	"/",
 	requireLogin,

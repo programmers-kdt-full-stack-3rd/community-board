@@ -25,6 +25,7 @@ interface IUserAuthData {
 }
 
 interface IUpdateUserInfo {
+	email?: string;
 	nickname: string;
 	password: string;
 	userId: number;
@@ -35,6 +36,20 @@ type TDeleteUserInfo =
 	| { email?: never; userId: number };
 
 interface IUserAuthResult extends RowDataPacket, IUser {}
+
+const handleDupEntry = async (sqlMessage: string, email: string) => {
+	if (sqlMessage.includes("email")) {
+		const isDelete = await isUserDeleted({ email });
+		if (isDelete) {
+			throw ServerError.badRequest("탈퇴한 회원의 이메일입니다.");
+		}
+		throw ServerError.badRequest("이미 존재하는 이메일 주소입니다.");
+	}
+
+	if (sqlMessage.includes("nickname")) {
+		throw ServerError.badRequest("이미 사용 중인 닉네임입니다.");
+	}
+};
 
 export const addUser = async (userData: IUserRegData) => {
 	let conn: PoolConnection | null = null;
@@ -61,22 +76,10 @@ export const addUser = async (userData: IUserRegData) => {
 		return rows;
 	} catch (err: any) {
 		if (err.code === "ER_DUP_ENTRY") {
-			if (err.sqlMessage.includes("email")) {
-				const isDelete = await isUserDeleted({ email: userData.email });
-				if (isDelete) {
-					throw ServerError.badRequest("탈퇴한 회원입니다.");
-				}
-				throw ServerError.badRequest(
-					"이미 존재하는 이메일 주소입니다."
-				);
-			}
-
-			if (err.sqlMessage.includes("nickname")) {
-				throw ServerError.badRequest("이미 사용 중인 닉네임입니다.");
-			}
-		} else {
-			throw err;
+			handleDupEntry(err.sqlMessage as string, userData.email);
 		}
+
+		throw err;
 	} finally {
 		if (conn) conn.release();
 	}
@@ -245,6 +248,64 @@ export const updateUser = async (userData: IUpdateUserInfo) => {
 			throw ServerError.badRequest("회원정보 수정 실패");
 		}
 	} catch (err: any) {
+		throw err;
+	} finally {
+		if (conn) conn.release();
+	}
+};
+
+export const registerUserEmail = async (userData: IUpdateUserInfo) => {
+	if (!userData.email) {
+		throw ServerError.etcError(
+			500,
+			"서버 로직에서 필수 정보를 누락했습니다."
+		);
+	}
+
+	let conn: PoolConnection | null = null;
+	try {
+		const salt: string = await makeSalt();
+		const hashedPassword: string = await makeHashedPassword(
+			userData.password,
+			salt
+		);
+
+		const sql = `
+			UPDATE
+				users
+			SET
+				email = ?,
+				nickname = ?,
+				password = ?,
+				salt = ?
+			WHERE
+				id = ?
+				AND isDelete = FALSE
+		`;
+		const value = [
+			userData.email,
+			userData.nickname,
+			hashedPassword,
+			salt,
+			userData.userId,
+		];
+
+		conn = await pool.getConnection();
+		const [rows]: [ResultSetHeader, FieldPacket[]] = await conn.query(
+			sql,
+			value
+		);
+
+		if (rows.affectedRows === 0) {
+			throw ServerError.badRequest(
+				"소셜 로그인으로 가입한 회원 정보에 이메일 등록 실패"
+			);
+		}
+	} catch (err: any) {
+		if (err.code === "ER_DUP_ENTRY") {
+			await handleDupEntry(err.sqlMessage as string, userData.email);
+		}
+
 		throw err;
 	} finally {
 		if (conn) conn.release();

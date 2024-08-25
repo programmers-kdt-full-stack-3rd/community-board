@@ -3,14 +3,14 @@ import { oAuthProviders } from "../../../db/model/oauth";
 import { validate } from "../../../middleware/validate";
 import { ERROR_MESSAGES } from "./constants";
 
-export const getOAuthLoginUrlValidator = () => [
+export const oAuthProviderParamValidator = () => [
 	param("provider")
 		.isIn(oAuthProviders)
 		.withMessage(ERROR_MESSAGES.INVALID_OAUTH_PROVIDER),
 	validate,
 ];
 
-export const postOAuthLoginValidatior = () => [
+export const oAuthLoginValidatior = () => [
 	body("provider")
 		.isIn(oAuthProviders)
 		.withMessage(ERROR_MESSAGES.INVALID_OAUTH_PROVIDER),
