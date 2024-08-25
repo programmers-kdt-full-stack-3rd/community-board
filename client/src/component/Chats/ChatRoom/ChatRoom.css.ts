@@ -19,6 +19,14 @@ export const chatRoomHeader = style({
 	textAlign: "left",
 });
 
+export const goBack = style({
+	cursor: "pointer",
+	":hover": {
+		cursor: "pointer", // hover 시에도 클릭 커서로 유지
+		opacity: 0.7,
+	},
+});
+
 export const chatRoomBody = style({
 	display: "flex",
 	flexDirection: "column",

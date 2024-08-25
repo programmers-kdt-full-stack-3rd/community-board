@@ -1,5 +1,4 @@
-import { useLayoutEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { FC, useLayoutEffect, useState } from "react";
 import { IMessage } from "shared";
 
 import { chatRoomBody, chatRoomContainer } from "./ChatRoom.css";
@@ -10,12 +9,15 @@ import SystemChat from "./SystemChat";
 import YourChat from "./YourChat";
 import { useUserStore } from "../../../state/store";
 
-// TODO : props로 roomId, title 받을 것
-const ChatRoom = () => {
-	const navigate = useNavigate(); // TEST : 채팅방 페이지
+interface Props {
+	title: string;
+	roomId: number;
+	setSelectedRoom: (room: { title: string; roomId: number } | null) => void;
+}
 
+// TODO : props로 roomId, title 받을 것
+const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 	// 전역 상태
-	const isLogin = useUserStore.use.isLogin();
 	const nickname = useUserStore.use.nickname();
 	const socket = useUserStore.use.socket();
 	// TODO : zustand에서 해당 채팅방에 대한 메시지 꺼내오기
@@ -28,17 +30,7 @@ const ChatRoom = () => {
 	const [chatLoading, setChatLoading] = useState(false);
 	const [memberId, setMemberId] = useState<number>(0);
 
-	// TODO : roomId zustand에서 꺼내올 것
-	const { room_id } = useParams(); // TEST: 채팅방 임시 데이터
-	const roomId = parseInt(room_id!);
-
 	useLayoutEffect(() => {
-		if (!isLogin) {
-			// TODO : aside로 개발 시 로그인 안되있음을 표시 및 로그인 페이지 바로가기 버튼 생성
-			navigate(`/login?redirect=/room/${roomId}`); // TEST: 로그인 페이지로 route
-			return;
-		}
-
 		if (socket) {
 			const handleReceiveMessage = (newMessage: IMessage) => {
 				setMessageLogs(prev => [...prev, newMessage]);
@@ -63,7 +55,11 @@ const ChatRoom = () => {
 				socket.off("receive_message", handleReceiveMessage);
 			};
 		}
-	}, [isLogin, roomId, socket, navigate, memberId]);
+	}, [roomId, socket, memberId]);
+
+	const backBtnClick = () => {
+		setSelectedRoom(null);
+	};
 
 	const chatInputClick = () => {
 		if (!message.length) {
@@ -138,7 +134,10 @@ const ChatRoom = () => {
 	return (
 		<div className={chatRoomContainer}>
 			{/* TODO : title zustand에서 꺼내오기 */}
-			<ChatRoomHeader title={"임시 채팅방 제목"} />
+			<ChatRoomHeader
+				title={title}
+				onClick={backBtnClick}
+			/>
 			<div className={chatRoomBody}>{renderMessages()}</div>
 			<ChatInput
 				message={message}
