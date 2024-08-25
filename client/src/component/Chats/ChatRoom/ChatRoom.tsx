@@ -8,6 +8,7 @@ import MyChat from "./MyChat";
 import SystemChat from "./SystemChat";
 import YourChat from "./YourChat";
 import { useUserStore } from "../../../state/store";
+import { useChatRoom } from "../../../state/ChatRoomStore";
 
 interface Props {
 	title: string;
@@ -21,11 +22,11 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 	const nickname = useUserStore.use.nickname();
 	const socket = useUserStore.use.socket();
 	// TODO : zustand에서 해당 채팅방에 대한 메시지 꺼내오기
+	const roomState = useChatRoom();
 
 	// 컴포넌트 상태
 	const [message, setMessage] = useState("");
 	// TODO : messageLogs zustand에 저장할 것
-	const [messageLogs, setMessageLogs] = useState<IMessage[]>([]); // TEST : 컴포넌트 상태 저장
 	const [roomLoading, setRoomLoading] = useState(true);
 	const [chatLoading, setChatLoading] = useState(false);
 	const [memberId, setMemberId] = useState<number>(0);
@@ -33,7 +34,7 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 	useLayoutEffect(() => {
 		if (socket) {
 			const handleReceiveMessage = (newMessage: IMessage) => {
-				setMessageLogs(prev => [...prev, newMessage]);
+				roomState.updateMessageLogByRoom(roomId, newMessage);
 			};
 
 			// 이전 메시지 모두 불러오기
@@ -42,7 +43,10 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 				roomId,
 				(response: { memberId: number; messageLogs: IMessage[] }) => {
 					setMemberId(response.memberId);
-					setMessageLogs(response.messageLogs);
+					roomState.setMessageLogByRooms(
+						roomId,
+						response.messageLogs
+					);
 					setRoomLoading(false);
 				}
 			);
@@ -81,7 +85,7 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 		if (socket) {
 			socket.emit("send_message", msg, (isSuccess: boolean) => {
 				if (isSuccess) {
-					setMessageLogs(prev => [...prev, msg]);
+					roomState.updateMessageLogByRoom(roomId, msg);
 					// TODO : zustand에 저장
 				} else {
 					console.error(msg);
@@ -101,7 +105,11 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 			return <p>Loading...</p>;
 		}
 
-		return messageLogs.map((message, index) => {
+		if (!roomState.chatRoomMessageLogs[roomId]) {
+			return <p></p>;
+		}
+
+		return roomState.chatRoomMessageLogs[roomId].map((message, index) => {
 			if (message.isSystem) {
 				return (
 					<SystemChat

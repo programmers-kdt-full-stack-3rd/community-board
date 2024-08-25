@@ -5,7 +5,9 @@ import { RoomsInfo } from "../component/Chats/ChatRooms/ChatRooms";
 
 interface IChatRoomState {
 	myRoomInfo: RoomsInfo;
-	chatRoomMessageLogs: Map<number, IMessage[]>;
+	chatRoomMessageLogs: {
+		[key: number]: IMessage[];
+	};
 }
 
 interface IChatRoomActions {
@@ -32,7 +34,7 @@ export const useChatRoom = create<TChatRoomStore>(
 				totalRoomCount: 0,
 				rooms: {},
 			},
-			chatRoomMessageLogs: new Map<number, IMessage[]>(),
+			chatRoomMessageLogs: {},
 			setMyRoomInfo: (
 				totalRoomCount: number,
 				currentPage: number,
@@ -50,29 +52,32 @@ export const useChatRoom = create<TChatRoomStore>(
 				})),
 			setMessageLogByRooms: (roomId: number, messageLogs: IMessage[]) =>
 				set(state => {
-					const newChatRoomMessageLogs = new Map(
-						state.chatRoomMessageLogs
-					);
-					newChatRoomMessageLogs.set(roomId, messageLogs);
 					return {
 						...state,
-						chatRoomMessageLogs: newChatRoomMessageLogs,
+						chatRoomMessageLogs: {
+							[roomId]: messageLogs.sort(
+								(a, b) =>
+									new Date(a.createdAt).getTime() -
+									new Date(b.createdAt).getTime()
+							),
+						},
 					};
 				}),
 			updateMessageLogByRoom: (roomId: number, message: IMessage) =>
 				set(state => {
-					const newChatRoomMessageLogs = new Map(
-						state.chatRoomMessageLogs
-					);
-					const existingMessages =
-						newChatRoomMessageLogs.get(roomId) || [];
-					newChatRoomMessageLogs.set(roomId, [
-						...existingMessages,
-						message,
-					]);
 					return {
 						...state,
-						chatRoomMessageLogs: newChatRoomMessageLogs,
+						chatRoomMessageLogs: {
+							...state.chatRoomMessageLogs,
+							[roomId]: [
+								...state.chatRoomMessageLogs[roomId],
+								message,
+							].sort(
+								(a, b) =>
+									new Date(a.createdAt).getTime() -
+									new Date(b.createdAt).getTime()
+							),
+						},
 					};
 				}),
 		}),
