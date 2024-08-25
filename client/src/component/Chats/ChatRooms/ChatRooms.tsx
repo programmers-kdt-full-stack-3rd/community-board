@@ -16,7 +16,11 @@ export interface RoomsInfo {
 	// values : 현재 page에서 보여 줄 채팅방 정보
 }
 
-const ChatRooms: FC = () => {
+interface Props {
+	setSelectedRoom: (room: { title: string; roomId: number }) => void;
+}
+
+const ChatRooms: FC<Props> = ({ setSelectedRoom }) => {
 	const navigate = useNavigate(); // TEST : 채팅방 페이지
 
 	const [isOpen, setIsOpen] = useState(false);
@@ -31,7 +35,7 @@ const ChatRooms: FC = () => {
 	useLayoutEffect(() => {
 		if (!isLogin) {
 			// TODO : aside로 개발 시 로그인 안되있음을 표시 및 로그인 페이지 바로가기 버튼 생성
-			navigate(`/login?redirect=/rooms`); // TEST: 로그인 페이지로 route
+			navigate(`/login?redirect=/chat`); // TEST: 로그인 페이지로 route
 			return;
 		}
 
@@ -46,11 +50,20 @@ const ChatRooms: FC = () => {
 
 	return (
 		<div className={container}>
-			{isOpen ? <CreateRoomModal close={setIsOpen} /> : null}
-			<SearchedChatRooms open={setIsOpen} />
+			{isOpen ? (
+				<CreateRoomModal
+					close={setIsOpen}
+					setSelectedRoom={setSelectedRoom}
+				/>
+			) : null}
+			<SearchedChatRooms
+				open={setIsOpen}
+				setSelectedRoom={setSelectedRoom}
+			/>
 			<MyChatRooms
 				currentPage={currentPage}
 				setCurrentPage={setCurrentPage}
+				setSelectedRoom={setSelectedRoom}
 			/>
 		</div>
 	);

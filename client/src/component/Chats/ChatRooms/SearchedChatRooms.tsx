@@ -24,9 +24,10 @@ import { CiCirclePlus } from "react-icons/ci";
 
 interface Props {
 	open: React.Dispatch<SetStateAction<boolean>>;
+	setSelectedRoom: (room: { title: string; roomId: number }) => void;
 }
 
-const SearchedChatRooms: React.FC<Props> = ({ open }) => {
+const SearchedChatRooms: React.FC<Props> = ({ open, setSelectedRoom }) => {
 	const [isRendered, setIsRendered] = useState(false);
 	const [currentPage, setCurrentPage] = useState<number>(1);
 	const [searchedRooms, setSearchedRooms] = useState<RoomsInfo>({
@@ -177,6 +178,7 @@ const SearchedChatRooms: React.FC<Props> = ({ open }) => {
 							<Rooms
 								isMine={false}
 								rooms={searchedRooms.rooms[currentPage]}
+								setSelectedRoom={setSelectedRoom}
 							/>
 						)}
 					</div>

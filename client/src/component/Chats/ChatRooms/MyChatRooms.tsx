@@ -6,12 +6,17 @@ import Pagenation from "./Pagenation/Pagenation";
 import { useChatRoom } from "../../../state/ChatRoomStore";
 import { useUserStore } from "../../../state/store";
 
-interface MyChatRoomsProps {
+interface Props {
 	currentPage: number;
 	setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
+	setSelectedRoom: (room: { title: string; roomId: number }) => void;
 }
 
-const MyChatRooms: FC<MyChatRoomsProps> = ({ currentPage, setCurrentPage }) => {
+const MyChatRooms: FC<Props> = ({
+	currentPage,
+	setCurrentPage,
+	setSelectedRoom,
+}) => {
 	const socket = useUserStore.use.socket();
 
 	const [isRendered, setIsRendered] = useState(false);
@@ -70,6 +75,7 @@ const MyChatRooms: FC<MyChatRoomsProps> = ({ currentPage, setCurrentPage }) => {
 							<Rooms
 								isMine={true}
 								rooms={roomState.myRoomInfo.rooms[currentPage]}
+								setSelectedRoom={setSelectedRoom}
 							/>
 						)}
 					</div>
