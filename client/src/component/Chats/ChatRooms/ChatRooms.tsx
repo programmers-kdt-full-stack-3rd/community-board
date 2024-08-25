@@ -1,10 +1,9 @@
-import { FC, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { container } from "./ChatRooms.css";
 import { IGetMyRoomRequestEvent, IRoomHeader } from "shared";
 import CreateRoomModal from "./Modal/CreateRoomModal";
 import MyChatRooms from "./MyChatRooms";
 import SearchedChatRooms from "./SearchedChatRooms";
-import { Socket } from "socket.io-client";
 import { useUserStore } from "../../../state/store";
 
 export interface RoomsInfo {
@@ -16,15 +15,12 @@ export interface RoomsInfo {
 	// values : 현재 page에서 보여 줄 채팅방 정보
 }
 
-interface ChatRoomsProps {
-	socket: Socket | null;
-}
-
-const ChatRooms: FC<ChatRoomsProps> = ({ socket }) => {
+const ChatRooms = () => {
 	const [isOpen, setIsOpen] = useState(false);
 	const [currentPage, setCurrentPage] = useState<number>(1);
 	const isAsideOpen = true; // TODO : Aside UI 만들때 State 관리
 	const nickname = useUserStore(state => state.nickname);
+	const socket = useUserStore.use.socket();
 
 	useEffect(() => {
 		if (isAsideOpen) {
@@ -42,7 +38,6 @@ const ChatRooms: FC<ChatRoomsProps> = ({ socket }) => {
 			{isOpen ? <CreateRoomModal close={setIsOpen} /> : null}
 			<SearchedChatRooms open={setIsOpen} />
 			<MyChatRooms
-				socket={socket}
 				currentPage={currentPage}
 				setCurrentPage={setCurrentPage}
 			/>

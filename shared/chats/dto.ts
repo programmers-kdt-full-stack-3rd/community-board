@@ -1,6 +1,6 @@
 export interface IMessage {
 	roomId: number; // 방 번호
-	nickname: string; // 보낸 사람 이름
+	nickname?: string; // 보낸 사람 이름
 	message: string; // 채팅 내용
 	createdAt: Date; // 생성 시간
 	isMine: boolean; // true : 내 메세지

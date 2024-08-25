@@ -5,22 +5,18 @@ import Rooms from "./Rooms/Rooms";
 import Pagenation from "./Pagenation/Pagenation";
 import { isDevMode } from "../../../utils/detectMode";
 import { testMy } from "./test-case";
-import { Socket } from "socket.io-client";
 import { useChatRoom } from "../../../state/ChatRoomStore";
+import { useUserStore } from "../../../state/store";
 
 interface MyChatRoomsProps {
 	currentPage: number;
 	setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
-	socket: Socket | null;
 }
 
-const MyChatRooms: FC<MyChatRoomsProps> = ({
-	socket,
-	currentPage,
-	setCurrentPage,
-}) => {
+const MyChatRooms: FC<MyChatRoomsProps> = ({ currentPage, setCurrentPage }) => {
 	const [isRendered, setIsRendered] = useState(false);
 	const roomState = useChatRoom();
+	const socket = useUserStore.use.socket();
 
 	useEffect(() => {
 		if (socket) {
