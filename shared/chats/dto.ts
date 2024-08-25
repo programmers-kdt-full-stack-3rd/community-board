@@ -15,13 +15,6 @@ export interface IRoomHeader {
 	title: string; // 채팅방 이름
 	totalMembersCount: number; // 채팅방 멤버 수
 	isPrivate: boolean; // true : 비밀방
-	liveRoomInfo: ILiveRoomInfo; // 소켓을 통해 실시간으로 바뀌는 정보
-}
-
-export interface ILiveRoomInfo {
-	lastMessage: IMessage; // 채팅방의 마지막 메세지
-	curNum: number; // 현재 접속한 사용자 수
-	newMessages: number; // 새로운 채팅 수
 }
 
 export interface IRoomMember {

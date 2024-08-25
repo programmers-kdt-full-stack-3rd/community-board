@@ -6,7 +6,6 @@ import {
 	IMessage,
 	IReadRoomRequest,
 	IRoomHeader,
-	mapDBToIRoomHeaders,
 } from "shared";
 
 export const addRoom = async (userId: number, body: ICreateRoomRequest) => {
@@ -67,33 +66,35 @@ export const getRoomsByKeyword = async (body: IReadRoomRequest) => {
 		const [countRows]: any[] = await conn.query(countSql, values);
 		const totalRoomCount = countRows[0].total;
 
-		let dataSql = `
-				SELECT 
-    				r.id,
-					r.name,
-					r.is_private,
-					COUNT(m.id) AS membersCount
-				FROM
-					rooms as r
-					LEFT JOIN members as m
-					ON r.id = m.room_id
-				WHERE
-					name LIKE ?
-				GROUP BY
-        			r.id, r.name, r.is_private
-				LIMIT ? OFFSET ?;
-					`;
+		const dataSql = `
+			SELECT
+				COUNT(m.id) AS totalMembersCount,
+				r.id AS roomId,
+				r.name AS title,
+				r.is_private AS isPrivate
+			FROM
+				rooms AS r
+			INNER JOIN
+				members AS m ON r.id = m.room_id AND m.is_deleted = FALSE AND name LIKE ?
+			GROUP BY
+				r.id, r.name, r.is_private
+			LIMIT ? OFFSET ?
+		`;
 
 		values.push(body.perPage);
 		values.push(body.page * body.perPage);
 
 		const [dataRows]: any[] = await conn.query(dataSql, values);
 
-		const roomHeaders = mapDBToIRoomHeaders(dataRows);
-
 		return {
 			totalRoomCount,
-			roomHeaders,
+			roomHeaders: dataRows.map(
+				(data: any) =>
+					({
+						...data,
+						isPrivate: data.isPrivate !== 0,
+					}) as IRoomHeader
+			),
 		};
 	} catch (err) {
 		throw err;
@@ -133,11 +134,11 @@ export const getRoomsByUserId = async (
 				r.name AS title,
 				r.is_private AS isPrivate
 			FROM
-				rooms r
+				rooms AS r
 			INNER JOIN
-				members m1 ON r.id = m1.room_id AND m1.is_deleted = FALSE AND m1.user_id = ?
+				members AS m1 ON r.id = m1.room_id AND m1.is_deleted = FALSE AND m1.user_id = ?
 			LEFT JOIN
-				members m2 ON r.id = m2.room_id AND m2.is_deleted = FALSE
+				members AS m2 ON r.id = m2.room_id AND m2.is_deleted = FALSE
 			GROUP BY
 				r.id, r.name, r.is_private
 			LIMIT ? OFFSET ?

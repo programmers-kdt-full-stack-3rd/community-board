@@ -116,20 +116,15 @@ const Room: React.FC<Props> = ({ room, isMine, index }) => {
 							채팅방 이름: {room.title}
 						</div>
 						<div className={numContainer}>
-							{isMine ? (
-								<span>
-									접속 인원: {room.liveRoomInfo.curNum}
-								</span>
-							) : null}
+							{/* TODO : 접속 인원 소켓에서 추가 */}
+							{isMine ? <span>접속 인원: </span> : null}
 							<span>참여 인원: {room.totalMembersCount}</span>
 						</div>
 					</div>
 					{isMine ? (
 						<div className={chatContainer}>
-							<span>
-								최근 메시지:{" "}
-								{room.liveRoomInfo.lastMessage.message}
-							</span>
+							{/* TODO : 최근 메시지 소켓에서 추가 */}
+							<span>최근 메시지: </span>
 						</div>
 					) : null}
 				</div>
