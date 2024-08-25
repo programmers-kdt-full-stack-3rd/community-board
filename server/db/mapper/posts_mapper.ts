@@ -1,6 +1,6 @@
 import { IAdminPostRow } from "../model/posts";
 
-interface IAdminPostResponse {
+export interface IAdminPostResponse {
 	total: number;
 	postHeaders: {
 		id: number;

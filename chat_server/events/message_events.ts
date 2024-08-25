@@ -11,7 +11,6 @@ export const handleMessageEvents = (socket: Socket) => {
 		const msg: IKafkaMessageDTO = {
 			...message,
 			createdAt,
-			userId: (socket as unknown as Socket & { userId: number }).userId,
 		};
 
 		try {

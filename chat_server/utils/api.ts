@@ -1,5 +1,13 @@
 import axios from "axios";
-import { IReadRoomRequest } from "shared";
+import dotenv from "dotenv";
+import {
+	IEnterRoomRequest,
+	IGetRoomMessageLogsRequest,
+	IJoinRoomRequest,
+	IReadRoomRequest,
+} from "shared";
+
+dotenv.config();
 
 const apiClient = axios.create({
 	baseURL: process.env.API_SERVER_ADDRESS || "http://localhost:8000",
@@ -9,8 +17,47 @@ const apiClient = axios.create({
 	},
 });
 
-export const getMyRoomsToApi = async (params: IReadRoomRequest) => {
+export const getMyRoomsToApi = async (
+	params: IReadRoomRequest,
+	cookies: string
+) => {
 	return apiClient.get(`/api/chat/rooms`, {
 		params,
+		headers: {
+			Cookie: `${cookies}`,
+		},
+	});
+};
+
+export const joinRoomToApi = async (
+	params: IJoinRoomRequest,
+	cookies: string
+) => {
+	return apiClient.post(`/api/chat/join`, params, {
+		headers: {
+			Cookie: `${cookies}`,
+		},
+	});
+};
+
+export const getMyMemberId = async (
+	params: IEnterRoomRequest,
+	cookies: string
+) => {
+	return apiClient.post(`/api/chat/enter`, params, {
+		headers: {
+			Cookie: `${cookies}`,
+		},
+	});
+};
+
+export const getMessageLogs = async (
+	params: IGetRoomMessageLogsRequest,
+	cookies: string
+) => {
+	return apiClient.get(`/api/chat/room/${params.roomId}`, {
+		headers: {
+			Cookie: `${cookies}`,
+		},
 	});
 };

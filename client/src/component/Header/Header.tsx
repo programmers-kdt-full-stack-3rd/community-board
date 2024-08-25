@@ -4,6 +4,7 @@ import {
 	FiUser,
 	FiUserPlus,
 	FiChevronDown,
+	FiMessageSquare,
 } from "react-icons/fi";
 import { FaComments } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
@@ -93,13 +94,21 @@ const Header: React.FC = () => {
 				<span>CODEPLAY</span>
 			</Link>
 			<div className={userAuthPanel}>
-				<button onClick={() => navigate("/test")}>채팅 개발</button>
 				{isLogin && (
 					<div className={nicknameInfo}>
 						{nickname}님 환영 합니다.
 					</div>
 				)}
 				<div className={iconButtonGroup}>
+					<div className={button}>
+						<Link to="/chat">
+							<FiMessageSquare
+								size="30"
+								title="채팅"
+								color="#ffffff"
+							/>
+						</Link>
+					</div>
 					<div
 						className={button}
 						onClick={isLogin ? handleLogout : handleLogin}

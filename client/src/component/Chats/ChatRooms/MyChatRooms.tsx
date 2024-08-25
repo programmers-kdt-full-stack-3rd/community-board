@@ -1,42 +1,41 @@
 import { FC, useEffect, useLayoutEffect, useState } from "react";
-import { RoomsInfo } from "./ChatRooms";
 import { IReadRoomResponse } from "shared";
 import { roomsWrapper } from "./ChatRooms.css";
 import Rooms from "./Rooms/Rooms";
 import Pagenation from "./Pagenation/Pagenation";
-import { isDevMode } from "../../../utils/detectMode";
-import { testMy } from "./test-case";
-import { Socket } from "socket.io-client";
 import { useChatRoom } from "../../../state/ChatRoomStore";
+import { useUserStore } from "../../../state/store";
 
-interface MyChatRoomsProps {
-	socket: Socket | null;
+interface Props {
+	currentPage: number;
+	setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
+	setSelectedRoom: (room: { title: string; roomId: number }) => void;
 }
 
-const MyChatRooms: FC<MyChatRoomsProps> = ({ socket }) => {
+const MyChatRooms: FC<Props> = ({
+	currentPage,
+	setCurrentPage,
+	setSelectedRoom,
+}) => {
+	const socket = useUserStore.use.socket();
+
 	const [isRendered, setIsRendered] = useState(false);
-	const [currentPage, setCurrentPage] = useState<number>(1);
-	const [myRooms, setMyRooms] = useState<RoomsInfo>({
-		totalRoomCount: 0,
-		rooms: {},
-	});
 	const roomState = useChatRoom();
 
 	useEffect(() => {
 		if (socket) {
-			const GetRooms = async () => {
-				socket.on("get_my_rooms", (res: IReadRoomResponse) => {
-					setMyRooms(prevMyRooms => ({
-						totalRoomCount: res.totalRoomCount,
-						rooms: {
-							...prevMyRooms.rooms,
-							[currentPage]: res.roomHeaders,
-						},
-					}));
-					setIsRendered(true);
-				});
+			socket.on("get_my_rooms", (res: IReadRoomResponse) => {
+				roomState.setMyRoomInfo(
+					res.totalRoomCount,
+					currentPage,
+					res.roomHeaders
+				);
+				setIsRendered(true);
+			});
+
+			return () => {
+				socket.off("get_my_rooms");
 			};
-			GetRooms();
 		}
 	}, [socket, currentPage]);
 
@@ -49,10 +48,8 @@ const MyChatRooms: FC<MyChatRoomsProps> = ({ socket }) => {
 	};
 
 	useLayoutEffect(() => {
-		if (isDevMode()) {
-			roomState.setMyRoomInfo(2, 1, testMy.roomHeaders);
-		} else if (!isRendered) {
-			if (myRooms.rooms[currentPage]) {
+		if (!isRendered) {
+			if (roomState.myRoomInfo.rooms[currentPage]) {
 				setIsRendered(true);
 				return;
 			}
@@ -78,6 +75,7 @@ const MyChatRooms: FC<MyChatRoomsProps> = ({ socket }) => {
 							<Rooms
 								isMine={true}
 								rooms={roomState.myRoomInfo.rooms[currentPage]}
+								setSelectedRoom={setSelectedRoom}
 							/>
 						)}
 					</div>

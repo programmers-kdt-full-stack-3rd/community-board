@@ -1,5 +1,4 @@
-import { useLayoutEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { FC, useLayoutEffect, useState } from "react";
 import { IMessage } from "shared";
 
 import { chatRoomBody, chatRoomContainer } from "./ChatRoom.css";
@@ -10,12 +9,15 @@ import SystemChat from "./SystemChat";
 import YourChat from "./YourChat";
 import { useUserStore } from "../../../state/store";
 
-// TODO : props로 roomId, title 받을 것
-const ChatRoom = () => {
-	const navigate = useNavigate(); // TEST : 채팅방 페이지
+interface Props {
+	title: string;
+	roomId: number;
+	setSelectedRoom: (room: { title: string; roomId: number } | null) => void;
+}
 
+// TODO : props로 roomId, title 받을 것
+const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 	// 전역 상태
-	const isLogin = useUserStore.use.isLogin();
 	const nickname = useUserStore.use.nickname();
 	const socket = useUserStore.use.socket();
 	// TODO : zustand에서 해당 채팅방에 대한 메시지 꺼내오기
@@ -26,39 +28,38 @@ const ChatRoom = () => {
 	const [messageLogs, setMessageLogs] = useState<IMessage[]>([]); // TEST : 컴포넌트 상태 저장
 	const [roomLoading, setRoomLoading] = useState(true);
 	const [chatLoading, setChatLoading] = useState(false);
-
-	// TODO : roomId zustand에서 꺼내올 것
-	const { room_id } = useParams(); // TEST: 채팅방 임시 데이터
-	const roomId = parseInt(room_id!);
+	const [memberId, setMemberId] = useState<number>(0);
 
 	useLayoutEffect(() => {
-		if (!isLogin) {
-			// TODO : aside로 개발 시 로그인 안되있음을 표시 및 로그인 페이지 바로가기 버튼 생성
-			navigate(`/login?redirect=/room/${roomId}`); // TEST: 로그인 페이지로 route
-			return;
-		}
-
 		if (socket) {
+			const handleReceiveMessage = (newMessage: IMessage) => {
+				setMessageLogs(prev => [...prev, newMessage]);
+			};
+
 			// 이전 메시지 모두 불러오기
-			socket.emit("enter_room", roomId, (response: IMessage[]) => {
-				setMessageLogs(response);
-				setRoomLoading(false);
-			});
+			socket.emit(
+				"enter_room",
+				roomId,
+				(response: { memberId: number; messageLogs: IMessage[] }) => {
+					setMemberId(response.memberId);
+					setMessageLogs(response.messageLogs);
+					setRoomLoading(false);
+				}
+			);
 
 			// 실시간 메시지 수신 설정
-			socket.on("receive_message", (newMessage: IMessage) => {
-				setMessageLogs(prevLogs => [...prevLogs, newMessage]);
-			});
+			socket.on("receive_message", handleReceiveMessage);
 
 			return () => {
 				// 소켓 이벤트 핸들러 제거
-				if (socket) {
-					socket.off("enter_room");
-					socket.off("send_message");
-				}
+				socket.off("receive_message", handleReceiveMessage);
 			};
 		}
-	}, [isLogin, roomId, socket, navigate]);
+	}, [roomId, socket, memberId]);
+
+	const backBtnClick = () => {
+		setSelectedRoom(null);
+	};
 
 	const chatInputClick = () => {
 		if (!message.length) {
@@ -66,6 +67,7 @@ const ChatRoom = () => {
 		}
 
 		const msg: IMessage = {
+			memberId,
 			roomId,
 			nickname,
 			message,
@@ -122,7 +124,7 @@ const ChatRoom = () => {
 			) : (
 				<YourChat
 					key={index}
-					name={message.nickname}
+					name={nickname}
 					content={message.message}
 				/>
 			);
@@ -132,7 +134,10 @@ const ChatRoom = () => {
 	return (
 		<div className={chatRoomContainer}>
 			{/* TODO : title zustand에서 꺼내오기 */}
-			<ChatRoomHeader title={"임시 채팅방 제목"} />
+			<ChatRoomHeader
+				title={title}
+				onClick={backBtnClick}
+			/>
 			<div className={chatRoomBody}>{renderMessages()}</div>
 			<ChatInput
 				message={message}

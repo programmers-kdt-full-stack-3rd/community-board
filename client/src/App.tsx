@@ -14,11 +14,11 @@ import { useLayoutEffect } from "react";
 import ErrorModal from "./component/utils/ErrorModal";
 import OAuthRedirectHandler from "./page/OAuthRedirectHandler";
 import ChatTestPage from "./page/Chat/ChatTestPage";
-import ChatRoom from "./component/Chats/ChatRoom/ChatRoom";
-import ChatRooms from "./component/Chats/ChatRooms/ChatRooms";
 import { AdminUserMgmtPage } from "./page/Admin/AdminUserMgmtPage";
 import { AdminPostMgmtPage } from "./page/Admin/AdminPostMgmtPage";
 import { AdminStatsPage } from "./page/Admin/AdminStatsPage";
+import { AdminUserLogPage } from "./page/Admin/AdminUserLogPage";
+import NotFound from "./page/error/NotFound";
 import { useUserStore } from "./state/store";
 import { io } from "socket.io-client";
 import { AdminUserLogPage } from "./page/Admin/AdminUserLogPage";
@@ -119,16 +119,8 @@ function App() {
 							element={<PostInfoPage />}
 						/>
 						<Route
-							path="/test"
+							path="/chat"
 							element={<ChatTestPage />}
-						/>
-						<Route
-							path="/rooms"
-							element={<ChatRooms socket={socket} />}
-						/>
-						<Route
-							path="/room/:room_id"
-							element={<ChatRoom />}
 						/>
 						<Route
 							path="/admin/userMgmt"
@@ -142,10 +134,13 @@ function App() {
 							path="/admin/stats"
 							element={<AdminStatsPage />}
 						/>
-
 						<Route
 							path="/admin/userLog/:userId"
 							element={<AdminUserLogPage />}
+						/>
+						<Route
+							path="*"
+							element={<NotFound />}
 						/>
 					</Routes>
 				</MainContainer>
