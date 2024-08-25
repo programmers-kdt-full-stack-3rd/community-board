@@ -1,7 +1,7 @@
 import { IntervalStat } from "shared";
 import { addDays, getKoreanDate } from "../../../utils/date-to-str";
 
-export const getChartData = (interval: string, startDate: string, endDate : string, intervalStats : IntervalStat[]) => {
+export const getChartData = (interval: string, startDate: string, endDate: string, intervalStats: IntervalStat[]) => {
     const labels: string[] = [];
     const data = {
         comments: [] as number[],
@@ -24,17 +24,41 @@ export const getChartData = (interval: string, startDate: string, endDate : stri
         while (currentDate <= endDateLimit) {
             const formattedDate = getKoreanDate(currentDate);
             labels.push(formattedDate);
-            const stat = intervalStats.find((stat: { date: any; }) => stat.date === formattedDate);
-            if (stat) {
-                accumulatedData.comments += Number(stat.comments);
-                accumulatedData.views += Number(stat.views);
-                accumulatedData.users += Number(stat.users);
-                accumulatedData.posts += Number(stat.posts);
-            }
+
+            // 디버깅을 위해 현재 날짜와 데이터를 출력합니다
+            console.log(`Current Date: ${formattedDate}`);
+
+            // 중복된 날짜 데이터 처리
+            let dailyData = {
+                comments: 0,
+                views: 0,
+                users: 0,
+                posts: 0
+            };
+
+            intervalStats.forEach((stat: { date: string; comments: any; views: any; users: any; posts: any; }) => {
+                if (stat.date === formattedDate) {
+                    dailyData.comments += Number(stat.comments);
+                    dailyData.views += Number(stat.views);  // Ensure views are converted to number
+                    dailyData.users += Number(stat.users);
+                    dailyData.posts += Number(stat.posts);
+                }
+            });
+
+            // 누적 데이터 업데이트
+            accumulatedData.comments += dailyData.comments;
+            accumulatedData.views += dailyData.views;
+            accumulatedData.users += dailyData.users;
+            accumulatedData.posts += dailyData.posts;
+
             data.comments.push(accumulatedData.comments);
             data.views.push(accumulatedData.views);
             data.users.push(accumulatedData.users);
             data.posts.push(accumulatedData.posts);
+
+            // 디버깅을 위해 누적된 데이터 출력
+            console.log(`Accumulated Data: ${JSON.stringify(accumulatedData)}`);
+
             currentDate = addDays(currentDate, 1);
         }
 
@@ -56,11 +80,11 @@ export const getChartData = (interval: string, startDate: string, endDate : stri
                 posts: 0
             };
 
-            intervalStats.forEach((stat: { date: string | any[]; comments: any; views: any; users: any; posts: any; }) => {
+            intervalStats.forEach((stat: { date: string; comments: any; views: any; users: any; posts: any; }) => {
                 const statMonth = stat.date.slice(0, 7);
                 if (statMonth === formattedDate) {
                     accumulatedData.comments += Number(stat.comments);
-                    accumulatedData.views += Number(stat.views);
+                    accumulatedData.views += Number(stat.views);  // Ensure views are converted to number
                     accumulatedData.users += Number(stat.users);
                     accumulatedData.posts += Number(stat.posts);
                 }
@@ -70,10 +94,11 @@ export const getChartData = (interval: string, startDate: string, endDate : stri
             data.views.push(accumulatedData.views);
             data.users.push(accumulatedData.users);
             data.posts.push(accumulatedData.posts);
+
             currentMonth.setMonth(currentMonth.getMonth() + 1);
         }
 
-    } else if (interval === 'yearly') { //yearly 데이터
+    } else if (interval === 'yearly') { // yearly 데이터
         let currentYear = new Date(startDate);
         const endDateLimit = new Date(endDate);
 
@@ -88,11 +113,11 @@ export const getChartData = (interval: string, startDate: string, endDate : stri
                 posts: 0
             };
 
-            intervalStats.forEach((stat: { date: string | any[]; comments: any; views: any; users: any; posts: any; }) => {
+            intervalStats.forEach((stat: { date: string; comments: any; views: any; users: any; posts: any; }) => {
                 const statYear = stat.date.slice(0, 4);
                 if (statYear === formattedDate) {
                     accumulatedData.comments += Number(stat.comments);
-                    accumulatedData.views += Number(stat.views);
+                    accumulatedData.views += Number(stat.views);  // Ensure views are converted to number
                     accumulatedData.users += Number(stat.users);
                     accumulatedData.posts += Number(stat.posts);
                 }
@@ -102,13 +127,14 @@ export const getChartData = (interval: string, startDate: string, endDate : stri
             data.views.push(accumulatedData.views);
             data.users.push(accumulatedData.users);
             data.posts.push(accumulatedData.posts);
+
             currentYear.setFullYear(currentYear.getFullYear() + 1);
         }
     }
 
     return {
         labels,
-        //데이터 통계
+        // 데이터 통계
         lineData: {
             datasets: [
                 {
@@ -130,11 +156,11 @@ export const getChartData = (interval: string, startDate: string, endDate : stri
                     data: data.comments,
                     backgroundColor: 'rgba(255, 159, 64, 0.5)',
                     borderColor: 'rgba(255, 159, 64, 1)',
-                    borderWidth: 1
+                    fill: false
                 }
             ]
         },
-        //전체 통계
+        // 전체 통계
         barData: {
             labels,
             datasets: [
@@ -168,7 +194,7 @@ export const getChartData = (interval: string, startDate: string, endDate : stri
                 }
             ]
         },
-        //유저 통계
+        // 유저 통계
         barData2: {
             labels,
             datasets: [
@@ -181,7 +207,5 @@ export const getChartData = (interval: string, startDate: string, endDate : stri
                 }
             ]
         }
-        
-    };   
+    };
 };
-
