@@ -78,7 +78,7 @@ export const yourChat = style({
 	paddingBottom: "10px",
 	paddingLeft: "20px",
 	paddingRight: "20px",
-	maxWidth: "50%",
+	maxWidth: "100%",
 	borderRadius: "10px",
 	border: "1px solid white",
 	background: "",
