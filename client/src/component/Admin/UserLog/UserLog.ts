@@ -2,7 +2,6 @@ import { HttpMethod, httpRequest } from '../../../api/api';
 
 export const fetchUserLogs = async (userId: number, currentPage: number, itemsPerPage: number) => {
     const URL = `admin/log/${userId}?index=${currentPage}&perPage=${itemsPerPage}`;
-    console.log(URL);
     try {
         const response = await httpRequest(URL, HttpMethod.GET);
 
@@ -18,7 +17,6 @@ export const fetchUserLogs = async (userId: number, currentPage: number, itemsPe
 
 export const fetchUserStats = async (userId: number) => {
     const URL = `admin/stat/${userId}`;
-    console.log(URL);
     try {
         const response = await httpRequest(URL, HttpMethod.GET);
         if (response.status >= 400) {

@@ -4,7 +4,6 @@ import { HttpMethod, httpRequest } from '../../../api/api';
 import { ClientError } from '../../../api/errors';
 import { deleteButton, restoreButton, SearchUser, UserListDetail, UserListStyle, UserSearchInput } from './UserList.css';
 import { AdminPostHeader } from '../PostMgmt/PostMgmt.css';
-import { EmptyUserList } from './EmptyUserList';
 import { Link } from 'react-router-dom';
 import { dateToStr } from '../../../utils/date-to-str';
 import Pagination from '../../common/Pagination/Pagination';
@@ -24,8 +23,14 @@ const UserList = () => {
         try {
             const url = `admin/user?index=${currentPage}&perPage=${itemsPerPage}${nickname ? `&nickname=${encodeURIComponent(nickname)}` : ''}${email ? `&email=${encodeURIComponent(email)}` : ''}`;
             const response = await httpRequest(url, HttpMethod.GET);
-            setUsers(response);
-            console.log(response);
+            if ((!response || response.total === 0) || (response.status == 400)) {
+                setUsers({
+                    total: 0,
+                    userInfo: []
+                });
+            } else {
+                setUsers(response);
+            }
 
         } catch (err) {
             if (err instanceof ClientError) {
@@ -33,14 +38,13 @@ const UserList = () => {
             } else {
                 console.error('error:', err);
             }
+
         }
     };
 
     useEffect(() => {
         fetchUsers();
-        console.log(users.total);
-        console.log(users.userInfo);
-    }, [nickname, email, users]);
+    }, [currentPage]);
 
     const handleDelete = async (userId: number) => {
         try {
@@ -99,6 +103,7 @@ const UserList = () => {
     const handleSearch = () => {
         setCurrentPage(1);
         fetchUsers();
+
     };
 
     return (
@@ -129,11 +134,8 @@ const UserList = () => {
             <hr></hr>
 
             <div>
-                {users === null || users.total === 0 ? (
-                    <EmptyUserList
-                        isFetchFailed={false}
-                        keyword=""
-                    />
+                {users.total === 0 ? (
+                    <p>사용자가 없습니다.</p>
                 ) : (
 
                     users.userInfo.map(user => (

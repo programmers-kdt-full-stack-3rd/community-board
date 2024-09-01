@@ -33,7 +33,6 @@ const useFetchUserData = (userId: number, initialPage: number, itemsPerPage: num
         try {
             const data = await fetchUserLogs(userId, initialPage, itemsPerPage);
             setLogs(data);
-            console.log(logs);
         } catch (err) {
             setError("로그를 가져오는 데 실패했습니다.");
         }
@@ -70,28 +69,25 @@ export const AdminUserLogPage = () => {
     const itemsPerPage = 10;
 
     const [currentPage, setCurrentPage] = useState<number>(initialPage);
-    const [onlyPost, setOnlyPost] = useState<boolean>(false);
-    const [onlyComment, setOnlyComment] = useState<boolean>(false);
-    console.log(onlyPost);
-    console.log(onlyComment);
+
     const { logs, stats, error } = useFetchUserData(userIdNum, currentPage, itemsPerPage);
     const nickname = useUserStore.use.nickname();
 
     return (
         <div>
-            <div className={Title} onClick={() => { setOnlyPost(false); setOnlyComment(false); setCurrentPage(initialPage); }}>
+            <div className={Title} onClick={() => { setCurrentPage(initialPage); }}>
                 <h1>{nickname}</h1>
                 <p>님의 활동 내역</p>
             </div>
             <div className={LogContainer}>
 
                 <div className={UserStats}>
-                    <div onClick={() => { setOnlyPost(true); setOnlyComment(false); setCurrentPage(initialPage); }}>
+                    <div onClick={() => { setCurrentPage(initialPage); }}>
                         <FaBookOpen className={StatsIcon} />
                         <div className={StatsCount}>게시글 수</div>
                         <h2>{stats.posts}</h2>
                     </div>
-                    <div onClick={() => { setOnlyPost(false); setOnlyComment(true); setCurrentPage(initialPage); }}>
+                    <div onClick={() => { setCurrentPage(initialPage); }}>
                         <IoChatbubbleEllipsesSharp className={StatsIcon} />
                         <div className={StatsCount}>댓글 수</div>
                         <h2>{stats.comments}</h2>
