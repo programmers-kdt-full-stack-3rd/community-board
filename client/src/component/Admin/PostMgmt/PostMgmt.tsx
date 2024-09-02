@@ -23,8 +23,14 @@ const PostList = () => {
         const url = `admin/post?index=${currentPage}&perPage=${itemsPerPage}${keyword ? `&keyword=${encodeURIComponent(keyword)}` : ''}`;
         try {
             const response = await httpRequest(url, HttpMethod.GET);
-            setPosts(response);
-            console.log(response);
+            if ((!response || response.total === 0) || (response.status == 404)) {
+                setPosts({
+                    total: 0,
+                    postHeaders: []
+                });
+            } else {
+                setPosts(response);
+            }
 
         } catch (err) {
             if (err instanceof ClientError) {
@@ -40,7 +46,7 @@ const PostList = () => {
 
     useEffect(() => {
         fetchPostsData(currentPage, itemsPerPage, keyword);
-    }, [currentPage, keyword, posts]);
+    }, [currentPage]);
 
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
