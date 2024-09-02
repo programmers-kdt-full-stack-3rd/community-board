@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import {
 	deleteUser,
+	getUserById,
 	getUsersInfo,
 	restoreUser,
 } from "../db/context/users_context";
@@ -220,9 +221,10 @@ export const handleAdminGetUserStat = async (
 	try {
 		const userId = parseInt(req.params.userId);
 
+		const nickname = (await getUserById(userId)).nickname;
 		const stats = await getUserStat(userId);
 
-		res.status(200).json({ stats });
+		res.status(200).json({ nickname, stats });
 	} catch (err: any) {
 		next(err);
 	}
