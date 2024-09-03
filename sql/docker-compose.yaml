@@ -2,10 +2,10 @@ services:
     mariadb:
         image: mariadb:latest
         environment:
-            MYSQL_ROOT_PASSWORD: 4442
+            MYSQL_ROOT_PASSWORD: 1q2w3e4r!
             MYSQL_DATABASE: community_board # 데이터베이스가 자동으로 생성됨
             MYSQL_USER: codeplay_user
-            MYSQL_PASSWORD: 4442
+            MYSQL_PASSWORD: codeplay123
         ports:
             - "3306:3306"
         volumes:
