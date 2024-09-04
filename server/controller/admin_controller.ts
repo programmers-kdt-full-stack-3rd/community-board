@@ -220,7 +220,7 @@ export const handleAdminGetUserStat = async (
 ) => {
 	try {
 		const userId = parseInt(req.params.userId);
-
+		
 		const nickname = (await getUserById(userId)).nickname;
 		const stats = await getUserStat(userId);
 

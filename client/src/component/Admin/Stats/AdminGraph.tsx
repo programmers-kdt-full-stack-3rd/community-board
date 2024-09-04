@@ -8,8 +8,10 @@ import { HiCursorClick } from "react-icons/hi";
 import { StatsIcon } from "../UserLog/UserLog.css";
 import { getKoreanDate, subtractDays } from "../../../utils/date-to-str";
 import { IntervalStat, IStats, TInterval } from "shared";
-import { fetchTotalStats } from "./Stats";
 import { getChartData } from "./ChartData";
+import { fetchTotalStats } from "../../../api/admin/user_crud";
+import { ApiCall } from "../../../api/api";
+import { ClientError } from "../../../api/errors";
 ChartJS.register(
     ArcElement,
     Tooltip,
@@ -31,14 +33,22 @@ export const AdminGraph = () => {
     const chartRef = useRef<any>(null);
 
     const fetchStats = async (startDate: string, endDate: string, interval: TInterval) => {
-        try {
-            const response = await fetchTotalStats(startDate, endDate, interval);
-            console.log("Fetch Response:", response);
-            setTotalStats(response.totalStats || { posts: 0, comments: 0, views: 0, users: 0 });
-            setIntervalStats(response.intervalStats || []);
-        } catch (error) {
-            console.error("데이터를 가져오는 중 오류가 발생했습니다:", error);
-        }
+
+        ApiCall(
+            () => fetchTotalStats(startDate, endDate, interval),
+            () => {
+                setTotalStats({
+                    posts: 0, comments: 0, views: 0, users: 0
+                });
+                setIntervalStats([]);
+            }
+        ).then(res => {
+            if (res instanceof ClientError) {
+                return;
+            }
+            setTotalStats(res.totalStats);
+            setIntervalStats(res.intervalStats);
+        });
     };
 
     useEffect(() => {
