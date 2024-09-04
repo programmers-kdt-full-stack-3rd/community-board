@@ -1,8 +1,6 @@
 import Pagination from '../../component/common/Pagination/Pagination';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { IUserLogResponse } from 'shared';
-import { fetchUserLogs, fetchUserStats } from '../../component/Admin/UserLog/UserLog';
 import {
     LogContainer,
     LogListStyle,
@@ -14,64 +12,20 @@ import {
     Title,
     LogListDetail
 } from '../../component/Admin/UserLog/UserLog.css';
-import { useUserStore } from '../../state/store';
 import { FaBookOpen } from "react-icons/fa";
 import { IoChatbubbleEllipsesSharp } from "react-icons/io5";
 import { HiCursorClick } from "react-icons/hi";
-
 import { dateToStr } from '../../utils/date-to-str';
+import { useFetchUserData } from '../../component/Admin/UserLog/UserLog';
 
-const useFetchUserData = (userId: number, initialPage: number, itemsPerPage: number) => {
-    const [logs, setLogs] = useState<IUserLogResponse>({
-        total: 0,
-        logs: []
-    });
-    const [stats, setStats] = useState({ posts: 0, comments: 0, views: 0 });
-    const [error, setError] = useState<string | null>(null);
-
-    const fetchLogs = async () => {
-        try {
-            const data = await fetchUserLogs(userId, initialPage, itemsPerPage);
-            setLogs(data);
-        } catch (err) {
-            setError("로그를 가져오는 데 실패했습니다.");
-        }
-    };
-
-    const fetchStats = async () => {
-        try {
-            const statsData = await fetchUserStats(userId);
-            setStats({
-                posts: statsData.stats.posts || 0,
-                comments: statsData.stats.comments || 0,
-                views: statsData.stats.views || 0,
-            });
-        } catch (err) {
-            setError("통계 정보를 가져오는 데 실패했습니다.");
-        }
-    };
-
-    useEffect(() => {
-        if (!isNaN(userId)) {
-            fetchLogs();
-            fetchStats();
-        }
-    }, [userId, initialPage]);
-
-    return { logs, stats, error };
-};
 
 export const AdminUserLogPage = () => {
     const { userId } = useParams<{ userId: string }>();
     const userIdNum = userId ? parseInt(userId, 10) : NaN;
-
     const initialPage = 1;
     const itemsPerPage = 10;
-
     const [currentPage, setCurrentPage] = useState<number>(initialPage);
-
-    const { logs, stats, error } = useFetchUserData(userIdNum, currentPage, itemsPerPage);
-    const nickname = useUserStore.use.nickname();
+    const { logs, stats, error, nickname } = useFetchUserData(userIdNum, currentPage, itemsPerPage);
 
     return (
         <div>

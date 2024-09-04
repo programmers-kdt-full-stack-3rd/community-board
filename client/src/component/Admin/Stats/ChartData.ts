@@ -192,9 +192,9 @@ export const getChartData = (interval: string, startDate: string, endDate: strin
                 {
                     label: 'Users',
                     data: data.users,
-                    backgroundColor: 'rgba(0, 0, 0, 0)', // 배경색 투명
+                    backgroundColor: 'rgba(0, 0, 0, 0)', 
                     borderColor: 'rgba(153, 102, 255, 1)',
-                    borderWidth: 2 // 테두리 두께
+                    borderWidth: 2 
                 }
             ]
         }

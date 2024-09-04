@@ -1,30 +1,66 @@
-import { HttpMethod, httpRequest } from '../../../api/api';
+import { useEffect, useState } from "react";
+import { IUserLogResponse } from "shared";
+import { ClientError } from "../../../api/errors";
+import { ApiCall } from "../../../api/api";
+import { fetchUserLogs, fetchUserStats } from "../../../api/admin/user_crud";
 
-export const fetchUserLogs = async (userId: number, currentPage: number, itemsPerPage: number) => {
-    const URL = `admin/log/${userId}?index=${currentPage}&perPage=${itemsPerPage}`;
-    try {
-        const response = await httpRequest(URL, HttpMethod.GET);
+export const useFetchUserData = (userId: number, initialPage: number, itemsPerPage: number) => {
+    const [logs, setLogs] = useState<IUserLogResponse>({
+        total: 0,
+        logs: []
+    });
+    const [stats, setStats] = useState({ posts: 0, comments: 0, views: 0 });
+    const [error, setError] = useState<string | null>(null);
+    const [nickname, setNickname] = useState<string | null>(null);
 
-        if (response.status >= 400) {
-            const errorText = response.message || 'API 응답 오류';
-            throw new Error(errorText);
+    const fetchLogs = async () => {
+        ApiCall(
+            () => fetchUserLogs(userId, initialPage, itemsPerPage),
+            () => {
+                setLogs({
+                    total: 0,
+                    logs: []
+                });
+            }
+        ).then(res => {
+            if (res instanceof ClientError) {
+                setError("로그 정보를 가져오는 데 실패했습니다.");
+                return;
+            }
+            setLogs(res);
+        });
+    };
+
+    const fetchStats = async () => {
+        ApiCall(
+            () => fetchUserStats(userId),
+            () => {
+                setStats({
+                    posts: 0,
+                    comments: 0,
+                    views: 0,
+                });
+            }
+        ).then(res => {
+            if (res instanceof ClientError) {
+                setError("통계 정보를 가져오는 데 실패했습니다.");
+                return;
+            }
+            setNickname(res.nickname);
+            setStats({
+                posts: res.stats.posts,
+                comments: res.stats.comments,
+                views: res.stats.views,
+            });
+        });
+    };
+
+    useEffect(() => {
+        if (!isNaN(userId)) {
+            fetchLogs();
+            fetchStats();
         }
-        return response;
-    } catch (err) {
-        throw err;
-    }
-};
+    }, [userId, initialPage]);
 
-export const fetchUserStats = async (userId: number) => {
-    const URL = `admin/stat/${userId}`;
-    try {
-        const response = await httpRequest(URL, HttpMethod.GET);
-        if (response.status >= 400) {
-            const errorText = response.message || 'API 응답 오류';
-            throw new Error(errorText);
-        }
-        return response;
-    } catch (err) {
-        throw err;
-    }
+    return { logs, stats, error, nickname };
 };
