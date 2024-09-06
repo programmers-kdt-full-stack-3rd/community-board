@@ -7,6 +7,7 @@ interface IPasswordFormProps {
 	password: string;
 	onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 	isValid?: boolean;
+	placeholder?: string;
 }
 
 const PasswordForm: FC<IPasswordFormProps> = ({
@@ -15,6 +16,7 @@ const PasswordForm: FC<IPasswordFormProps> = ({
 	password,
 	onChange,
 	isValid = true,
+	placeholder,
 }) => {
 	const preventCopyPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
 		e.preventDefault();
@@ -26,7 +28,7 @@ const PasswordForm: FC<IPasswordFormProps> = ({
 			type="password"
 			value={password}
 			onChange={onChange}
-			placeholder="비밀번호를 입력하세요."
+			placeholder={placeholder ? placeholder : "비밀번호를 입력하세요."}
 			isValid={isValid}
 			onCopy={preventCopyPaste}
 			onPaste={preventCopyPaste}

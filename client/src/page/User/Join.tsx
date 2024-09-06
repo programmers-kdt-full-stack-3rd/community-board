@@ -5,7 +5,7 @@ import SubmitButton from "../../component/User/SubmitButton";
 import NicknameForm from "../../component/User/NicknameForm";
 import ErrorMessageForm from "../../component/User/ErrorMessageForm";
 import { REGEX } from "./constants/constants";
-import { joinWrapper, passwordReqStyle } from "./Join.css";
+import { joinWrapper } from "./Join.css";
 import { sendPostJoinRequest } from "../../api/users/crud";
 import { useNavigate } from "react-router-dom";
 import { ClientError } from "../../api/errors";
@@ -165,10 +165,8 @@ const Join: FC = () => {
 				onChange={handlePasswordChange}
 				labelText="비밀번호"
 				isValid={invalidField !== "password"}
+				placeholder="10자 이상의 영문 대/소문자, 숫자를 사용"
 			/>
-			<div className={passwordReqStyle}>
-				조건 : 10자 이상의 영문 대/소문자, 숫자를 사용
-			</div>
 			<PasswordForm
 				password={requiredPassword}
 				id={"requiredPassword"}
