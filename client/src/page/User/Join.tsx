@@ -5,6 +5,10 @@ import SubmitButton from "../../component/User/SubmitButton";
 import NicknameForm from "../../component/User/NicknameForm";
 import { ERROR_MESSAGE, REGEX } from "./constants/constants";
 import { joinWrapper } from "./Join.css";
+import {
+	applySubmitButtonStyle,
+	submitButtonStyle,
+} from "../../component/User/css/SubmitButton.css";
 
 interface ValidateText {
 	text: string;
@@ -59,12 +63,21 @@ const Join: FC = () => {
 
 	const handlePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const isValid = REGEX.PASSWORD.test(e.target.value);
-		const errorMessage = isValid ? "" : ERROR_MESSAGE.PASSWORD_REGEX;
+		const errorMessage1 = isValid ? "" : ERROR_MESSAGE.PASSWORD_REGEX;
 
 		setPassword({
 			...password,
 			text: e.target.value,
 			isValid: isValid,
+			errorMessage: errorMessage1,
+		});
+
+		const isSame = e.target.value === requiredPassword.text;
+		const errorMessage = isSame ? "" : ERROR_MESSAGE.PASSWORD_MISMATCH;
+
+		setRequiredPassword({
+			...requiredPassword,
+			isValid: isSame,
 			errorMessage: errorMessage,
 		});
 	};
@@ -142,12 +155,14 @@ const Join: FC = () => {
 					onChange={handleEmail}
 					duplicationCheckFunc={checkEmailDuplication}
 					errorMessage={email.errorMessage}
+					isValid={email.isValid}
 				/>
 				<NicknameForm
 					nickname={nickname.text}
 					onChange={handleNickname}
 					duplicationCheckFunc={checkNicknameDuplication}
 					errorMessage={nickname.errorMessage}
+					isValid={nickname.isValid}
 				/>
 				<PasswordForm
 					password={password.text}
@@ -155,6 +170,7 @@ const Join: FC = () => {
 					labelText="비밀번호"
 					placeholder="10자 이상의 영문 대/소문자, 숫자를 사용"
 					errorMessage={password.errorMessage}
+					isValid={password.isValid}
 				/>
 				<PasswordForm
 					password={requiredPassword.text}
@@ -162,9 +178,13 @@ const Join: FC = () => {
 					onChange={handleRequiredPassword}
 					labelText="비밀번호 확인"
 					errorMessage={requiredPassword.errorMessage}
+					isValid={requiredPassword.isValid}
 				/>
 
 				<SubmitButton
+					className={
+						btnApply ? applySubmitButtonStyle : submitButtonStyle
+					}
 					onClick={() => {
 						console.log("눌럿쪙");
 					}}

@@ -1,5 +1,6 @@
 import { FC, InputHTMLAttributes } from "react";
 import {
+	checkedLabel,
 	input,
 	inputBox,
 	inputWithBtn,
@@ -13,6 +14,7 @@ interface IInputFieldProps extends InputHTMLAttributes<HTMLInputElement> {
 	labelText: string;
 	id: string;
 	isValid?: boolean;
+	isError?: boolean;
 	duplicateCheck?: boolean;
 	checkFunc?: () => void;
 }
@@ -21,6 +23,7 @@ const InputField: FC<IInputFieldProps> = ({
 	labelText,
 	id,
 	isValid,
+	isError,
 	duplicateCheck = false,
 	checkFunc = () => {},
 	...props
@@ -28,7 +31,7 @@ const InputField: FC<IInputFieldProps> = ({
 	return (
 		<div className={clsx(inputBox)}>
 			<label
-				className={label}
+				className={isValid ? checkedLabel : label}
 				htmlFor={id}
 			>
 				{labelText}
@@ -42,7 +45,7 @@ const InputField: FC<IInputFieldProps> = ({
 			>
 				<input
 					className={clsx(input, {
-						[invalidInput]: !isValid,
+						[invalidInput]: !isError,
 						[inputWithBtn]: duplicateCheck,
 					})}
 					id={id}

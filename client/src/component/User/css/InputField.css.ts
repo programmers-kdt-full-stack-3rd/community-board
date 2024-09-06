@@ -14,6 +14,13 @@ export const label = style({
 	fontWeight: "bold",
 });
 
+export const checkedLabel = style({
+	width: "100%",
+	fontSize: "15px",
+	fontWeight: "bold",
+	color: "#36B700",
+});
+
 export const input = style({
 	width: "100%",
 	height: "40px",

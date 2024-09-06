@@ -9,6 +9,7 @@ interface IPasswordFormProps {
 	onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 	placeholder?: string;
 	errorMessage?: string;
+	isValid: boolean;
 }
 
 const PasswordForm: FC<IPasswordFormProps> = ({
@@ -18,6 +19,7 @@ const PasswordForm: FC<IPasswordFormProps> = ({
 	onChange,
 	placeholder,
 	errorMessage,
+	isValid,
 }) => {
 	const preventCopyPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
 		e.preventDefault();
@@ -38,7 +40,8 @@ const PasswordForm: FC<IPasswordFormProps> = ({
 				placeholder={
 					placeholder ? placeholder : "비밀번호를 입력하세요."
 				}
-				isValid={!errorMessage?.length}
+				isValid={isValid}
+				isError={!errorMessage?.length}
 				onCopy={preventCopyPaste}
 				onPaste={preventCopyPaste}
 				onCut={preventCopyPaste}
