@@ -4,15 +4,15 @@ import InputForm from "./InputForm";
 interface IEmailFormProps {
 	email: string;
 	onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+	errorMessage?: string;
 	duplicationCheckFunc?: () => void;
-	isValid?: boolean;
 }
 
 const EmailForm: FC<IEmailFormProps> = ({
 	email,
 	onChange,
+	errorMessage,
 	duplicationCheckFunc = () => {},
-	isValid = true,
 }) => {
 	return (
 		<InputForm
@@ -21,8 +21,8 @@ const EmailForm: FC<IEmailFormProps> = ({
 			type="email"
 			onChange={onChange}
 			placeholder="이메일을 입력하세요."
-			isValid={isValid}
 			isDuplicateCheck={true}
+			errorMessage={errorMessage}
 			checkFunc={duplicationCheckFunc}
 		/>
 	);

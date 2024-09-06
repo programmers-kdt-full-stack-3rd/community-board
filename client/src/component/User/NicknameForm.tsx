@@ -5,14 +5,14 @@ interface INicknameFormProps {
 	nickname: string;
 	onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 	duplicationCheckFunc?: () => void;
-	isValid?: boolean;
+	errorMessage?: string;
 }
 
 const NicknameForm: FC<INicknameFormProps> = ({
 	nickname,
 	onChange,
 	duplicationCheckFunc = () => {},
-	isValid = true,
+	errorMessage,
 }) => {
 	return (
 		<InputForm
@@ -21,8 +21,8 @@ const NicknameForm: FC<INicknameFormProps> = ({
 			type="email"
 			onChange={onChange}
 			placeholder="닉네임을 입력하세요."
-			isValid={isValid}
 			isDuplicateCheck={true}
+			errorMessage={errorMessage}
 			checkFunc={duplicationCheckFunc}
 		/>
 	);

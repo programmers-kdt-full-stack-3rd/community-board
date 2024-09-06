@@ -6,73 +6,12 @@ import NicknameForm from "../../component/User/NicknameForm";
 import { ERROR_MESSAGE, REGEX } from "./constants/constants";
 import { joinWrapper } from "./Join.css";
 
-// interface ValidationResult {
-// 	isValid: boolean;
-// 	errorMessage: string;
-// 	invalidField?: "email" | "password" | "requiredPassword" | "nickname";
-// }
-
 interface ValidateText {
 	text: string;
 	isValid: boolean;
 	isDuplicate?: boolean | null;
 	errorMessage: string;
 }
-
-// const createError = (
-// 	message: string,
-// 	field: ValidationResult["invalidField"]
-// ): ValidationResult => ({
-// 	isValid: false,
-// 	errorMessage: message,
-// 	invalidField: field,
-// });
-
-// const validateJoin = (
-// 	email: string,
-// 	password: string,
-// 	requiredPassword: string,
-// 	nickname: string
-// ): ValidationResult => {
-// 	const emailRegex = REGEX.EMAIL;
-// 	const passwordRegex = REGEX.PASSWORD;
-
-// 	if (!email) {
-// 		return createError("이메일을 입력하세요.", "email");
-// 	}
-
-// 	if (!emailRegex.test(email)) {
-// 		return createError("이메일 형식이 올바르지 않습니다.", "email");
-// 	}
-
-// 	if (!password) {
-// 		return createError("비밀번호를 입력하세요.", "password");
-// 	}
-
-// 	if (!passwordRegex.test(password)) {
-// 		return createError(
-// 			"비밀번호: 10자 이상의 영문 대/소문자, 숫자를 사용해 주세요.",
-// 			"password"
-// 		);
-// 	}
-
-// 	if (!requiredPassword) {
-// 		return createError("비밀번호 확인을 입력하세요.", "requiredPassword");
-// 	}
-
-// 	if (password !== requiredPassword) {
-// 		return createError("비밀번호가 일치하지 않습니다.", "requiredPassword");
-// 	}
-
-// 	if (!nickname) {
-// 		return createError("닉네임을 입력하세요.", "nickname");
-// 	}
-
-// 	return {
-// 		isValid: true,
-// 		errorMessage: "",
-// 	};
-// };
 
 const Join: FC = () => {
 	const [email, setEmail] = useState<ValidateText>({
@@ -100,14 +39,22 @@ const Join: FC = () => {
 
 	const [btnApply, setBtnApply] = useState<boolean>(false);
 
-	// handel func -----
-
 	const handleEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setEmail({ ...email, text: e.target.value, isValid: false });
+		setEmail({
+			...email,
+			text: e.target.value,
+			isValid: false,
+			errorMessage: "",
+		});
 	};
 
 	const handleNickname = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setNickname({ ...nickname, text: e.target.value, isValid: false });
+		setNickname({
+			...nickname,
+			text: e.target.value,
+			isValid: false,
+			errorMessage: "",
+		});
 	};
 
 	const handlePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -193,14 +140,14 @@ const Join: FC = () => {
 				<EmailForm
 					email={email.text}
 					onChange={handleEmail}
-					isValid={email.isValid}
 					duplicationCheckFunc={checkEmailDuplication}
+					errorMessage={email.errorMessage}
 				/>
 				<NicknameForm
 					nickname={nickname.text}
 					onChange={handleNickname}
-					isValid={nickname.isValid}
 					duplicationCheckFunc={checkNicknameDuplication}
+					errorMessage={nickname.errorMessage}
 				/>
 				<PasswordForm
 					password={password.text}

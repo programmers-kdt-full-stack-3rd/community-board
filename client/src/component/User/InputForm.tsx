@@ -11,7 +11,6 @@ interface IInputFormProps {
 	onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 	isDuplicateCheck: boolean;
 	checkFunc?: () => void;
-	isValid?: boolean;
 }
 
 const InputForm: FC<IInputFormProps> = ({
@@ -23,7 +22,6 @@ const InputForm: FC<IInputFormProps> = ({
 	onChange,
 	isDuplicateCheck,
 	checkFunc = () => {},
-	isValid = true,
 }) => {
 	return (
 		<div
@@ -39,11 +37,13 @@ const InputForm: FC<IInputFormProps> = ({
 				value={value}
 				onChange={onChange}
 				placeholder={placeholder}
-				isValid={isValid}
+				isValid={!errorMessage?.length}
 				duplicateCheck={isDuplicateCheck}
 				checkFunc={checkFunc}
 			/>
-			{!isValid && <ErrorMessageForm>{errorMessage}</ErrorMessageForm>}
+			{errorMessage && (
+				<ErrorMessageForm>{errorMessage}</ErrorMessageForm>
+			)}
 		</div>
 	);
 };
