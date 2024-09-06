@@ -17,13 +17,26 @@ export const label = style({
 export const input = style({
 	width: "100%",
 	height: "40px",
-	padding: "0px",
+	paddingLeft: "10px",
+	paddingRight: "10px",
+	fontSize: "14px",
+	border: "1px solid #ccc",
+	borderRadius: "4px",
+});
+
+export const inputWithBtn = style({
+	width: "65%",
+	height: "40px",
+	paddingLeft: "10px",
+	paddingRight: "10px",
 	fontSize: "14px",
 	border: "1px solid #ccc",
 	borderRadius: "4px",
 });
 
 export const invalidInput = style({
+	paddingLeft: "10px",
+	paddingRight: "10px",
 	border: "1px solid red",
 	backgroundColor: "#ffebee",
 	color: "black",

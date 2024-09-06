@@ -23,6 +23,7 @@ const NicknameForm: FC<INicknameFormProps> = ({
 			onChange={onChange}
 			placeholder="닉네임을 입력하세요."
 			isValid={isValid}
+			duplicateCheck={true}
 		/>
 	);
 };

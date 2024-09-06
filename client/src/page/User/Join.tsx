@@ -83,24 +83,6 @@ const Join: FC = () => {
 
 	const navigate = useNavigate();
 
-	const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setEmail(e.target.value);
-	};
-
-	const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setPassword(e.target.value);
-	};
-
-	const handleRequiredPasswordChange = (
-		e: React.ChangeEvent<HTMLInputElement>
-	) => {
-		setRequiredPassword(e.target.value);
-	};
-
-	const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setNickname(e.target.value);
-	};
-
 	const handleJoinButton = async () => {
 		const validateResult = validateJoin(
 			email,
@@ -152,40 +134,58 @@ const Join: FC = () => {
 		}
 	};
 
+	// const emailDuplicationCheck = () => {
+	// 	// TODO : 이메일 중복 확인 API
+	// };
+
+	// const nicknameDuplicationCheck = () => {
+	// 	// TODO : 닉네임 중복 확인 API
+	// };
+
 	return (
 		<div className={joinWrapper}>
 			<h1>회원가입</h1>
-			<EmailForm
-				email={email}
-				onChange={handleEmailChange}
-				isValid={invalidField !== "email"}
-			/>
-			<PasswordForm
-				password={password}
-				onChange={handlePasswordChange}
-				labelText="비밀번호"
-				isValid={invalidField !== "password"}
-				placeholder="10자 이상의 영문 대/소문자, 숫자를 사용"
-			/>
-			<PasswordForm
-				password={requiredPassword}
-				id={"requiredPassword"}
-				onChange={handleRequiredPasswordChange}
-				labelText="비밀번호 확인"
-				isValid={invalidField !== "requiredPassword"}
-			/>
-			<NicknameForm
-				nickname={nickname}
-				onChange={handleNicknameChange}
-				labelText="닉네임"
-				isValid={invalidField !== "nickname"}
-			/>
+			<div
+				style={{
+					display: "flex",
+					flexDirection: "column",
+					gap: "10px",
+				}}
+			>
+				<EmailForm
+					email={email}
+					onChange={e => setEmail(e.target.value)}
+					isValid={invalidField !== "email"}
+				/>
+				<NicknameForm
+					nickname={nickname}
+					onChange={e => setNickname(e.target.value)}
+					labelText="닉네임"
+					isValid={invalidField !== "nickname"}
+				/>
+				<PasswordForm
+					password={password}
+					onChange={e => setPassword(e.target.value)}
+					labelText="비밀번호"
+					isValid={invalidField !== "password"}
+					placeholder="10자 이상의 영문 대/소문자, 숫자를 사용"
+				/>
+				<PasswordForm
+					password={requiredPassword}
+					id={"requiredPassword"}
+					onChange={e => setRequiredPassword(e.target.value)}
+					labelText="비밀번호 확인"
+					isValid={invalidField !== "requiredPassword"}
+				/>
 
-			{errorMessage && (
-				<ErrorMessageForm>{errorMessage}</ErrorMessageForm>
-			)}
+				{errorMessage && (
+					<ErrorMessageForm>{errorMessage}</ErrorMessageForm>
+				)}
 
-			<SubmitButton onClick={handleJoinButton}>회원 가입</SubmitButton>
+				<SubmitButton onClick={handleJoinButton}>
+					회원 가입
+				</SubmitButton>
+			</div>
 		</div>
 	);
 };

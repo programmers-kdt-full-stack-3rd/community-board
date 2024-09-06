@@ -21,6 +21,7 @@ const EmailForm: FC<IEmailFormProps> = ({
 			onChange={onChange}
 			placeholder="이메일을 입력하세요."
 			isValid={isValid}
+			duplicateCheck={true}
 		/>
 	);
 };
