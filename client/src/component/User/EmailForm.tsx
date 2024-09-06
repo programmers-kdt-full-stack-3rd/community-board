@@ -6,6 +6,7 @@ interface IEmailFormProps {
 	onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 	errorMessage?: string;
 	isValid: boolean;
+	isDuplicateCheck?: boolean;
 	duplicationCheckFunc?: () => void;
 }
 
@@ -14,6 +15,7 @@ const EmailForm: FC<IEmailFormProps> = ({
 	onChange,
 	errorMessage,
 	isValid,
+	isDuplicateCheck = false,
 	duplicationCheckFunc = () => {},
 }) => {
 	return (
@@ -23,7 +25,7 @@ const EmailForm: FC<IEmailFormProps> = ({
 			type="email"
 			onChange={onChange}
 			placeholder="이메일을 입력하세요."
-			isDuplicateCheck={true}
+			isDuplicateCheck={isDuplicateCheck}
 			errorMessage={errorMessage}
 			isValid={isValid}
 			checkFunc={duplicationCheckFunc}

@@ -9,7 +9,7 @@ interface IPasswordFormProps {
 	onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 	placeholder?: string;
 	errorMessage?: string;
-	isValid: boolean;
+	isValid?: boolean;
 }
 
 const PasswordForm: FC<IPasswordFormProps> = ({
@@ -19,7 +19,7 @@ const PasswordForm: FC<IPasswordFormProps> = ({
 	onChange,
 	placeholder,
 	errorMessage,
-	isValid,
+	isValid = false,
 }) => {
 	const preventCopyPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
 		e.preventDefault();

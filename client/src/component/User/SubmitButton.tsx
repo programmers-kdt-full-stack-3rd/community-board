@@ -1,8 +1,9 @@
 import { FC, ReactNode } from "react";
+import { submitButtonStyle } from "./css/SubmitButton.css";
 
 interface ISubmitButtonProps {
 	children: ReactNode;
-	className: string;
+	className?: string;
 	onClick: () => void;
 	apply?: boolean;
 }
@@ -16,7 +17,7 @@ const SubmitButton: FC<ISubmitButtonProps> = ({
 	return (
 		<button
 			disabled={!apply}
-			className={className}
+			className={className ? className : submitButtonStyle}
 			onClick={onClick}
 			type="submit"
 		>

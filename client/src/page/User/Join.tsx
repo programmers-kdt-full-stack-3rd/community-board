@@ -9,25 +9,27 @@ import {
 	applySubmitButtonStyle,
 	submitButtonStyle,
 } from "../../component/User/css/SubmitButton.css";
+import { ClientError } from "../../api/errors";
+import { ApiCall } from "../../api/api";
+import { sendPostJoinRequest } from "../../api/users/crud";
+import { useNavigate } from "react-router-dom";
 
-interface ValidateText {
+export interface ValidateText {
 	text: string;
 	isValid: boolean;
-	isDuplicate?: boolean | null;
 	errorMessage: string;
 }
 
 const Join: FC = () => {
+	const navigate = useNavigate();
 	const [email, setEmail] = useState<ValidateText>({
 		text: "",
 		isValid: false,
-		isDuplicate: null,
 		errorMessage: "",
 	});
 	const [nickname, setNickname] = useState<ValidateText>({
 		text: "",
 		isValid: false,
-		isDuplicate: null,
 		errorMessage: "",
 	});
 	const [password, setPassword] = useState<ValidateText>({
@@ -140,6 +142,39 @@ const Join: FC = () => {
 		setNickname({ ...nickname, isValid: true });
 	};
 
+	const submitJoin = async () => {
+		const body = {
+			email: email.text,
+			nickname: nickname.text,
+			password: password.text,
+			requiredPassword: requiredPassword.text,
+		};
+
+		const errorHandle = (err: ClientError) => {
+			if (err.code === 400) {
+				if (err.message) {
+					let message: string = err.message;
+					message = message.replace("Bad Request: ", "");
+					console.log(message);
+				}
+			}
+		};
+
+		const result = await ApiCall(
+			() => sendPostJoinRequest(body),
+			errorHandle
+		);
+
+		if (result instanceof ClientError) {
+			return;
+		}
+
+		if (result) {
+			alert("회원가입이 완료되었습니다.");
+			navigate("/login");
+		}
+	};
+
 	return (
 		<div className={joinWrapper}>
 			<h1>회원가입</h1>
@@ -156,13 +191,16 @@ const Join: FC = () => {
 					duplicationCheckFunc={checkEmailDuplication}
 					errorMessage={email.errorMessage}
 					isValid={email.isValid}
+					isDuplicateCheck={true}
 				/>
 				<NicknameForm
 					nickname={nickname.text}
+					labelText="닉네임"
 					onChange={handleNickname}
 					duplicationCheckFunc={checkNicknameDuplication}
 					errorMessage={nickname.errorMessage}
 					isValid={nickname.isValid}
+					isDuplicateCheck={true}
 				/>
 				<PasswordForm
 					password={password.text}
@@ -185,9 +223,7 @@ const Join: FC = () => {
 					className={
 						btnApply ? applySubmitButtonStyle : submitButtonStyle
 					}
-					onClick={() => {
-						console.log("눌럿쪙");
-					}}
+					onClick={submitJoin}
 					apply={btnApply}
 				>
 					회원 가입
