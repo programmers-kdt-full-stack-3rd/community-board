@@ -1,29 +1,29 @@
 import { FC } from "react";
-import InputField from "./InputField";
+import InputForm from "./InputForm";
 
 interface INicknameFormProps {
-	labelText: string;
 	nickname: string;
 	onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+	duplicationCheckFunc?: () => void;
 	isValid?: boolean;
 }
 
 const NicknameForm: FC<INicknameFormProps> = ({
-	labelText,
 	nickname,
 	onChange,
+	duplicationCheckFunc = () => {},
 	isValid = true,
 }) => {
 	return (
-		<InputField
-			labelText={labelText}
-			id="nickname"
-			type="text"
+		<InputForm
 			value={nickname}
+			labelText="닉네임"
+			type="email"
 			onChange={onChange}
 			placeholder="닉네임을 입력하세요."
 			isValid={isValid}
-			duplicateCheck={true}
+			isDuplicateCheck={true}
+			checkFunc={duplicationCheckFunc}
 		/>
 	);
 };

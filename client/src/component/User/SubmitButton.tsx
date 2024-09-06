@@ -4,17 +4,17 @@ import { submitButtonStyle } from "./css/SubmitButton.css";
 interface ISubmitButtonProps {
 	children: ReactNode;
 	onClick: () => void;
-	canJoin?: boolean;
+	apply?: boolean;
 }
 
 const SubmitButton: FC<ISubmitButtonProps> = ({
 	children,
 	onClick,
-	canJoin = true,
+	apply = true,
 }) => {
 	return (
 		<button
-			disabled={canJoin}
+			disabled={!apply}
 			className={submitButtonStyle}
 			onClick={onClick}
 			type="submit"
