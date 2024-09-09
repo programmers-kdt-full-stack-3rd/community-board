@@ -1,193 +1,234 @@
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import EmailForm from "../../component/User/EmailForm";
 import PasswordForm from "../../component/User/PasswordForm";
 import SubmitButton from "../../component/User/SubmitButton";
 import NicknameForm from "../../component/User/NicknameForm";
-import ErrorMessageForm from "../../component/User/ErrorMessageForm";
-import { REGEX } from "./constants/constants";
-import { joinWrapper, passwordReqStyle } from "./Join.css";
-import { sendPostJoinRequest } from "../../api/users/crud";
-import { useNavigate } from "react-router-dom";
+import { ERROR_MESSAGE, REGEX } from "./constants/constants";
+import { joinWrapper } from "./Join.css";
+import {
+	applySubmitButtonStyle,
+	submitButtonStyle,
+} from "../../component/User/css/SubmitButton.css";
 import { ClientError } from "../../api/errors";
 import { ApiCall } from "../../api/api";
+import { sendPostJoinRequest } from "../../api/users/crud";
+import { useNavigate } from "react-router-dom";
 
-interface ValidationResult {
+export interface ValidateText {
+	text: string;
 	isValid: boolean;
 	errorMessage: string;
-	invalidField?: "email" | "password" | "requiredPassword" | "nickname";
 }
 
-const createError = (
-	message: string,
-	field: ValidationResult["invalidField"]
-): ValidationResult => ({
-	isValid: false,
-	errorMessage: message,
-	invalidField: field,
-});
-
-const validateJoin = (
-	email: string,
-	password: string,
-	requiredPassword: string,
-	nickname: string
-): ValidationResult => {
-	const emailRegex = REGEX.EMAIL;
-	const passwordRegex = REGEX.PASSWORD;
-
-	if (!email) {
-		return createError("이메일을 입력하세요.", "email");
-	}
-
-	if (!emailRegex.test(email)) {
-		return createError("이메일 형식이 올바르지 않습니다.", "email");
-	}
-
-	if (!password) {
-		return createError("비밀번호를 입력하세요.", "password");
-	}
-
-	if (!passwordRegex.test(password)) {
-		return createError(
-			"비밀번호: 10자 이상의 영문 대/소문자, 숫자를 사용해 주세요.",
-			"password"
-		);
-	}
-
-	if (!requiredPassword) {
-		return createError("비밀번호 확인을 입력하세요.", "requiredPassword");
-	}
-
-	if (password !== requiredPassword) {
-		return createError("비밀번호가 일치하지 않습니다.", "requiredPassword");
-	}
-
-	if (!nickname) {
-		return createError("닉네임을 입력하세요.", "nickname");
-	}
-
-	return {
-		isValid: true,
-		errorMessage: "",
-	};
-};
-
 const Join: FC = () => {
-	const [email, setEmail] = useState("");
-	const [password, setPassword] = useState("");
-	const [requiredPassword, setRequiredPassword] = useState("");
-	const [errorMessage, setErrorMessage] = useState("");
-	const [nickname, setNickname] = useState("");
-	const [invalidField, setInvalidField] =
-		useState<ValidationResult["invalidField"]>();
-
 	const navigate = useNavigate();
+	const [email, setEmail] = useState<ValidateText>({
+		text: "",
+		isValid: false,
+		errorMessage: "",
+	});
+	const [nickname, setNickname] = useState<ValidateText>({
+		text: "",
+		isValid: false,
+		errorMessage: "",
+	});
+	const [password, setPassword] = useState<ValidateText>({
+		text: "",
+		isValid: false,
+		errorMessage: "",
+	});
+	const [requiredPassword, setRequiredPassword] = useState<ValidateText>({
+		text: "",
+		isValid: false,
+		errorMessage: "",
+	});
 
-	const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setEmail(e.target.value);
+	const [btnApply, setBtnApply] = useState<boolean>(false);
+
+	const handleEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
+		setEmail({
+			...email,
+			text: e.target.value,
+			isValid: false,
+			errorMessage: "",
+		});
 	};
 
-	const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setPassword(e.target.value);
+	const handleNickname = (e: React.ChangeEvent<HTMLInputElement>) => {
+		setNickname({
+			...nickname,
+			text: e.target.value,
+			isValid: false,
+			errorMessage: "",
+		});
 	};
 
-	const handleRequiredPasswordChange = (
-		e: React.ChangeEvent<HTMLInputElement>
-	) => {
-		setRequiredPassword(e.target.value);
+	const handlePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const isValid = REGEX.PASSWORD.test(e.target.value);
+		const errorMessage1 = isValid ? "" : ERROR_MESSAGE.PASSWORD_REGEX;
+
+		setPassword({
+			...password,
+			text: e.target.value,
+			isValid: isValid,
+			errorMessage: errorMessage1,
+		});
+
+		const isSame = e.target.value === requiredPassword.text;
+		const errorMessage = isSame ? "" : ERROR_MESSAGE.PASSWORD_MISMATCH;
+
+		setRequiredPassword({
+			...requiredPassword,
+			isValid: isSame,
+			errorMessage: errorMessage,
+		});
 	};
 
-	const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setNickname(e.target.value);
+	const handleRequiredPassword = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const isValid = password.text === e.target.value;
+		const errorMessage = isValid ? "" : ERROR_MESSAGE.PASSWORD_MISMATCH;
+
+		setRequiredPassword({
+			...requiredPassword,
+			text: e.target.value,
+			isValid: isValid,
+			errorMessage: errorMessage,
+		});
 	};
 
-	const handleJoinButton = async () => {
-		const validateResult = validateJoin(
-			email,
-			password,
-			requiredPassword,
-			nickname
+	useEffect(() => {
+		if (
+			email.isValid &&
+			nickname.isValid &&
+			password.isValid &&
+			requiredPassword.isValid
+		) {
+			setBtnApply(true);
+		} else {
+			setBtnApply(false);
+		}
+	}, [
+		email.isValid,
+		nickname.isValid,
+		password.isValid,
+		requiredPassword.isValid,
+	]);
+
+	const checkEmailDuplication = () => {
+		if (!REGEX.EMAIL.test(email.text)) {
+			setEmail({
+				...email,
+				errorMessage: ERROR_MESSAGE.EMAIL_REGEX,
+			});
+			return;
+		}
+
+		// TODO : api 호출해서 중복 확인
+
+		setEmail({ ...email, isValid: true });
+	};
+
+	const checkNicknameDuplication = () => {
+		if (!REGEX.NICKNAME.test(nickname.text)) {
+			setNickname({
+				...nickname,
+				errorMessage: ERROR_MESSAGE.NICKNAME_REGEX,
+			});
+			return;
+		}
+
+		// TODO : api 호출해서 중복 확인
+
+		setNickname({ ...nickname, isValid: true });
+	};
+
+	const submitJoin = async () => {
+		const body = {
+			email: email.text,
+			nickname: nickname.text,
+			password: password.text,
+			requiredPassword: requiredPassword.text,
+		};
+
+		const errorHandle = (err: ClientError) => {
+			if (err.code === 400) {
+				if (err.message) {
+					let message: string = err.message;
+					message = message.replace("Bad Request: ", "");
+					console.log(message);
+				}
+			}
+		};
+
+		const result = await ApiCall(
+			() => sendPostJoinRequest(body),
+			errorHandle
 		);
 
-		setErrorMessage(validateResult.errorMessage);
-		setInvalidField(validateResult.invalidField);
+		if (result instanceof ClientError) {
+			return;
+		}
 
-		if (validateResult.isValid) {
-			const body = {
-				email,
-				password,
-				requiredPassword,
-				nickname,
-			};
-
-			const errorHandle = (err: ClientError) => {
-				if (err.code === 400) {
-					if (err.message) {
-						let message: string = err.message;
-						message = message.replace("Bad Request: ", "");
-						if (message.includes("이메일")) {
-							setInvalidField("email");
-						} else if (message.includes("닉네임")) {
-							setInvalidField("nickname");
-						}
-
-						setErrorMessage(message);
-					}
-				}
-			};
-
-			const result = await ApiCall(
-				() => sendPostJoinRequest(body),
-				errorHandle
-			);
-
-			if (result instanceof ClientError) {
-				return;
-			}
-
-			if (result) {
-				alert("회원가입이 완료되었습니다.");
-				navigate("/login");
-			}
+		if (result) {
+			alert("회원가입이 완료되었습니다.");
+			navigate("/login");
 		}
 	};
 
 	return (
 		<div className={joinWrapper}>
 			<h1>회원가입</h1>
-			<EmailForm
-				email={email}
-				onChange={handleEmailChange}
-				isValid={invalidField !== "email"}
-			/>
-			<PasswordForm
-				password={password}
-				onChange={handlePasswordChange}
-				labelText="비밀번호"
-				isValid={invalidField !== "password"}
-			/>
-			<div className={passwordReqStyle}>
-				조건 : 10자 이상의 영문 대/소문자, 숫자를 사용
+			<div
+				style={{
+					display: "flex",
+					flexDirection: "column",
+					gap: "10px",
+				}}
+			>
+				<EmailForm
+					email={email.text}
+					onChange={handleEmail}
+					duplicationCheckFunc={checkEmailDuplication}
+					errorMessage={email.errorMessage}
+					isValid={email.isValid}
+					isDuplicateCheck={true}
+				/>
+				<NicknameForm
+					nickname={nickname.text}
+					labelText="닉네임"
+					onChange={handleNickname}
+					duplicationCheckFunc={checkNicknameDuplication}
+					errorMessage={nickname.errorMessage}
+					isValid={nickname.isValid}
+					isDuplicateCheck={true}
+				/>
+				<PasswordForm
+					password={password.text}
+					onChange={handlePassword}
+					labelText="비밀번호"
+					placeholder="10자 이상의 영문 대/소문자, 숫자를 사용"
+					errorMessage={password.errorMessage}
+					isValid={password.isValid}
+				/>
+				<PasswordForm
+					password={requiredPassword.text}
+					id={"requiredPassword"}
+					onChange={handleRequiredPassword}
+					labelText="비밀번호 확인"
+					errorMessage={requiredPassword.errorMessage}
+					isValid={requiredPassword.isValid}
+				/>
+
+				<SubmitButton
+					className={
+						btnApply ? applySubmitButtonStyle : submitButtonStyle
+					}
+					onClick={submitJoin}
+					apply={btnApply}
+				>
+					회원 가입
+				</SubmitButton>
 			</div>
-			<PasswordForm
-				password={requiredPassword}
-				id={"requiredPassword"}
-				onChange={handleRequiredPasswordChange}
-				labelText="비밀번호 확인"
-				isValid={invalidField !== "requiredPassword"}
-			/>
-			<NicknameForm
-				nickname={nickname}
-				onChange={handleNicknameChange}
-				labelText="닉네임"
-				isValid={invalidField !== "nickname"}
-			/>
-
-			{errorMessage && (
-				<ErrorMessageForm>{errorMessage}</ErrorMessageForm>
-			)}
-
-			<SubmitButton onClick={handleJoinButton}>회원 가입</SubmitButton>
 		</div>
 	);
 };

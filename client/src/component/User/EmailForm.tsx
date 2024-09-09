@@ -1,26 +1,34 @@
 import { FC } from "react";
-import InputField from "./InputField";
+import InputForm from "./InputForm";
 
 interface IEmailFormProps {
 	email: string;
 	onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-	isValid?: boolean;
+	errorMessage?: string;
+	isValid: boolean;
+	isDuplicateCheck?: boolean;
+	duplicationCheckFunc?: () => void;
 }
 
 const EmailForm: FC<IEmailFormProps> = ({
 	email,
 	onChange,
-	isValid = true,
+	errorMessage,
+	isValid,
+	isDuplicateCheck = false,
+	duplicationCheckFunc = () => {},
 }) => {
 	return (
-		<InputField
-			labelText="이메일"
-			id="email"
-			type="email"
+		<InputForm
 			value={email}
+			labelText="이메일"
+			type="email"
 			onChange={onChange}
 			placeholder="이메일을 입력하세요."
+			isDuplicateCheck={isDuplicateCheck}
+			errorMessage={errorMessage}
 			isValid={isValid}
+			checkFunc={duplicationCheckFunc}
 		/>
 	);
 };

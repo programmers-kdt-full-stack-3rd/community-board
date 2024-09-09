@@ -1,32 +1,60 @@
 import { FC, InputHTMLAttributes } from "react";
-import { input, inputBox, invalidInput, label } from "./css/InputField.css";
+import {
+	checkedLabel,
+	input,
+	inputBox,
+	inputWithBtn,
+	invalidInput,
+	label,
+} from "./css/InputField.css";
 import clsx from "clsx";
+import DuplicationCheckButton from "./DuplicationCheckButton";
 
 interface IInputFieldProps extends InputHTMLAttributes<HTMLInputElement> {
 	labelText: string;
 	id: string;
 	isValid?: boolean;
+	isError?: boolean;
+	duplicateCheck?: boolean;
+	checkFunc?: () => void;
 }
 
 const InputField: FC<IInputFieldProps> = ({
 	labelText,
 	id,
 	isValid,
+	isError,
+	duplicateCheck = false,
+	checkFunc = () => {},
 	...props
 }) => {
 	return (
 		<div className={clsx(inputBox)}>
 			<label
-				className={label}
+				className={isValid ? checkedLabel : label}
 				htmlFor={id}
 			>
 				{labelText}
 			</label>
-			<input
-				className={clsx(input, { [invalidInput]: !isValid })}
-				id={id}
-				{...props}
-			/>
+			<div
+				style={{
+					display: "flex",
+					flexDirection: "row",
+					justifyContent: "space-between",
+				}}
+			>
+				<input
+					className={clsx(input, {
+						[invalidInput]: !isError,
+						[inputWithBtn]: duplicateCheck,
+					})}
+					id={id}
+					{...props}
+				/>
+				{duplicateCheck && (
+					<DuplicationCheckButton onClick={checkFunc} />
+				)}
+			</div>
 		</div>
 	);
 };

@@ -16,6 +16,7 @@ interface IChatRoomActions {
 	) => void;
 	setMessageLogByRooms: (roomId: number, messageLogs: IMessage[]) => void;
 	updateMessageLogByRoom: (roomId: number, message: IMessage) => void;
+	initializeChatState: () => void;
 }
 
 export interface TChatRoomStore extends IChatRoomState, IChatRoomActions {}
@@ -75,6 +76,15 @@ export const useChatRoom = create<TChatRoomStore>(
 						chatRoomMessageLogs: newChatRoomMessageLogs,
 					};
 				}),
+			initializeChatState: () =>
+				set(state => ({
+					...state,
+					myRoomInfo: {
+						totalRoomCount: 0,
+						rooms: {},
+					},
+					chatRoomMessageLogs: new Map<number, IMessage[]>(),
+				})),
 		}),
 		{
 			name: "ChatRoomStore",

@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { AdminPostHeader, AdminPostListDetail, AdminPostListStyle, AdminPostTiTle, Private, Public, SearchPost, SearchPostInput } from './PostMgmt.css';
 import Pagination from '../../common/Pagination/Pagination';
-import { HttpMethod, httpRequest } from '../../../api/api';
+import { ApiCall } from '../../../api/api';
 import { ClientError } from '../../../api/errors';
 import { IAdminPostResponse } from 'shared';
 import { Link } from 'react-router-dom';
 import { dateToStr } from '../../../utils/date-to-str';
-import { handleDeletePost, handlePostPrivate, handlePostPublic, handleRestorePost } from './PostMgmtAction';
 import { deleteButton, restoreButton } from '../UserMgmt/UserList.css';
+import { handleAdminPostPrivate, handleAdminPostPublic, handleDeleteAdminPost, handleRestoreAdminPost, sendGetAdminPostsRequest } from '../../../api/admin/post_crud';
 
 const PostList = () => {
     const initialPage = 1;
@@ -19,33 +19,26 @@ const PostList = () => {
     const [currentPage, setCurrentPage] = useState<number>(initialPage);
     const [keyword, setKeyword] = useState<string>("");
 
-    const fetchPostsData = async (currentPage: number, itemsPerPage: number, keyword: string) => {
-        const url = `admin/post?index=${currentPage}&perPage=${itemsPerPage}${keyword ? `&keyword=${encodeURIComponent(keyword)}` : ''}`;
-        try {
-            const response = await httpRequest(url, HttpMethod.GET);
-            if ((!response || response.total === 0) || (response.status == 404)) {
+    const fetchPosts = () => {
+        ApiCall(
+            () => sendGetAdminPostsRequest(currentPage, itemsPerPage, keyword),
+            () => {
                 setPosts({
                     total: 0,
                     postHeaders: []
                 });
-            } else {
-                setPosts(response);
             }
-
-        } catch (err) {
-            if (err instanceof ClientError) {
-                console.error(`ClientError : ${err.code} : ${err.message}`, err);
-                throw new Error(`Error: ${err.message}`);
-            } else {
-                console.error("Error : ", err);
-                throw new Error("Error");
+        ).then(res => {
+            if (res instanceof ClientError) {
+                return;
             }
-        }
+            setPosts(res);
+        });
     };
 
 
     useEffect(() => {
-        fetchPostsData(currentPage, itemsPerPage, keyword);
+        fetchPosts()
     }, [currentPage]);
 
     const handlePageChange = (page: number) => {
@@ -54,11 +47,12 @@ const PostList = () => {
 
     const handleSearch = () => {
         setCurrentPage(1);
-        fetchPostsData(currentPage, itemsPerPage, keyword);
+        fetchPosts();
     };
 
-    const refreshPosts = () => {
-        fetchPostsData(currentPage, itemsPerPage, keyword);
+    const handlePostUpdate = async (updateFunction: () => Promise<void>) => {
+        await updateFunction();
+        fetchPosts()
     };
 
     return (
@@ -101,7 +95,7 @@ const PostList = () => {
                                     <button className={Private}
                                         onClick={() => {
                                             if (window.confirm("해당 게시글을 공개 상태로 변경하시겠습니까?")) {
-                                                handlePostPublic(post.id, refreshPosts);
+                                                handlePostUpdate(() => handleAdminPostPublic(post.id));
                                             }
                                         }}
                                     >
@@ -111,7 +105,7 @@ const PostList = () => {
                                     <button className={Public}
                                         onClick={() => {
                                             if (window.confirm("해당 게시글을 비공개 상태로 변경하시겠습니까?")) {
-                                                handlePostPrivate(post.id, refreshPosts);
+                                                handlePostUpdate(() => handleAdminPostPrivate(post.id));
                                             }
                                         }}
                                     >
@@ -124,7 +118,8 @@ const PostList = () => {
                                     <button className={restoreButton}
                                         onClick={() => {
                                             if (window.confirm("해당 게시글을 복구하시겠습니까?")) {
-                                                handleRestorePost(post.id, refreshPosts);
+                                                handlePostUpdate(() => handleRestoreAdminPost(post.id));
+
                                             }
                                         }}>
                                         복구
@@ -133,7 +128,7 @@ const PostList = () => {
                                     <button className={deleteButton}
                                         onClick={() => {
                                             if (window.confirm("해당 게시글을 삭제하시겠습니까?")) {
-                                                handleDeletePost(post.id, refreshPosts);
+                                                handlePostUpdate(() => handleDeleteAdminPost(post.id));
                                             }
                                         }}>
                                         삭제

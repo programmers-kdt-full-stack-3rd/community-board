@@ -64,7 +64,7 @@ const ProfileUpdate: FC = () => {
 			return false;
 		}
 
-		if (REGEX.PASSWORD.test(password) === false) {
+		if (!REGEX.PASSWORD.test(password)) {
 			setErrorMessage(
 				"비밀번호: 10자 이상의 영문 대/소문자, 숫자를 사용해 주세요."
 			);

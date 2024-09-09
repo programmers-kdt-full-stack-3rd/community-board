@@ -49,7 +49,9 @@ export const handlePostsRead = async (
 			sortBy: parseInt(req.query.sortBy as string) || undefined,
 		};
 
-		const posts = await getPostHeaders(values);
+		const userId = req.userId;
+
+		const posts = await getPostHeaders(values, userId);
 
 		res.json({ total: posts.total, postHeaders: posts.postHeaders });
 	} catch (err) {

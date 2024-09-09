@@ -23,6 +23,7 @@ import DropdownMenu from "./DropdownMenu";
 import { useModal } from "../../hook/useModal";
 import { ApiCall } from "../../api/api";
 import { ClientError } from "../../api/errors";
+import { useChatRoom } from "../../state/ChatRoomStore";
 
 const Header: React.FC = () => {
 	const navigate = useNavigate();
@@ -30,6 +31,7 @@ const Header: React.FC = () => {
 	const nickname = useUserStore.use.nickname();
 	const socket = useUserStore.use.socket();
 	const { setLogoutUser } = useUserStore.use.actions();
+	const { initializeChatState } = useChatRoom();
 	const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 	const dropdownMenuRef = useRef<HTMLDivElement>(null);
 
@@ -74,6 +76,8 @@ const Header: React.FC = () => {
 		}
 
 		setLogoutUser();
+		initializeChatState();
+		navigate("");
 	};
 
 	const handleUserInfo = () => {
