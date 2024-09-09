@@ -1,8 +1,8 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { ServerError } from "../common/exceptions/server-error.exception";
 import { CreateUserDto } from "./dto/create-user.dto";
+import { User } from "./entities/user.entity";
 import { UserController } from "./user.controller";
-import { User } from "./user.entity";
 import { UserService } from "./user.service";
 
 describe("UserController", () => {

@@ -1,21 +1,20 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { getRepositoryToken } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
 import { ServerError } from "../common/exceptions/server-error.exception";
 import { CreateUserDto } from "./dto/create-user.dto";
-import { User } from "./user.entity";
+import { User } from "./entities/user.entity";
+import { UserRepository } from "./user.repository";
 import { UserService } from "./user.service";
 
 describe("UserService", () => {
 	let service: UserService;
-	let repository: Repository<User>;
+	let repository: UserRepository;
 
 	beforeEach(async () => {
 		const module: TestingModule = await Test.createTestingModule({
 			providers: [
 				UserService,
 				{
-					provide: getRepositoryToken(User),
+					provide: UserRepository,
 					useValue: {
 						save: jest.fn(),
 					},
@@ -24,7 +23,7 @@ describe("UserService", () => {
 		}).compile();
 
 		service = module.get<UserService>(UserService);
-		repository = module.get<Repository<User>>(getRepositoryToken(User));
+		repository = module.get<UserRepository>(UserRepository);
 	});
 
 	describe("createUser", () => {
@@ -44,7 +43,9 @@ describe("UserService", () => {
 			const result = await service.createUser(createUserDto);
 
 			expect(result).toEqual(mockUser);
-			expect(repository.save).toHaveBeenCalledWith(createUserDto);
+			expect(repository.save).toHaveBeenCalledWith(
+				expect.objectContaining(createUserDto)
+			);
 		});
 
 		it("db내부에서 모르는 에러가 발생시", async () => {
