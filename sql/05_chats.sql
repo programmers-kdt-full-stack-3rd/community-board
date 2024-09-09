@@ -17,19 +17,18 @@ CREATE TABLE IF NOT EXISTS members (
     is_entered Boolean DEFAULT FALSE,
     is_deleted Boolean DEFAULT FALSE,
     
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (room_id) REFERENCES rooms(id),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE,
     
     UNIQUE KEY (user_id, room_id)
 );
-
 
 CREATE TABLE IF NOT EXISTS messages (
     id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     member_id INT NOT NULL,
     message TEXT NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     is_system BOOLEAN NOT NULL DEFAULT FALSE,
     
-    FOREIGN KEY (member_id) REFERENCES members(id)
+    FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE
 );

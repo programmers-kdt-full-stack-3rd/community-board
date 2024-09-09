@@ -9,15 +9,15 @@ CREATE TABLE IF NOT EXISTS oauth_connections (
     oauth_provider_id INT NOT NULL,
     oauth_account_id VARCHAR(255) NOT NULL,
     oauth_refresh_token TEXT NULL,
-    isDelete Boolean NOT NULL DEFAULT FALSE,
+    is_delete Boolean NOT NULL DEFAULT FALSE,
 
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (oauth_provider_id) REFERENCES oauth_providers(id),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (oauth_provider_id) REFERENCES oauth_providers(id) ON DELETE CASCADE,
 
     UNIQUE KEY (oauth_provider_id, oauth_account_id)
 );
 
-INSERT INTO oauth_providers (name) VALUES
+INSERT IGNORE INTO oauth_providers (name) VALUES
 ('google'),
 ('kakao'),
 ('naver');

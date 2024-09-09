@@ -1,0 +1,12 @@
+services:
+    mariadb:
+        image: mariadb:latest
+        environment:
+            MYSQL_ROOT_PASSWORD: 1q2w3e4r!
+            MYSQL_DATABASE: community_board # 데이터베이스가 자동으로 생성됨
+            MYSQL_USER: codeplay_user
+            MYSQL_PASSWORD: codeplay123
+        ports:
+            - "3306:3306"
+        volumes:
+            - ./:/docker-entrypoint-initdb.d # SQL 및 스크립트 파일이 이 디렉토리로 복사됨

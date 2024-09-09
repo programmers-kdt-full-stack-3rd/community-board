@@ -42,8 +42,8 @@ export const getTotalComments = async (postId: number) => {
         users
         ON comments.author_id = users.id
       WHERE
-        comments.isDelete = FALSE
-        AND users.isDelete = FALSE
+        comments.is_delete = FALSE
+        AND users.is_delete = FALSE
     `;
 		const values = [postId];
 
@@ -98,8 +98,8 @@ export const readComments = async (
         users
         ON comments.author_id = users.id
       WHERE
-        comments.isDelete = FALSE
-        AND users.isDelete = FALSE
+        comments.is_delete = FALSE
+        AND users.is_delete = FALSE
       ORDER BY
         comments.created_at,
         comments.id
@@ -171,7 +171,7 @@ export const updateComment = async (commentUpdate: ICommentUpdate) => {
       WHERE
         id = ?
         AND author_id = ?
-        AND isDelete = FALSE
+        AND is_delete = FALSE
     `;
 		const values = [content, id, author_id];
 
@@ -205,11 +205,11 @@ export const deleteComment = async (commentDelete: ICommentDelete) => {
       UPDATE
         comments
       SET
-        isDelete = TRUE
+        is_delete = TRUE
       WHERE
         id = ?
         AND author_id = ?
-        AND isDelete = FALSE
+        AND is_delete = FALSE
     `;
 		const values = [id, author_id];
 

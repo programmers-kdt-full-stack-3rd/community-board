@@ -21,9 +21,8 @@ export const getPostHeaders = async (queryString: IReadPostRequest, userId?:numb
 		let sharedSql = ` FROM posts as p
                         LEFT JOIN users as u
                         ON p.author_id = u.id
-                        WHERE p.isDelete = FALSE
-                        AND u.isDelete = FALSE
-						AND (p.is_private = FALSE OR (p.is_private = TRUE AND p.author_id = ?))`;
+                        WHERE p.is_delete = FALSE
+						            AND (p.is_private = FALSE OR (p.is_private = TRUE AND p.author_id = ?))`;
 
 		dataValues.push(userId || 0);
 		countValues.push(userId || 0);
@@ -102,8 +101,8 @@ export const getPostInfo = async (post_id: number, user_id?: number) => {
                 FROM posts as p
                 LEFT JOIN users as u
                 ON p.author_id = u.id
-                WHERE p.isDelete = FALSE
-                AND u.isDelete = FALSE
+                WHERE p.is_delete = FALSE
+                AND u.is_delete = FALSE
                 AND p.id = ?
         `;
 
@@ -151,7 +150,7 @@ export const getAdminPosts = async ({
 		p.title,
 		u.nickname as author,
 		p.created_at,
-		p.isDelete,
+		p.is_delete,
 		p.is_private
 		FROM posts as p
 		LEFT JOIN users as u
@@ -248,7 +247,7 @@ export const updatePost = async (
 
 		values.push(post_id);
 		values.push(reqBody.author_id);
-		sql += ` WHERE id = ? AND author_id = ? AND isDelete = FALSE`;
+		sql += ` WHERE id = ? AND author_id = ? AND is_delete = FALSE`;
 
 		conn = await pool.getConnection();
 		const [rows]: any[] = await conn.query(sql, values);
@@ -271,7 +270,7 @@ export const deletePost = async (post_id: number, user_id?: number) => {
 	try {
 		let values: number[] = [post_id];
 
-		let sql = `UPDATE posts SET isDelete = true WHERE id = ? AND isDelete = FALSE`;
+		let sql = `UPDATE posts SET is_delete = true WHERE id = ? AND is_delete = FALSE`;
 
 		if (user_id) {
 			sql += ` and author_id = ?`;
@@ -299,7 +298,7 @@ export const restorePost = async (post_id: number) => {
 	try {
 		let values: number[] = [post_id];
 
-		let sql = `UPDATE posts SET isDelete = FALSE WHERE id = ? AND isDelete = TRUE`;
+		let sql = `UPDATE posts SET is_delete = FALSE WHERE id = ? AND is_delete = TRUE`;
 
 		conn = await pool.getConnection();
 		const [rows]: any[] = await conn.query(sql, values);
