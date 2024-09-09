@@ -59,7 +59,7 @@ const Login: React.FC = () => {
 
 	const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const isValid = REGEX.PASSWORD.test(e.target.value);
-		const errorMessage = isValid ? "" : ERROR_MESSAGE.PASSWORD_REGEX;
+		const errorMessage = isValid ? "" : ERROR_MESSAGE.PASSWORD_WRONG;
 
 		setPassword({
 			...password,
