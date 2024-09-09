@@ -12,7 +12,7 @@ import {
 	iconStyle,
 	joinLink,
 } from "../../page/User/Login.css";
-import { ERROR_MESSAGE, REGEX } from "./constants/constants";
+import { REGEX } from "./constants/constants";
 import EmailForm from "../../component/User/EmailForm";
 import PasswordForm from "../../component/User/PasswordForm";
 import SubmitButton from "../../component/User/SubmitButton";
@@ -22,6 +22,7 @@ import { ClientError } from "../../api/errors";
 import { sendPostLoginRequest } from "../../api/users/crud";
 import { getOAuthLoginUrl } from "../../api/users/oauth";
 import { ValidateText } from "./Join";
+import ErrorMessageForm from "../../component/User/ErrorMessageForm";
 
 const Login: React.FC = () => {
 	const [email, setEmail] = useState<ValidateText>({
@@ -35,6 +36,8 @@ const Login: React.FC = () => {
 		errorMessage: "",
 	});
 
+	const [errorMessage, setErrorMessage] = useState<string>("");
+
 	const { setLoginUser } = useUserStore.use.actions();
 
 	// zustand 테스트용
@@ -47,25 +50,25 @@ const Login: React.FC = () => {
 
 	const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const isValid = REGEX.EMAIL.test(e.target.value);
-		const errorMessage = isValid ? "" : ERROR_MESSAGE.EMAIL_REGEX;
 
+		setErrorMessage("");
 		setEmail({
 			...email,
 			text: e.target.value,
 			isValid: isValid,
-			errorMessage: errorMessage,
+			errorMessage: "",
 		});
 	};
 
 	const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const isValid = REGEX.PASSWORD.test(e.target.value);
-		const errorMessage = isValid ? "" : ERROR_MESSAGE.PASSWORD_WRONG;
 
+		setErrorMessage("");
 		setPassword({
 			...password,
 			text: e.target.value,
 			isValid: isValid,
-			errorMessage: errorMessage,
+			errorMessage: "",
 		});
 	};
 
@@ -79,28 +82,7 @@ const Login: React.FC = () => {
 			if (err.message) {
 				let message: string = err.message;
 				message = message.replace("Bad Request: ", "");
-				if (message.includes("또는")) {
-					setEmail({
-						...email,
-						errorMessage: message,
-						isValid: false,
-					});
-					setPassword({
-						...password,
-						errorMessage: message,
-						isValid: false,
-					});
-					return;
-				}
-
-				if (message.includes("이메일")) {
-					setEmail({
-						...email,
-						errorMessage: message,
-						isValid: false,
-					});
-					return;
-				}
+				setErrorMessage(message);
 			}
 		};
 
@@ -180,6 +162,9 @@ const Login: React.FC = () => {
 					isValid={password.isValid}
 					errorMessage={password.errorMessage}
 				/>
+				{errorMessage && (
+					<ErrorMessageForm>{errorMessage}</ErrorMessageForm>
+				)}
 				<SubmitButton onClick={handleLoginButton}>
 					로그인 버튼
 				</SubmitButton>
