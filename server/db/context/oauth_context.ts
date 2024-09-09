@@ -6,8 +6,7 @@ import {
 } from "mysql2/promise";
 import { ServerError } from "../../middleware/errors";
 import pool from "../connect";
-import { mapDBToOAuthConnections } from "shared/community/oauth/oauth_mapper";
-import { TOAuthProvider } from "shared";
+import { mapDBToOAuthConnections, TOAuthProvider } from "shared";
 
 export const readOAuthConnections = async (userId: number) => {
 	let conn: PoolConnection | null = null;
