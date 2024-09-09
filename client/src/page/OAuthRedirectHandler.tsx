@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { sendOAuthLoginRequest } from "../api/users/oauth";
 import { useUserStore } from "../state/store";
 import Loader from "../component/common/Loader/Loader";
+import { ApiCall } from "../api/api";
 
 //사용자 인증 완료 후 리디렉션된 후 처리
 const OAuthRedirectHandler = () => {
@@ -14,24 +15,30 @@ const OAuthRedirectHandler = () => {
 	const { setLoginUser } = useUserStore.use.actions();
 
 	const handleOAuthLogin = async (provider: string, code: string) => {
-		try {
-			const response = await sendOAuthLoginRequest(provider, code);
-
-			if (response.status === 200) {
-				const { nickname, loginTime } = response.result;
-
-				setLoginUser(nickname, loginTime);
-				navigate("/");
-			} else {
-				const error = await response.json();
-				setError(error.message || "OAuth 로그인 실패");
+		const response = await ApiCall(
+			() => sendOAuthLoginRequest(provider, code),
+			err => {
+				const message = `${provider} 로그인 실패`;
+				console.error(message, err);
+				alert(message);
+				setError(`${message}: ${err.message}`);
 				navigate("/login");
 			}
-		} catch (error) {
-			setError("OAuth 로그인에 실패");
+		);
+
+		setLoading(false);
+
+		if (response instanceof Error) {
+			return;
+		}
+
+		const { nickname, loginTime } = response?.result;
+
+		if (typeof nickname === "string" && typeof loginTime === "string") {
+			setLoginUser(nickname, loginTime);
+			navigate("/");
+		} else {
 			navigate("/login");
-		} finally {
-			setLoading(false);
 		}
 	};
 

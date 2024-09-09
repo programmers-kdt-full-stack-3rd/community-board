@@ -10,28 +10,25 @@ import {
 	socialLoginButtons,
 } from "./css/OAuthLoginButtons.css";
 import { getOAuthLoginUrl, TLoginType } from "../../api/users/oauth";
-import { useNavigate } from "react-router-dom";
+import { ApiCall } from "../../api/api";
 
 interface IProps {
 	loginType: TLoginType;
 }
 
 const OAuthLoginButtons: React.FC<IProps> = ({ loginType }) => {
-	const navigate = useNavigate();
-
 	// TODO: shared 머지 시 main으로 rebase 후 TOAuthProvider 가져오기
 	const handleClickWith = (provider: string) => async () => {
-		try {
-			const url = await getOAuthLoginUrl(loginType, provider);
-			if (typeof url === "string") {
-				window.location.href = url;
-			} else {
-				throw new Error();
+		const response = await ApiCall(
+			() => getOAuthLoginUrl(loginType, provider),
+			err => {
+				console.error(`${provider} 로그인 URL 조회 에러`, err);
+				alert(`${provider}(으)로 로그인할 수 없습니다.`);
 			}
-		} catch (error) {
-			console.error(`${provider} 로그인 URL 조회 에러`, error);
-			alert(`${provider}(으)로 로그인할 수 없습니다.`);
-			navigate("/");
+		);
+
+		if (typeof response.url === "string") {
+			window.location.href = response.url;
 		}
 	};
 
