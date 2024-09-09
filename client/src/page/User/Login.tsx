@@ -12,65 +12,28 @@ import {
 	iconStyle,
 	joinLink,
 } from "../../page/User/Login.css";
-import { REGEX } from "./constants/constants";
+import { ERROR_MESSAGE, REGEX } from "./constants/constants";
 import EmailForm from "../../component/User/EmailForm";
 import PasswordForm from "../../component/User/PasswordForm";
-import ErrorMessageForm from "../../component/User/ErrorMessageForm";
 import SubmitButton from "../../component/User/SubmitButton";
 import { useUserStore } from "../../state/store";
 import { ApiCall } from "../../api/api";
 import { ClientError } from "../../api/errors";
 import { sendPostLoginRequest } from "../../api/users/crud";
 import { getOAuthLoginUrl } from "../../api/users/oauth";
-
-interface ValidationResult {
-	isValid: boolean;
-	errorMessage: string;
-	invalidFields: ("email" | "password")[];
-}
-
-const createError = (
-	message: string,
-	fields: ("email" | "password")[]
-): ValidationResult => ({
-	isValid: false,
-	errorMessage: message,
-	invalidFields: fields,
-});
-
-const validateLogin = (email: string, password: string): ValidationResult => {
-	const emailRegex = REGEX.EMAIL;
-	const passwordRegex = REGEX.PASSWORD;
-
-	if (!email) {
-		return createError("이메일을 입력하세요.", ["email"]);
-	}
-
-	if (!password) {
-		return createError("비밀번호를 입력하세요.", ["password"]);
-	}
-
-	if (!emailRegex.test(email) || !passwordRegex.test(password)) {
-		return createError("이메일 또는 비밀번호가 틀렸습니다.", [
-			"email",
-			"password",
-		]);
-	}
-
-	return {
-		isValid: true,
-		errorMessage: "",
-		invalidFields: [],
-	};
-};
+import { ValidateText } from "./Join";
 
 const Login: React.FC = () => {
-	const [email, setEmail] = useState("");
-	const [password, setPassword] = useState("");
-	const [errorMessage, setErrorMessage] = useState("");
-	const [invalidFields, setInvalidFields] = useState<
-		("email" | "password")[]
-	>([]);
+	const [email, setEmail] = useState<ValidateText>({
+		text: "",
+		isValid: false,
+		errorMessage: "",
+	});
+	const [password, setPassword] = useState<ValidateText>({
+		text: "",
+		isValid: false,
+		errorMessage: "",
+	});
 
 	const { setLoginUser } = useUserStore.use.actions();
 
@@ -83,62 +46,81 @@ const Login: React.FC = () => {
 	const location = useLocation();
 
 	const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setEmail(e.target.value);
+		const isValid = REGEX.EMAIL.test(e.target.value);
+		const errorMessage = isValid ? "" : ERROR_MESSAGE.EMAIL_REGEX;
+
+		setEmail({
+			...email,
+			text: e.target.value,
+			isValid: isValid,
+			errorMessage: errorMessage,
+		});
 	};
 
 	const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setPassword(e.target.value);
+		const isValid = REGEX.PASSWORD.test(e.target.value);
+		const errorMessage = isValid ? "" : ERROR_MESSAGE.PASSWORD_WRONG;
+
+		setPassword({
+			...password,
+			text: e.target.value,
+			isValid: isValid,
+			errorMessage: errorMessage,
+		});
 	};
 
 	const handleLoginButton = async () => {
-		const validateResult = validateLogin(email, password);
+		const body = {
+			email: email.text,
+			password: password.text,
+		};
 
-		setErrorMessage(validateResult.errorMessage);
-		setInvalidFields(validateResult.invalidFields);
-
-		if (validateResult.isValid) {
-			const body = {
-				email,
-				password,
-			};
-
-			const errorHandle = (err: ClientError) => {
-				if (err.message) {
-					let message: string = err.message;
-					message = message.replace("Bad Request: ", "");
-					if (message.includes("또는")) {
-						setInvalidFields(["email", "password"]);
-						setErrorMessage(message);
-						return;
-					}
-
-					if (message.includes("이메일")) {
-						setInvalidFields(["email"]);
-						setErrorMessage(message);
-						return;
-					}
-					setErrorMessage(message);
+		const errorHandle = (err: ClientError) => {
+			if (err.message) {
+				let message: string = err.message;
+				message = message.replace("Bad Request: ", "");
+				if (message.includes("또는")) {
+					setEmail({
+						...email,
+						errorMessage: message,
+						isValid: false,
+					});
+					setPassword({
+						...password,
+						errorMessage: message,
+						isValid: false,
+					});
+					return;
 				}
-			};
 
-			const result = await ApiCall(
-				() => sendPostLoginRequest(body),
-				errorHandle
-			);
-
-			if (result instanceof ClientError) {
-				return;
+				if (message.includes("이메일")) {
+					setEmail({
+						...email,
+						errorMessage: message,
+						isValid: false,
+					});
+					return;
+				}
 			}
+		};
 
-			if (result.result) {
-				const { nickname, loginTime } = result.result;
+		const result = await ApiCall(
+			() => sendPostLoginRequest(body),
+			errorHandle
+		);
 
-				setLoginUser(nickname, loginTime);
+		if (result instanceof ClientError) {
+			return;
+		}
 
-				const redirect =
-					new URLSearchParams(location.search).get("redirect") || "/";
-				navigate(redirect);
-			}
+		if (result.result) {
+			const { nickname, loginTime } = result.result;
+
+			setLoginUser(nickname, loginTime);
+
+			const redirect =
+				new URLSearchParams(location.search).get("redirect") || "/";
+			navigate(redirect);
 		}
 	};
 
@@ -186,19 +168,18 @@ const Login: React.FC = () => {
 			<h1>로그인</h1>
 			<div>
 				<EmailForm
-					email={email}
+					email={email.text}
 					onChange={handleEmailChange}
-					isValid={!invalidFields.includes("email")}
+					isValid={email.isValid}
+					errorMessage={email.errorMessage}
 				/>
 				<PasswordForm
-					password={password}
+					password={password.text}
 					onChange={handlePasswordChange}
 					labelText="비밀번호"
-					isValid={!invalidFields.includes("password")}
+					isValid={password.isValid}
+					errorMessage={password.errorMessage}
 				/>
-				{errorMessage && (
-					<ErrorMessageForm>{errorMessage}</ErrorMessageForm>
-				)}
 				<SubmitButton onClick={handleLoginButton}>
 					로그인 버튼
 				</SubmitButton>
