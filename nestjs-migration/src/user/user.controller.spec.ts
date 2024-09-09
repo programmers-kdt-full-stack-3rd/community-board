@@ -1,10 +1,9 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { UserController } from "./user.controller";
-import { UserService } from "./user.service";
-import { CreateUserDto } from "./dto/create-user.dto";
-import { ResultSetHeader } from "mysql2/promise";
-import { HttpStatus } from "@nestjs/common";
 import { ServerError } from "../common/exceptions/server-error.exception";
+import { CreateUserDto } from "./dto/create-user.dto";
+import { UserController } from "./user.controller";
+import { User } from "./user.entity";
+import { UserService } from "./user.service";
 
 describe("UserController", () => {
 	let controller: UserController;
@@ -35,12 +34,11 @@ describe("UserController", () => {
 				password: "password123",
 			};
 
-			const mockResult = {
-				affectedRows: 1,
-				insertId: 1,
-			} as ResultSetHeader;
+			const mockUser = new User();
+			Object.assign(mockUser, createUserDto);
+			mockUser.id = 1;
 
-			jest.spyOn(service, "createUser").mockResolvedValue(mockResult);
+			jest.spyOn(service, "createUser").mockResolvedValue(mockUser);
 
 			const result = await controller.joinUser(createUserDto);
 

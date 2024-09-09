@@ -1,7 +1,9 @@
 import { Injectable } from "@nestjs/common";
+import { FieldPacket, ResultSetHeader } from "mysql2/promise";
 import { DatabaseService } from "../db/db.service";
 import { CreateUserDto } from "./dto/create-user.dto";
-import { FieldPacket, ResultSetHeader } from "mysql2/promise";
+
+//TODO: TYPEORM 사용으로 최종 결정시 제거
 
 @Injectable()
 export class UserRepository {

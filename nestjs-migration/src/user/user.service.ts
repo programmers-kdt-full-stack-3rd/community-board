@@ -1,28 +1,20 @@
 import { Injectable } from "@nestjs/common";
-import { CreateUserDto } from "./dto/create-user.dto";
-import { UserRepository } from "./user.repository";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
 import { ServerError } from "../common/exceptions/server-error.exception";
+import { CreateUserDto } from "./dto/create-user.dto";
+import { User } from "./user.entity";
 
 @Injectable()
 export class UserService {
-	constructor(private userRepository: UserRepository) {}
-
-	private async hashPassword(password: string): Promise<string> {
-		return password;
-	}
+	constructor(
+		@InjectRepository(User)
+		private userRepository: Repository<User>
+	) {}
 
 	async createUser(createUserDto: CreateUserDto) {
-		const { nickname, email, password } = createUserDto;
 		try {
-			const result = await this.userRepository.createUser({
-				nickname,
-				email,
-				password,
-			});
-			if (result.affectedRows === 0) {
-				throw ServerError.reference("회원가입 실패");
-			}
-
+			const result = await this.userRepository.save(createUserDto);
 			return result;
 		} catch (error) {
 			if (error.code === "ER_DUP_ENTRY") {

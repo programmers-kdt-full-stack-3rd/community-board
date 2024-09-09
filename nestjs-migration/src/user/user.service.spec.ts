@@ -1,29 +1,30 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { UserService } from "./user.service";
-import { UserRepository } from "./user.repository";
-import { CreateUserDto } from "./dto/create-user.dto";
+import { getRepositoryToken } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
 import { ServerError } from "../common/exceptions/server-error.exception";
-import { ResultSetHeader } from "mysql2/promise";
+import { CreateUserDto } from "./dto/create-user.dto";
+import { User } from "./user.entity";
+import { UserService } from "./user.service";
 
 describe("UserService", () => {
 	let service: UserService;
-	let repository: UserRepository;
+	let repository: Repository<User>;
 
 	beforeEach(async () => {
 		const module: TestingModule = await Test.createTestingModule({
 			providers: [
 				UserService,
 				{
-					provide: UserRepository,
+					provide: getRepositoryToken(User),
 					useValue: {
-						createUser: jest.fn(),
+						save: jest.fn(),
 					},
 				},
 			],
 		}).compile();
 
 		service = module.get<UserService>(UserService);
-		repository = module.get<UserRepository>(UserRepository);
+		repository = module.get<Repository<User>>(getRepositoryToken(User));
 	});
 
 	describe("createUser", () => {
@@ -34,24 +35,16 @@ describe("UserService", () => {
 				password: "password123",
 			};
 
-			const mockResult = {
-				insertId: 1,
-				affectedRows: 1,
-			} as ResultSetHeader;
+			const mockUser = new User();
+			Object.assign(mockUser, createUserDto);
+			mockUser.id = 1;
 
-			jest.spyOn(repository, "createUser").mockResolvedValue(mockResult);
+			jest.spyOn(repository, "save").mockResolvedValue(mockUser);
 
-			await expect(
-				service.createUser(createUserDto)
-			).resolves.not.toThrow();
+			const result = await service.createUser(createUserDto);
 
-			expect(repository.createUser).toHaveBeenCalledWith(
-				expect.objectContaining({
-					nickname: "testuser",
-					email: "test@example.com",
-					password: "password123",
-				})
-			);
+			expect(result).toEqual(mockUser);
+			expect(repository.save).toHaveBeenCalledWith(createUserDto);
 		});
 
 		it("db내부에서 모르는 에러가 발생시", async () => {
@@ -61,34 +54,12 @@ describe("UserService", () => {
 				password: "password123",
 			};
 
-			jest.spyOn(repository, "createUser").mockRejectedValue(
+			jest.spyOn(repository, "save").mockRejectedValue(
 				new Error("Database error")
 			);
 
 			await expect(service.createUser(createUserDto)).rejects.toThrow(
 				Error
-			);
-		});
-
-		it("db에 insert한 데이터가 없는 경우", async () => {
-			const createUserDto: CreateUserDto = {
-				nickname: "testuser",
-				email: "test@example.com",
-				password: "password123",
-			};
-
-			const mockResult = {
-				insertId: 0,
-				affectedRows: 0,
-			} as ResultSetHeader;
-
-			jest.spyOn(repository, "createUser").mockResolvedValue(mockResult);
-
-			await expect(service.createUser(createUserDto)).rejects.toThrow(
-				ServerError
-			);
-			await expect(service.createUser(createUserDto)).rejects.toThrow(
-				"회원가입 실패"
 			);
 		});
 
@@ -99,9 +70,10 @@ describe("UserService", () => {
 				password: "password123",
 			};
 
-			jest.spyOn(repository, "createUser").mockRejectedValue({
-				code: "ER_DUP_ENTRY",
-			});
+			const duplicateError: any = new Error("Duplicate entry");
+			duplicateError.code = "ER_DUP_ENTRY";
+
+			jest.spyOn(repository, "save").mockRejectedValue(duplicateError);
 
 			await expect(service.createUser(createUserDto)).rejects.toThrow(
 				ServerError

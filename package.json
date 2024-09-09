@@ -6,7 +6,8 @@
 		"server",
 		"shared",
 		"chat_server",
-		"consumer-server"
+		"consumer-server",
+		"nestjs-migration"
 	],
 	"scripts": {
 		"prettier": "prettier --write --config ./.prettierrc.json \"./**/*\""

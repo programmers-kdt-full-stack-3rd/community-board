@@ -1,7 +1,7 @@
 import { Inject, Injectable, OnModuleDestroy } from "@nestjs/common";
 import { ConfigType } from "@nestjs/config";
-import { createPool, Pool, PoolConnection } from "mysql2/promise";
-import dbConfig from "../config/db.config";
+import { Pool, PoolConnection, createPool } from "mysql2/promise";
+import { dbConfig } from "../config/db.config";
 
 @Injectable()
 export class DatabaseService implements OnModuleDestroy {
