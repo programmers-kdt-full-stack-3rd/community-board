@@ -1,5 +1,5 @@
 import { RowDataPacket } from "mysql2";
-import { IOAuthConnection } from "../model/oauth";
+import { IOAuthConnection } from "./oauths";
 
 export const mapDBToOAuthConnections = (
 	rows: RowDataPacket[]

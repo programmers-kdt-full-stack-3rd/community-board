@@ -1,4 +1,4 @@
-import { IRoomHeader } from "./dto";
+import { IRoomHeader } from "./chats";
 
 export const mapDBToIRoomHeader = (dbData: any): IRoomHeader => {
 	return {

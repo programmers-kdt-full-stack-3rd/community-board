@@ -5,7 +5,7 @@ import {
 	getUsersInfo,
 	restoreUser,
 } from "../db/context/users_context";
-import { mapUsersInfoToResponse } from "../db/mapper/users_mapper";
+import { mapUsersInfoToResponse } from "shared/community/users/users_mapper";
 import {
 	deletePost,
 	getAdminPosts,
@@ -15,14 +15,14 @@ import {
 } from "../db/context/posts_context";
 import { mapAdminPostsToResponse } from "../db/mapper/posts_mapper";
 import { getLogs } from "../db/context/logs_context";
-import { mapUserLogsToResponse } from "../db/mapper/logs_mapper";
+import { mapUserLogsToResponse } from "shared/community/logs/logs_mapper";
 import {
 	getIntervalStats,
 	getTotalStats,
 	getUserStat,
 } from "../db/context/stats_context";
 import { TInterval } from "../db/model/stats";
-import { mapStatsToResponse } from "../db/mapper/stats_mapper";
+import { mapStatsToResponse } from "shared/community/stats/stats_mapper";
 import { ServerError } from "../middleware/errors";
 
 export const handleGetUsers = async (
@@ -220,7 +220,7 @@ export const handleAdminGetUserStat = async (
 ) => {
 	try {
 		const userId = parseInt(req.params.userId);
-		
+
 		const nickname = (await getUserById(userId)).nickname;
 		const stats = await getUserStat(userId);
 

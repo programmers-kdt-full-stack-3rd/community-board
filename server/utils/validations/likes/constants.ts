@@ -1,4 +1,4 @@
-import { likeTargetToName } from "../../../db/mapper/likes_mapper";
+import { likeTargetToName } from "shared/community/likes_mapper";
 import { TLikeTarget } from "../../../db/model/likes";
 
 export const ERROR_MESSAGES = {

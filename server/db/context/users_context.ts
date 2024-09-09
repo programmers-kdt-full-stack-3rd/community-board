@@ -11,7 +11,7 @@ import { IGetUsersInfoParams, IUser, IUserInfoRow } from "../model/users";
 import { makeAccessToken, makeRefreshToken } from "../../utils/token";
 import { addRefreshToken } from "./token_context";
 import { IPermissionRow, IRoleRow } from "../model/rbac";
-import { mapDBToPartialUser } from "../mapper/users_mapper";
+import { mapDBToPartialUser } from "shared/community/users/users_mapper";
 
 interface IUserRegData {
 	email: string;

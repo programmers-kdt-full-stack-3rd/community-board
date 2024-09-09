@@ -1,5 +1,3 @@
-import { RowDataPacket } from "mysql2/promise";
-
 export interface IUser {
 	id: number;
 	email: string;
@@ -24,10 +22,3 @@ export interface IPagenation {
 	index: number;
 	perPage: number;
 }
-
-export interface IGetUsersInfoParams extends IPagenation {
-	nickname?: string;
-	email?: string;
-}
-
-export interface IUserInfoRow extends IUserInfo, RowDataPacket {}

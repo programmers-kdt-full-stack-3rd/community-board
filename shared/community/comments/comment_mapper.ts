@@ -1,4 +1,4 @@
-import { IComment } from "./models";
+import { IComment } from "./comments";
 
 export const mapDBToComments = (data: any[]): IComment[] => {
 	return data.map(item => ({
