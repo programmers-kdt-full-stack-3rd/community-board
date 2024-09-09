@@ -1,4 +1,4 @@
-CREATE TABLE user_logs (
+CREATE TABLE IF NOT EXISTS user_logs (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
     title VARCHAR(255) NOT NULL,

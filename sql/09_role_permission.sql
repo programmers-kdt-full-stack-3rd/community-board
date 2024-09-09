@@ -1,4 +1,4 @@
-CREATE TABLE role_permission (
+CREATE TABLE IF NOT EXISTS role_permission (
     role_id INTEGER,
     permission_id INTEGER,
     PRIMARY KEY (role_id, permission_id),
