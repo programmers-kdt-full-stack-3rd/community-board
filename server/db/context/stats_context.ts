@@ -10,7 +10,7 @@ import {
 	IStatsInterval,
 	IStatsIntervalInput,
 	IUserStat,
-} from "../model/stats";
+} from "shared";
 
 export const getTotalStats = async (): Promise<IStats> => {
 	let conn: PoolConnection | null = null;

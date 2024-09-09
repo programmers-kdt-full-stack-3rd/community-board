@@ -8,15 +8,17 @@ import pool from "../connect";
 import { mapDBToPostHeaders, mapDBToPostInfo } from "shared";
 import { ServerError } from "../../middleware/errors";
 import { SortBy } from "shared";
-import { IAdminPostRow } from "../model/posts";
+import { IAdminPostRow } from "shared";
 
-export const getPostHeaders = async (queryString: IReadPostRequest, userId?:number) => {
+export const getPostHeaders = async (
+	queryString: IReadPostRequest,
+	userId?: number
+) => {
 	let conn: PoolConnection | null = null;
 
 	try {
 		let dataValues: (number | string)[] = [];
 		let countValues: (number | string)[] = [];
-
 
 		let sharedSql = ` FROM posts as p
                         LEFT JOIN users as u

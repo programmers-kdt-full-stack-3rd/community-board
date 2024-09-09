@@ -1,4 +1,4 @@
-import { TOAuthProvider } from "../../db/model/oauth";
+import { TOAuthProvider } from "shared";
 
 type TOAuthVariable<T> = {
 	[provider in TOAuthProvider]: T;

@@ -1,6 +1,6 @@
 import { param } from "express-validator";
 import { validate } from "../../../middleware/validate";
-import { TLikeTarget } from "../../../db/model/likes";
+import { TLikeTarget } from "shared";
 import { ERROR_MESSAGES } from "./constants";
 
 export const likeValidationWith = (targetType: TLikeTarget) => [

@@ -1,5 +1,5 @@
 import { stringify } from "node:querystring";
-import { TOAuthProvider } from "../../db/model/oauth";
+import { TOAuthProvider } from "shared";
 import { ServerError } from "../../middleware/errors";
 import { oAuthProps, oAuthRequestContentType } from "./constants";
 

@@ -1,7 +1,7 @@
 import { FieldPacket, PoolConnection, ResultSetHeader } from "mysql2/promise";
 import pool from "../connect";
 import { ServerError } from "../../middleware/errors";
-import { IAddUserLogInput, IUserLogRow, IUserQueryParams } from "../model/logs";
+import { IAddUserLogInput, IUserLogRow, IUserQueryParams } from "shared";
 
 export const addLog = async (
 	{ user_id, title, category_id }: IAddUserLogInput,

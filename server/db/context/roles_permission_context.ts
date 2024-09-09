@@ -1,7 +1,7 @@
 import { FieldPacket, PoolConnection, ResultSetHeader } from "mysql2/promise";
 import pool from "../connect";
 import { ServerError } from "../../middleware/errors";
-import { IPermissionRow } from "../model/rbac";
+import { IPermissionRow } from "shared";
 
 export const getRolePermission = async (roleId: number) => {
 	let conn: PoolConnection | null = null;

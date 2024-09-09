@@ -7,11 +7,16 @@ import {
 import pool from "../connect";
 import { makeHashedPassword, makeSalt } from "../../utils/crypto";
 import { ServerError } from "../../middleware/errors";
-import { IGetUsersInfoParams, IUser, IUserInfoRow } from "../model/users";
+import {
+	IGetUsersInfoParams,
+	IUser,
+	IUserInfoRow,
+	IPermissionRow,
+	IRoleRow,
+	mapDBToPartialUser,
+} from "shared";
 import { makeAccessToken, makeRefreshToken } from "../../utils/token";
 import { addRefreshToken } from "./token_context";
-import { IPermissionRow, IRoleRow } from "../model/rbac";
-import { mapDBToPartialUser } from "shared/community/users/users_mapper";
 
 interface IUserRegData {
 	email: string;
