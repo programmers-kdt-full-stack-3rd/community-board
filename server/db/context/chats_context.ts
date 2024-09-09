@@ -206,7 +206,7 @@ export const getMessageLogs = async (roomId: number) => {
     			msg.message AS message,
     			msg.created_at AS createdAt,
     			msg.is_system AS isSystem,
-    			usr.isDelete AS isDeleted
+    			usr.is_delete AS isDeleted
 			FROM
     			rooms AS r
 			INNER JOIN

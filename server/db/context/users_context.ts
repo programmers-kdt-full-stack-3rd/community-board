@@ -133,7 +133,7 @@ export const readUserByOAuth = async (
 				users.id,
 				users.email,
 				users.nickname,
-				users.isDelete
+				users.is_delete
 			FROM
 				users
 			INNER JOIN
@@ -230,7 +230,7 @@ export const updateUser = async (userData: IUpdateUserInfo) => {
 			salt
 		);
 
-		const sql = `UPDATE users SET nickname=?, password=?, salt=? WHERE id=? AND isDelete=FALSE `;
+		const sql = `UPDATE users SET nickname=?, password=?, salt=? WHERE id=? AND is_delete=FALSE `;
 		const value = [
 			userData.nickname,
 			hashedPassword,
@@ -280,7 +280,7 @@ export const registerUserEmail = async (userData: IUpdateUserInfo) => {
 				salt = ?
 			WHERE
 				id = ?
-				AND isDelete = FALSE
+				AND is_delete = FALSE
 		`;
 		const value = [
 			userData.email,
@@ -315,7 +315,7 @@ export const registerUserEmail = async (userData: IUpdateUserInfo) => {
 export const getUserById = async (userId: number) => {
 	let conn: PoolConnection | null = null;
 	try {
-		const sql = `SELECT * FROM users WHERE id = ? AND isDelete=FALSE`;
+		const sql = `SELECT * FROM users WHERE id = ? AND is_delete=FALSE`;
 		const value = [userId];
 
 		conn = await pool.getConnection();
@@ -344,7 +344,7 @@ export const getUsersInfo = async ({
 }: IGetUsersInfoParams) => {
 	let conn: PoolConnection | null = null;
 	try {
-		let sql = `SELECT COUNT(*) OVER() as total ,u.id, u.email, u.nickname, u.created_at, u.isDelete,
+		let sql = `SELECT COUNT(*) OVER() as total ,u.id, u.email, u.nickname, u.created_at, u.is_delete,
 		(SELECT COUNT(id) FROM comments WHERE author_id = u.id) as comment_count,
 		(SELECT COUNT(id) FROM posts WHERE author_id = u.id) as post_count 
 		FROM users u 
@@ -399,7 +399,7 @@ export const getUsersInfo = async ({
 export const deleteUser = async (userId: number) => {
 	let conn: PoolConnection | null = null;
 	try {
-		const sql = `UPDATE users SET isDelete=TRUE WHERE id=? AND isDelete=FALSE`;
+		const sql = `UPDATE users SET is_delete=TRUE WHERE id=? AND is_delete=FALSE`;
 		const value = [userId];
 
 		conn = await pool.getConnection();
@@ -421,7 +421,7 @@ export const deleteUser = async (userId: number) => {
 export const restoreUser = async (userId: number) => {
 	let conn: PoolConnection | null = null;
 	try {
-		const sql = `UPDATE users SET isDelete=FALSE WHERE id=? AND isDelete=TRUE`;
+		const sql = `UPDATE users SET is_delete=FALSE WHERE id=? AND is_delete=TRUE`;
 		const value = [userId];
 
 		conn = await pool.getConnection();
@@ -444,7 +444,7 @@ export const isUserDeleted = async (params: TDeleteUserInfo) => {
 	const { email, userId } = params;
 	let conn: PoolConnection | null = null;
 	try {
-		let sql = `SELECT * FROM users WHERE isDelete = true`;
+		let sql = `SELECT * FROM users WHERE is_delete = true`;
 		let value: (string | number)[] = [];
 		if (email) {
 			sql += ` AND email = ?`;

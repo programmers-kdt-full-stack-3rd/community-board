@@ -21,7 +21,7 @@ export const mapAdminPostsToResponse = (
 			title: row.title,
 			author: row.author,
 			createdAt: row.created_at,
-			isDelete: row.isDelete,
+			isDelete: row.is_delete,
 			isPrivate: row.is_private,
 		};
 	});
