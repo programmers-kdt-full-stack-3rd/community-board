@@ -1,10 +1,15 @@
 import { HttpMethod, httpRequest, convertToBody } from "../api";
 
+export type TLoginType = "login" | "reconfirm" | "link";
+
 // oauth 로그인 URL 가져오기
-export const getOAuthLoginUrl = async (provider: string) => {
+export const getOAuthLoginUrl = async (
+	loginType: TLoginType,
+	provider: string
+) => {
 	try {
 		const response = await httpRequest(
-			`/oauth/login-url/${provider}`,
+			`/oauth/${loginType}-url/${provider}`,
 			HttpMethod.GET
 		);
 		return response.url;
