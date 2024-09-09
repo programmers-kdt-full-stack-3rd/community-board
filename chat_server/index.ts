@@ -35,9 +35,6 @@ async function startServer() {
 		`${HOST_IP}:${KAFKA_PORT_3}`,
 	];
 
-	// HTTP URL
-	const HTTP_URL = `http://${HOST_IP}:${HTTP_PORT}`;
-
 	try {
 		// Redis 연결
 		initRedisAPI(REDIS_URL);

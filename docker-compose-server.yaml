@@ -1,0 +1,29 @@
+services:
+    api-server:
+        build:
+            dockerfile: ./server/Dockerfile
+        container_name: api-server
+        ports:
+            - 9000:9000
+        networks:
+            - app-network
+
+    consumer-server:
+        build:
+            dockerfile: ./consumer-server/Dockerfile
+        container_name: consumer-server
+        networks:
+            - app-network
+
+    chat-server:
+        build:
+            dockerfile: ./chat_server/Dockerfile
+        container_name: chat-server
+        ports:
+            - 3000:3000
+        networks:
+            - app-network
+
+networks:
+    app-network:
+        driver: bridge
