@@ -10,18 +10,23 @@ import { ServerError } from "../../middleware/errors";
 import { SortBy } from "shared";
 import { IAdminPostRow } from "../model/posts";
 
-export const getPostHeaders = async (queryString: IReadPostRequest) => {
+export const getPostHeaders = async (queryString: IReadPostRequest, userId?:number) => {
 	let conn: PoolConnection | null = null;
 
 	try {
 		let dataValues: (number | string)[] = [];
 		let countValues: (number | string)[] = [];
 
+
 		let sharedSql = ` FROM posts as p
                         LEFT JOIN users as u
                         ON p.author_id = u.id
                         WHERE p.isDelete = FALSE
-                        AND u.isDelete = FALSE`;
+                        AND u.isDelete = FALSE
+						AND (p.is_private = FALSE OR (p.is_private = TRUE AND p.author_id = ?))`;
+
+		dataValues.push(userId || 0);
+		countValues.push(userId || 0);
 
 		let dataSql = `SELECT p.id as id, 
                             p.title as title,
