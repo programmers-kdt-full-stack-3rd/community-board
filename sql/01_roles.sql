@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS roles (
     name VARCHAR(50) UNIQUE NOT NULL
 );
 
-INSERT INTO roles (name) VALUES
+INSERT IGNORE INTO roles (name) VALUES
 ('admin'),
 ('user'),
 ('anonymous');

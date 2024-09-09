@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS permissions (
     name VARCHAR(100) UNIQUE NOT NULL
 );
 
-INSERT INTO permissions (name) VALUES
+INSERT IGNORE INTO permissions (name) VALUES
 ('view_post'),
 ('create_post'),
 ('delete_post'),

@@ -23,7 +23,6 @@ CREATE TABLE IF NOT EXISTS members (
     UNIQUE KEY (user_id, room_id)
 );
 
-
 CREATE TABLE IF NOT EXISTS messages (
     id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     member_id INT NOT NULL,

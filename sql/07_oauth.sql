@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS oauth_connections (
     UNIQUE KEY (oauth_provider_id, oauth_account_id)
 );
 
-INSERT INTO oauth_providers (name) VALUES
+INSERT IGNORE INTO oauth_providers (name) VALUES
 ('google'),
 ('kakao'),
 ('naver');
