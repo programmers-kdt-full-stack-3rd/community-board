@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS members (
     is_entered Boolean DEFAULT FALSE,
     is_deleted Boolean DEFAULT FALSE,
     
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (room_id) REFERENCES rooms(id),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE,
     
     UNIQUE KEY (user_id, room_id)
 );
@@ -30,5 +30,5 @@ CREATE TABLE IF NOT EXISTS messages (
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     is_system BOOLEAN NOT NULL DEFAULT FALSE,
     
-    FOREIGN KEY (member_id) REFERENCES members(id)
+    FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE
 );

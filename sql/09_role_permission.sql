@@ -1,9 +1,9 @@
 CREATE TABLE IF NOT EXISTS role_permission (
     role_id INTEGER,
     permission_id INTEGER,
-    PRIMARY KEY (role_id, permission_id),
-    FOREIGN KEY (role_id) REFERENCES roles(id),
-    FOREIGN KEY (permission_id) REFERENCES permissions(id)
+    PRIMARY KEY (role_id, permission_id) ON DELETE CASCADE,
+    FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE,
+    FOREIGN KEY (permission_id) REFERENCES permissions(id) ON DELETE CASCADE
 );
 
 -- Role-Permission 연결

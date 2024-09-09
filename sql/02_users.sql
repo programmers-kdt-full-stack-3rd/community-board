@@ -7,5 +7,5 @@ CREATE TABLE IF NOT EXISTS users (
     salt TEXT,
     role_id INTEGER NOT NULL DEFAULT 2,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    FOREIGN KEY (role_id) REFERENCES roles(id)
+    FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
 );

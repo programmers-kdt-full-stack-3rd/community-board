@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS posts (
     views INT NOT NULL default 0,
     is_delete Boolean NOT NULL DEFAULT FALSE,
     is_private Boolean NOT NULL DEFAULT FALSE,
-    FOREIGN KEY (author_id) REFERENCES users(id)
+    FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS post_likes (
@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS post_likes (
     post_id INT NOT NULL,
     user_id INT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    FOREIGN KEY (post_id) REFERENCES posts(id),
-    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     UNIQUE KEY (post_id, user_id)
 );
