@@ -1,7 +1,10 @@
 import { Injectable } from "@nestjs/common";
-import { makeHashedPassword, makeSalt } from "src/utils/crypto.util";
 import { ServerError } from "../common/exceptions/server-error.exception";
-import { USER_ERROR_CODES } from "./constant/user.constants";
+import { makeHashedPassword, makeSalt } from "../utils/crypto.util";
+import {
+	USER_ERROR_CODES,
+	USER_ERROR_MESSAGES,
+} from "./constant/user.constants";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UserRepository } from "./user.repository";
 
@@ -14,17 +17,21 @@ export class UserService {
 		const salt = await makeSalt();
 		const hashedPassword = await makeHashedPassword(password, salt);
 		try {
-			return await this.userRepository.save({
+			const result = await this.userRepository.save({
 				email,
 				password: hashedPassword,
 				nickname,
 				salt,
 			});
+
+			return result;
 		} catch (error: any) {
 			if (error.code === USER_ERROR_CODES.DUPLICATE_ENTRY) {
 				await this.handleDupEntry(error.sqlMessage, email);
 			}
-			throw ServerError.badRequest("사용자 생성 중 오류가 발생했습니다.");
+			throw ServerError.badRequest(
+				USER_ERROR_MESSAGES.USER_CREATION_ERROR
+			);
 		}
 	}
 
@@ -32,16 +39,18 @@ export class UserService {
 		if (sqlMessage.includes("email")) {
 			const isDeleted = await this.isUserDeleted(email);
 			if (isDeleted) {
-				throw ServerError.badRequest("탈퇴한 회원의 이메일입니다.");
+				throw ServerError.badRequest(USER_ERROR_MESSAGES.DELETED_USER);
 			}
-			throw ServerError.badRequest("이미 존재하는 이메일 주소입니다.");
+			throw ServerError.badRequest(USER_ERROR_MESSAGES.DUPLICATE_EMAIL);
 		}
 
 		if (sqlMessage.includes("nickname")) {
-			throw ServerError.badRequest("이미 사용 중인 닉네임입니다.");
+			throw ServerError.badRequest(
+				USER_ERROR_MESSAGES.DUPLICATE_NICKNAME
+			);
 		}
 
-		throw ServerError.badRequest("중복된 데이터가 존재합니다.");
+		throw ServerError.badRequest(USER_ERROR_MESSAGES.DUPLICATE_DATA);
 	}
 
 	private async isUserDeleted(email: string): Promise<boolean> {
