@@ -25,7 +25,7 @@ export const readOAuthConnections = async (userId: number) => {
 				oauth_providers
 				ON oauth_connections.oauth_provider_id = oauth_providers.id
 				AND oauth_connections.user_id = ?
-				AND oauth_connections.isDelete = FALSE
+				AND oauth_connections.is_delete = FALSE
 		`;
 		const values = [userId];
 
@@ -149,9 +149,9 @@ export const deleteOAuthConnection = async (
 				ON oauth_connections.oauth_provider_id = oauth_providers.id
 				AND oauth_providers.name = ?
 			SET
-				oauth_connections.isDelete = TRUE
+				oauth_connections.is_delete = TRUE
 			WHERE
-				oauth_connections.isDelete = FALSE
+				oauth_connections.is_delete = FALSE
 		`;
 		const values = [userId, provider];
 
@@ -180,7 +180,7 @@ export const clearOAuthConnection = async (userId: number) => {
 				oauth_connections
 			SET
 				oauth_refresh_token = NULL,
-				isDelete = TRUE
+				is_delete = TRUE
 			WHERE
 				user_id = ?
 		`;

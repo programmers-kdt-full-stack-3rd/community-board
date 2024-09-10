@@ -21,7 +21,7 @@ export const getTotalStats = async (): Promise<IStats> => {
             SELECT COUNT(*) AS count, COALESCE(SUM(views), 0) AS views
             FROM posts p
             JOIN users u ON p.author_id = u.id
-            WHERE p.isDelete = 0 AND u.isDelete = 0
+            WHERE p.is_delete = 0 AND u.is_delete = 0
         `;
 
 		const commentSql = `
@@ -29,13 +29,13 @@ export const getTotalStats = async (): Promise<IStats> => {
             FROM comments c
             JOIN users u ON c.author_id = u.id
             JOIN posts p ON c.post_id = p.id
-            WHERE c.isDelete = 0 AND u.isDelete = 0 AND p.isDelete = 0
+            WHERE c.is_delete = 0 AND u.is_delete = 0 AND p.is_delete = 0
         `;
 
 		const userSql = `
             SELECT COUNT(*) AS count
             FROM users
-            WHERE isDelete = 0
+            WHERE is_delete = 0
         `;
 
 		// 유효한 게시물 수와 총 조회수
@@ -98,7 +98,7 @@ export const getIntervalStats = async ({
         SELECT COUNT(*) AS count, COALESCE(SUM(views), 0) AS views, DATE_FORMAT(p.created_at, ?) AS date
         FROM posts p
         JOIN users u ON p.author_id = u.id
-        WHERE p.isDelete = 0 AND u.isDelete = 0
+        WHERE p.is_delete = 0 AND u.is_delete = 0
         `;
 
 		let commentSql = `
@@ -106,13 +106,13 @@ export const getIntervalStats = async ({
             FROM comments c
             JOIN users u ON c.author_id = u.id
             JOIN posts p ON c.post_id = p.id
-            WHERE c.isDelete = 0 AND u.isDelete = 0 AND p.isDelete = 0
+            WHERE c.is_delete = 0 AND u.is_delete = 0 AND p.is_delete = 0
         `;
 
 		let userSql = `
             SELECT COUNT(*) AS count, DATE_FORMAT(u.created_at, ?) AS date
             FROM users u
-            WHERE isDelete = 0
+            WHERE is_delete = 0
         `;
 
 		if (startDate) {
@@ -164,14 +164,14 @@ export const getUserStat = async (userId: number): Promise<IUserStat> => {
 		const postSql = `
 			SELECT COUNT(*) AS count, COALESCE(SUM(views), 0) AS views
 			FROM posts
-			WHERE author_id = ? AND isDelete = 0
+			WHERE author_id = ? AND is_delete = 0
 		`;
 
 		const commentSql = `
 		SELECT COUNT(*) AS count
 		FROM comments c
 		JOIN posts p ON c.post_id = p.id
-		WHERE c.author_id = ? AND c.isDelete = 0 AND p.isDelete = 0
+		WHERE c.author_id = ? AND c.is_delete = 0 AND p.is_delete = 0
 		`;
 
 		// 유효한 게시물 수와 총 조회수

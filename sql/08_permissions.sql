@@ -1,9 +1,9 @@
-CREATE TABLE permissions (
+CREATE TABLE IF NOT EXISTS permissions (
     id INTEGER PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(100) UNIQUE NOT NULL
 );
 
-INSERT INTO permissions (name) VALUES
+INSERT IGNORE INTO permissions (name) VALUES
 ('view_post'),
 ('create_post'),
 ('delete_post'),
