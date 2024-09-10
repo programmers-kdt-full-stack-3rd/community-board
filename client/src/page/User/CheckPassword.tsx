@@ -13,6 +13,7 @@ import UserDeleteModal from "../../component/Header/UserDeleteModal";
 import { useUserStore } from "../../state/store";
 import { ClientError } from "../../api/errors";
 import { ApiCall } from "../../api/api";
+import OAuthLoginButtons from "../../component/User/OAuthLoginButtons";
 
 const MODAL_CONFIGS = {
 	final: {
@@ -114,6 +115,8 @@ const CheckPassword: FC = () => {
 					onChange={handlePasswordChange}
 				/>
 				<SubmitButton onClick={handleSubmit}>확인</SubmitButton>
+
+				<OAuthLoginButtons loginType="reconfirm" />
 			</div>
 
 			<UserDeleteModal
