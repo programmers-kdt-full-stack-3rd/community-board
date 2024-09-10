@@ -1,3 +1,4 @@
+// shared type ------------------------------------------
 export interface IMessage {
 	id?: number; // 채팅 번호
 	memberId: number; // 입장자 번호
@@ -21,6 +22,8 @@ export interface IRoomMember {
 	roomId: number;
 	memberId: number;
 }
+
+// socket, kafka DTO ---------------------------------
 
 export interface ISocketMessageDTO {
 	memberId: number; // 입장자 번호

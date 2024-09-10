@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { createLike, deleteLike } from "../db/context/likes_context";
-import { TLikeTarget } from "../db/model/likes";
+import { TLikeTarget } from "shared";
 
 export const handleLikeCreateWith =
 	<T extends TLikeTarget>(targetType: T) =>

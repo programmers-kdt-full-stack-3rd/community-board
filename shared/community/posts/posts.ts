@@ -1,3 +1,8 @@
+export enum SortBy {
+	VIEWS = 1,
+	LIKES = 2,
+}
+
 export interface IPostInfo {
 	id: number;
 	title: string;

@@ -1,4 +1,4 @@
-import { IPostHeader, IPostInfo } from "./models";
+import { IPostHeader, IPostInfo } from "./posts";
 
 export const mapDBToPostInfo = (data: any): IPostInfo => {
 	return {

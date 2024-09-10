@@ -1,5 +1,5 @@
 import { body, param } from "express-validator";
-import { oAuthProviders } from "../../../db/model/oauth";
+import { oAuthProviders } from "shared";
 import { validate } from "../../../middleware/validate";
 import { ERROR_MESSAGES } from "./constants";
 

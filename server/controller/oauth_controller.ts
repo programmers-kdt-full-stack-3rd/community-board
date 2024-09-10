@@ -11,7 +11,7 @@ import {
 	getUserById,
 	readUserByOAuth,
 } from "../db/context/users_context";
-import { TOAuthProvider } from "../db/model/oauth";
+import { TOAuthProvider } from "shared";
 import { getKstNow } from "../utils/getKstNow";
 import { ServerError } from "../middleware/errors";
 import {

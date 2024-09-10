@@ -1,4 +1,4 @@
-import { IMessage, IRoomHeader } from "./dto";
+import { IMessage, IRoomHeader } from "./chats";
 
 // 채팅방 생성 --------------------------------------------------
 
@@ -12,7 +12,7 @@ export interface ICreateRoomResponse {
 	roomId: string; // 생성된 방 번호
 }
 
-// 채팅방 조회 --------------------------------------------------
+// 채팅방 조회, 검색 --------------------------------------------------
 
 export interface IReadRoomRequest {
 	page: number; // 현재 페이지 (default 0)
@@ -71,4 +71,27 @@ export interface ILeaveRoomRequest {
 export interface IGetMyRoomRequestEvent {
 	page: number;
 	nickname: string;
+}
+
+// 채팅방의 이전 메세지 기록 조회 ------------------------------------
+
+export interface IGetRoomMessageLogsRequest {
+	roomId: number; // 해당 방 번호
+}
+
+export interface IGetRoomMessageLogsResponse {
+	messageLogs: IMessage[]; // 채팅 로그
+}
+
+// 메세지 발신, 수신 -----------------------------------------------
+
+// 발신
+export interface ISendMessageRequest {
+	roomId: string;
+	message: string;
+}
+
+// 수신
+export interface IReceiveMessageResponse {
+	message: IMessage;
 }

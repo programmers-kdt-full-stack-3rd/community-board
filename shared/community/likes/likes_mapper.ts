@@ -1,4 +1,4 @@
-import { TLikeTarget } from "../model/likes";
+import { TLikeTarget } from "./likes";
 
 export const likeTargetToName: { [key in TLikeTarget]: string } = {
 	post: "게시글",

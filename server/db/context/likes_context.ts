@@ -1,8 +1,7 @@
 import { FieldPacket, PoolConnection, ResultSetHeader } from "mysql2/promise";
 import { ServerError } from "../../middleware/errors";
 import pool from "../connect";
-import { likeTargetToName } from "../mapper/likes_mapper";
-import { TLikeTarget } from "../model/likes";
+import { TLikeTarget, likeTargetToName } from "shared";
 
 export const createLike = async <T extends TLikeTarget>(
 	targetType: T,

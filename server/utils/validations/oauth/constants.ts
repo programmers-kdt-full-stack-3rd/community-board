@@ -1,4 +1,4 @@
-import { oAuthProviders } from "../../../db/model/oauth";
+import { oAuthProviders } from "shared";
 
 const oAuthProviderDomain = oAuthProviders.join(", ");
 
