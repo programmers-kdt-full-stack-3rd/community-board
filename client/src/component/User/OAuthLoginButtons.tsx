@@ -16,7 +16,7 @@ import {
 	socialLoginButtons,
 	socialLoginItem,
 } from "./css/OAuthLoginButtons.css";
-import { getOAuthLoginUrl } from "../../api/users/oauth";
+import { deleteOAuthConnection, getOAuthLoginUrl } from "../../api/users/oauth";
 import { ApiCall } from "../../api/api";
 import { getUserMyself } from "../../api/users/crud";
 
@@ -26,6 +26,12 @@ interface IProps {
 
 type TOAuthLinks = {
 	[provider in TOAuthProvider]?: boolean | null | undefined;
+};
+
+const providerToName: { [provider in TOAuthProvider]: string } = {
+	google: "구글",
+	kakao: "카카오",
+	naver: "네이버",
 };
 
 const OAuthLoginButtons: React.FC<IProps> = ({ loginType }) => {
@@ -80,6 +86,33 @@ const OAuthLoginButtons: React.FC<IProps> = ({ loginType }) => {
 		window.location.href = response.url;
 	};
 
+	const handleUnlinkClickWith = (provider: TOAuthProvider) => async () => {
+		const confirmed = confirm(
+			`${providerToName[provider]} 로그인 연동을 해제할까요?`
+		);
+
+		if (!confirmed) {
+			return;
+		}
+
+		const response = await ApiCall(
+			() => deleteOAuthConnection(provider),
+			err => {
+				console.error(`${provider} 로그인 연동 해제 실패`, err);
+				alert(`${providerToName[provider]} 로그인 연동 해제 실패`);
+			}
+		);
+
+		if (response instanceof Error) {
+			return;
+		}
+
+		setOAuthConnections({
+			...oAuthConnections,
+			[provider]: false,
+		});
+	};
+
 	return (
 		<div className={socialLoginButtons}>
 			<div className={socialLoginItem}>
@@ -97,7 +130,10 @@ const OAuthLoginButtons: React.FC<IProps> = ({ loginType }) => {
 				</button>
 
 				{loginType === "link" ? (
-					<button disabled={!oAuthConnections?.google}>
+					<button
+						disabled={!oAuthConnections?.google}
+						onClick={handleUnlinkClickWith("google")}
+					>
 						연동 해제
 					</button>
 				) : null}
@@ -118,7 +154,10 @@ const OAuthLoginButtons: React.FC<IProps> = ({ loginType }) => {
 				</button>
 
 				{loginType === "link" ? (
-					<button disabled={!oAuthConnections?.naver}>
+					<button
+						disabled={!oAuthConnections?.naver}
+						onClick={handleUnlinkClickWith("naver")}
+					>
 						연동 해제
 					</button>
 				) : null}
@@ -139,7 +178,10 @@ const OAuthLoginButtons: React.FC<IProps> = ({ loginType }) => {
 				</button>
 
 				{loginType === "link" ? (
-					<button disabled={!oAuthConnections?.kakao}>
+					<button
+						disabled={!oAuthConnections?.kakao}
+						onClick={handleUnlinkClickWith("kakao")}
+					>
 						연동 해제
 					</button>
 				) : null}
