@@ -8,7 +8,15 @@ export const socialLoginButtons = style({
 	width: "100%",
 });
 
+export const socialLoginItem = style({
+	display: "flex",
+	gap: "15px",
+	alignItems: "stretch",
+	justifyContent: "stretch",
+});
+
 const socialButton = style({
+	flexGrow: "1",
 	display: "flex",
 	alignItems: "center",
 	justifyContent: "center",
@@ -20,6 +28,13 @@ const socialButton = style({
 	cursor: "pointer",
 	color: "white",
 	transition: "transform 0.2s, box-shadow 0.2s",
+
+	selectors: {
+		"&:disabled": {
+			opacity: 0.5,
+			filter: "saturate(0.5)",
+		},
+	},
 });
 
 export const googleButton = style([

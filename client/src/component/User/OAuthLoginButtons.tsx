@@ -1,6 +1,10 @@
-import React from "react";
+import React, { useLayoutEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { TOAuthLoginType, TOAuthProvider } from "shared";
+import {
+	mapResponseToNonSensitiveUser,
+	TOAuthLoginType,
+	TOAuthProvider,
+} from "shared";
 import googleIcon from "../../assets/icons/google-icon.svg";
 import naverIcon from "../../assets/icons/naver-icon.svg";
 import kakaoIcon from "../../assets/icons/kakao-icon.svg";
@@ -10,18 +14,54 @@ import {
 	kakaoButton,
 	naverButton,
 	socialLoginButtons,
+	socialLoginItem,
 } from "./css/OAuthLoginButtons.css";
 import { getOAuthLoginUrl } from "../../api/users/oauth";
 import { ApiCall } from "../../api/api";
+import { getUserMyself } from "../../api/users/crud";
 
 interface IProps {
 	loginType: TOAuthLoginType;
 }
 
+type TOAuthLinks = {
+	[provider in TOAuthProvider]?: boolean | null | undefined;
+};
+
 const OAuthLoginButtons: React.FC<IProps> = ({ loginType }) => {
+	const [oAuthConnections, setOAuthConnections] =
+		useState<TOAuthLinks | null>(null);
+
 	const location = useLocation();
 
-	const handleClickWith = (provider: TOAuthProvider) => async () => {
+	useLayoutEffect(() => {
+		if (loginType !== "link") {
+			return;
+		}
+
+		ApiCall(
+			() => getUserMyself(),
+			err => console.error("유저 정보 조회 실패", err)
+		).then(response => {
+			if (response instanceof Error) {
+				return;
+			}
+
+			const user = mapResponseToNonSensitiveUser(response);
+
+			const connection = user.connected_oauth.reduce<TOAuthLinks>(
+				(acc, provider) => {
+					acc[provider] = true;
+					return acc;
+				},
+				{}
+			);
+
+			setOAuthConnections(connection);
+		});
+	}, [loginType]);
+
+	const handleLoginClickWith = (provider: TOAuthProvider) => async () => {
 		const response = await ApiCall(
 			() => getOAuthLoginUrl(loginType, provider),
 			err => {
@@ -42,41 +82,68 @@ const OAuthLoginButtons: React.FC<IProps> = ({ loginType }) => {
 
 	return (
 		<div className={socialLoginButtons}>
-			<button
-				className={googleButton}
-				onClick={handleClickWith("google")}
-			>
-				<img
-					src={googleIcon}
-					alt="Google Icon"
-					className={iconStyle}
-				/>
-				구글로 로그인
-			</button>
+			<div className={socialLoginItem}>
+				<button
+					className={googleButton}
+					disabled={oAuthConnections?.google ?? false}
+					onClick={handleLoginClickWith("google")}
+				>
+					<img
+						src={googleIcon}
+						alt="Google Icon"
+						className={iconStyle}
+					/>
+					구글로 로그인
+				</button>
 
-			<button
-				className={naverButton}
-				onClick={handleClickWith("naver")}
-			>
-				<img
-					src={naverIcon}
-					alt="Naver Icon"
-					className={iconStyle}
-				/>
-				네이버로 로그인
-			</button>
+				{loginType === "link" ? (
+					<button disabled={!oAuthConnections?.google}>
+						연동 해제
+					</button>
+				) : null}
+			</div>
 
-			<button
-				className={kakaoButton}
-				onClick={handleClickWith("kakao")}
-			>
-				<img
-					src={kakaoIcon}
-					alt="Kakao Icon"
-					className={iconStyle}
-				/>
-				카카오로 로그인
-			</button>
+			<div className={socialLoginItem}>
+				<button
+					className={naverButton}
+					disabled={oAuthConnections?.naver ?? false}
+					onClick={handleLoginClickWith("naver")}
+				>
+					<img
+						src={naverIcon}
+						alt="Naver Icon"
+						className={iconStyle}
+					/>
+					네이버로 로그인
+				</button>
+
+				{loginType === "link" ? (
+					<button disabled={!oAuthConnections?.naver}>
+						연동 해제
+					</button>
+				) : null}
+			</div>
+
+			<div className={socialLoginItem}>
+				<button
+					className={kakaoButton}
+					disabled={oAuthConnections?.kakao ?? false}
+					onClick={handleLoginClickWith("kakao")}
+				>
+					<img
+						src={kakaoIcon}
+						alt="Kakao Icon"
+						className={iconStyle}
+					/>
+					카카오로 로그인
+				</button>
+
+				{loginType === "link" ? (
+					<button disabled={!oAuthConnections?.kakao}>
+						연동 해제
+					</button>
+				) : null}
+			</div>
 		</div>
 	);
 };
