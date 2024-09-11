@@ -1,4 +1,5 @@
 import React from "react";
+import { useLocation } from "react-router-dom";
 import { TOAuthLoginType, TOAuthProvider } from "shared";
 import googleIcon from "../../assets/icons/google-icon.svg";
 import naverIcon from "../../assets/icons/naver-icon.svg";
@@ -18,6 +19,8 @@ interface IProps {
 }
 
 const OAuthLoginButtons: React.FC<IProps> = ({ loginType }) => {
+	const location = useLocation();
+
 	const handleClickWith = (provider: TOAuthProvider) => async () => {
 		const response = await ApiCall(
 			() => getOAuthLoginUrl(loginType, provider),
@@ -27,9 +30,14 @@ const OAuthLoginButtons: React.FC<IProps> = ({ loginType }) => {
 			}
 		);
 
-		if (typeof response.url === "string") {
-			window.location.href = response.url;
+		if (response instanceof Error || typeof response.url !== "string") {
+			return;
 		}
+
+		sessionStorage.setItem("oauth_prev_pathname", location.pathname);
+		sessionStorage.setItem("oauth_prev_search", location.search);
+
+		window.location.href = response.url;
 	};
 
 	return (

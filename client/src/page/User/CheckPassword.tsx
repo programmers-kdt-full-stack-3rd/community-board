@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, useLayoutEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
 	sendDeleteUserRequest,
@@ -32,10 +32,17 @@ const CheckPassword: FC = () => {
 	const searchParams = new URLSearchParams(location.search);
 	const next = searchParams.get("next");
 	const final = searchParams.get("final");
+	const oAuthConfirmed = searchParams.get("oAuthConfirmed");
 
 	const { setLogoutUser } = useUserStore.use.actions();
 
 	const finalModal = useModal();
+
+	useLayoutEffect(() => {
+		if (next === "accountDelete" && oAuthConfirmed === "true") {
+			finalModal.open();
+		}
+	}, [next, oAuthConfirmed]);
 
 	const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setPassword(e.target.value);

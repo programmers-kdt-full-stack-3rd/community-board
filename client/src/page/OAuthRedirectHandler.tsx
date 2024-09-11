@@ -11,6 +11,54 @@ import { useUserStore } from "../state/store";
 import Loader from "../component/common/Loader/Loader";
 import { ApiCall } from "../api/api";
 
+interface IOAuthLoginDestination {
+	ok: string;
+	err: string;
+}
+
+const getDestination = (
+	loginType: TOAuthLoginType,
+	prevSearch: URLSearchParams,
+	prevLocation: string
+): IOAuthLoginDestination => {
+	if (loginType === "login") {
+		const givenDestination = prevSearch.get("redirect");
+
+		return {
+			ok: givenDestination || "/",
+			err: prevLocation,
+		};
+	} else if (loginType === "link") {
+		return {
+			ok: prevLocation,
+			err: prevLocation,
+		};
+	} else if (loginType === "reconfirm") {
+		const nextAction = prevSearch.get("next");
+
+		if (nextAction === "profileUpdate") {
+			const search = new URLSearchParams();
+			search.set("final", prevSearch.get("final") ?? "/");
+
+			return {
+				ok: `/profileUpdate?${search.toString()}`,
+				err: prevLocation,
+			};
+		} else if (nextAction === "accountDelete") {
+			return {
+				ok: "/checkPassword?next=accountDelete&oAuthConfirmed=true",
+				err: prevLocation,
+			};
+		}
+	}
+
+	// 유효하지 않거나 도달할 수 없는 분기
+	return {
+		ok: "/",
+		err: "/",
+	};
+};
+
 //사용자 인증 완료 후 리디렉션된 후 처리
 const OAuthRedirectHandler = () => {
 	const [loading, setLoading] = useState(true);
@@ -24,7 +72,8 @@ const OAuthRedirectHandler = () => {
 	const handleOAuthLogin = async (
 		provider: TOAuthProvider,
 		code: string,
-		loginType: TOAuthLoginType
+		loginType: TOAuthLoginType,
+		destination: IOAuthLoginDestination
 	) => {
 		const response = await ApiCall(
 			() => sendOAuthLoginRequest(provider, code, loginType),
@@ -34,13 +83,7 @@ const OAuthRedirectHandler = () => {
 				alert(message);
 				setError(`${message}: ${err.message}`);
 
-				if (loginType === "reconfirm") {
-					navigate("/");
-				} else if (loginType === "link") {
-					navigate("/profileUpdate");
-				} else {
-					navigate("/login");
-				}
+				navigate(destination.err);
 			}
 		);
 
@@ -50,21 +93,21 @@ const OAuthRedirectHandler = () => {
 			return;
 		}
 
-		if (loginType === "reconfirm") {
-			// TODO: 회원탈퇴 분기 처리
-			navigate("/profileUpdate");
-		} else if (loginType === "link") {
-			navigate("/profileUpdate");
-		} else {
+		if (loginType === "login") {
 			const { nickname, loginTime } = response?.result;
 
 			if (typeof nickname === "string" && typeof loginTime === "string") {
 				setLoginUser(nickname, loginTime);
-				navigate("/");
+				navigate(destination.ok);
 			} else {
-				navigate("/login");
+				navigate(destination.err);
 			}
+		} else {
+			navigate(destination.ok);
 		}
+
+		sessionStorage.removeItem("oauth_prev_pathname");
+		sessionStorage.removeItem("oauth_prev_search");
 	};
 
 	//리디렉트된 URL 쿼리 스트링에서 code, provider 추출
@@ -72,24 +115,43 @@ const OAuthRedirectHandler = () => {
 		const provider = params.provider;
 		const query = new URLSearchParams(location.search);
 		const code = query.get("code");
+
 		const state = new URLSearchParams(query.get("state") ?? "");
 		const loginType = state.get("login_type") ?? "login";
 
-		if (!isOAuthProvider(provider)) {
-			setError("유효하지 않은 소셜 로그인 서비스");
-			navigate("/login");
-			return;
-		} else if (!isOAuthLoginType(loginType)) {
-			setError("유효하지 않은 로그인 유형");
-			navigate("/");
-			return;
-		} else if (!code) {
-			setError("유효하지 않은 인가 코드");
-			navigate("/login");
+		const prevPathname =
+			sessionStorage.getItem("oauth_prev_pathname") || "/";
+		const prevSearch = new URLSearchParams(
+			sessionStorage.getItem("oauth_prev_search") ?? ""
+		);
+		const prevLocation =
+			prevSearch.size > 0
+				? `${prevPathname}?${prevSearch.toString()}`
+				: prevPathname;
+
+		if (!isOAuthLoginType(loginType)) {
+			setError("유효하지 않은 소셜 로그인 유형");
+			navigate(prevLocation);
 			return;
 		}
 
-		handleOAuthLogin(provider, code, loginType);
+		const destination: IOAuthLoginDestination = getDestination(
+			loginType,
+			prevSearch,
+			prevLocation
+		);
+
+		if (!isOAuthProvider(provider)) {
+			setError("유효하지 않은 소셜 로그인 서비스");
+			navigate(destination.err);
+			return;
+		} else if (!code) {
+			setError("유효하지 않은 인가 코드");
+			navigate(destination.err);
+			return;
+		}
+
+		handleOAuthLogin(provider, code, loginType, destination);
 	}, [location, navigate]);
 
 	return (
