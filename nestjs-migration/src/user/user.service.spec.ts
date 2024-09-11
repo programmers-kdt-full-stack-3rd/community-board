@@ -1,4 +1,5 @@
 import { Test, TestingModule } from "@nestjs/testing";
+import { AuthService } from "../auth/auth.service";
 import { ServerError } from "../common/exceptions/server-error.exception";
 import * as cryptoUtil from "../utils/crypto.util";
 import { USER_ERROR_MESSAGES } from "./constant/user.constants";
@@ -10,6 +11,14 @@ import { UserService } from "./user.service";
 describe("UserService", () => {
 	let userService: UserService;
 	let userRepository: UserRepository;
+	let authService: AuthService;
+
+	const mockUserRepository = {
+		save: jest.fn(),
+		findOne: jest.fn(),
+	};
+
+	const mockAuthService = {};
 
 	beforeEach(async () => {
 		const module: TestingModule = await Test.createTestingModule({
@@ -17,10 +26,12 @@ describe("UserService", () => {
 				UserService,
 				{
 					provide: UserRepository,
-					useValue: {
-						save: jest.fn(),
-						findOne: jest.fn(),
-					},
+					useValue: mockUserRepository,
+				},
+
+				{
+					provide: AuthService,
+					useValue: mockAuthService,
 				},
 			],
 		}).compile();
@@ -85,7 +96,7 @@ describe("UserService", () => {
 				ServerError
 			);
 			await expect(userService.createUser(createUserDto)).rejects.toThrow(
-				USER_ERROR_MESSAGES.DELETED_USER
+				USER_ERROR_MESSAGES.DELETED_EMAIL
 			);
 		});
 
