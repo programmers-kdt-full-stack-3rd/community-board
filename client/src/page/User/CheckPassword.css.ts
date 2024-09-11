@@ -13,3 +13,7 @@ export const checkPasswordWrapper = style({
 	padding: "24px",
 	gap: "10px",
 });
+
+export const noPasswordMessage = style({
+	margin: "24px 0 0 0",
+});
