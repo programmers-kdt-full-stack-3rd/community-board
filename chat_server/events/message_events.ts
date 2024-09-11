@@ -25,7 +25,8 @@ export const handleMessageEvents = (socket: Socket) => {
 				isMine: false,
 			};
 			socket.to(`${message.roomId}`).emit("receive_message", receiveMsg);
-		} catch {
+		} catch (err) {
+			console.log(err);
 			callback(false);
 		}
 	});
