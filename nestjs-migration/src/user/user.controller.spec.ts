@@ -1,5 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
+import { Response } from "express";
 import { ServerError } from "../common/exceptions/server-error.exception";
+import * as dateUtil from "../utils/date.util";
 import { USER_ERROR_MESSAGES } from "./constant/user.constants";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UserController } from "./user.controller";
@@ -9,21 +11,30 @@ describe("UserController", () => {
 	let userController: UserController;
 	let userService: UserService;
 
+	const mockUserService = {
+		login: jest.fn(),
+		createUser: jest.fn(),
+	};
+
+	const mockTime = "2024-01-01T00:00:00.000+09:00";
+
 	beforeEach(async () => {
 		const module: TestingModule = await Test.createTestingModule({
 			controllers: [UserController],
 			providers: [
 				{
 					provide: UserService,
-					useValue: {
-						createUser: jest.fn(),
-					},
+					useValue: mockUserService,
 				},
 			],
 		}).compile();
 
 		userController = module.get<UserController>(UserController);
 		userService = module.get<UserService>(UserService);
+
+		jest.spyOn(dateUtil, "getKstNow").mockImplementation(() => {
+			return mockTime;
+		});
 	});
 
 	describe("POST /user/join", () => {
@@ -49,6 +60,72 @@ describe("UserController", () => {
 
 			await expect(
 				userController.joinUser(createUserDto)
+			).rejects.toThrow(error);
+		});
+	});
+
+	describe("POST /user/login", () => {
+		const loginDto = {
+			email: "test@example.com",
+			password: "password123",
+		};
+		it("로그인 성공 시 200 상태 코드와 토큰을 반환한다", async () => {
+			const mockLoginResult = {
+				accessToken: "mock-access-token",
+				refreshToken: "mock-refresh-token",
+				nickname: "testuser",
+			};
+
+			const mockResponse = {
+				cookie: jest.fn(),
+			} as unknown as Response;
+
+			jest.spyOn(userService, "login").mockResolvedValue(mockLoginResult);
+
+			const result = await userController.login(loginDto, mockResponse);
+
+			expect(userService.login).toHaveBeenCalledWith(loginDto);
+			expect(mockResponse.cookie).toHaveBeenCalledTimes(2);
+			expect(mockResponse.cookie).toHaveBeenCalledWith(
+				"accessToken",
+				mockLoginResult.accessToken,
+				{
+					httpOnly: true,
+					secure: true,
+					expires: expect.any(Date),
+				}
+			);
+			expect(mockResponse.cookie).toHaveBeenCalledWith(
+				"refreshToken",
+				mockLoginResult.refreshToken,
+				{
+					httpOnly: true,
+					secure: true,
+					expires: expect.any(Date),
+				}
+			);
+
+			expect(result).toEqual({
+				message: "로그인 성공",
+				result: {
+					nickname: mockLoginResult.nickname,
+					loginTime: mockTime,
+				},
+			});
+		});
+
+		it("로그인 실패 시 예외를 던진다", async () => {
+			const error = ServerError.badRequest(
+				USER_ERROR_MESSAGES.INVALID_LOGIN
+			);
+			jest.spyOn(userService, "login").mockRejectedValue(error);
+
+			const mockResponse = {
+				cookie: jest.fn(),
+			} as unknown as Response;
+
+			await expect(
+				userController.login(loginDto, mockResponse)
 			).rejects.toThrow(error);
 		});
 	});
