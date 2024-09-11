@@ -6,10 +6,10 @@ import {
 	TOAuthLoginType,
 	TOAuthProvider,
 } from "shared";
-import { sendOAuthLoginRequest } from "../api/users/oauth";
-import { useUserStore } from "../state/store";
-import Loader from "../component/common/Loader/Loader";
-import { ApiCall } from "../api/api";
+import { sendOAuthLoginRequest } from "../../api/users/oauth";
+import { useUserStore } from "../../state/store";
+import Loader from "../../component/common/Loader/Loader";
+import { ApiCall } from "../../api/api";
 
 interface IOAuthLoginDestination {
 	ok: string;

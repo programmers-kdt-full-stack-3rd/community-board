@@ -12,7 +12,7 @@ import clsx from "clsx";
 import { useErrorModal } from "./state/errorModalStore";
 import { useLayoutEffect } from "react";
 import ErrorModal from "./component/utils/ErrorModal";
-import OAuthRedirectHandler from "./page/OAuthRedirectHandler";
+import OAuthRedirectHandler from "./page/OAuth/OAuthRedirectHandler";
 import ChatTestPage from "./page/Chat/ChatTestPage";
 import { AdminUserMgmtPage } from "./page/Admin/AdminUserMgmtPage";
 import { AdminPostMgmtPage } from "./page/Admin/AdminPostMgmtPage";
