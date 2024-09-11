@@ -18,7 +18,31 @@ describe("UserService", () => {
 		findOne: jest.fn(),
 	};
 
-	const mockAuthService = {};
+	const mockAuthService = {
+		generateTokens: jest.fn(),
+	};
+
+	const mockSalt = "mocksalt";
+	const mockHashedPassword = "mockhpassword";
+	const mockTokens = {
+		accessToken: "mockAccessToken",
+		refreshToken: "mockRefreshToken",
+	};
+
+	const createMockUser = (overrides: Partial<User> = {}): User => {
+		const user = new User();
+		return Object.assign(
+			user,
+			{
+				id: 1,
+				email: "test@example.com",
+				password: mockHashedPassword,
+				salt: mockSalt,
+				nickname: "testuser",
+			} as User,
+			overrides
+		);
+	};
 
 	beforeEach(async () => {
 		const module: TestingModule = await Test.createTestingModule({
@@ -28,7 +52,6 @@ describe("UserService", () => {
 					provide: UserRepository,
 					useValue: mockUserRepository,
 				},
-
 				{
 					provide: AuthService,
 					useValue: mockAuthService,
@@ -38,6 +61,13 @@ describe("UserService", () => {
 
 		userService = module.get<UserService>(UserService);
 		userRepository = module.get<UserRepository>(UserRepository);
+		authService = module.get<AuthService>(AuthService);
+
+		jest.spyOn(cryptoUtil, "makeSalt").mockResolvedValue(mockSalt);
+		jest.spyOn(cryptoUtil, "makeHashedPassword").mockResolvedValue(
+			mockHashedPassword
+		);
+		jest.spyOn(authService, "generateTokens").mockReturnValue(mockTokens);
 	});
 
 	describe("createUser", () => {
@@ -48,34 +78,8 @@ describe("UserService", () => {
 			nickname: "testuser",
 		};
 
-		const mockSalt = "mocksalt";
-		const mockHashedPassword = "mockhpassword";
-
-		jest.spyOn(cryptoUtil, "makeSalt").mockResolvedValue(mockSalt);
-		jest.spyOn(cryptoUtil, "makeHashedPassword").mockResolvedValue(
-			mockHashedPassword
-		);
-
-		// 모의 데이터 생성 함수
-		const createMockData = (overrides = {}): User => {
-			const user = new User();
-
-			Object.assign(
-				user,
-				{
-					id: 1,
-					email: createUserDto.email,
-					password: mockSalt,
-					salt: mockHashedPassword,
-				} as User,
-				overrides
-			);
-
-			return user;
-		};
-
 		it("사용자를 성공적으로 생성한다", async () => {
-			const mockData = createMockData();
+			const mockData = createMockUser();
 
 			jest.spyOn(userRepository, "save").mockResolvedValue(mockData);
 			const result = await userService.createUser(createUserDto);
@@ -84,7 +88,7 @@ describe("UserService", () => {
 		});
 
 		it("탈퇴한 이메일로 가입 시도시 ServerError를 발생시킨다", async () => {
-			const mockData = createMockData({ isDelete: true });
+			const mockData = createMockUser({ isDelete: true });
 
 			jest.spyOn(userRepository, "save").mockRejectedValue({
 				code: "ER_DUP_ENTRY",
@@ -101,7 +105,7 @@ describe("UserService", () => {
 		});
 
 		it("이미 존재하는 이메일로 가입 시도 시 ServerError를 발생시킨다", async () => {
-			const mockData = createMockData();
+			const mockData = createMockUser();
 
 			jest.spyOn(userRepository, "save").mockRejectedValue({
 				code: "ER_DUP_ENTRY",
@@ -133,6 +137,66 @@ describe("UserService", () => {
 			);
 			await expect(userService.createUser(createUserDto)).rejects.toThrow(
 				USER_ERROR_MESSAGES.DUPLICATE_NICKNAME
+			);
+		});
+	});
+
+	describe("login", () => {
+		const loginDto = {
+			email: "new@example.com",
+			password: "password123",
+		};
+
+		it("사용자가 성공적으로 로그인한다.", async () => {
+			const mockUser = createMockUser();
+
+			jest.spyOn(userRepository, "findOne").mockResolvedValue(mockUser);
+
+			const result = await userService.login(loginDto);
+
+			expect(result).toEqual({
+				nickname: mockUser.nickname,
+				...mockTokens,
+			});
+		});
+
+		it("존재하지 않는 사용자가 로그인 시도 시 ServerError를 발생시킨다", async () => {
+			jest.spyOn(userRepository, "findOne").mockResolvedValue(undefined);
+
+			await expect(userService.login(loginDto)).rejects.toThrow(
+				ServerError
+			);
+			await expect(userService.login(loginDto)).rejects.toThrow(
+				USER_ERROR_MESSAGES.NOT_FOUND_EMAIL
+			);
+		});
+
+		it("탈퇴한 사용자가 로그인 시도 시 ServerError를 발생시킨다", async () => {
+			const mockUser = createMockUser({ isDelete: true });
+
+			jest.spyOn(userRepository, "findOne").mockResolvedValue(mockUser);
+
+			await expect(userService.login(loginDto)).rejects.toThrow(
+				ServerError
+			);
+			await expect(userService.login(loginDto)).rejects.toThrow(
+				USER_ERROR_MESSAGES.DELETED_USER
+			);
+		});
+
+		it("비밀번호가 일치하지 않을 때 ServerError를 발생시킨다", async () => {
+			const mockUser = createMockUser();
+
+			jest.spyOn(userRepository, "findOne").mockResolvedValue(mockUser);
+			jest.spyOn(cryptoUtil, "makeHashedPassword").mockResolvedValue(
+				"wrongpassword"
+			);
+
+			await expect(userService.login(loginDto)).rejects.toThrow(
+				ServerError
+			);
+			await expect(userService.login(loginDto)).rejects.toThrow(
+				USER_ERROR_MESSAGES.INVALID_LOGIN
 			);
 		});
 	});
