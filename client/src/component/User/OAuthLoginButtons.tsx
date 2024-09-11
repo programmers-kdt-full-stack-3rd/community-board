@@ -1,4 +1,5 @@
 import React from "react";
+import { TOAuthLoginType, TOAuthProvider } from "shared";
 import googleIcon from "../../assets/icons/google-icon.svg";
 import naverIcon from "../../assets/icons/naver-icon.svg";
 import kakaoIcon from "../../assets/icons/kakao-icon.svg";
@@ -9,16 +10,15 @@ import {
 	naverButton,
 	socialLoginButtons,
 } from "./css/OAuthLoginButtons.css";
-import { getOAuthLoginUrl, TLoginType } from "../../api/users/oauth";
+import { getOAuthLoginUrl } from "../../api/users/oauth";
 import { ApiCall } from "../../api/api";
 
 interface IProps {
-	loginType: TLoginType;
+	loginType: TOAuthLoginType;
 }
 
 const OAuthLoginButtons: React.FC<IProps> = ({ loginType }) => {
-	// TODO: shared 머지 시 main으로 rebase 후 TOAuthProvider 가져오기
-	const handleClickWith = (provider: string) => async () => {
+	const handleClickWith = (provider: TOAuthProvider) => async () => {
 		const response = await ApiCall(
 			() => getOAuthLoginUrl(loginType, provider),
 			err => {

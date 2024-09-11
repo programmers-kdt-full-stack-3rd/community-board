@@ -1,16 +1,15 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
+import {
+	isOAuthLoginType,
+	isOAuthProvider,
+	TOAuthLoginType,
+	TOAuthProvider,
+} from "shared";
 import { sendOAuthLoginRequest } from "../api/users/oauth";
 import { useUserStore } from "../state/store";
 import Loader from "../component/common/Loader/Loader";
 import { ApiCall } from "../api/api";
-
-// TODO: shared 머지 시 main으로 rebase 후 oAuthProviders 가져오기
-const providers = ["google", "kakao", "naver"];
-
-// TODO: TOAuthLoginType을 서버 코드에서 shared로 추출하고,
-//       oAuthProviders와 TOAuthProvider처럼 배열로부터 Type alias 정의
-const loginTypes = ["login", "reconfirm", "link"];
 
 //사용자 인증 완료 후 리디렉션된 후 처리
 const OAuthRedirectHandler = () => {
@@ -18,11 +17,15 @@ const OAuthRedirectHandler = () => {
 	const [error, setError] = useState<string | null>(null);
 	const navigate = useNavigate();
 	const location = useLocation();
-	const { provider = "" } = useParams();
+	const params = useParams();
 
 	const { setLoginUser } = useUserStore.use.actions();
 
-	const handleOAuthLogin = async (code: string, loginType: string) => {
+	const handleOAuthLogin = async (
+		provider: TOAuthProvider,
+		code: string,
+		loginType: TOAuthLoginType
+	) => {
 		const response = await ApiCall(
 			() => sendOAuthLoginRequest(provider, code, loginType),
 			err => {
@@ -66,16 +69,17 @@ const OAuthRedirectHandler = () => {
 
 	//리디렉트된 URL 쿼리 스트링에서 code, provider 추출
 	useEffect(() => {
+		const provider = params.provider;
 		const query = new URLSearchParams(location.search);
 		const code = query.get("code");
 		const state = new URLSearchParams(query.get("state") ?? "");
 		const loginType = state.get("login_type") ?? "login";
 
-		if (!providers.includes(provider)) {
+		if (!isOAuthProvider(provider)) {
 			setError("유효하지 않은 소셜 로그인 서비스");
 			navigate("/login");
 			return;
-		} else if (!loginTypes.includes(loginType)) {
+		} else if (!isOAuthLoginType(loginType)) {
 			setError("유효하지 않은 로그인 유형");
 			navigate("/");
 			return;
@@ -85,7 +89,7 @@ const OAuthRedirectHandler = () => {
 			return;
 		}
 
-		handleOAuthLogin(code, loginType);
+		handleOAuthLogin(provider, code, loginType);
 	}, [location, navigate]);
 
 	return (
