@@ -30,6 +30,10 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
 		navigate(`/checkPassword?next=profileUpdate&final=${currentPath}`);
 	};
 
+	const handleOAuthManageClick = () => {
+		navigate(`/oauth`);
+	};
+
 	const handleWarningCorfirm = () => {
 		warningModal.close();
 		navigate(`/checkPassword?next=accountDelete`);
@@ -49,6 +53,12 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
 				className={dropdownMenuItem}
 			>
 				회원정보 변경
+			</div>
+			<div
+				onClick={handleOAuthManageClick}
+				className={dropdownMenuItem}
+			>
+				소셜 로그인 연동 관리
 			</div>
 			<div
 				onClick={warningModal.open}
