@@ -9,7 +9,7 @@ export const checkPasswordWrapper = style({
 	display: "flex",
 	flexDirection: "column",
 	justifyContent: "center",
-	alignItems: "center",
+	alignItems: "stretch",
 	padding: "24px",
 	gap: "10px",
 });
