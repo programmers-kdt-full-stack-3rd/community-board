@@ -1,5 +1,6 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { AuthService } from "../auth/auth.service";
+import { RefreshTokensRepository } from "../auth/refresh-tokens.repository";
 import { ServerError } from "../common/exceptions/server-error.exception";
 import * as cryptoUtil from "../utils/crypto.util";
 import { USER_ERROR_MESSAGES } from "./constant/user.constants";
@@ -12,6 +13,7 @@ describe("UserService", () => {
 	let userService: UserService;
 	let userRepository: UserRepository;
 	let authService: AuthService;
+	let refreshTokenRepository: RefreshTokensRepository;
 
 	const mockUserRepository = {
 		save: jest.fn(),
@@ -20,6 +22,10 @@ describe("UserService", () => {
 
 	const mockAuthService = {
 		generateTokens: jest.fn(),
+	};
+
+	const mockRefreshTokensRepository = {
+		save: jest.fn(),
 	};
 
 	const mockSalt = "mocksalt";
@@ -56,12 +62,19 @@ describe("UserService", () => {
 					provide: AuthService,
 					useValue: mockAuthService,
 				},
+				{
+					provide: RefreshTokensRepository,
+					useValue: mockRefreshTokensRepository,
+				},
 			],
 		}).compile();
 
 		userService = module.get<UserService>(UserService);
 		userRepository = module.get<UserRepository>(UserRepository);
 		authService = module.get<AuthService>(AuthService);
+		refreshTokenRepository = module.get<RefreshTokensRepository>(
+			RefreshTokensRepository
+		);
 
 		jest.spyOn(cryptoUtil, "makeSalt").mockResolvedValue(mockSalt);
 		jest.spyOn(cryptoUtil, "makeHashedPassword").mockResolvedValue(
@@ -158,6 +171,24 @@ describe("UserService", () => {
 				nickname: mockUser.nickname,
 				...mockTokens,
 			});
+		});
+
+		it("로그인 성공 시 리프레시 토큰을 저장한다", async () => {
+			const mockUser = createMockUser();
+			jest.spyOn(userRepository, "findOne").mockResolvedValue(mockUser);
+			jest.spyOn(refreshTokenRepository, "save").mockResolvedValue(
+				{} as any
+			);
+
+			await userService.login(loginDto);
+
+			expect(refreshTokenRepository.save).toHaveBeenCalledWith(
+				expect.objectContaining({
+					userId: mockUser.id,
+					token: expect.any(String),
+					expiredAt: expect.any(Date),
+				})
+			);
 		});
 
 		it("존재하지 않는 사용자가 로그인 시도 시 ServerError를 발생시킨다", async () => {
