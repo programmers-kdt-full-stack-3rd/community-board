@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { AuthService } from "../auth/auth.service";
+import { RefreshTokensRepository } from "../auth/refresh-tokens.repository";
 import { ServerError } from "../common/exceptions/server-error.exception";
 import { makeHashedPassword, makeSalt } from "../utils/crypto.util";
 import {
@@ -15,6 +16,7 @@ import { UserRepository } from "./user.repository";
 export class UserService {
 	constructor(
 		private userRepository: UserRepository,
+		private refreshTokenRepository: RefreshTokensRepository,
 		private readonly authService: AuthService
 	) {}
 
@@ -49,6 +51,12 @@ export class UserService {
 			await this.verifyPassword(password, user);
 			const tokens = this.authService.generateTokens(user.id);
 
+			this.refreshTokenRepository.save({
+				userId: user.id,
+				token: tokens.refreshToken,
+				expiredAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
+			});
+
 			return { nickname: user.nickname, ...tokens };
 		} catch (error: any) {
 			throw error;
@@ -73,7 +81,7 @@ export class UserService {
 		throw ServerError.badRequest(USER_ERROR_MESSAGES.DUPLICATE_DATA);
 	}
 
-	private async isUserDeleted(email: string): Promise<boolean> {
+	async isUserDeleted(email: string): Promise<boolean> {
 		const user = await this.userRepository.findOne({ where: { email } });
 		return user?.isDelete ?? false;
 	}
