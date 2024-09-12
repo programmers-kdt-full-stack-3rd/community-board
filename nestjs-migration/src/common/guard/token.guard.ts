@@ -5,6 +5,7 @@ import { AuthService } from "../../auth/auth.service";
 import { RefreshTokensRepository } from "../../auth/refresh-tokens.repository";
 import { UserService } from "../../user/user.service";
 import { ServerError } from "../exceptions/server-error.exception";
+import { COOKIE_CONSTANTS, ERROR_MESSAGES } from "./constants/guard.constants";
 
 @Injectable()
 export class TokenGuard implements CanActivate {
@@ -31,7 +32,7 @@ export class TokenGuard implements CanActivate {
 				request.user = payload;
 
 				if (await this.userService.isUserDeletedById(payload.userId)) {
-					throw ServerError.badRequest("탈퇴한 회원입니다.");
+					throw ServerError.badRequest(ERROR_MESSAGES.DELETED_USER);
 				}
 				return true;
 			} catch (error) {
@@ -45,7 +46,7 @@ export class TokenGuard implements CanActivate {
 					throw error;
 				}
 
-				throw ServerError.tokenError("검증되지 않은 토큰 입니다.");
+				throw ServerError.tokenError(ERROR_MESSAGES.INVALID_TOKEN);
 			}
 		}
 
@@ -66,13 +67,13 @@ export class TokenGuard implements CanActivate {
 
 			if (await this.userService.isUserDeletedById(payload.userId)) {
 				this.refreshTokenRepository.delete({ userId: payload.userId });
-				throw ServerError.badRequest("탈퇴한 회원입니다.");
+				throw ServerError.badRequest(ERROR_MESSAGES.DELETED_USER);
 			}
 
 			const { accessToken } = this.authService.generateTokens(
 				payload.userId
 			);
-			response.cookie("accessToken", accessToken, {
+			response.cookie(COOKIE_CONSTANTS.ACCESS_TOKEN, accessToken, {
 				httpOnly: true,
 				secure: true,
 			});
@@ -82,19 +83,19 @@ export class TokenGuard implements CanActivate {
 
 			if (error instanceof TokenExpiredError) {
 				this.clearTokens(response);
-				throw ServerError.expiredToken("토큰이 만료 되었습니다.");
+				throw ServerError.expiredToken(ERROR_MESSAGES.EXPIRED_TOKEN);
 			}
 
 			if (error instanceof ServerError) {
 				throw error;
 			}
 			this.clearTokens(response);
-			throw ServerError.tokenError("검증되지 않은 토큰 입니다.");
+			throw ServerError.tokenError(ERROR_MESSAGES.INVALID_TOKEN);
 		}
 	}
 
 	private clearTokens(response: Response) {
-		response.clearCookie("accessToken");
-		response.clearCookie("refreshToken");
+		response.clearCookie(COOKIE_CONSTANTS.ACCESS_TOKEN);
+		response.clearCookie(COOKIE_CONSTANTS.REFRESH_TOKEN);
 	}
 }
