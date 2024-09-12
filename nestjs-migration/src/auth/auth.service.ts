@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { ServerError } from "../common/exceptions/server-error.exception";
+import { AUTH_ERROR_MESSAGES } from "./constants/auth.constants";
 import { RefreshTokensRepository } from "./refresh-tokens.repository";
 
 @Injectable()
@@ -65,7 +66,9 @@ export class AuthService {
 		});
 
 		if (!refreshToken) {
-			throw ServerError.tokenError("잘못된 refresh token 입니다.");
+			throw ServerError.tokenError(
+				AUTH_ERROR_MESSAGES.INVALID_REFRESH_TOKEN_ERROR
+			);
 		}
 	}
 
