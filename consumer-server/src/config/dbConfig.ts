@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import mariaDB, { Pool, PoolOptions } from "mysql2/promise";
 
-dotenv.config();
+dotenv.config({ path: "./../.env" });
 
 /**
  * DB Pool 객체

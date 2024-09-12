@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import { ServerError } from "../middleware/errors";
 import { getRefreshToken } from "../db/context/token_context";
 
-dotenv.config();
+dotenv.config({ path: "./../.env" });
 
 interface IToken extends jwt.JwtPayload {
 	userId: number;

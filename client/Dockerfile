@@ -7,7 +7,7 @@ RUN apt-get update -y
 COPY ./client ./client
 COPY ./shared ./shared
 COPY ./package*.json ./
-COPY ./nginx/client/.env ./client
+COPY ./nginx/.env ./
 
 RUN npm install
 RUN npm run build --workspace=client

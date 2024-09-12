@@ -9,7 +9,7 @@ import { errorHandler } from "./middleware/errors";
 import cookieParser from "cookie-parser";
 import { authToken } from "./middleware/auth";
 
-dotenv.config();
+dotenv.config({ path: "./../.env" });
 const app = express();
 // app 등록
 app.use(cookieParser());

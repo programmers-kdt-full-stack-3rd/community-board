@@ -5,7 +5,7 @@ import { getRedisAPI, initRedisAPI } from "./config/redis_config";
 import { getKafkaAPI, initKafkaAPI } from "./config/kafka_config";
 import { getProducer, initProducer } from "./services/kafka_service";
 
-dotenv.config();
+dotenv.config({ path: "./../.env" });
 
 async function startServer() {
 	// 호스트 IP

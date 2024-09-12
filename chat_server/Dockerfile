@@ -10,7 +10,7 @@ COPY ./shared ./shared
 
 COPY ./package*.json ./
 
-COPY ./nginx/chat/.env ./chat_server
+COPY ./nginx/.env ./
 
 RUN npm install
 

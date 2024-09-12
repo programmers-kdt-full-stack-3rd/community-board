@@ -7,7 +7,7 @@ RUN apt-get update -y
 COPY ./consumer-server ./consumer-server
 COPY ./shared ./shared
 COPY ./package*.json ./
-COPY ./nginx/consumer/.env ./consumer-server
+COPY ./nginx/.env ./
 
 RUN npm install
 
