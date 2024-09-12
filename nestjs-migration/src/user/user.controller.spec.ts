@@ -3,7 +3,7 @@ import { Response } from "express";
 import { ServerError } from "../common/exceptions/server-error.exception";
 import { LoginGuard } from "../common/guard/login.guard";
 import * as dateUtil from "../utils/date.util";
-import { USER_ERROR_MESSAGES } from "./constant/user.constants";
+import { COOKIE_MAX_AGE, USER_ERROR_MESSAGES } from "./constant/user.constants";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UserController } from "./user.controller";
 import { UserService } from "./user.service";
@@ -112,7 +112,7 @@ describe("UserController", () => {
 				{
 					httpOnly: true,
 					secure: true,
-					expires: expect.any(Date),
+					maxAge: COOKIE_MAX_AGE.accessToken,
 				}
 			);
 			expect(mockResponse.cookie).toHaveBeenCalledWith(
@@ -121,7 +121,7 @@ describe("UserController", () => {
 				{
 					httpOnly: true,
 					secure: true,
-					expires: expect.any(Date),
+					maxAge: COOKIE_MAX_AGE.refreshToken,
 				}
 			);
 

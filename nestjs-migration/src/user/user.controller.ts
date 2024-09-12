@@ -12,6 +12,7 @@ import {
 import { Request, Response } from "express";
 import { LoginGuard } from "../common/guard/login.guard";
 import { getKstNow } from "../utils/date.util";
+import { COOKIE_MAX_AGE } from "./constant/user.constants";
 import { CheckPasswordDto } from "./dto/check-password.dto";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { LoginDto } from "./dto/login.dto";
@@ -28,8 +29,6 @@ export class UserController {
 		return { message: "회원가입 성공" };
 	}
 
-	//TODO: accessToken, refreshToken 만료기한 재설정
-
 	@Post("login")
 	@HttpCode(HttpStatus.OK)
 	async login(
@@ -40,13 +39,13 @@ export class UserController {
 		res.cookie("accessToken", result.accessToken, {
 			httpOnly: true,
 			secure: true,
-			expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+			maxAge: COOKIE_MAX_AGE.accessToken,
 		});
 
 		res.cookie("refreshToken", result.refreshToken, {
 			httpOnly: true,
 			secure: true,
-			expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
+			maxAge: COOKIE_MAX_AGE.refreshToken,
 		});
 
 		return {
@@ -94,7 +93,7 @@ export class UserController {
 		res.cookie("tempToken", result.tempToken, {
 			httpOnly: true,
 			secure: true,
-			maxAge: 1000 * 60 * 60, //1시간,
+			maxAge: COOKIE_MAX_AGE.tempToken,
 		});
 
 		return { message: "비밀번호 확인 성공" };

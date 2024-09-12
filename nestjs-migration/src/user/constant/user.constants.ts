@@ -34,3 +34,9 @@ export const VALIDATION_ERROR_MESSAGES = {
 	REQUIRED_PASSWORD_MISSING: "비밀번호 확인을 입력하세요.",
 	REQUIRED_PASSWORD_MISMATCH: "비밀번호가 일치하지 않습니다.",
 };
+
+export const COOKIE_MAX_AGE = {
+	accessToken: 1000 * 60 * 60,
+	refreshToken: 1000 * 60 * 60 * 24,
+	tempToken: 1000 * 60 * 60,
+};
