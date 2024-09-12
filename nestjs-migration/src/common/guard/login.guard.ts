@@ -3,7 +3,7 @@ import { ServerError } from "../exceptions/server-error.exception";
 
 @Injectable()
 export class LoginGuard implements CanActivate {
-	async canActivate(context: ExecutionContext): Promise<boolean> {
+	canActivate(context: ExecutionContext): boolean {
 		const request = context.switchToHttp().getRequest();
 
 		if (!request.user || !request.user.userId) {
