@@ -1,4 +1,5 @@
-import { ChangeEvent, FC, useState } from "react";
+import { ChangeEvent, FC, useEffect, useState } from "react";
+import { mapResponseToNonSensitiveUser } from "shared";
 import NicknameForm from "../../component/User/NicknameForm";
 import PasswordForm from "../../component/User/PasswordForm";
 import {
@@ -9,11 +10,18 @@ import {
 import SubmitButton from "../../component/User/SubmitButton";
 import { REGEX } from "./constants/constants";
 import ErrorMessageForm from "../../component/User/ErrorMessageForm";
-import { sendPutUpdateUserRequest } from "../../api/users/crud";
+import { getUserMyself, sendPutUpdateUserRequest } from "../../api/users/crud";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useUserStore } from "../../state/store";
 import { ApiCall } from "../../api/api";
 import { ClientError } from "../../api/errors";
+import EmailForm from "../../component/User/EmailForm";
+
+interface IProfileUpdatePayload {
+	email?: string | undefined;
+	nickname: string;
+	password: string;
+}
 
 interface IProfileUpdateResult {
 	status: number;
@@ -27,6 +35,8 @@ const ProfileUpdate: FC = () => {
 	const searchParams = new URLSearchParams(location.search);
 	const final = searchParams.get("final");
 
+	const [hasEmail, setHasEmail] = useState(true);
+	const [email, setEmail] = useState("");
 	const [nickname, setNickname] = useState("");
 	const [password, setPassword] = useState("");
 	const [requiredPassword, setRequiredPassword] = useState("");
@@ -36,11 +46,26 @@ const ProfileUpdate: FC = () => {
 
 	const storeNickName = useUserStore.use.nickname();
 
-	const validateProfileUpdate = (
-		nickname: string,
-		password: string,
-		requiredPassword: string
-	): boolean => {
+	useEffect(() => {
+		ApiCall(
+			() => getUserMyself(),
+			err => console.error("내 정보 조회 실패", err)
+		).then(response => {
+			if (response instanceof Error) {
+				return;
+			}
+
+			const user = mapResponseToNonSensitiveUser(response);
+			setHasEmail(!!user.email);
+		});
+	}, []);
+
+	const validateProfileUpdate = (): boolean => {
+		if (!hasEmail && !email) {
+			setErrorMessage("이메일을 입력하세요.");
+			return false;
+		}
+
 		if (!nickname) {
 			setErrorMessage("닉네임을 입력하세요.");
 			return false;
@@ -97,6 +122,10 @@ const ProfileUpdate: FC = () => {
 		}
 	};
 
+	const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
+		setEmail(e.target.value);
+	};
+
 	const handleNicknameChange = (e: ChangeEvent<HTMLInputElement>) => {
 		setNickname(e.target.value);
 	};
@@ -110,18 +139,19 @@ const ProfileUpdate: FC = () => {
 	};
 
 	const handleSubmit = async () => {
-		if (!validateProfileUpdate(nickname, password, requiredPassword)) {
+		if (!validateProfileUpdate()) {
 			return;
 		}
 
-		const result: IProfileUpdateResult = await ApiCall(
-			() =>
-				sendPutUpdateUserRequest({
-					nickname,
-					password,
-				}),
-			handleError
-		);
+		const result: IProfileUpdateResult = await ApiCall(() => {
+			const payload: IProfileUpdatePayload = { nickname, password };
+
+			if (!hasEmail) {
+				payload.email = email;
+			}
+
+			return sendPutUpdateUserRequest(payload);
+		}, handleError);
 
 		if (result instanceof ClientError) {
 			return;
@@ -137,9 +167,17 @@ const ProfileUpdate: FC = () => {
 	const handleCancle = () => {
 		navigate(final || "/");
 	};
+
 	return (
 		<div className={profileUpdateWrapper}>
 			<h1>유저 정보 수정</h1>
+			{hasEmail || (
+				<EmailForm
+					email={email}
+					onChange={handleEmailChange}
+					isValid={false}
+				/>
+			)}
 			<NicknameForm
 				labelText="변경할 닉네임"
 				nickname={nickname}
