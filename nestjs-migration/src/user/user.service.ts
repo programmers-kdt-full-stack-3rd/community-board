@@ -65,7 +65,7 @@ export class UserService {
 
 	private async handleDupEntry(sqlMessage: string, email: string) {
 		if (sqlMessage.includes("email")) {
-			const isDeleted = await this.isUserDeleted(email);
+			const isDeleted = await this.isUserDeletedByEmail(email);
 			if (isDeleted) {
 				throw ServerError.badRequest(USER_ERROR_MESSAGES.DELETED_EMAIL);
 			}
@@ -81,7 +81,13 @@ export class UserService {
 		throw ServerError.badRequest(USER_ERROR_MESSAGES.DUPLICATE_DATA);
 	}
 
-	async isUserDeleted(email: string): Promise<boolean> {
+	async isUserDeletedById(id: number): Promise<boolean> {
+		const user = await this.userRepository.findOne({ where: { id } });
+
+		return user?.isDelete ?? false;
+	}
+
+	private async isUserDeletedByEmail(email: string): Promise<boolean> {
 		const user = await this.userRepository.findOne({ where: { email } });
 		return user?.isDelete ?? false;
 	}

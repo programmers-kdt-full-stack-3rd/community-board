@@ -2,6 +2,7 @@ import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
 import { Request, Response } from "express";
 import { TokenExpiredError } from "jsonwebtoken";
 import { AuthService } from "../../auth/auth.service";
+import { RefreshTokensRepository } from "../../auth/refresh-tokens.repository";
 import { UserService } from "../../user/user.service";
 import { ServerError } from "../exceptions/server-error.exception";
 
@@ -9,7 +10,8 @@ import { ServerError } from "../exceptions/server-error.exception";
 export class TokenGuard implements CanActivate {
 	constructor(
 		private readonly authService: AuthService,
-		private readonly userService: UserService
+		private readonly userService: UserService,
+		private readonly refreshTokenRepository: RefreshTokensRepository
 	) {}
 
 	async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -28,15 +30,21 @@ export class TokenGuard implements CanActivate {
 				const payload = this.authService.verifyAccessToken(accessToken);
 				request.user = payload;
 
-				if (await this.userService.isUserDeleted(payload.userId)) {
+				if (await this.userService.isUserDeletedById(payload.userId)) {
 					throw ServerError.badRequest("탈퇴한 회원입니다.");
 				}
 				return true;
 			} catch (error) {
+				this.clearTokens(response);
+
 				if (error instanceof TokenExpiredError) {
 					return this.handleRefreshToken(request, response);
 				}
-				this.clearTokens(response);
+
+				if (error instanceof ServerError) {
+					throw error;
+				}
+
 				throw ServerError.tokenError("검증되지 않은 토큰 입니다.");
 			}
 		}
@@ -55,6 +63,12 @@ export class TokenGuard implements CanActivate {
 				request.cookies.refreshToken
 			);
 			request.user = payload;
+
+			if (await this.userService.isUserDeletedById(payload.userId)) {
+				this.refreshTokenRepository.delete({ userId: payload.userId });
+				throw ServerError.badRequest("탈퇴한 회원입니다.");
+			}
+
 			const { accessToken } = this.authService.generateTokens(
 				payload.userId
 			);
@@ -69,6 +83,10 @@ export class TokenGuard implements CanActivate {
 			if (error instanceof TokenExpiredError) {
 				this.clearTokens(response);
 				throw ServerError.expiredToken("토큰이 만료 되었습니다.");
+			}
+
+			if (error instanceof ServerError) {
+				throw error;
 			}
 			this.clearTokens(response);
 			throw ServerError.tokenError("검증되지 않은 토큰 입니다.");
