@@ -63,6 +63,20 @@ export class UserService {
 		}
 	}
 
+	async logout(userId: number) {
+		try {
+			const result = await this.refreshTokenRepository.delete({ userId });
+
+			if (result.affected < 1) {
+				throw ServerError.badRequest(
+					USER_ERROR_MESSAGES.FAILED_TOKEN_DELETE
+				);
+			}
+		} catch (error) {
+			throw error;
+		}
+	}
+
 	private async handleDupEntry(sqlMessage: string, email: string) {
 		if (sqlMessage.includes("email")) {
 			const isDeleted = await this.isUserDeletedByEmail(email);

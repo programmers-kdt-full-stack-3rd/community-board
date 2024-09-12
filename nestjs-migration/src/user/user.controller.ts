@@ -5,10 +5,11 @@ import {
 	HttpCode,
 	HttpStatus,
 	Post,
+	Req,
 	Res,
 	UseGuards,
 } from "@nestjs/common";
-import { Response } from "express";
+import { Request, Response } from "express";
 import { LoginGuard } from "../common/guard/login.guard";
 import { getKstNow } from "../utils/date.util";
 import { CreateUserDto } from "./dto/create-user.dto";
@@ -49,6 +50,22 @@ export class UserController {
 			message: "로그인 성공",
 			result: { nickname: result.nickname, loginTime: getKstNow() },
 		};
+	}
+
+	@UseGuards(LoginGuard)
+	@Post("logout")
+	@HttpCode(HttpStatus.OK)
+	async logout(
+		@Req() req: Request,
+		@Res({ passthrough: true }) res: Response
+	) {
+		const userId = req.user["userId"];
+
+		res.clearCookie("accessToken");
+		res.clearCookie("refreshToken");
+
+		await this.userService.logout(userId);
+		return { message: "로그아웃 성공" };
 	}
 
 	@UseGuards(LoginGuard)
