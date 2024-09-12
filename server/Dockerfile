@@ -5,10 +5,9 @@ WORKDIR /app/community_board
 RUN apt-get update -y
 
 COPY ./server ./server
-
 COPY ./shared ./shared
-
 COPY ./package*.json ./
+COPY ./nginx/server/.env ./server
 
 RUN npm install
 
