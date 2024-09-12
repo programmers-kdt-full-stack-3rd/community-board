@@ -9,7 +9,7 @@ import {
 	UseGuards,
 } from "@nestjs/common";
 import { Response } from "express";
-import { LoginGuard } from "../auth/guard/login.guard";
+import { LoginGuard } from "../common/guard/login.guard";
 import { getKstNow } from "../utils/date.util";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { LoginDto } from "./dto/login.dto";

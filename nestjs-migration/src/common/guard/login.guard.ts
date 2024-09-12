@@ -1,5 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
-import { ServerError } from "../../common/exceptions/server-error.exception";
+import { ServerError } from "../exceptions/server-error.exception";
 
 @Injectable()
 export class LoginGuard implements CanActivate {
