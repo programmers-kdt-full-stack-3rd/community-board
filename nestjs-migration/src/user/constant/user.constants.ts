@@ -9,6 +9,7 @@ export const USER_ERROR_MESSAGES = {
 	DUPLICATE_DATA: "중복된 데이터가 존재합니다.",
 	USER_CREATION_ERROR: "사용자 생성 중 오류가 발생했습니다.",
 	NOT_FOUND_EMAIL: "존재하지 않는 이메일 입니다.",
+	NOT_FOUND_USER: "존재하지 않는 회원입니다.",
 	DELETED_USER: "탈퇴한 회원입니다.",
 	INVALID_LOGIN: "이메일 또는 비밀번호가 틀렸습니다.",
 	FAILED_TOKEN_DELETE: "토큰 삭제 실패",

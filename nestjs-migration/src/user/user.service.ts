@@ -47,7 +47,7 @@ export class UserService {
 		const { email, password } = loginDto;
 
 		try {
-			const user = await this.findAndValidateUser(email);
+			const user = await this.findAndValidateUserByEmail(email);
 			await this.verifyPassword(password, user);
 			const tokens = this.authService.generateTokens(user.id);
 
@@ -61,6 +61,16 @@ export class UserService {
 		} catch (error: any) {
 			throw error;
 		}
+	}
+
+	async checkPassword(userId: number, password: string) {
+		const user = await this.findAndValidateUserById(userId);
+
+		await this.verifyPassword(password, user);
+
+		const tempToken = this.authService.makeTempToken(userId);
+
+		return { tempToken };
 	}
 
 	async logout(userId: number) {
@@ -106,13 +116,23 @@ export class UserService {
 		return user?.isDelete ?? false;
 	}
 
-	private async findAndValidateUser(email: string): Promise<User> {
+	private async findAndValidateUserByEmail(email: string): Promise<User> {
 		const user = await this.userRepository.findOne({ where: { email } });
 		if (!user) {
 			throw ServerError.badRequest(USER_ERROR_MESSAGES.NOT_FOUND_EMAIL);
 		}
 		if (user.isDelete) {
 			throw ServerError.badRequest(USER_ERROR_MESSAGES.DELETED_USER);
+		}
+		return user;
+	}
+
+	private async findAndValidateUserById(id: number): Promise<User> {
+		const user = await this.userRepository.findOne({
+			where: { id, isDelete: false },
+		});
+		if (!user) {
+			throw ServerError.badRequest(USER_ERROR_MESSAGES.NOT_FOUND_USER);
 		}
 		return user;
 	}
