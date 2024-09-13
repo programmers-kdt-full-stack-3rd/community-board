@@ -22,6 +22,7 @@ describe("UserService", () => {
 	};
 
 	const mockAuthService = {
+		makeTempToken: jest.fn(),
 		generateTokens: jest.fn(),
 	};
 
@@ -32,9 +33,12 @@ describe("UserService", () => {
 
 	const mockSalt = "mocksalt";
 	const mockHashedPassword = "mockhpassword";
+	const mockAccessToken = "mockAccessToken";
+	const mockRefreshToken = "mockRefreshToken";
+	const mockTempToken = "mockTempToken";
 	const mockTokens = {
-		accessToken: "mockAccessToken",
-		refreshToken: "mockRefreshToken",
+		accessToken: mockAccessToken,
+		refreshToken: mockRefreshToken,
 	};
 
 	const createMockUser = (overrides: Partial<User> = {}): User => {
@@ -82,6 +86,8 @@ describe("UserService", () => {
 		jest.spyOn(cryptoUtil, "makeHashedPassword").mockResolvedValue(
 			mockHashedPassword
 		);
+
+		jest.spyOn(authService, "makeTempToken").mockReturnValue(mockTempToken);
 		jest.spyOn(authService, "generateTokens").mockReturnValue(mockTokens);
 	});
 
@@ -261,6 +267,44 @@ describe("UserService", () => {
 			);
 			await expect(userService.logout(userId)).rejects.toThrow(
 				USER_ERROR_MESSAGES.FAILED_TOKEN_DELETE
+			);
+		});
+	});
+
+	describe("checkPassword", () => {
+		const userId = 1;
+		const password = "password123";
+		const mockUser = createMockUser();
+		it("비밀번호 확인 성공 시 tempToken을 반환한다", async () => {
+			jest.spyOn(userRepository, "findOne").mockResolvedValue(mockUser);
+
+			const result = await userService.checkPassword(userId, password);
+
+			expect(result).toEqual({ tempToken: mockTempToken });
+		});
+
+		it("비밀번호가 일치하지 않을 때 ServerError를 발생시킨다", async () => {
+			jest.spyOn(userRepository, "findOne").mockResolvedValue(mockUser);
+			jest.spyOn(cryptoUtil, "makeHashedPassword").mockResolvedValue(
+				"wrongpassword"
+			);
+
+			const result = userService.checkPassword(userId, password);
+
+			await expect(result).rejects.toThrow(ServerError);
+			await expect(result).rejects.toThrow(
+				USER_ERROR_MESSAGES.INVALID_PASSWORD
+			);
+		});
+
+		it("존재하지 않는 사용자가 비밀번호 확인 시도 시 ServerError를 발생시킨다", async () => {
+			jest.spyOn(userRepository, "findOne").mockResolvedValue(undefined);
+
+			const result = userService.checkPassword(userId, password);
+
+			await expect(result).rejects.toThrow(ServerError);
+			await expect(result).rejects.toThrow(
+				USER_ERROR_MESSAGES.NOT_FOUND_USER
 			);
 		});
 	});
