@@ -46,26 +46,22 @@ export class UserService {
 	async login(loginDto: LoginDto) {
 		const { email, password } = loginDto;
 
-		try {
-			const user = await this.findAndValidateUserByEmail(email);
-			const isValid = await this.verifyPassword(password, user);
+		const user = await this.findAndValidateUserByEmail(email);
+		const isValid = await this.verifyPassword(password, user);
 
-			if (!isValid) {
-				throw ServerError.badRequest(USER_ERROR_MESSAGES.INVALID_LOGIN);
-			}
-
-			const tokens = this.authService.generateTokens(user.id);
-
-			this.refreshTokenRepository.save({
-				userId: user.id,
-				token: tokens.refreshToken,
-				expiredAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
-			});
-
-			return { nickname: user.nickname, ...tokens };
-		} catch (error: any) {
-			throw error;
+		if (!isValid) {
+			throw ServerError.badRequest(USER_ERROR_MESSAGES.INVALID_LOGIN);
 		}
+
+		const tokens = this.authService.generateTokens(user.id);
+
+		this.refreshTokenRepository.save({
+			userId: user.id,
+			token: tokens.refreshToken,
+			expiredAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
+		});
+
+		return { nickname: user.nickname, ...tokens };
 	}
 
 	async checkPassword(userId: number, password: string) {
@@ -82,16 +78,12 @@ export class UserService {
 	}
 
 	async logout(userId: number) {
-		try {
-			const result = await this.refreshTokenRepository.delete({ userId });
+		const result = await this.refreshTokenRepository.delete({ userId });
 
-			if (result.affected < 1) {
-				throw ServerError.badRequest(
-					USER_ERROR_MESSAGES.FAILED_TOKEN_DELETE
-				);
-			}
-		} catch (error) {
-			throw error;
+		if (result.affected < 1) {
+			throw ServerError.badRequest(
+				USER_ERROR_MESSAGES.FAILED_TOKEN_DELETE
+			);
 		}
 	}
 
