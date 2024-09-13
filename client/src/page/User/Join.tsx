@@ -13,86 +13,52 @@ import { ClientError } from "../../api/errors";
 import { ApiCall } from "../../api/api";
 import { sendPostJoinRequest } from "../../api/users/crud";
 import { useNavigate } from "react-router-dom";
-
-export interface ValidateText {
-	text: string;
-	isValid: boolean;
-	errorMessage: string;
-}
+import { useStringWithValidation } from "../../hook/useStringWithValidation";
 
 const Join: FC = () => {
 	const navigate = useNavigate();
-	const [email, setEmail] = useState<ValidateText>({
-		text: "",
-		isValid: false,
-		errorMessage: "",
-	});
-	const [nickname, setNickname] = useState<ValidateText>({
-		text: "",
-		isValid: false,
-		errorMessage: "",
-	});
-	const [password, setPassword] = useState<ValidateText>({
-		text: "",
-		isValid: false,
-		errorMessage: "",
-	});
-	const [requiredPassword, setRequiredPassword] = useState<ValidateText>({
-		text: "",
-		isValid: false,
-		errorMessage: "",
-	});
+	const email = useStringWithValidation();
+	const nickname = useStringWithValidation();
+	const password = useStringWithValidation();
+	const requiredPassword = useStringWithValidation();
 
 	const [btnApply, setBtnApply] = useState<boolean>(false);
 
 	const handleEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setEmail({
-			...email,
-			text: e.target.value,
-			isValid: false,
-			errorMessage: "",
-		});
+		email.setValue(e.target.value);
 	};
 
 	const handleNickname = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setNickname({
-			...nickname,
-			text: e.target.value,
-			isValid: false,
-			errorMessage: "",
-		});
+		nickname.setValue(e.target.value);
 	};
 
 	const handlePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const isValid = REGEX.PASSWORD.test(e.target.value);
-		const errorMessage1 = isValid ? "" : ERROR_MESSAGE.PASSWORD_REGEX;
-
-		setPassword({
-			...password,
-			text: e.target.value,
-			isValid: isValid,
-			errorMessage: errorMessage1,
+		password.setValue(e.target.value, (value, pass, fail) => {
+			if (REGEX.PASSWORD.test(value)) {
+				pass();
+			} else {
+				fail(ERROR_MESSAGE.PASSWORD_REGEX);
+			}
 		});
 
-		const isSame = e.target.value === requiredPassword.text;
-		const errorMessage = isSame ? "" : ERROR_MESSAGE.PASSWORD_MISMATCH;
-
-		setRequiredPassword({
-			...requiredPassword,
-			isValid: isSame,
-			errorMessage: errorMessage,
+		requiredPassword.setValidation((value, pass, fail) => {
+			if (!value) {
+				fail("");
+			} else if (e.target.value === value) {
+				pass();
+			} else {
+				fail(ERROR_MESSAGE.PASSWORD_MISMATCH);
+			}
 		});
 	};
 
 	const handleRequiredPassword = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const isValid = password.text === e.target.value;
-		const errorMessage = isValid ? "" : ERROR_MESSAGE.PASSWORD_MISMATCH;
-
-		setRequiredPassword({
-			...requiredPassword,
-			text: e.target.value,
-			isValid: isValid,
-			errorMessage: errorMessage,
+		requiredPassword.setValue(e.target.value, (value, pass, fail) => {
+			if (password.value === value) {
+				pass();
+			} else {
+				fail(ERROR_MESSAGE.PASSWORD_MISMATCH);
+			}
 		});
 	};
 
@@ -115,39 +81,37 @@ const Join: FC = () => {
 	]);
 
 	const checkEmailDuplication = () => {
-		if (!REGEX.EMAIL.test(email.text)) {
-			setEmail({
-				...email,
-				errorMessage: ERROR_MESSAGE.EMAIL_REGEX,
-			});
-			return;
-		}
+		email.setValidation((value, pass, fail) => {
+			if (!REGEX.EMAIL.test(value)) {
+				fail(ERROR_MESSAGE.EMAIL_REGEX);
+				return;
+			}
 
-		// TODO : api 호출해서 중복 확인
+			// TODO : api 호출해서 중복 확인
 
-		setEmail({ ...email, isValid: true });
+			pass();
+		});
 	};
 
 	const checkNicknameDuplication = () => {
-		if (!REGEX.NICKNAME.test(nickname.text)) {
-			setNickname({
-				...nickname,
-				errorMessage: ERROR_MESSAGE.NICKNAME_REGEX,
-			});
-			return;
-		}
+		nickname.setValidation((value, pass, fail) => {
+			if (!REGEX.NICKNAME.test(value)) {
+				fail(ERROR_MESSAGE.NICKNAME_REGEX);
+				return;
+			}
 
-		// TODO : api 호출해서 중복 확인
+			// TODO : api 호출해서 중복 확인
 
-		setNickname({ ...nickname, isValid: true });
+			pass();
+		});
 	};
 
 	const submitJoin = async () => {
 		const body = {
-			email: email.text,
-			nickname: nickname.text,
-			password: password.text,
-			requiredPassword: requiredPassword.text,
+			email: email.value,
+			nickname: nickname.value,
+			password: password.value,
+			requiredPassword: requiredPassword.value,
 		};
 
 		const errorHandle = (err: ClientError) => {
@@ -186,7 +150,7 @@ const Join: FC = () => {
 				}}
 			>
 				<EmailForm
-					email={email.text}
+					email={email.value}
 					onChange={handleEmail}
 					duplicationCheckFunc={checkEmailDuplication}
 					errorMessage={email.errorMessage}
@@ -194,7 +158,7 @@ const Join: FC = () => {
 					isDuplicateCheck={true}
 				/>
 				<NicknameForm
-					nickname={nickname.text}
+					nickname={nickname.value}
 					labelText="닉네임"
 					onChange={handleNickname}
 					duplicationCheckFunc={checkNicknameDuplication}
@@ -203,7 +167,7 @@ const Join: FC = () => {
 					isDuplicateCheck={true}
 				/>
 				<PasswordForm
-					password={password.text}
+					password={password.value}
 					onChange={handlePassword}
 					labelText="비밀번호"
 					placeholder="10자 이상의 영문 대/소문자, 숫자를 사용"
@@ -211,7 +175,7 @@ const Join: FC = () => {
 					isValid={password.isValid}
 				/>
 				<PasswordForm
-					password={requiredPassword.text}
+					password={requiredPassword.value}
 					id={"requiredPassword"}
 					onChange={handleRequiredPassword}
 					labelText="비밀번호 확인"

@@ -9,21 +9,13 @@ import { useUserStore } from "../../state/store";
 import { ApiCall } from "../../api/api";
 import { ClientError } from "../../api/errors";
 import { sendPostLoginRequest } from "../../api/users/crud";
-import { ValidateText } from "./Join";
 import ErrorMessageForm from "../../component/User/ErrorMessageForm";
 import OAuthLoginButtons from "../../component/User/OAuthLoginButtons";
+import { useStringWithValidation } from "../../hook/useStringWithValidation";
 
 const Login: React.FC = () => {
-	const [email, setEmail] = useState<ValidateText>({
-		text: "",
-		isValid: false,
-		errorMessage: "",
-	});
-	const [password, setPassword] = useState<ValidateText>({
-		text: "",
-		isValid: false,
-		errorMessage: "",
-	});
+	const email = useStringWithValidation();
+	const password = useStringWithValidation();
 
 	const [errorMessage, setErrorMessage] = useState<string>("");
 
@@ -38,33 +30,33 @@ const Login: React.FC = () => {
 	const location = useLocation();
 
 	const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const isValid = REGEX.EMAIL.test(e.target.value);
-
 		setErrorMessage("");
-		setEmail({
-			...email,
-			text: e.target.value,
-			isValid: isValid,
-			errorMessage: "",
+
+		email.setValue(e.target.value, (value, pass, fail) => {
+			if (REGEX.EMAIL.test(value)) {
+				pass();
+			} else {
+				fail("");
+			}
 		});
 	};
 
 	const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const isValid = REGEX.PASSWORD.test(e.target.value);
-
 		setErrorMessage("");
-		setPassword({
-			...password,
-			text: e.target.value,
-			isValid: isValid,
-			errorMessage: "",
+
+		password.setValue(e.target.value, (value, pass, fail) => {
+			if (REGEX.PASSWORD.test(value)) {
+				pass();
+			} else {
+				fail("");
+			}
 		});
 	};
 
 	const handleLoginButton = async () => {
 		const body = {
-			email: email.text,
-			password: password.text,
+			email: email.value,
+			password: password.value,
 		};
 
 		const errorHandle = (err: ClientError) => {
@@ -100,13 +92,13 @@ const Login: React.FC = () => {
 			<h1>로그인</h1>
 			<div>
 				<EmailForm
-					email={email.text}
+					email={email.value}
 					onChange={handleEmailChange}
 					isValid={email.isValid}
 					errorMessage={email.errorMessage}
 				/>
 				<PasswordForm
-					password={password.text}
+					password={password.value}
 					onChange={handlePasswordChange}
 					labelText="비밀번호"
 					isValid={password.isValid}
