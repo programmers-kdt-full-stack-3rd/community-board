@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useMemo } from "react";
 import EmailForm from "../../component/User/EmailForm";
 import PasswordForm from "../../component/User/PasswordForm";
 import SubmitButton from "../../component/User/SubmitButton";
@@ -21,8 +21,6 @@ const Join: FC = () => {
 	const nickname = useStringWithValidation();
 	const password = useStringWithValidation();
 	const requiredPassword = useStringWithValidation();
-
-	const [btnApply, setBtnApply] = useState<boolean>(false);
 
 	const handleEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
 		email.setValue(e.target.value);
@@ -62,23 +60,19 @@ const Join: FC = () => {
 		});
 	};
 
-	useEffect(() => {
-		if (
+	const btnApply = useMemo(
+		() =>
 			email.isValid &&
 			nickname.isValid &&
 			password.isValid &&
-			requiredPassword.isValid
-		) {
-			setBtnApply(true);
-		} else {
-			setBtnApply(false);
-		}
-	}, [
-		email.isValid,
-		nickname.isValid,
-		password.isValid,
-		requiredPassword.isValid,
-	]);
+			requiredPassword.isValid,
+		[
+			email.isValid,
+			nickname.isValid,
+			password.isValid,
+			requiredPassword.isValid,
+		]
+	);
 
 	const checkEmailDuplication = () => {
 		email.setValidation((value, pass, fail) => {
