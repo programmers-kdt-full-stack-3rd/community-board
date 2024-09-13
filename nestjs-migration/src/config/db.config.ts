@@ -23,6 +23,6 @@ export const typeOrmConfig = registerAs(
 		type: "mariadb",
 		...dbCommonConfig(),
 		entities: [__dirname + "/../**/*.entity{.ts,.js}"],
-		synchronize: process.env.NODE_ENV === "development",
+		synchronize: false,
 	})
 );

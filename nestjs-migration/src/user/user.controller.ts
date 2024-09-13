@@ -1,5 +1,15 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from "@nestjs/common";
+import {
+	Body,
+	Controller,
+	HttpCode,
+	HttpStatus,
+	Post,
+	Res,
+} from "@nestjs/common";
+import { Response } from "express";
+import { getKstNow } from "../utils/date.util";
 import { CreateUserDto } from "./dto/create-user.dto";
+import { LoginDto } from "./dto/login.dto";
 import { UserService } from "./user.service";
 
 @Controller("user")
@@ -11,5 +21,30 @@ export class UserController {
 	async joinUser(@Body() createUserDto: CreateUserDto) {
 		await this.userService.createUser(createUserDto);
 		return { message: "회원가입 성공" };
+	}
+
+	@Post("login")
+	@HttpCode(HttpStatus.OK)
+	async login(
+		@Body() loginDto: LoginDto,
+		@Res({ passthrough: true }) res: Response
+	) {
+		const result = await this.userService.login(loginDto);
+		res.cookie("accessToken", result.accessToken, {
+			httpOnly: true,
+			secure: true,
+			expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+		});
+
+		res.cookie("refreshToken", result.refreshToken, {
+			httpOnly: true,
+			secure: true,
+			expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
+		});
+
+		return {
+			message: "로그인 성공",
+			result: { nickname: result.nickname, loginTime: getKstNow() },
+		};
 	}
 }

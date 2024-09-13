@@ -1,19 +1,19 @@
 import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
-import { CreateUserDto } from "./dto/create-user.dto";
-import { User } from "./user.entity";
-
+import { DataSource, Repository } from "typeorm";
+import { User } from "./entities/user.entity";
 @Injectable()
-export class UserRepository {
-	constructor(
-		@InjectRepository(User)
-		private readonly repository: Repository<User>
-	) {}
-
-	async save(createUserDto: CreateUserDto): Promise<User> {
-		return this.repository.save(createUserDto);
+export class UserRepository extends Repository<User> {
+	constructor(private dataSource: DataSource) {
+		super(User, dataSource.createEntityManager());
 	}
+
+	//예시 코드
+
+	// async customMethod(id: number): Promise<User> {
+	//     return await this.createQueryBuilder('user')
+	//       .where('user.id = :id', { id })
+	//       .getOneOrFail();
+	//   }
 
 	//TODO: TYPEORM 사용으로 최종 결정시 제거
 	// async createUser({

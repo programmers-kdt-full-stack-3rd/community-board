@@ -3,7 +3,14 @@ export const USER_ERROR_CODES = {
 };
 
 export const USER_ERROR_MESSAGES = {
-	DUPLICATE_ENTRY: "이미 존재하는 이메일입니다.",
+	DUPLICATE_EMAIL: "이미 존재하는 이메일 주소입니다.",
+	DELETED_EMAIL: "탈퇴한 회원의 이메일입니다.",
+	DUPLICATE_NICKNAME: "이미 사용 중인 닉네임입니다.",
+	DUPLICATE_DATA: "중복된 데이터가 존재합니다.",
+	USER_CREATION_ERROR: "사용자 생성 중 오류가 발생했습니다.",
+	NOT_FOUND_EMAIL: "존재하지 않는 이메일 입니다.",
+	DELETED_USER: "탈퇴한 회원입니다.",
+	INVALID_LOGIN: "이메일 또는 비밀번호가 틀렸습니다.",
 };
 
 export const PASSWORD_POLICY = {
