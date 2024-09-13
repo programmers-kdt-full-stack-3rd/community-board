@@ -1,12 +1,15 @@
 import {
 	Body,
 	Controller,
+	Get,
 	HttpCode,
 	HttpStatus,
 	Post,
 	Res,
+	UseGuards,
 } from "@nestjs/common";
 import { Response } from "express";
+import { LoginGuard } from "../common/guard/login.guard";
 import { getKstNow } from "../utils/date.util";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { LoginDto } from "./dto/login.dto";
@@ -46,5 +49,12 @@ export class UserController {
 			message: "로그인 성공",
 			result: { nickname: result.nickname, loginTime: getKstNow() },
 		};
+	}
+
+	@UseGuards(LoginGuard)
+	@Get("test")
+	@HttpCode(HttpStatus.OK)
+	async test() {
+		return { message: "테스트 성공" };
 	}
 }
