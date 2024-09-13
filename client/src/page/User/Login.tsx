@@ -1,6 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { loginContainer, joinLink } from "../../page/User/Login.css";
+import {
+	loginContainer,
+	joinLink,
+	loginForm,
+	joinText,
+} from "../../page/User/Login.css";
 import { REGEX } from "./constants/constants";
 import EmailForm from "../../component/User/EmailForm";
 import PasswordForm from "../../component/User/PasswordForm";
@@ -90,7 +95,7 @@ const Login: React.FC = () => {
 	return (
 		<div className={loginContainer}>
 			<h1>로그인</h1>
-			<div>
+			<div className={loginForm}>
 				<EmailForm
 					email={email.value}
 					onChange={handleEmailChange}
@@ -110,7 +115,7 @@ const Login: React.FC = () => {
 				<SubmitButton onClick={handleLoginButton}>
 					로그인 버튼
 				</SubmitButton>
-				<p>
+				<p className={joinText}>
 					계정이 없으신가요?
 					<a
 						href="/join"

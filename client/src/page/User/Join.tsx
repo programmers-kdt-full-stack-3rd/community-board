@@ -4,7 +4,7 @@ import PasswordForm from "../../component/User/PasswordForm";
 import SubmitButton from "../../component/User/SubmitButton";
 import NicknameForm from "../../component/User/NicknameForm";
 import { ERROR_MESSAGE, REGEX } from "./constants/constants";
-import { joinWrapper } from "./Join.css";
+import { joinForm, joinWrapper } from "./Join.css";
 import {
 	applySubmitButtonStyle,
 	submitButtonStyle,
@@ -136,13 +136,7 @@ const Join: FC = () => {
 	return (
 		<div className={joinWrapper}>
 			<h1>회원가입</h1>
-			<div
-				style={{
-					display: "flex",
-					flexDirection: "column",
-					gap: "10px",
-				}}
-			>
+			<div className={joinForm}>
 				<EmailForm
 					email={email.value}
 					onChange={handleEmail}

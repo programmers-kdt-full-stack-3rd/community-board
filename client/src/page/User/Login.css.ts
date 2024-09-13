@@ -10,6 +10,12 @@ export const loginContainer = style({
 	backgroundColor: "#333",
 });
 
+export const loginForm = style({
+	display: "flex",
+	flexDirection: "column",
+	gap: "10px",
+});
+
 export const loginButton = style({
 	padding: "12px",
 	backgroundColor: "#444",
@@ -20,6 +26,10 @@ export const loginButton = style({
 	cursor: "pointer",
 });
 
+export const joinText = style({
+	marginBottom: "0",
+});
+
 export const joinLink = style({
 	marginTop: "10px",
 	textAlign: "center",
@@ -27,27 +37,3 @@ export const joinLink = style({
 	color: "#007BFF",
 	cursor: "pointer",
 });
-
-// export const loginWrapper = style({
-// 	position: "relative",
-// 	width: "460px",
-// 	height: "100%",
-// 	boxSizing: "border-box",
-// 	border: "1px solid #ccc",
-// 	display: "flex",
-// 	flexDirection: "column",
-// 	justifyContent: "center",
-// 	alignItems: "center",
-// 	padding: "24px",
-// 	gap: "10px",
-// });
-
-// export const joinLink = style({
-// 	width: "100%",
-// 	padding: "0px",
-// 	cursor: "pointer",
-// 	":hover": {
-// 		textDecoration: "underline",
-// 		color: "blue",
-// 	},
-// });

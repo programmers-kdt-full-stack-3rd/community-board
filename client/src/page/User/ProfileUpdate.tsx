@@ -5,6 +5,7 @@ import PasswordForm from "../../component/User/PasswordForm";
 import {
 	buttonsWrapper,
 	cancleButton,
+	profileUpdateForm,
 	profileUpdateWrapper,
 } from "./ProfileUpdate.css";
 import SubmitButton from "../../component/User/SubmitButton";
@@ -205,59 +206,65 @@ const ProfileUpdate: FC = () => {
 	return (
 		<div className={profileUpdateWrapper}>
 			<h1>유저 정보 수정</h1>
-			{hasEmail || (
-				<EmailForm
-					email={email.value}
-					onChange={handleEmailChange}
-					errorMessage={email.errorMessage}
-					isValid={email.isValid}
+
+			<div className={profileUpdateForm}>
+				{hasEmail || (
+					<EmailForm
+						email={email.value}
+						onChange={handleEmailChange}
+						errorMessage={email.errorMessage}
+						isValid={email.isValid}
+						isDuplicateCheck={true}
+						duplicationCheckFunc={checkEmailDuplication}
+					/>
+				)}
+				<NicknameForm
+					labelText="변경할 닉네임"
+					nickname={nickname.value}
+					onChange={handleNicknameChange}
+					errorMessage={nickname.errorMessage}
+					isValid={nickname.isValid}
 					isDuplicateCheck={true}
-					duplicationCheckFunc={checkEmailDuplication}
+					duplicationCheckFunc={checkNicknameDuplication}
 				/>
-			)}
-			<NicknameForm
-				labelText="변경할 닉네임"
-				nickname={nickname.value}
-				onChange={handleNicknameChange}
-				errorMessage={nickname.errorMessage}
-				isValid={nickname.isValid}
-				isDuplicateCheck={true}
-				duplicationCheckFunc={checkNicknameDuplication}
-			/>
-			<PasswordForm
-				labelText={"변경할 비밀번호"}
-				password={password.value}
-				onChange={handlePasswordChange}
-				errorMessage={password.errorMessage}
-				isValid={password.isValid}
-			/>
-			<PasswordForm
-				labelText={"비밀번호 확인"}
-				id="requiredPassword"
-				password={requiredPassword.value}
-				onChange={handleRequiredPasswordChange}
-				errorMessage={requiredPassword.errorMessage}
-				isValid={requiredPassword.isValid}
-			/>
-			{errorMessage && (
-				<ErrorMessageForm>{errorMessage}</ErrorMessageForm>
-			)}
-			<div className={buttonsWrapper}>
-				<button
-					className={cancleButton}
-					onClick={handleCancle}
-				>
-					취소
-				</button>
-				<SubmitButton
-					className={
-						btnApply ? applySubmitButtonStyle : submitButtonStyle
-					}
-					onClick={handleSubmit}
-					apply={btnApply}
-				>
-					유저 정보 변경
-				</SubmitButton>
+				<PasswordForm
+					labelText={"변경할 비밀번호"}
+					password={password.value}
+					onChange={handlePasswordChange}
+					errorMessage={password.errorMessage}
+					isValid={password.isValid}
+				/>
+				<PasswordForm
+					labelText={"비밀번호 확인"}
+					id="requiredPassword"
+					password={requiredPassword.value}
+					onChange={handleRequiredPasswordChange}
+					errorMessage={requiredPassword.errorMessage}
+					isValid={requiredPassword.isValid}
+				/>
+				{errorMessage && (
+					<ErrorMessageForm>{errorMessage}</ErrorMessageForm>
+				)}
+
+				<div className={buttonsWrapper}>
+					<button
+						className={cancleButton}
+						onClick={handleCancle}
+					>
+						취소
+					</button>
+					<SubmitButton
+						className={
+							btnApply
+								? applySubmitButtonStyle
+								: submitButtonStyle
+						}
+						onClick={handleSubmit}
+						apply={btnApply}
+					>
+						유저 정보 변경
+					</SubmitButton>
+				</div>
 			</div>
 		</div>
 	);
