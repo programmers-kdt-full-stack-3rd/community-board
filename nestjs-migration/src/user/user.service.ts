@@ -48,7 +48,12 @@ export class UserService {
 
 		try {
 			const user = await this.findAndValidateUserByEmail(email);
-			await this.verifyPassword(password, user);
+			const isValid = await this.verifyPassword(password, user);
+
+			if (!isValid) {
+				throw ServerError.badRequest(USER_ERROR_MESSAGES.INVALID_LOGIN);
+			}
+
 			const tokens = this.authService.generateTokens(user.id);
 
 			this.refreshTokenRepository.save({
@@ -65,8 +70,11 @@ export class UserService {
 
 	async checkPassword(userId: number, password: string) {
 		const user = await this.findAndValidateUserById(userId);
+		const isValid = await this.verifyPassword(password, user);
 
-		await this.verifyPassword(password, user);
+		if (!isValid) {
+			throw ServerError.badRequest(USER_ERROR_MESSAGES.INVALID_PASSWORD);
+		}
 
 		const tempToken = this.authService.makeTempToken(userId);
 
@@ -137,10 +145,11 @@ export class UserService {
 		return user;
 	}
 
-	private async verifyPassword(password: string, user: User): Promise<void> {
+	private async verifyPassword(
+		password: string,
+		user: User
+	): Promise<boolean> {
 		const hashedPassword = await makeHashedPassword(password, user.salt);
-		if (user.password !== hashedPassword) {
-			throw ServerError.badRequest(USER_ERROR_MESSAGES.INVALID_LOGIN);
-		}
+		return hashedPassword === user.password;
 	}
 }

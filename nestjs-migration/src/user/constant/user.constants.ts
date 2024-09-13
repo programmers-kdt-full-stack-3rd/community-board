@@ -13,6 +13,7 @@ export const USER_ERROR_MESSAGES = {
 	DELETED_USER: "탈퇴한 회원입니다.",
 	INVALID_LOGIN: "이메일 또는 비밀번호가 틀렸습니다.",
 	FAILED_TOKEN_DELETE: "토큰 삭제 실패",
+	INVALID_PASSWORD: "비밀번호가 틀렸습니다.",
 };
 
 export const PASSWORD_POLICY = {
