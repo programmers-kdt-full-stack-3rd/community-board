@@ -16,7 +16,7 @@ export class User {
 	@Column({ length: 50, unique: true })
 	nickname: string;
 
-	@Column({ name: "isDelete", default: false })
+	@Column({ name: "is_delete", default: false })
 	isDelete: boolean;
 
 	@Column({ type: "text", nullable: true })
