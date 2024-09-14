@@ -2,6 +2,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { Response } from "express";
 import { ServerError } from "../common/exceptions/server-error.exception";
 import { LoginGuard } from "../common/guard/login.guard";
+import { IUserEntity } from "../common/interface/user-entity.interface";
 import * as dateUtil from "../utils/date.util";
 import { COOKIE_MAX_AGE, USER_ERROR_MESSAGES } from "./constant/user.constants";
 import { CreateUserDto } from "./dto/create-user.dto";
@@ -21,6 +22,11 @@ describe("UserController", () => {
 	};
 
 	const mockTime = "2024-01-01T00:00:00.000+09:00";
+
+	const mockUserEntity: IUserEntity = {
+		userId: 1,
+		roleId: 2,
+	};
 
 	beforeEach(async () => {
 		const module: TestingModule = await Test.createTestingModule({
@@ -153,10 +159,6 @@ describe("UserController", () => {
 
 	describe("POST /user/logout", () => {
 		it("로그아웃 성공 시 200 상태 코드와 성공 메시지를 반환한다", async () => {
-			const mockRequest = {
-				user: { userId: 1 },
-			};
-
 			const mockResponse = {
 				clearCookie: jest.fn(),
 			} as unknown as Response;
@@ -165,7 +167,7 @@ describe("UserController", () => {
 			jest.spyOn(userService, "logout").mockResolvedValue(undefined);
 
 			const result = await userController.logout(
-				mockRequest as any,
+				mockUserEntity,
 				mockResponse
 			);
 
@@ -183,10 +185,6 @@ describe("UserController", () => {
 
 	describe("POST /user/check-password", () => {
 		it("비밀번호 확인 성공 시 200 상태 코드와 임시 토큰을 반환한다", async () => {
-			const mockRequest = {
-				user: { userId: 1 },
-			};
-
 			const mockResponse = {
 				cookie: jest.fn(),
 			} as unknown as Response;
@@ -205,7 +203,7 @@ describe("UserController", () => {
 			);
 
 			const result = await userController.checkPassword(
-				mockRequest as any,
+				mockUserEntity,
 				mockResponse,
 				checkPasswordDto
 			);

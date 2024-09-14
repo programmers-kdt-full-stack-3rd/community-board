@@ -1,16 +1,16 @@
 import {
 	Body,
 	Controller,
-	Get,
 	HttpCode,
 	HttpStatus,
 	Post,
-	Req,
 	Res,
 	UseGuards,
 } from "@nestjs/common";
-import { Request, Response } from "express";
+import { Response } from "express";
+import { User } from "../common/decorator/user.decorator";
 import { LoginGuard } from "../common/guard/login.guard";
+import { IUserEntity } from "../common/interface/user-entity.interface";
 import { getKstNow } from "../utils/date.util";
 import { COOKIE_MAX_AGE } from "./constant/user.constants";
 import { CheckPasswordDto } from "./dto/check-password.dto";
@@ -58,10 +58,10 @@ export class UserController {
 	@Post("logout")
 	@HttpCode(HttpStatus.OK)
 	async logout(
-		@Req() req: Request,
+		@User() user: IUserEntity,
 		@Res({ passthrough: true }) res: Response
 	) {
-		const userId = req.user["userId"];
+		const userId = user.userId;
 
 		res.clearCookie("accessToken");
 		res.clearCookie("refreshToken");
@@ -80,11 +80,11 @@ export class UserController {
 	@Post("/check-password")
 	@HttpCode(HttpStatus.OK)
 	async checkPassword(
-		@Req() req: Request,
+		@User() user: IUserEntity,
 		@Res({ passthrough: true }) res: Response,
 		@Body() checkPasswordDto: CheckPasswordDto
 	) {
-		const userId = req.user["userId"];
+		const userId = user.userId;
 		const result = await this.userService.checkPassword(
 			userId,
 			checkPasswordDto.password
@@ -97,12 +97,5 @@ export class UserController {
 		});
 
 		return { message: "비밀번호 확인 성공" };
-	}
-
-	@UseGuards(LoginGuard)
-	@Get("test")
-	@HttpCode(HttpStatus.OK)
-	async test() {
-		return { message: "테스트 성공" };
 	}
 }
