@@ -8,6 +8,7 @@ import {
 	UseGuards,
 } from "@nestjs/common";
 import { Response } from "express";
+import { Permissions } from "../common/decorator/rbac.decorator";
 import { User } from "../common/decorator/user.decorator";
 import { LoginGuard } from "../common/guard/login.guard";
 import { IUserEntity } from "../common/interface/user-entity.interface";
@@ -23,6 +24,7 @@ export class UserController {
 	constructor(private readonly userService: UserService) {}
 
 	@Post("join")
+	@Permissions("createUser")
 	@HttpCode(HttpStatus.CREATED)
 	async joinUser(@Body() createUserDto: CreateUserDto) {
 		await this.userService.createUser(createUserDto);
@@ -76,7 +78,6 @@ export class UserController {
 
 	//TODO: 소설로그인 API 구현후 유저 탈퇴 API 구현
 
-	@UseGuards(LoginGuard)
 	@Post("/check-password")
 	@HttpCode(HttpStatus.OK)
 	async checkPassword(

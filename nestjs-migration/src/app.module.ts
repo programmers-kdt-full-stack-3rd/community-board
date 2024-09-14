@@ -5,6 +5,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { AuthModule } from "./auth/auth.module";
+import { RbacGuard } from "./common/guard/rbac.guard";
 import { TokenGuard } from "./common/guard/token.guard";
 import appConfig from "./config/app.config";
 import { typeOrmConfig } from "./config/db.config";
@@ -35,6 +36,10 @@ import { UserModule } from "./user/user.module";
 		{
 			provide: APP_GUARD,
 			useClass: TokenGuard,
+		},
+		{
+			provide: APP_GUARD,
+			useClass: RbacGuard,
 		},
 	],
 })

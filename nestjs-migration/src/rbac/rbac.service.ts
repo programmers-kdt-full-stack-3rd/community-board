@@ -10,4 +10,17 @@ export class RbacService {
 		private readonly permissionRepository: PermissionRepository,
 		private readonly rolePermissionRepository: rolePermissionRepository
 	) {}
+
+	async getPermissionsByRoleId(roleId: number) {
+		const permissions =
+			await this.roleRepository.getPermissionsByRoleId(roleId);
+		return permissions;
+	}
+
+	async isAdmin(roleId: number) {
+		const role = await this.roleRepository.findOne({
+			where: { id: roleId },
+		});
+		return role.name === "admin";
+	}
 }
