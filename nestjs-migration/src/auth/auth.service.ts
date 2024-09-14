@@ -3,6 +3,7 @@ import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { ServerError } from "../common/exceptions/server-error.exception";
 import { AUTH_ERROR_MESSAGES } from "./constants/auth.constants";
+import { ITokenPayload } from "./interfaces/token.interface";
 import { RefreshTokensRepository } from "./refresh-tokens.repository";
 
 @Injectable()
@@ -13,9 +14,9 @@ export class AuthService {
 		private readonly refreshTokenRepository: RefreshTokensRepository
 	) {}
 
-	makeAccessToken(userId: number): string {
+	makeAccessToken(user: ITokenPayload): string {
 		return this.jwtService.sign(
-			{ userId },
+			{ ...user },
 			{
 				secret: this.configService.get("jwt.access_token_key"),
 				expiresIn: "1h",
@@ -23,9 +24,9 @@ export class AuthService {
 		);
 	}
 
-	makeRefreshToken(userId: number): string {
+	makeRefreshToken(user: ITokenPayload): string {
 		return this.jwtService.sign(
-			{ userId },
+			{ ...user },
 			{
 				secret: this.configService.get("jwt.refresh_token_key"),
 				expiresIn: "1d",
@@ -72,9 +73,9 @@ export class AuthService {
 		}
 	}
 
-	generateTokens(userId: number) {
-		const accessToken = this.makeAccessToken(userId);
-		const refreshToken = this.makeRefreshToken(userId);
+	generateTokens(user: ITokenPayload) {
+		const accessToken = this.makeAccessToken(user);
+		const refreshToken = this.makeRefreshToken(user);
 		return { accessToken, refreshToken };
 	}
 }

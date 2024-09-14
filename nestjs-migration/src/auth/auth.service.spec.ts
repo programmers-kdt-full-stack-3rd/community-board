@@ -4,6 +4,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { AuthService } from "./auth.service";
 import { AUTH_ERROR_MESSAGES } from "./constants/auth.constants";
 import { RefreshTokens } from "./entity/refresh-tokens.entity";
+import { ITokenPayload } from "./interfaces/token.interface";
 import { RefreshTokensRepository } from "./refresh-tokens.repository";
 
 describe("AuthService", () => {
@@ -13,7 +14,7 @@ describe("AuthService", () => {
 	let refreshTokenRepository: RefreshTokensRepository;
 
 	const mockUserId = 1;
-	const mockPayload = { userId: mockUserId };
+	const mockPayload: ITokenPayload = { userId: mockUserId, roleId: 2 };
 	const mockAccessToken = "mock_access_token";
 	const mockRefreshToken = "mock_refresh_token";
 	const mockTempToken = "mock_temp_token";
@@ -92,7 +93,7 @@ describe("AuthService", () => {
 
 	describe("makeAccessToken", () => {
 		it("엑세스 토큰을 성공적으로 생성한다.", () => {
-			const token = authService.makeAccessToken(1);
+			const token = authService.makeAccessToken(mockPayload);
 			expect(token).toEqual(mockAccessToken);
 			expect(jwtService.sign).toHaveBeenCalledWith(mockPayload, {
 				secret: "mock_jwt.access_token_key",
@@ -103,7 +104,7 @@ describe("AuthService", () => {
 
 	describe("makeRefreshToken", () => {
 		it("리프레시 토큰을 성공적으로 생성한다.", () => {
-			const token = authService.makeRefreshToken(1);
+			const token = authService.makeRefreshToken(mockPayload);
 			expect(token).toEqual(mockRefreshToken);
 			expect(jwtService.sign).toHaveBeenCalledWith(mockPayload, {
 				secret: "mock_jwt.refresh_token_key",
@@ -116,10 +117,13 @@ describe("AuthService", () => {
 		it("임시 토큰을 성공적으로 생성한다.", () => {
 			const token = authService.makeTempToken(1);
 			expect(token).toEqual(mockTempToken);
-			expect(jwtService.sign).toHaveBeenCalledWith(mockPayload, {
-				secret: "mock_jwt.temp_token_key",
-				expiresIn: "1h",
-			});
+			expect(jwtService.sign).toHaveBeenCalledWith(
+				{ userId: 1 },
+				{
+					secret: "mock_jwt.temp_token_key",
+					expiresIn: "1h",
+				}
+			);
 		});
 	});
 
@@ -188,7 +192,7 @@ describe("AuthService", () => {
 
 	describe("generateTokens", () => {
 		it("액세스 토큰과 리프레시 토큰을 성공적으로 생성한다.", () => {
-			const tokens = authService.generateTokens(1);
+			const tokens = authService.generateTokens(mockPayload);
 			expect(tokens).toEqual({
 				accessToken: mockAccessToken,
 				refreshToken: mockRefreshToken,

@@ -23,6 +23,7 @@ export class TokenGuard implements CanActivate {
 		const refreshToken = request.cookies.refreshToken;
 
 		if (!accessToken && !refreshToken) {
+			request.user = { userId: null, roleId: 3 };
 			return true; // 둘 다 없으면 비로그인 상태
 		}
 
