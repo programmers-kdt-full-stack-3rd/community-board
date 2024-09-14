@@ -9,6 +9,7 @@ import { TokenGuard } from "./common/guard/token.guard";
 import appConfig from "./config/app.config";
 import { typeOrmConfig } from "./config/db.config";
 import jwtConfig from "./config/jwt.config";
+import { RbacModule } from "./rbac/rbac.module";
 import { UserModule } from "./user/user.module";
 
 @Module({
@@ -26,6 +27,7 @@ import { UserModule } from "./user/user.module";
 		}),
 		UserModule,
 		AuthModule,
+		RbacModule,
 	],
 	controllers: [AppController],
 	providers: [
