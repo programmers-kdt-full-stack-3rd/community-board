@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-dotenv.config();
+dotenv.config({ path: "./../.env" });
 
 import { getDBPool, initDBPool } from "./config/dbConfig";
 import { getKafkaAPI, initKafkaAPI } from "./config/kafkaConfig";

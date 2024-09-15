@@ -10,6 +10,8 @@ COPY ./shared ./shared
 
 COPY ./package*.json ./
 
+COPY ./nginx/.env ./
+
 RUN npm install
 
 CMD npm run dev --workspace=chat_server
