@@ -1,6 +1,7 @@
 import {
 	Body,
 	Controller,
+	Get,
 	HttpCode,
 	HttpStatus,
 	Post,
@@ -8,10 +9,10 @@ import {
 	UseGuards,
 } from "@nestjs/common";
 import { Response } from "express";
-import { Permissions } from "../common/decorator/rbac.decorator";
 import { User } from "../common/decorator/user.decorator";
 import { LoginGuard } from "../common/guard/login.guard";
 import { IUserEntity } from "../common/interface/user-entity.interface";
+import { RbacService } from "../rbac/rbac.service";
 import { getKstNow } from "../utils/date.util";
 import { COOKIE_MAX_AGE } from "./constant/user.constants";
 import { CheckPasswordDto } from "./dto/check-password.dto";
@@ -21,10 +22,12 @@ import { UserService } from "./user.service";
 
 @Controller("user")
 export class UserController {
-	constructor(private readonly userService: UserService) {}
+	constructor(
+		private readonly userService: UserService,
+		private readonly rbacService: RbacService
+	) {}
 
 	@Post("join")
-	@Permissions("createUser")
 	@HttpCode(HttpStatus.CREATED)
 	async joinUser(@Body() createUserDto: CreateUserDto) {
 		await this.userService.createUser(createUserDto);
@@ -98,5 +101,13 @@ export class UserController {
 		});
 
 		return { message: "비밀번호 확인 성공" };
+	}
+
+	@Get("/check-admin")
+	@HttpCode(HttpStatus.OK)
+	@UseGuards(LoginGuard)
+	async checkIsAdmin(@User() user: IUserEntity) {
+		const isAdmin = await this.rbacService.isAdmin(user.roleId);
+		return { isAdmin };
 	}
 }
