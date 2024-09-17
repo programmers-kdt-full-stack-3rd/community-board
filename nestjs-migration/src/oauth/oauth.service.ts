@@ -5,10 +5,10 @@ import { OAuthPropsConfig } from "./config/oauth-props.config";
 import { TOAuthLoginType } from "./interfaces/oauth.interface";
 
 @Injectable()
-export class OauthService {
+export class OAuthService {
 	constructor(private oAuthPropsConfig: OAuthPropsConfig) {}
 
-	getOauthUrl(loginType: TOAuthLoginType, provider: TOAuthProvider) {
+	getOAuthUrl(loginType: TOAuthLoginType, provider: TOAuthProvider) {
 		const { [loginType]: url } = this.buildLoginUrl(provider);
 
 		return url;

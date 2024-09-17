@@ -1,10 +1,10 @@
 import { Module } from "@nestjs/common";
 import { OAuthPropsConfig } from "./config/oauth-props.config";
-import { OauthController } from "./oauth.controller";
-import { OauthService } from "./oauth.service";
+import { OAuthController } from "./oauth.controller";
+import { OAuthService } from "./oauth.service";
 
 @Module({
-	controllers: [OauthController],
-	providers: [OauthService, OAuthPropsConfig],
+	controllers: [OAuthController],
+	providers: [OAuthService, OAuthPropsConfig],
 })
-export class OauthModule {}
+export class OAuthModule {}

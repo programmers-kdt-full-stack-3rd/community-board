@@ -11,7 +11,7 @@ import appConfig from "./config/app.config";
 import { typeOrmConfig } from "./config/db.config";
 import jwtConfig from "./config/jwt.config";
 import oauthConfig from "./config/oauth.config";
-import { OauthModule } from "./oauth/oauth.module";
+import { OAuthModule } from "./oauth/oauth.module";
 import { RbacModule } from "./rbac/rbac.module";
 import { UserModule } from "./user/user.module";
 
@@ -31,7 +31,7 @@ import { UserModule } from "./user/user.module";
 		UserModule,
 		AuthModule,
 		RbacModule,
-		OauthModule,
+		OAuthModule,
 	],
 	controllers: [AppController],
 	providers: [
