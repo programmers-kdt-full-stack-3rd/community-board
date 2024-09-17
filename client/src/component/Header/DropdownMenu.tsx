@@ -1,10 +1,9 @@
-import { FC } from "react";
+import { forwardRef, ForwardRefRenderFunction } from "react";
 import { dropdownMenu, dropdownMenuItem } from "./DropdownMenu.css";
 import { NavigateFunction } from "react-router-dom";
 import UserDeleteModal from "./UserDeleteModal";
 
 interface DropdownMenuProps {
-	ref: React.RefObject<HTMLDivElement>;
 	navigate: NavigateFunction;
 	warningModal: { isOpen: boolean; open: () => void; close: () => void };
 }
@@ -19,11 +18,10 @@ const MODAL_CONFIGS = {
 	},
 };
 
-const DropdownMenu: FC<DropdownMenuProps> = ({
-	ref,
-	navigate,
-	warningModal,
-}) => {
+const DropdownMenu: ForwardRefRenderFunction<
+	HTMLDivElement,
+	DropdownMenuProps
+> = ({ navigate, warningModal }, ref) => {
 	const currentPath = window.location.pathname;
 
 	const handleProfileUpdateClick = () => {
@@ -84,4 +82,4 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
 	);
 };
 
-export default DropdownMenu;
+export default forwardRef(DropdownMenu);
