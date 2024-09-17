@@ -1,8 +1,14 @@
 {
 	"name": "shared",
 	"version": "1.0.0",
-	"main": "dist/index.js",
-	"types": "dist/index.d.ts",
+	"exports": {
+		".": {
+			"import": "./index.ts",
+			"require": "./dist/index.js"
+		}
+	},
+	"main": "./dist/index.js",
+	"types": "./index.ts",
 	"scripts": {
 		"build": "tsc",
 		"prepare": "npm run build"
