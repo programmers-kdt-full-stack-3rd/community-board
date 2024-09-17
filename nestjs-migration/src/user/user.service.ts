@@ -46,20 +46,44 @@ export class UserService {
 	async login(loginDto: LoginDto) {
 		const { email, password } = loginDto;
 
-		try {
-			const user = await this.findAndValidateUser(email);
-			await this.verifyPassword(password, user);
-			const tokens = this.authService.generateTokens(user.id);
+		const user = await this.findAndValidateUserByEmail(email);
+		const isValid = await this.verifyPassword(password, user);
 
-			this.refreshTokenRepository.save({
-				userId: user.id,
-				token: tokens.refreshToken,
-				expiredAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
-			});
+		if (!isValid) {
+			throw ServerError.badRequest(USER_ERROR_MESSAGES.INVALID_LOGIN);
+		}
 
-			return { nickname: user.nickname, ...tokens };
-		} catch (error: any) {
-			throw error;
+		const tokens = this.authService.generateTokens(user.id);
+
+		this.refreshTokenRepository.save({
+			userId: user.id,
+			token: tokens.refreshToken,
+			expiredAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
+		});
+
+		return { nickname: user.nickname, ...tokens };
+	}
+
+	async checkPassword(userId: number, password: string) {
+		const user = await this.findAndValidateUserById(userId);
+		const isValid = await this.verifyPassword(password, user);
+
+		if (!isValid) {
+			throw ServerError.badRequest(USER_ERROR_MESSAGES.INVALID_PASSWORD);
+		}
+
+		const tempToken = this.authService.makeTempToken(userId);
+
+		return { tempToken };
+	}
+
+	async logout(userId: number) {
+		const result = await this.refreshTokenRepository.delete({ userId });
+
+		if (result.affected < 1) {
+			throw ServerError.badRequest(
+				USER_ERROR_MESSAGES.FAILED_TOKEN_DELETE
+			);
 		}
 	}
 
@@ -92,7 +116,7 @@ export class UserService {
 		return user?.isDelete ?? false;
 	}
 
-	private async findAndValidateUser(email: string): Promise<User> {
+	private async findAndValidateUserByEmail(email: string): Promise<User> {
 		const user = await this.userRepository.findOne({ where: { email } });
 		if (!user) {
 			throw ServerError.badRequest(USER_ERROR_MESSAGES.NOT_FOUND_EMAIL);
@@ -103,10 +127,21 @@ export class UserService {
 		return user;
 	}
 
-	private async verifyPassword(password: string, user: User): Promise<void> {
-		const hashedPassword = await makeHashedPassword(password, user.salt);
-		if (user.password !== hashedPassword) {
-			throw ServerError.badRequest(USER_ERROR_MESSAGES.INVALID_LOGIN);
+	private async findAndValidateUserById(id: number): Promise<User> {
+		const user = await this.userRepository.findOne({
+			where: { id, isDelete: false },
+		});
+		if (!user) {
+			throw ServerError.badRequest(USER_ERROR_MESSAGES.NOT_FOUND_USER);
 		}
+		return user;
+	}
+
+	private async verifyPassword(
+		password: string,
+		user: User
+	): Promise<boolean> {
+		const hashedPassword = await makeHashedPassword(password, user.salt);
+		return hashedPassword === user.password;
 	}
 }
