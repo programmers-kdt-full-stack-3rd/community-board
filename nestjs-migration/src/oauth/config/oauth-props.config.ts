@@ -1,10 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { TOAuthProvider } from "shared";
-import {
-	TOAuthProps,
-	oAuthRequestContentType,
-} from "../constants/oauth.constants";
+import { oAuthRequestContentType } from "../constants/oauth.constants";
+import { TOAuthProps } from "../interfaces/oauth.interface";
 
 @Injectable()
 export class OAuthPropsConfig {

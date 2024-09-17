@@ -1,8 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { TOAuthProvider } from "shared";
 import { OAuthPropsConfig } from "./config/oauth-props.config";
-import { TOAuthProps } from "./constants/oauth.constants";
-import { TOAuthLoginType } from "./interfaces/oauth.interface";
+import { TOAuthLoginType, TOAuthProps } from "./interfaces/oauth.interface";
 import { OAuthService } from "./oauth.service";
 
 describe("OAuthService", () => {

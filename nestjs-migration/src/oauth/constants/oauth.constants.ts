@@ -1,4 +1,5 @@
-import { TOAuthProvider, oAuthProviders } from "shared";
+import { oAuthProviders } from "shared";
+import { TOAuthTokenRequestGrantType } from "../interfaces/oauth.interface";
 
 const oAuthProviderDomain = oAuthProviders.join(", ");
 export const VALIDATION_ERROR_MESSAGES = {
@@ -6,37 +7,11 @@ export const VALIDATION_ERROR_MESSAGES = {
 	AUTHORIZATION_CODE_REQUIRED: "Authorization code가 없습니다.",
 	INVALID_AUTHORIZATION_CODE: "Authorization code는 string이어야 합니다.",
 };
-export type TOAuthVariable<T> = {
-	[provider in TOAuthProvider]: T;
-};
 
-export type TOAuthRequestType = "login" | "token" | "user" | "revoke";
-
-export interface IKeyValuePairs {
-	[key: string]: string;
-}
-
-export type TOAuthProps = {
-	clientId: string;
-	clientSecret?: string;
-
-	scope?: string;
-	redirectUri: string;
-
-	requestEndpoint: {
-		[key in TOAuthRequestType]: string;
+export const grantTypeToKey: { [key in TOAuthTokenRequestGrantType]: string } =
+	{
+		authorization_code: "code",
+		refresh_token: "refresh_token",
 	};
-
-	getAdditionalRequestOptionsFor?: {
-		[key in TOAuthRequestType]?: (options?: any) => {
-			headers?: IKeyValuePairs;
-			searchParams?: IKeyValuePairs;
-			body?: IKeyValuePairs;
-		};
-	};
-
-	reconfirmParams: IKeyValuePairs;
-};
-
 export const oAuthRequestContentType =
 	"application/x-www-form-urlencoded;charset=utf-8";

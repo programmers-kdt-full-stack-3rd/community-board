@@ -1,9 +1,11 @@
+import { TOAuthProvider } from "shared";
+
 export type TOAuthTokenRequestGrantType =
 	| "authorization_code"
 	| "refresh_token";
 export type TOAuthLoginType = "login" | "reconfirm" | "link";
 
-interface IOAuthUser {
+export interface IOAuthUser {
 	id: string;
 }
 
@@ -20,3 +22,35 @@ export interface IOAuthTokens {
 	refresh_token_expires_in?: number;
 	scope?: string;
 }
+
+export type TOAuthVariable<T> = {
+	[provider in TOAuthProvider]: T;
+};
+
+export type TOAuthRequestType = "login" | "token" | "user" | "revoke";
+
+export interface IKeyValuePairs {
+	[key: string]: string;
+}
+
+export type TOAuthProps = {
+	clientId: string;
+	clientSecret?: string;
+
+	scope?: string;
+	redirectUri: string;
+
+	requestEndpoint: {
+		[key in TOAuthRequestType]: string;
+	};
+
+	getAdditionalRequestOptionsFor?: {
+		[key in TOAuthRequestType]?: (options?: any) => {
+			headers?: IKeyValuePairs;
+			searchParams?: IKeyValuePairs;
+			body?: IKeyValuePairs;
+		};
+	};
+
+	reconfirmParams: IKeyValuePairs;
+};
