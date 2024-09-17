@@ -10,6 +10,9 @@ export const checkPasswordWrapper = style({
 	backgroundColor: "#333",
 });
 
-export const noPasswordMessage = style({
-	margin: "24px 0 0 0",
+export const labelWithoutPassword = style({
+	margin: "0",
+	textAlign: "left",
+	fontSize: "15px",
+	fontWeight: "700",
 });

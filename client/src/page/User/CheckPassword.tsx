@@ -6,7 +6,10 @@ import {
 } from "../../api/users/crud";
 import PasswordForm from "../../component/User/PasswordForm";
 import SubmitButton from "../../component/User/SubmitButton";
-import { checkPasswordWrapper, noPasswordMessage } from "./CheckPassword.css";
+import {
+	checkPasswordWrapper,
+	labelWithoutPassword,
+} from "./CheckPassword.css";
 import { REGEX } from "./constants/constants";
 import { useModal } from "../../hook/useModal";
 import UserDeleteModal from "../../component/Header/UserDeleteModal";
@@ -35,6 +38,7 @@ const CheckPassword: FC = () => {
 	const oAuthConfirmed = searchParams.get("oAuthConfirmed");
 
 	const { setLogoutUser } = useUserStore.use.actions();
+	const isEmailRegistered = useUserStore.use.isEmailRegistered();
 
 	const finalModal = useModal();
 
@@ -120,17 +124,23 @@ const CheckPassword: FC = () => {
 	return (
 		<>
 			<div className={checkPasswordWrapper}>
-				<PasswordForm
-					labelText="비밀번호 재확인"
-					password={password}
-					onChange={handlePasswordChange}
-				/>
-				<SubmitButton onClick={handleSubmit}>확인</SubmitButton>
-
-				<p className={noPasswordMessage}>
-					소셜 로그인으로 가입해서 비밀번호가 없다면
-				</p>
-				<OAuthLoginButtons loginType="reconfirm" />
+				{isEmailRegistered ? (
+					<>
+						<PasswordForm
+							labelText="비밀번호 재확인"
+							password={password}
+							onChange={handlePasswordChange}
+						/>
+						<SubmitButton onClick={handleSubmit}>확인</SubmitButton>
+					</>
+				) : (
+					<>
+						<p className={labelWithoutPassword}>
+							소셜 로그인으로 계정 소유 확인
+						</p>
+						<OAuthLoginButtons loginType="reconfirm" />
+					</>
+				)}
 			</div>
 
 			<UserDeleteModal
