@@ -22,6 +22,7 @@ import { useUserStore } from "./state/store";
 import { io } from "socket.io-client";
 import { AdminUserLogPage } from "./page/Admin/AdminUserLogPage";
 import OAuthLink from "./page/OAuth/OAuthLink";
+import EmailRegistration from "./page/User/EmailRegistration";
 
 function MainContainer({ children }: { children: React.ReactNode }) {
 	const location = useLocation();
@@ -32,6 +33,7 @@ function MainContainer({ children }: { children: React.ReactNode }) {
 		"/join",
 		"/checkPassword",
 		"/profileUpdate",
+		"/emailRegistration",
 		"/oauth",
 	];
 
@@ -114,6 +116,10 @@ function App() {
 						<Route
 							path="/profileUpdate"
 							element={<ProfileUpdate />}
+						/>
+						<Route
+							path="/emailRegistration"
+							element={<EmailRegistration />}
 						/>
 						<Route
 							path="/oauth"

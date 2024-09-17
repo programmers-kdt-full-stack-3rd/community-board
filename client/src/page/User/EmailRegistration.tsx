@@ -1,5 +1,4 @@
 import { ChangeEvent, FC, useMemo, useState } from "react";
-import NicknameForm from "../../component/User/NicknameForm";
 import PasswordForm from "../../component/User/PasswordForm";
 import {
 	buttonsWrapper,
@@ -15,36 +14,26 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useUserStore } from "../../state/store";
 import { ApiCall } from "../../api/api";
 import { ClientError } from "../../api/errors";
+import EmailForm from "../../component/User/EmailForm";
 import { useStringWithValidation } from "../../hook/useStringWithValidation";
 import {
 	applySubmitButtonStyle,
 	submitButtonStyle,
 } from "../../component/User/css/SubmitButton.css";
 
-interface IProfileUpdatePayload {
-	email?: string | undefined;
-	nickname: string;
-	password: string;
-}
-
-interface IProfileUpdateResult {
-	status: number;
-	message: string;
-}
-
-const ProfileUpdate: FC = () => {
+const EmailRegistration: FC = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
 
 	const searchParams = new URLSearchParams(location.search);
 	const final = searchParams.get("final");
 
-	const nickname = useStringWithValidation();
+	const email = useStringWithValidation();
 	const password = useStringWithValidation();
 	const requiredPassword = useStringWithValidation();
 	const [errorMessage, setErrorMessage] = useState("");
 
-	const { setNickName: storeSetNickName } = useUserStore.use.actions();
+	const { setIsEmailRegistered } = useUserStore.use.actions();
 
 	const storeNickName = useUserStore.use.nickname();
 	const isEmailRegistered = useUserStore.use.isEmailRegistered();
@@ -67,20 +56,14 @@ const ProfileUpdate: FC = () => {
 		}
 
 		if (err.code !== 200) {
-			alert("검증되지 않은 유저 입니다.");
-			navigate(`/checkPassword?next=profileUpdate&final=${final}`);
+			alert("검증되지 않은 유저입니다.");
+			navigate(`/checkPassword?next=emailRegistration&final=${final}`);
 			return;
 		}
 	};
 
-	const handleNicknameChange = (e: ChangeEvent<HTMLInputElement>) => {
-		nickname.setValue(e.target.value, (value, _pass, fail) => {
-			if (value === storeNickName) {
-				fail("현재 닉네임과 동일합니다.");
-			} else {
-				fail("");
-			}
-		});
+	const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
+		email.setValue(e.target.value);
 	};
 
 	const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -114,22 +97,14 @@ const ProfileUpdate: FC = () => {
 	};
 
 	const btnApply = useMemo(
-		() =>
-			nickname.isValid &&
-			(!isEmailRegistered ||
-				(password.isValid && requiredPassword.isValid)),
-		[
-			isEmailRegistered,
-			nickname.isValid,
-			password.isValid,
-			requiredPassword.isValid,
-		]
+		() => email.isValid && password.isValid && requiredPassword.isValid,
+		[email.isValid, password.isValid, requiredPassword.isValid]
 	);
 
-	const checkNicknameDuplication = () => {
-		nickname.setValidation((value, pass, fail) => {
-			if (!REGEX.NICKNAME.test(value)) {
-				fail(ERROR_MESSAGE.NICKNAME_REGEX);
+	const checkEmailDuplication = () => {
+		email.setValidation((value, pass, fail) => {
+			if (!REGEX.EMAIL.test(value)) {
+				fail(ERROR_MESSAGE.EMAIL_REGEX);
 				return;
 			}
 
@@ -139,27 +114,32 @@ const ProfileUpdate: FC = () => {
 		});
 	};
 
-	// TODO: 닉네임, 비밀번호를 따로 변경할 수 있도록 서버, 클라이언트 수정 필요.
-	//       현재는 비밀번호가 없는 유저의 닉네임을 변경할 수 없음.
 	const handleSubmit = async () => {
-		const result: IProfileUpdateResult = await ApiCall(() => {
-			const payload: IProfileUpdatePayload = {
-				nickname: nickname.value,
-				password: password.value,
-			};
+		if (isEmailRegistered) {
+			alert(`${storeNickName} 님은 이미 이메일을 등록하셨습니다.`);
+			navigate(final || "/");
+			return;
+		}
 
-			return sendPutUpdateUserRequest(payload);
-		}, handleError);
+		// TODO: 백엔드에서 API 분리 필요 (이메일 등록 API)
+		const result = await ApiCall(
+			() =>
+				sendPutUpdateUserRequest({
+					email: email.value,
+					nickname: storeNickName,
+					password: password.value,
+				}),
+			handleError
+		);
 
 		if (result instanceof ClientError) {
 			return;
 		}
 
+		setIsEmailRegistered(true);
 		navigate(final || "/");
 
-		storeSetNickName(nickname.value);
-
-		alert("유저 정보가 변경되었습니다.");
+		alert("로그인 이메일을 등록했습니다.");
 	};
 
 	const handleCancle = () => {
@@ -168,37 +148,32 @@ const ProfileUpdate: FC = () => {
 
 	return (
 		<div className={profileUpdateWrapper}>
-			<h1>유저 정보 수정</h1>
+			<h1>로그인 이메일 등록</h1>
 
 			<div className={profileUpdateForm}>
-				<NicknameForm
-					labelText="변경할 닉네임"
-					nickname={nickname.value}
-					onChange={handleNicknameChange}
-					errorMessage={nickname.errorMessage}
-					isValid={nickname.isValid}
+				<EmailForm
+					email={email.value}
+					onChange={handleEmailChange}
+					errorMessage={email.errorMessage}
+					isValid={email.isValid}
 					isDuplicateCheck={true}
-					duplicationCheckFunc={checkNicknameDuplication}
+					duplicationCheckFunc={checkEmailDuplication}
 				/>
-				{isEmailRegistered && (
-					<>
-						<PasswordForm
-							labelText={"변경할 비밀번호"}
-							password={password.value}
-							onChange={handlePasswordChange}
-							errorMessage={password.errorMessage}
-							isValid={password.isValid}
-						/>
-						<PasswordForm
-							labelText={"비밀번호 확인"}
-							id="requiredPassword"
-							password={requiredPassword.value}
-							onChange={handleRequiredPasswordChange}
-							errorMessage={requiredPassword.errorMessage}
-							isValid={requiredPassword.isValid}
-						/>
-					</>
-				)}
+				<PasswordForm
+					labelText={"등록할 비밀번호"}
+					password={password.value}
+					onChange={handlePasswordChange}
+					errorMessage={password.errorMessage}
+					isValid={password.isValid}
+				/>
+				<PasswordForm
+					labelText={"비밀번호 확인"}
+					id="requiredPassword"
+					password={requiredPassword.value}
+					onChange={handleRequiredPasswordChange}
+					errorMessage={requiredPassword.errorMessage}
+					isValid={requiredPassword.isValid}
+				/>
 				{errorMessage && (
 					<ErrorMessageForm>{errorMessage}</ErrorMessageForm>
 				)}
@@ -219,7 +194,7 @@ const ProfileUpdate: FC = () => {
 						onClick={handleSubmit}
 						apply={btnApply}
 					>
-						유저 정보 변경
+						이메일 등록
 					</SubmitButton>
 				</div>
 			</div>
@@ -227,4 +202,4 @@ const ProfileUpdate: FC = () => {
 	);
 };
 
-export default ProfileUpdate;
+export default EmailRegistration;
