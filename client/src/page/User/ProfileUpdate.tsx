@@ -136,11 +136,12 @@ const ProfileUpdate: FC = () => {
 
 	const btnApply = useMemo(
 		() =>
-			email.isValid &&
+			(hasEmail || email.isValid) &&
 			nickname.isValid &&
 			password.isValid &&
 			requiredPassword.isValid,
 		[
+			hasEmail,
 			email.isValid,
 			nickname.isValid,
 			password.isValid,
