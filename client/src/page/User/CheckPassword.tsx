@@ -31,7 +31,7 @@ const CheckPassword: FC = () => {
 
 	const searchParams = new URLSearchParams(location.search);
 	const next = searchParams.get("next");
-	const final = searchParams.get("final");
+	const final = searchParams.get("final") || "/";
 	const oAuthConfirmed = searchParams.get("oAuthConfirmed");
 
 	const { setLogoutUser } = useUserStore.use.actions();
@@ -82,7 +82,11 @@ const CheckPassword: FC = () => {
 			return;
 		}
 
-		if (next === "accountDelete") {
+		if (!next) {
+			alert("비밀번호 재확인 이후 진행할 동작이 없습니다.");
+			navigate("/");
+			return;
+		} else if (next === "accountDelete") {
 			finalModal.open();
 			return;
 		}
