@@ -81,11 +81,7 @@ describe("PostController", () => {
 			);
 			jest.spyOn(postService, "createPost").mockRejectedValue(error);
 
-      const result = await postController.handlePostCreate(invalidPostDto, mockReq);
-
-			expect(result).toEqual({
-        message: `${error.name}: ${error.message}`,
-      });
+			await expect(postController.handlePostCreate(invalidPostDto, mockReq)).rejects.toThrow(error);
 	});
 
 	describe("GET /post", () => {
@@ -181,11 +177,8 @@ describe("PostController", () => {
 			const error = ServerError.badRequest("잘못된 입력입니다");
 			jest.spyOn(mockPostService, "updatePost").mockRejectedValue(error);
 
-      const result = await postController.handlePostUpdate(mockPostId, updateBodyDto, mockReq);
-      console.log(result)
-      expect(result).toEqual({
-        message: `${error.name}: ${error.message}`
-		  });
+			await expect(postController.handlePostUpdate(mockPostId, updateBodyDto, mockReq)).rejects.toThrow(error);
+
     });
 	});
 	describe("DELETE /post/:post_id", () => {
@@ -205,10 +198,7 @@ describe("PostController", () => {
 			const error = ServerError.badRequest("잘못된 입력입니다");
 			jest.spyOn(mockPostService, "deletePost").mockRejectedValue(error);
 
-      const result = await postController.handlePostDelete(mockPostId, mockReq);
-      expect(result).toEqual({
-        message: `${error.name}: ${error.message}`
-		  });
+			await expect(postController.handlePostDelete(mockPostId, mockReq)).rejects.toThrow(error);
 		});
 	});
 });

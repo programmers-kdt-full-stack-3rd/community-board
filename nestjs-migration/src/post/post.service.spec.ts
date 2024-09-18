@@ -7,7 +7,8 @@ import { LogRepository } from "../log/log.repository";
 import { DataSource } from "typeorm";
 import { Post } from "./entities/post.entity";
 import { UpdatePostDto } from "./dto/update-post.dto";
-import { User } from "src/user/entities/user.entity";
+import { User } from "../user/entities/user.entity";
+import { ServerError } from "../common/exceptions/server-error.exception";
 
 describe("PostService", () => {
 	let postService: PostService;
@@ -131,7 +132,7 @@ describe("PostService", () => {
       await expect(
         postService.createPost(mockCreatePostDto)
       ).rejects.toThrow(
-        new ReferenceError("존재하지 않는 유저입니다.")
+        ServerError.notFound("존재하지 않는 유저입니다")
       );
       expect(
         mockQueryRunner.rollbackTransaction
@@ -220,16 +221,15 @@ describe("PostService", () => {
 
 	describe("findPost", () => {
 		it("게시물 상세 조회 성공 시 게시물을 반환한다.", async () => {
-			jest.spyOn(mockPostRepository, "getPostHeader").mockResolvedValue(
-				Post
-			);
+			const mockPost = {id:1, title: "title", content: "content"}
+			jest.spyOn(mockPostRepository, "getPostHeader").mockResolvedValue(mockPost);
 			const result = await postService.findPost(mockPostId, mockUserId);
 
 			expect(postRepository.getPostHeader).toHaveBeenCalledWith(
 				mockPostId,
 				mockUserId
 			);
-			expect(result).toEqual(Post);
+			expect(result).toEqual(mockPost);
 		});
 		it("게시물 상세 조회 중 에러 발생 시 에러를 반환한다", async () => {
 			const mockError = new Error("게시물 상세 조회 중 오류 발생");
@@ -287,7 +287,7 @@ describe("PostService", () => {
 
 			await expect(
 				postService.updatePost(mockPostId, mockUpdateDto)
-			).rejects.toThrow(new ReferenceError("게시글 수정 실패"));
+			).rejects.toThrow(ServerError.notFound("없는 유저이거나 존재하지 않는 게시물입니다."));
 
 			expect(postRepository.update).not.toHaveBeenCalled();
 		});
@@ -295,7 +295,7 @@ describe("PostService", () => {
 			jest.spyOn(mockPostRepository, "findOne").mockResolvedValue(null);
 			await expect(
 				postService.updatePost(mockPostId, mockUpdateDto)
-			).rejects.toThrow(new ReferenceError("게시글 수정 실패"));
+			).rejects.toThrow(ServerError.notFound("없는 유저이거나 존재하지 않는 게시물입니다."));
 
 			expect(postRepository.update).not.toHaveBeenCalled();
 		});
@@ -336,7 +336,7 @@ describe("PostService", () => {
 
 			await expect(
 				postService.deletePost(mockPostId, mockUserId)
-			).rejects.toThrow(new ReferenceError("게시글 삭제 실패"));
+			).rejects.toThrow(ServerError.reference("게시글 삭제 실패"));
 
 			expect(postRepository.update).not.toHaveBeenCalled();
 		});

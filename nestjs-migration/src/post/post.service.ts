@@ -11,6 +11,7 @@ import { ReadPostsQueryDto } from './dto/read-posts-query.dto';
 import { PostRepository } from './post.repository';
 import { Log } from '../log/entity/log.entity';
 import { ServerError } from '../common/exceptions/server-error.exception';
+import { getPostHeadersDto } from './dto/get-post-headers.dto';
 
 
 @Injectable()
@@ -20,7 +21,7 @@ export class PostService {
               private userRepository: UserRepository
   ) {}
 
-  async createPost(createPostDto: CreatePostDto) {
+  async createPost(createPostDto: CreatePostDto) : Promise<number> {
 
     const queryRunner = this.dataSource.createQueryRunner();
     let isTransactionStarted = false;
@@ -41,16 +42,9 @@ export class PostService {
         content = newText;
       };
 
-      const newPost = new Post();
-      newPost.title = title;
-      newPost.content = content;
-      newPost.author = author;
-
+      const newPost = Object.assign(new Post(),{title,content,author});
       const logTitle = makeLogTitle(title);
-      const logValue = new Log();
-      logValue.userId = authorId;
-      logValue.title = logTitle;
-      logValue.categoryId = 1;
+      const logValue = Object.assign(new Log(), {userId: authorId, title: logTitle, categoryId: 1});
 
     //트랜잭션
       await queryRunner.connect();
@@ -76,14 +70,14 @@ export class PostService {
     }
   }
 
-  async findPostHeaders(readPostsQueryDto: ReadPostsQueryDto, userId: number) {
+  async findPostHeaders(readPostsQueryDto: ReadPostsQueryDto, userId: number) : Promise <getPostHeadersDto[]>{
 
     const postHeaders = await this.postRepository.getPostHeaders(readPostsQueryDto, userId);
   
     return postHeaders;
   }
 
-  async findPostTotal(readPostsQueryDto: ReadPostsQueryDto, userId: number){
+  async findPostTotal(readPostsQueryDto: ReadPostsQueryDto, userId: number) : Promise<number> {
 
     const total = await this.postRepository.getPostTotal(readPostsQueryDto, userId);
     
@@ -91,7 +85,7 @@ export class PostService {
   
   }
 
-  async findPost(postId: number, userId: number) {
+  async findPost(postId: number, userId: number) : Promise<Post> {
     
     
     const post = await this.postRepository.getPostHeader(postId, userId);
@@ -103,7 +97,7 @@ export class PostService {
     }
   }
 
-  async updatePost(postId: number, updatePostDto: UpdatePostDto) {
+  async updatePost(postId: number, updatePostDto: UpdatePostDto) : Promise<boolean> {
 
     let {doFilter, content, title, authorId} = updatePostDto;
     
@@ -136,14 +130,14 @@ export class PostService {
     };
 
     //TODO: 같은 내용 update해도 affected = 1 _express와 동일
-    if (result.affected) {
+    if (result && result.affected) {
       return true
     } else {
       throw ServerError.reference("게시글 수정 실패");
     };
   };
 
-  async deletePost(userId, postId: number) {
+  async deletePost(userId, postId: number) : Promise<boolean> {
 
 
     const post = await this.postRepository.findOne({ where: { id: postId } });
