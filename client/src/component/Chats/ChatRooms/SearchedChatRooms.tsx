@@ -1,10 +1,4 @@
-import {
-	ChangeEvent,
-	FormEvent,
-	SetStateAction,
-	useLayoutEffect,
-	useState,
-} from "react";
+import { ChangeEvent, FormEvent, useLayoutEffect, useState } from "react";
 import { RoomsInfo } from "./ChatRooms";
 import { IReadRoomRequest, IReadRoomResponse } from "shared";
 import { ClientError } from "../../../api/errors";
@@ -12,7 +6,6 @@ import { ApiCall } from "../../../api/api";
 import { sendGetRoomHeadersRequest } from "../../../api/chats/crud";
 import { useErrorModal } from "../../../state/errorModalStore";
 import {
-	createButton,
 	searchButton,
 	searchContainer,
 	searchForm,
@@ -20,14 +13,14 @@ import {
 } from "./ChatRooms.css";
 import Rooms from "./Rooms/Rooms";
 import Pagenation from "./Pagenation/Pagenation";
-import { CiCirclePlus } from "react-icons/ci";
+import { FaSearch } from "react-icons/fa";
 
 interface Props {
-	open: React.Dispatch<SetStateAction<boolean>>;
+	//open: React.Dispatch<SetStateAction<boolean>>;
 	setSelectedRoom: (room: { title: string; roomId: number }) => void;
 }
 
-const SearchedChatRooms: React.FC<Props> = ({ open, setSelectedRoom }) => {
+const SearchedChatRooms: React.FC<Props> = ({ setSelectedRoom }) => {
 	const [isRendered, setIsRendered] = useState(false);
 	const [currentPage, setCurrentPage] = useState<number>(1);
 	const [searchedRooms, setSearchedRooms] = useState<RoomsInfo>({
@@ -138,7 +131,6 @@ const SearchedChatRooms: React.FC<Props> = ({ open, setSelectedRoom }) => {
 				gap: "10px",
 			}}
 		>
-			<h3>채팅방 검색하기</h3>
 			<div className={searchContainer}>
 				<form
 					className={searchForm}
@@ -150,14 +142,16 @@ const SearchedChatRooms: React.FC<Props> = ({ open, setSelectedRoom }) => {
 						value={keyword}
 						onChange={onSearchChange}
 					/>
-					<button className={searchButton}>검색</button>
+					<button className={searchButton}>
+						<FaSearch />
+					</button>
 				</form>
-				<div onClick={() => open(true)}>
+				{/* <div onClick={() => open(true)}>
 					<CiCirclePlus
 						className={createButton}
 						title="채팅방 생성"
 					/>
-				</div>
+				</div> */}
 			</div>
 			<div
 				style={{
@@ -174,7 +168,16 @@ const SearchedChatRooms: React.FC<Props> = ({ open, setSelectedRoom }) => {
 						}}
 					>
 						{Object.keys(searchedRooms.rooms).length === 0 ? (
-							"검색된 채팅방 없음"
+							<div
+								style={{
+									display: "flex",
+									justifyContent: "center",
+									alignItems: "center",
+									height: "100px",
+								}}
+							>
+								검색된 채팅방 없음
+							</div>
 						) : (
 							<Rooms
 								isMine={false}

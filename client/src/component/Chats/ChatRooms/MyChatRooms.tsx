@@ -70,7 +70,13 @@ const MyChatRooms: FC<Props> = ({
 					<div className={roomsWrapper}>
 						{Object.keys(roomState.myRoomInfo.rooms).length ===
 						0 ? (
-							"내 채팅방 없음"
+							<div
+								style={{
+									height: "100px",
+								}}
+							>
+								{"내 채팅방 없음"}
+							</div>
 						) : (
 							<Rooms
 								isMine={true}

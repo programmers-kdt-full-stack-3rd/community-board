@@ -38,12 +38,7 @@ const ChatRooms: FC<Props> = ({ setSelectedRoom }) => {
 	const renderChatRoomPage = () => {
 		switch (category) {
 			case ChatAsideCategory.SEARCH:
-				return (
-					<SearchedChatRooms
-						open={setIsOpen}
-						setSelectedRoom={setSelectedRoom}
-					/>
-				);
+				return <SearchedChatRooms setSelectedRoom={setSelectedRoom} />;
 			case ChatAsideCategory.MYROOM:
 				return (
 					<MyChatRooms

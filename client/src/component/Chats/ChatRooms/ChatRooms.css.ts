@@ -19,14 +19,17 @@ export const searchContainer = style({
 	display: "flex",
 	flexDirection: "row",
 	justifyContent: "space-between",
+	marginTop: "10px",
 });
 
 export const searchInput = style({
-	width: "50%",
+	width: "100%",
 	height: "34px",
 });
 
 export const searchButton = style({
+	padding: "0px",
+	width: "50px",
 	cursor: "pointer",
 	height: "40px",
 });

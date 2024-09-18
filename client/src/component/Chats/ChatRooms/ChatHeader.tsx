@@ -1,4 +1,4 @@
-import { FaSearch } from "react-icons/fa";
+import { TbMessage2Search } from "react-icons/tb";
 import { IoMdSettings } from "react-icons/io";
 import { BsWechat } from "react-icons/bs";
 import { ChatAsideCategory, useChatAside } from "../../../state/ChatAsideStore";
@@ -24,7 +24,7 @@ const ChatHeader = () => {
 					setCategory(ChatAsideCategory.SEARCH);
 				}}
 			>
-				<FaSearch
+				<TbMessage2Search
 					style={{
 						color:
 							category === ChatAsideCategory.SEARCH
