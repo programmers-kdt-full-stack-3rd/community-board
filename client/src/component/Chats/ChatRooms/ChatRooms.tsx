@@ -6,6 +6,7 @@ import MyChatRooms from "./MyChatRooms";
 import SearchedChatRooms from "./SearchedChatRooms";
 import { useUserStore } from "../../../state/store";
 import { useNavigate } from "react-router-dom";
+import ChatHeader from "./ChatHeader";
 
 export interface RoomsInfo {
 	totalRoomCount: number;
@@ -50,6 +51,7 @@ const ChatRooms: FC<Props> = ({ setSelectedRoom }) => {
 
 	return (
 		<div className={container}>
+			<ChatHeader />
 			{isOpen ? (
 				<CreateRoomModal
 					close={setIsOpen}

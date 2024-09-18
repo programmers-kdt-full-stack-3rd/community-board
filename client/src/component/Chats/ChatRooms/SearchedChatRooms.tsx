@@ -138,6 +138,7 @@ const SearchedChatRooms: React.FC<Props> = ({ open, setSelectedRoom }) => {
 				gap: "10px",
 			}}
 		>
+			<h3>채팅방 검색하기</h3>
 			<div className={searchContainer}>
 				<form
 					className={searchForm}

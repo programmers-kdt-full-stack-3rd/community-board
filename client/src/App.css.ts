@@ -65,8 +65,12 @@ export const mainContainer = style({
 	flex: 1,
 	display: "flex",
 	flexDirection: "column",
+	width: "fit",
+	height: "100vh",
+	paddingTop: "20px",
 	alignItems: "center",
 	marginBottom: "40px",
+	position: "relative",
 });
 
 export const justifyCenter = style({
