@@ -1,7 +1,10 @@
+import { Like } from "../../like/entities/like.entity";
+import { Post } from "../../post/entities/post.entity";
 import {
 	Column,
 	CreateDateColumn,
 	Entity,
+	OneToMany,
 	PrimaryGeneratedColumn,
 } from "typeorm";
 
@@ -36,4 +39,10 @@ export class User {
 
 	@CreateDateColumn({ name: "created_at" })
 	createdAt: Date;
+
+	@OneToMany(type=> Post, post => post.author)
+	posts: Post[]
+
+	@OneToMany(type => Like, like => like.user)
+	likes: Like[]
 }
