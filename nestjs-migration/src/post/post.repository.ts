@@ -64,7 +64,6 @@ export class PostRepository extends Repository<Post> {
 			.limit(perPage)
 			.offset(index * perPage);
 
-		console.log(perPage,index)
 		return await queryBuilder.getRawMany();
 	}
 

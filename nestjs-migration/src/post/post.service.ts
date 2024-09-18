@@ -110,7 +110,7 @@ export class PostService {
     const author = await this.userRepository.findOne({where: {id:authorId}});
     const post = await this.postRepository.findOne({ where: { id: postId } });
 
-    if (!(author && post)) {
+    if (!(author && post && !post.isDelete)) {
       throw ServerError.notFound("없는 유저이거나 존재하지 않는 게시물입니다.")
     }
 
@@ -147,13 +147,10 @@ export class PostService {
 
 
     const post = await this.postRepository.findOne({ where: { id: postId } });
-    if (!post)  {
+
+    if (!(post && !post.isDelete)) {
       throw ServerError.reference("게시글 삭제 실패");
-    };
-    const exist = !post.isDelete;
-    if (!exist) {
-      throw ServerError.reference("게시글 삭제 실패");
-    };
+    }
 
     const result = await this.postRepository
       .update({id: postId, isDelete: 0, author: userId}, {isDelete: 1});
