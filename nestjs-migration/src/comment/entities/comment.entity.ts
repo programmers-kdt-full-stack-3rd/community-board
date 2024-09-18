@@ -1,0 +1,41 @@
+import { Like } from "src/like/entities/like.entity";
+import { Post } from "src/post/entities/post.entity";
+import { User } from "src/user/entities/user.entity";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { CommentLikes } from "./comment-likes.entity";
+
+@Entity("comments")
+export class Comment {
+    @PrimaryGeneratedColumn()
+    id: number;
+
+    @Column({type : "text", nullable: false})
+    content: string;
+
+    @ManyToOne(type => User, user => user.comments)
+    @JoinColumn({name: "author_id"})
+    author: number;
+
+    @ManyToOne(type=>Post, post => post.comments)
+    @JoinColumn({name: "post_id"})
+    post: Post;
+
+    @CreateDateColumn({name: "created_at", nullable: false})
+    createdAt: Date;
+
+    @UpdateDateColumn({name: "updated_at"})
+    updatedAt: Date;
+
+    @Column({name: "is_delete", nullable: false, default: 0})
+    isDelete: boolean;
+
+    @OneToMany(type => Like, like => like.comment)
+    likes: Like[]
+
+    @OneToMany(type => CommentLikes, commentLikes => commentLikes.comment)
+    comment_likes: CommentLikes[]
+}
+
+
+
+

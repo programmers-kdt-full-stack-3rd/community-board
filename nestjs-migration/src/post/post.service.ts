@@ -9,7 +9,7 @@ import { Post } from './entities/post.entity';
 import { UserRepository } from '../user/user.repository';
 import { ReadPostsQueryDto } from './dto/read-posts-query.dto';
 import { PostRepository } from './post.repository';
-import { Log } from '../log/entity/log.entity';
+import { Log } from '../log/entities/log.entity';
 import { ServerError } from '../common/exceptions/server-error.exception';
 
 
@@ -144,13 +144,6 @@ export class PostService {
   };
 
   async deletePost(userId, postId: number) {
-
-
-    const post = await this.postRepository.findOne({ where: { id: postId } });
-
-    if (!(post && !post.isDelete)) {
-      throw ServerError.reference("게시글 삭제 실패");
-    }
 
     const result = await this.postRepository
       .update({id: postId, isDelete: 0, author: userId}, {isDelete: 1});

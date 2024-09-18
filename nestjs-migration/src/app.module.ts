@@ -13,6 +13,7 @@ import { UserModule } from "./user/user.module";
 import { PostModule } from './post/post.module';
 import { LogModule } from './log/log.module';
 import { LikeModule } from './like/like.module';
+import { CommentModule } from './comment/comment.module';
 
 @Module({
 	imports: [
@@ -25,7 +26,7 @@ import { LikeModule } from './like/like.module';
 			imports: [ConfigModule],
 			useFactory: (configService: ConfigService) => ({
 			...configService.get("typeorm"),
-			logging: false,  
+			logging: true,  
 			}),
 			inject: [ConfigService],
 		}),
@@ -34,6 +35,7 @@ import { LikeModule } from './like/like.module';
 		PostModule,
 		LogModule,
 		LikeModule,
+		CommentModule,
 	],
 	controllers: [AppController],
 	providers: [

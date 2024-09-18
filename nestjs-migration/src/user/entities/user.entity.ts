@@ -1,12 +1,15 @@
+import { Comment } from "src/comment/entities/comment.entity";
 import { Like } from "../../like/entities/like.entity";
 import { Post } from "../../post/entities/post.entity";
 import {
 	Column,
 	CreateDateColumn,
 	Entity,
+	JoinColumn,
 	OneToMany,
 	PrimaryGeneratedColumn,
 } from "typeorm";
+import { CommentLikes } from "src/comment/entities/comment-likes.entity";
 
 @Entity("users")
 export class User {
@@ -41,8 +44,15 @@ export class User {
 	createdAt: Date;
 
 	@OneToMany(type=> Post, post => post.author)
-	posts: Post[]
+	posts: Post[];
 
 	@OneToMany(type => Like, like => like.user)
-	likes: Like[]
+	likes: Like[];
+
+	@OneToMany(type => Comment, comment => comment.author)
+	comments: Comment[];
+
+	@OneToMany(type => CommentLikes, commentLikes => commentLikes.user)
+	@JoinColumn({name: "comment_likes"})
+	commentLikes: CommentLikes[];
 }
