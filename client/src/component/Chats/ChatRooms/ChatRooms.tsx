@@ -43,6 +43,7 @@ const ChatRooms: FC<Props> = ({ setSelectedRoom }) => {
 				return (
 					<MyChatRooms
 						currentPage={currentPage}
+						open={setIsOpen}
 						setCurrentPage={setCurrentPage}
 						setSelectedRoom={setSelectedRoom}
 					/>
@@ -59,14 +60,14 @@ const ChatRooms: FC<Props> = ({ setSelectedRoom }) => {
 			return;
 		}
 
-		if (socket) {
+		if (socket && category === ChatAsideCategory.MYROOM) {
 			const data: IGetMyRoomRequestEvent = {
 				page: currentPage,
 				nickname,
 			};
 			socket.emit("get_my_rooms", data);
 		}
-	}, [currentPage, isLogin, navigate, nickname, socket]);
+	}, [currentPage, isLogin, navigate, nickname, socket, category]);
 
 	return (
 		<div className={container}>

@@ -12,6 +12,7 @@ import { CiLock } from "react-icons/ci";
 import { useState } from "react";
 import { IJoinRoomRequest, IRoomHeader } from "shared";
 import { useUserStore } from "../../../../state/store";
+import { FaUsers } from "react-icons/fa";
 
 interface Props {
 	room: IRoomHeader;
@@ -110,7 +111,9 @@ const Room: React.FC<Props> = ({ room, isMine, index, setSelectedRoom }) => {
 						<div className={numContainer}>
 							{/* TODO : 접속 인원 소켓에서 추가 */}
 							{/* {isMine ? <span>접속 인원: </span> : null} */}
-							<span>참여 인원: {room.totalMembersCount}</span>
+							<span>
+								<FaUsers /> {room.totalMembersCount}
+							</span>
 						</div>
 					</div>
 					{isMine ? (

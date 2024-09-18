@@ -41,8 +41,13 @@ export const searchForm = style({
 });
 
 export const createButton = style({
+	display: "flex",
+	justifyContent: "center",
+	alignItems: "center",
+	gap: "10px",
+	padding: "0px",
+	width: "50px",
 	cursor: "pointer",
-	width: "40px",
 	height: "40px",
 	":hover": {
 		opacity: "0.7",

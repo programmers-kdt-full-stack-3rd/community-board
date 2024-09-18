@@ -174,6 +174,7 @@ const SearchedChatRooms: React.FC<Props> = ({ setSelectedRoom }) => {
 									justifyContent: "center",
 									alignItems: "center",
 									height: "100px",
+									color: "white",
 								}}
 							>
 								검색된 채팅방 없음

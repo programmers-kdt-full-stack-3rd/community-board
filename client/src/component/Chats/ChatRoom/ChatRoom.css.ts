@@ -3,8 +3,8 @@ import { style } from "@vanilla-extract/css";
 export const chatRoomContainer = style({
 	display: "flex",
 	flexDirection: "column",
-	width: "80%",
-	padding: "10px",
+	width: "100%",
+	color: "white",
 });
 
 export const chatRoomHeader = style({

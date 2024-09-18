@@ -12,7 +12,7 @@ export const roomWrapper = style({
 	display: "flex",
 	flexDirection: "column",
 	justifyContent: "center",
-	border: "1px solid black",
+	border: "1px solid white",
 	borderRadius: "10px",
 	padding: "10px",
 	cursor: "pointer",
@@ -31,6 +31,7 @@ export const roomHeaderContainer = style({
 	display: "flex",
 	flexDirection: "row",
 	justifyContent: "space-between",
+	color: "white",
 });
 
 export const titleContainer = style({
