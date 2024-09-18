@@ -23,7 +23,7 @@ export const getPostHeaders = async (
 		let sharedSql = ` FROM posts as p
                         LEFT JOIN users as u
                         ON p.author_id = u.id
-                        WHERE p.is_delete = FALSE
+                        WHERE p.isDelete = FALSE
 						            AND (p.is_private = FALSE OR (p.is_private = TRUE AND p.author_id = ?))`;
 
 		dataValues.push(userId || 0);
@@ -103,7 +103,7 @@ export const getPostInfo = async (post_id: number, user_id?: number) => {
                 FROM posts as p
                 LEFT JOIN users as u
                 ON p.author_id = u.id
-                WHERE p.is_delete = FALSE
+                WHERE p.isDelete = FALSE
                 AND u.is_delete = FALSE
                 AND p.id = ?
         `;
@@ -152,7 +152,7 @@ export const getAdminPosts = async ({
 		p.title,
 		u.nickname as author,
 		p.created_at,
-		p.is_delete,
+		p.isDelete,
 		p.is_private
 		FROM posts as p
 		LEFT JOIN users as u
