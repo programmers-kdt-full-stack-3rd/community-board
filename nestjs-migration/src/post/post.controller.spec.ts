@@ -47,7 +47,7 @@ describe("PostController", () => {
 		const mockCreatePostDto: CreatePostDto = {
 			title: "Test Title",
 			content: "Test Content",
-      author_id: mockUserId,
+      authorId: mockUserId,
 			doFilter: true,
 		};
 

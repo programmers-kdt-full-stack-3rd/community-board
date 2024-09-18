@@ -101,7 +101,7 @@ describe("PostService", () => {
       title: "title",
       content: "content",
       doFilter: false,
-      author_id: mockUser.id,
+      authorId: mockUser.id,
     };
     it("게시물 생성 성공 시 postId를 반환한다.", async () => {
       jest.spyOn(mockUserRepository, "findOne").mockResolvedValue(
@@ -250,7 +250,7 @@ describe("PostService", () => {
 			mockUpdateDto = {
 				title: "New Title",
 				content: "New Content",
-				author_id: mockUserId,
+				authorId: mockUserId,
 				doFilter: true,
 			};
 		});
