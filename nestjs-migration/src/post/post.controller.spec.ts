@@ -61,7 +61,7 @@ describe("PostController", () => {
 			);
 
 			expect(postService.createPost).toHaveBeenCalledWith(
-				{...mockCreatePostDto, author_id: mockUserId}
+				{...mockCreatePostDto, authorId: mockUserId}
 			);
 			expect(result).toEqual({
 				postId: mockPostId,
@@ -171,7 +171,7 @@ describe("PostController", () => {
 
       expect(postService.updatePost).toHaveBeenCalledWith(mockPostId, {
         ...updateBodyDto,
-        author_id: mockUserId,
+        authorId: mockUserId,
       });
 			expect(result).toEqual({
 				message: "게시글 수정 success",

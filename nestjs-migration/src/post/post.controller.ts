@@ -31,18 +31,17 @@ export class PostController {
 		@Body() createPostBodyDto: CreatePostBodyDto,
 		@Req() req: Request
 	) {
-		const authorId = req.user["userId"];
-		const values = {
-			...createPostBodyDto,
-			authorId,
-		};
-		
 		try {
+			const authorId = req.user["userId"];
+			const values = {
+				...createPostBodyDto,
+				authorId,
+			};
 			const postId = await this.postService.createPost(values);
 			return { postId, message: "게시글 생성 success" };
 
 		} catch (err) {
-			return {  "message": `${err.name}: ${err.message}`};
+			throw err;
 		}
 	}
 
@@ -52,10 +51,8 @@ export class PostController {
 		@Query() readPostsQueryDto: ReadPostsQueryDto,
 		@Req() req: Request
 	) {
-    
-		const userId = req.user? req.user["userId"] : 0;
-
 		try {
+			const userId = req.user? req.user["userId"] : 0;
 			const postHeaders = await this.postService.findPostHeaders(
 				readPostsQueryDto,
 				userId
@@ -76,8 +73,8 @@ export class PostController {
 		@Param("postId", ParseIntPipe) postId: number,
 		@Req() req: Request
 	) {
-    	const userId = req.user? req.user["userId"] : 0;
 		try{
+			const userId = req.user? req.user["userId"] : 0;
 			const post = await this.postService.findPost(postId, userId);
 			return { post };
 	
@@ -94,17 +91,16 @@ export class PostController {
 		@Body() updatePostBodyDto: UpdatePostBodyDto,
 		@Req() req: Request
 	) {
-		const authorId = req.user["userId"];
-		const updateBodyDto = {
-			...updatePostBodyDto,
-			authorId,
-		};
-
 		try {
+			const authorId = req.user["userId"];
+			const updateBodyDto = {
+				...updatePostBodyDto,
+				authorId,
+			};
 			await this.postService.updatePost(postId, updateBodyDto);
 			return {  "message": "게시글 수정 success" };
 		} catch(err) {
-			return {  "message": `${err.name}: ${err.message}`};
+			throw err;
 		};
 	};
 
@@ -115,13 +111,12 @@ export class PostController {
 		@Param("postId", ParseIntPipe) postId: number,
 		@Req() req: Request,
 	) {
-		
-		const userId = req.user["userId"];
 		try {
+			const userId = req.user["userId"];
 			await this.postService.deletePost( userId, postId );
 			return {  message: "게시글 삭제 success" };
 		} catch (err) {
-			return {  "message": `${err.name}: ${err.message}`};
+			throw err;
 		};
 	};
 };
