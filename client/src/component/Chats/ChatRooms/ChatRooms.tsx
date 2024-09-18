@@ -7,6 +7,7 @@ import SearchedChatRooms from "./SearchedChatRooms";
 import { useUserStore } from "../../../state/store";
 import { useNavigate } from "react-router-dom";
 import ChatHeader from "./ChatHeader";
+import { ChatAsideCategory, useChatAside } from "../../../state/ChatAsideStore";
 
 export interface RoomsInfo {
 	totalRoomCount: number;
@@ -32,6 +33,29 @@ const ChatRooms: FC<Props> = ({ setSelectedRoom }) => {
 	const isLogin = useUserStore.use.isLogin();
 	const nickname = useUserStore.use.nickname();
 	const socket = useUserStore.use.socket();
+	const { category } = useChatAside();
+
+	const renderChatRoomPage = () => {
+		switch (category) {
+			case ChatAsideCategory.SEARCH:
+				return (
+					<SearchedChatRooms
+						open={setIsOpen}
+						setSelectedRoom={setSelectedRoom}
+					/>
+				);
+			case ChatAsideCategory.MYROOM:
+				return (
+					<MyChatRooms
+						currentPage={currentPage}
+						setCurrentPage={setCurrentPage}
+						setSelectedRoom={setSelectedRoom}
+					/>
+				);
+			default:
+				return <div>미구현!</div>;
+		}
+	};
 
 	useLayoutEffect(() => {
 		if (!isLogin) {
@@ -58,15 +82,7 @@ const ChatRooms: FC<Props> = ({ setSelectedRoom }) => {
 					setSelectedRoom={setSelectedRoom}
 				/>
 			) : null}
-			<SearchedChatRooms
-				open={setIsOpen}
-				setSelectedRoom={setSelectedRoom}
-			/>
-			<MyChatRooms
-				currentPage={currentPage}
-				setCurrentPage={setCurrentPage}
-				setSelectedRoom={setSelectedRoom}
-			/>
+			{renderChatRoomPage()}
 		</div>
 	);
 };
