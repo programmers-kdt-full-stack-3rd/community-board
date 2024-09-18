@@ -16,5 +16,5 @@ export class UpdatePostBodyDto {
 }
 export class UpdatePostDto extends UpdatePostBodyDto {
 	@IsNotEmpty()
-	author_id: number;
+	authorId: number;
 }

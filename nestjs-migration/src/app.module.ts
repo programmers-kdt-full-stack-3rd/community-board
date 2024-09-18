@@ -25,7 +25,7 @@ import { LikeModule } from './like/like.module';
 			imports: [ConfigModule],
 			useFactory: (configService: ConfigService) => ({
 			...configService.get("typeorm"),
-			logging: true,  // 이 옵션 추가
+			logging: false,  
 			}),
 			inject: [ConfigService],
 		}),

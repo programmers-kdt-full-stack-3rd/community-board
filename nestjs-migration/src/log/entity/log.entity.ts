@@ -6,15 +6,15 @@ export class Log {
     @PrimaryGeneratedColumn()
     id: number
 
-    @Column()
-    user_id: number
+    @Column({ name: "user_id"})
+    userId: number
 
     @Column()
     title: string
 
-    @Column()
-    category_id: number
+    @Column({ name: "category_id"})
+    categoryId: number
 
-    @CreateDateColumn()
-    created_at: Date
+    @CreateDateColumn({ name: "created_at"})
+    createdAt: Date
 }

@@ -14,7 +14,7 @@ export class Like {
     @ManyToOne(type => User, user => user.likes)
     user: number;
 
-    @CreateDateColumn()
-    created_at: Date
+    @CreateDateColumn({ name: "created_at"})
+    createdAt: Date
 
 }

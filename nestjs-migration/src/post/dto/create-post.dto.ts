@@ -14,5 +14,5 @@ export class CreatePostBodyDto {
 export class CreatePostDto extends CreatePostBodyDto {
     
     @IsNotEmpty()
-    author_id: number
+    authorId: number
 }

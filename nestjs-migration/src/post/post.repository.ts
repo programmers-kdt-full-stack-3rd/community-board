@@ -34,7 +34,7 @@ export class PostRepository extends Repository<Post> {
 						.where("likes.post_id = post.id"),
 				"likes"
 			)
-			.where("post.isDelete = :isDelete", { isDelete: false })
+			.where("post.is_delete = :isDelete", { isDelete: false })
 			.andWhere(
 				"post.is_private = :isPrivateFalse OR (post.is_private = :isPrivateTrue AND post.author_id = :authorId)",
 				{
@@ -72,7 +72,7 @@ export class PostRepository extends Repository<Post> {
 
 		const queryBuilder = this.createQueryBuilder("post")
 			.leftJoinAndSelect("post.author", "user")
-			.where("post.isDelete = :isDelete", { isDelete: false })
+			.where("post.is_delete = :isDelete", { isDelete: false })
 			.andWhere(
 				"post.is_private = :isPrivateFalse OR (post.is_private = :isPrivateTrue AND post.author_id = :authorId)",
 				{
@@ -90,8 +90,8 @@ export class PostRepository extends Repository<Post> {
 		return await queryBuilder.getCount();
 	}
 
-	async getPostHeader(post_id, user_id) {
-		const author_id = user_id;
+	async getPostHeader(postId, userId) {
+		const authorId = userId;
 		const queryBuilder = this.createQueryBuilder("post")
 			.select([
 				"post.id as id",
@@ -99,14 +99,14 @@ export class PostRepository extends Repository<Post> {
 				"content",
 				"author_id",
 				"user.nickname as author_nickname",
-				"(post.author_id = :author_id) AS is_author",
+				"(post.author_id = :authorId) AS is_author",
 				"post.created_at as created_at",
 				"post.updated_at as updated_at",
 				"views",
 				`EXISTS(
                     SELECT 1
                     FROM post_likes AS pl
-                    WHERE pl.post_id = post.id AND pl.user_id = :user_id
+                    WHERE pl.post_id = post.id AND pl.user_id = :userId
                 ) AS user_liked`,
 			])
 			.addSelect(
@@ -115,12 +115,12 @@ export class PostRepository extends Repository<Post> {
 				"likes"
 			)
 			.leftJoin("post.author", "user")
-			.where("post.isDelete = :isPostDeleted", { isPostDeleted: false })
+			.where("post.is_delete = :isPostDeleted", { isPostDeleted: false })
 			.andWhere("user.is_delete = :isUserDeleted", {
 				isUserDeleted: false,
 			})
-			.andWhere("post.id = :post_id", { post_id: post_id })
-			.setParameters({ author_id, user_id });
+			.andWhere("post.id = :postId", { postId: postId })
+			.setParameters({ authorId, userId });
 
 		return await queryBuilder.getRawOne();
 	}

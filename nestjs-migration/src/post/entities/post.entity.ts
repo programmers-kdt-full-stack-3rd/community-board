@@ -14,20 +14,20 @@ export class Post {
     @Column()
     content: string
     
-    @CreateDateColumn()
-    created_at: Date
+    @CreateDateColumn({ name: "created_at", default: false })
+    createdAt: Date
 
-    @UpdateDateColumn()
-    updated_at: Date
+    @UpdateDateColumn({ name: "updated_at", default: false })
+    updatedAt: Date
 
     @Column()
     views: number
 
-    @Column()
+    @Column({ name: "is_delete" })
     isDelete: number
 
-    @Column()
-    is_private: number
+    @Column({ name: "is_private"})
+    isPrivate: number
 
     @ManyToOne(type=> User, user => user.posts)
     @JoinColumn({ name: 'author_id' }) 

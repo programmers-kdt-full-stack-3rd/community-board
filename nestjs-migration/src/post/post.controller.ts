@@ -14,10 +14,10 @@ import {
 	ParseIntPipe,
 } from "@nestjs/common";
 import { PostService } from "./post.service";
-import { CreatePostBodyDto, CreatePostDto } from "./dto/create-post.dto";
-import { UpdatePostBodyDto, UpdatePostDto } from "./dto/update-post.dto";
+import { CreatePostBodyDto } from "./dto/create-post.dto";
+import { UpdatePostBodyDto } from "./dto/update-post.dto";
 import { LoginGuard } from "../common/guard/login.guard";
-import { Request, Response } from "express";
+import { Request } from "express";
 import { ReadPostsQueryDto } from "./dto/read-posts-query.dto";
 
 @Controller("post")
@@ -31,10 +31,10 @@ export class PostController {
 		@Body() createPostBodyDto: CreatePostBodyDto,
 		@Req() req: Request
 	) {
-		const author_id = req.user["userId"];
+		const authorId = req.user["userId"];
 		const values = {
 			...createPostBodyDto,
-			author_id,
+			authorId,
 		};
 		
 		try {
@@ -70,37 +70,38 @@ export class PostController {
 		};
 	};
 
-	@Get("/:post_id")
+	@Get("/:postId")
 	@HttpCode(HttpStatus.OK)
 	async handlePostRead(
-		@Param("post_id", ParseIntPipe) post_id: number,
+		@Param("postId", ParseIntPipe) postId: number,
 		@Req() req: Request
 	) {
     	const userId = req.user? req.user["userId"] : 0;
 		try{
-			const post = await this.postService.findPost(post_id, userId);
+			const post = await this.postService.findPost(postId, userId);
 			return { post };
+	
 		} catch(err) {
 			throw err;
 		};
 	};
 
 	@UseGuards(LoginGuard)
-	@Patch("/:post_id")
+	@Patch("/:postId")
 	@HttpCode(HttpStatus.OK)
 	async handlePostUpdate(
-		@Param("post_id", ParseIntPipe) post_id: number,
+		@Param("postId", ParseIntPipe) postId: number,
 		@Body() updatePostBodyDto: UpdatePostBodyDto,
 		@Req() req: Request
 	) {
-		const author_id = req.user["userId"];
+		const authorId = req.user["userId"];
 		const updateBodyDto = {
 			...updatePostBodyDto,
-			author_id,
+			authorId,
 		};
 
 		try {
-			await this.postService.updatePost(post_id, updateBodyDto);
+			await this.postService.updatePost(postId, updateBodyDto);
 			return {  "message": "게시글 수정 success" };
 		} catch(err) {
 			return {  "message": `${err.name}: ${err.message}`};
@@ -108,16 +109,16 @@ export class PostController {
 	};
 
   	@UseGuards(LoginGuard)
-	@Delete(":post_id")
+	@Delete(":postId")
 	@HttpCode(HttpStatus.OK)
 	async handlePostDelete(
-		@Param("post_id", ParseIntPipe) post_id: number,
+		@Param("postId", ParseIntPipe) postId: number,
 		@Req() req: Request,
 	) {
 		
-		const user_id = req.user["userId"];
+		const userId = req.user["userId"];
 		try {
-			await this.postService.deletePost( user_id, post_id );
+			await this.postService.deletePost( userId, postId );
 			return {  message: "게시글 삭제 success" };
 		} catch (err) {
 			return {  "message": `${err.name}: ${err.message}`};
