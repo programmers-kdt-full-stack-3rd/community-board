@@ -16,6 +16,7 @@ export class PostRepository extends Repository<Post> {
 		userId: number
 	): Promise<getPostHeadersDto[]> {
 		let { index, perPage, keyword, sortBy } = readPostsQueryDto;
+		index -= 1;
 
 		const queryBuilder = this.createQueryBuilder("post")
 			.leftJoinAndSelect("post.author", "user")

@@ -32,8 +32,8 @@ export class PostService {
       const author = await this.userRepository.findOne({where: {id:authorId}});
 
       if (!author) {
-        throw ReferenceError("존재하지 않는 유저입니다.");
-      }
+        throw ServerError.notFound("존재하지 않는 유저입니다");
+      };
 
       if (doFilter) {
         const regex = getRegex(regexs);
@@ -57,7 +57,8 @@ export class PostService {
       await queryRunner.startTransaction();
       isTransactionStarted = true;
 
-      const postId = (await queryRunner.manager.save(newPost)).id;
+      const result = (await queryRunner.manager.save(newPost));
+      const postId = result.id;
       await queryRunner.manager.getRepository(Log).save(logValue);
 
       await queryRunner.commitTransaction();
@@ -68,7 +69,7 @@ export class PostService {
       if (isTransactionStarted) {
         await queryRunner.rollbackTransaction();
       }
-      throw err; 
+      throw err;
     } 
     finally {
       await queryRunner.release();
@@ -90,13 +91,13 @@ export class PostService {
   
   }
 
-  async findPost(postId, userId) {
+  async findPost(postId: number, userId: number) {
     
     
     const post = await this.postRepository.getPostHeader(postId, userId);
 
     if(!post || Object.keys(post).length == 0){
-      throw ReferenceError("게시물이 존재하지 않습니다.")
+      throw ServerError.notFound("존재하지 않는 게시글입니다.")
     } else {
       return post;
     }
@@ -109,8 +110,8 @@ export class PostService {
     const author = await this.userRepository.findOne({where: {id:authorId}});
     const post = await this.postRepository.findOne({ where: { id: postId } });
 
-    if (!(author && post)) {
-      throw ReferenceError("게시글 수정 실패")
+    if (!(author && post && !post.isDelete)) {
+      throw ServerError.notFound("없는 유저이거나 존재하지 않는 게시물입니다.")
     }
 
     const newPost = new Post();
@@ -134,6 +135,7 @@ export class PostService {
       result = await this.postRepository.update({id: postId}, {content: newPost.content})
     };
 
+    //TODO: 같은 내용 update해도 affected = 1 _express와 동일
     if (result.affected) {
       return true
     } else {
@@ -142,20 +144,21 @@ export class PostService {
   };
 
   async deletePost(userId, postId: number) {
+
+
     const post = await this.postRepository.findOne({ where: { id: postId } });
 
-    const exist = !post.isDelete;
+    if (!(post && !post.isDelete)) {
+      throw ServerError.reference("게시글 삭제 실패");
+    }
 
-    if (!(post && exist)) {
-      throw ReferenceError("게시글 삭제 실패");
-    };
     const result = await this.postRepository
       .update({id: postId, isDelete: 0, author: userId}, {isDelete: 1});
 
       if(result.affected) {
         return true;
       } else {
-        throw ReferenceError("게시글 삭제 실패");
+        throw ServerError.reference("게시글 삭제 실패");
       };
   };
 };
