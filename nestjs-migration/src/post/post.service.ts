@@ -10,6 +10,7 @@ import { UserRepository } from '../user/user.repository';
 import { ReadPostsQueryDto } from './dto/read-posts-query.dto';
 import { PostRepository } from './post.repository';
 import { Log } from '../log/entity/log.entity';
+import { ServerError } from '../common/exceptions/server-error.exception';
 
 
 @Injectable()
@@ -22,6 +23,7 @@ export class PostService {
   async createPost(createPostDto: CreatePostDto) {
 
     const queryRunner = this.dataSource.createQueryRunner();
+    let isTransactionStarted = false;
 
     try {
 
@@ -29,11 +31,15 @@ export class PostService {
 
       const author = await this.userRepository.findOne({where: {id:author_id}});
 
+      if (!author) {
+        throw ReferenceError("존재하지 않는 유저입니다.");
+      }
+
       if (doFilter) {
         const regex = getRegex(regexs);
         const newText = changeBadWords(content, regex);
         content = newText;
-      }
+      };
 
       const newPost = new Post();
       newPost.title = title;
@@ -49,6 +55,7 @@ export class PostService {
     //트랜잭션
       await queryRunner.connect();
       await queryRunner.startTransaction();
+      isTransactionStarted = true;
 
       const postId = (await queryRunner.manager.save(newPost)).id;
       await queryRunner.manager.getRepository(Log).save(logValue);
@@ -58,7 +65,10 @@ export class PostService {
       return postId;
     } 
     catch (err) {
-      await queryRunner.rollbackTransaction();
+      if (isTransactionStarted) {
+        await queryRunner.rollbackTransaction();
+      }
+      throw err; 
     } 
     finally {
       await queryRunner.release();
@@ -77,8 +87,7 @@ export class PostService {
     const total = await this.postRepository.getPostTotal(readPostsQueryDto, userId);
     
     return total;
-    
-
+  
   }
 
   async findPost(post_id, userId) {
@@ -91,14 +100,14 @@ export class PostService {
   async updatePost(post_id: number, updatePostDto: UpdatePostDto) {
 
     let {doFilter, content, title, author_id} = updatePostDto;
-
+    
     const author = await this.userRepository.findOne({where: {id:author_id}});
     const post = await this.postRepository.findOne({ where: { id: post_id } });
-    console.log(post)
 
     if (!(author && post)) {
       throw ReferenceError("게시글 수정 실패")
     }
+
     const newPost = new Post();
 
     if (content && doFilter) {
@@ -111,25 +120,37 @@ export class PostService {
     newPost.content = content;
     newPost.author = author;
 
+    let result;
     if (content && title ) {
-      return await this.postRepository.update({id: post_id}, {title: newPost.title, content: newPost.content})
+      result = await this.postRepository.update({id: post_id}, {title: newPost.title, content: newPost.content})
     } else if (title) {
-      return await this.postRepository.update({id: post_id}, {title: newPost.title})
+      result = await this.postRepository.update({id: post_id}, {title: newPost.title})
     } else if (content) {
-      return await this.postRepository.update({id: post_id}, {content: newPost.content})
-    }
-  }
+      result = await this.postRepository.update({id: post_id}, {content: newPost.content})
+    };
+
+    if (result.affected) {
+      return true
+    } else {
+      throw ServerError.reference("게시글 수정 실패");
+    };
+  };
 
   async deletePost(user_id, post_id: number) {
     const post = await this.postRepository.findOne({ where: { id: post_id } });
+
     const exist = !post.isDelete;
 
     if (!(post && exist)) {
-      throw ReferenceError("게시글 삭제 실패")
-    }
-    const result = this.postRepository
+      throw ReferenceError("게시글 삭제 실패");
+    };
+    const result = await this.postRepository
       .update({id: post_id, isDelete: 0, author: user_id}, {isDelete: 1});
 
-    return result;
-  }
-}
+      if(result.affected) {
+        return true;
+      } else {
+        throw ReferenceError("게시글 삭제 실패");
+      };
+  };
+};

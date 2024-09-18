@@ -36,10 +36,14 @@ export class PostController {
 			...createPostBodyDto,
 			author_id,
 		};
+		
+		try {
+			const postId = await this.postService.createPost(values);
+			return { postId, message: "게시글 생성 success" };
 
-		const postId = await this.postService.createPost(values);
-
-		return { postId, message: "게시글 생성 success" };
+		} catch (err) {
+			return {  "message": `${err.name}: ${err.message}`};
+		}
 	}
 
 	@Get("/")
@@ -51,17 +55,20 @@ export class PostController {
     
 		const userId = req.user? req.user["userId"] : 0;
 
-		const postHeaders = await this.postService.findPostHeaders(
-			readPostsQueryDto,
-			userId
-		);
-		const total = await this.postService.findPostTotal(
-			readPostsQueryDto,
-			userId
-		);
-
-		return { total, postHeaders };
-	}
+		try {
+			const postHeaders = await this.postService.findPostHeaders(
+				readPostsQueryDto,
+				userId
+			);
+			const total = await this.postService.findPostTotal(
+				readPostsQueryDto,
+				userId
+			);
+			return { total, postHeaders };
+		} catch (err) {
+			throw err; 
+		};
+	};
 
 	@Get("/:post_id")
 	@HttpCode(HttpStatus.OK)
@@ -69,12 +76,14 @@ export class PostController {
 		@Param("post_id", ParseIntPipe) post_id: number,
 		@Req() req: Request
 	) {
-    const userId = req.user? req.user["userId"] : 0;
-
-		const post = await this.postService.findPost(post_id, userId);
-
-		return { post };
-	}
+    	const userId = req.user? req.user["userId"] : 0;
+		try{
+			const post = await this.postService.findPost(post_id, userId);
+			return { post };
+		} catch(err) {
+			throw err;
+		};
+	};
 
 	@UseGuards(LoginGuard)
 	@Patch("/:post_id")
@@ -95,8 +104,8 @@ export class PostController {
 			return {  "message": "게시글 수정 success" };
 		} catch(err) {
 			return {  "message": `${err.name}: ${err.message}`};
-		}
-	}
+		};
+	};
 
   	@UseGuards(LoginGuard)
 	@Delete(":post_id")
@@ -112,7 +121,6 @@ export class PostController {
 			return {  message: "게시글 삭제 success" };
 		} catch (err) {
 			return {  "message": `${err.name}: ${err.message}`};
-
-		}
-	}
-}
+		};
+	};
+};
