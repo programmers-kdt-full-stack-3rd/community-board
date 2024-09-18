@@ -5,12 +5,15 @@ import {
 	HttpCode,
 	HttpStatus,
 	Post,
+	Req,
 	Res,
 	UseGuards,
 } from "@nestjs/common";
-import { Response } from "express";
+import { Request, Response } from "express";
 import { LoginGuard } from "../common/guard/login.guard";
 import { getKstNow } from "../utils/date.util";
+import { COOKIE_MAX_AGE } from "./constant/user.constants";
+import { CheckPasswordDto } from "./dto/check-password.dto";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { LoginDto } from "./dto/login.dto";
 import { UserService } from "./user.service";
@@ -36,19 +39,64 @@ export class UserController {
 		res.cookie("accessToken", result.accessToken, {
 			httpOnly: true,
 			secure: true,
-			expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+			maxAge: COOKIE_MAX_AGE.accessToken,
 		});
 
 		res.cookie("refreshToken", result.refreshToken, {
 			httpOnly: true,
 			secure: true,
-			expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
+			maxAge: COOKIE_MAX_AGE.refreshToken,
 		});
 
 		return {
 			message: "로그인 성공",
 			result: { nickname: result.nickname, loginTime: getKstNow() },
 		};
+	}
+
+	@UseGuards(LoginGuard)
+	@Post("logout")
+	@HttpCode(HttpStatus.OK)
+	async logout(
+		@Req() req: Request,
+		@Res({ passthrough: true }) res: Response
+	) {
+		const userId = req.user["userId"];
+
+		res.clearCookie("accessToken");
+		res.clearCookie("refreshToken");
+
+		await this.userService.logout(userId);
+		return { message: "로그아웃 성공" };
+	}
+
+	//TODO: 소셜로그인 API 구현 후 유저 정보 읽기 API 구현
+
+	//TODO: 소셜로그인 API 구현후 유저 정보 수정 API 구현
+
+	//TODO: 소설로그인 API 구현후 유저 탈퇴 API 구현
+
+	@UseGuards(LoginGuard)
+	@Post("/check-password")
+	@HttpCode(HttpStatus.OK)
+	async checkPassword(
+		@Req() req: Request,
+		@Res({ passthrough: true }) res: Response,
+		@Body() checkPasswordDto: CheckPasswordDto
+	) {
+		const userId = req.user["userId"];
+		const result = await this.userService.checkPassword(
+			userId,
+			checkPasswordDto.password
+		);
+
+		res.cookie("tempToken", result.tempToken, {
+			httpOnly: true,
+			secure: true,
+			maxAge: COOKIE_MAX_AGE.tempToken,
+		});
+
+		return { message: "비밀번호 확인 성공" };
 	}
 
 	@UseGuards(LoginGuard)

@@ -1,4 +1,5 @@
 import { Test, TestingModule } from "@nestjs/testing";
+import { DeleteResult } from "typeorm";
 import { AuthService } from "../auth/auth.service";
 import { RefreshTokensRepository } from "../auth/refresh-tokens.repository";
 import { ServerError } from "../common/exceptions/server-error.exception";
@@ -21,18 +22,23 @@ describe("UserService", () => {
 	};
 
 	const mockAuthService = {
+		makeTempToken: jest.fn(),
 		generateTokens: jest.fn(),
 	};
 
 	const mockRefreshTokensRepository = {
 		save: jest.fn(),
+		delete: jest.fn(),
 	};
 
 	const mockSalt = "mocksalt";
 	const mockHashedPassword = "mockhpassword";
+	const mockAccessToken = "mockAccessToken";
+	const mockRefreshToken = "mockRefreshToken";
+	const mockTempToken = "mockTempToken";
 	const mockTokens = {
-		accessToken: "mockAccessToken",
-		refreshToken: "mockRefreshToken",
+		accessToken: mockAccessToken,
+		refreshToken: mockRefreshToken,
 	};
 
 	const createMockUser = (overrides: Partial<User> = {}): User => {
@@ -80,6 +86,8 @@ describe("UserService", () => {
 		jest.spyOn(cryptoUtil, "makeHashedPassword").mockResolvedValue(
 			mockHashedPassword
 		);
+
+		jest.spyOn(authService, "makeTempToken").mockReturnValue(mockTempToken);
 		jest.spyOn(authService, "generateTokens").mockReturnValue(mockTokens);
 	});
 
@@ -228,6 +236,75 @@ describe("UserService", () => {
 			);
 			await expect(userService.login(loginDto)).rejects.toThrow(
 				USER_ERROR_MESSAGES.INVALID_LOGIN
+			);
+		});
+	});
+
+	describe("logout", () => {
+		it("로그아웃 성공 시 refreshToken을 삭제해야한다.", async () => {
+			const userId = 1;
+
+			jest.spyOn(refreshTokenRepository, "delete").mockResolvedValue({
+				affected: 1,
+			} as DeleteResult);
+
+			await userService.logout(userId);
+
+			expect(refreshTokenRepository.delete).toHaveBeenCalledWith({
+				userId,
+			});
+		});
+
+		it("유효한 사용자이지만 리프레시 토큰이 없는 경우 ServerError를 발생시킨다", async () => {
+			const userId = 1;
+
+			jest.spyOn(refreshTokenRepository, "delete").mockResolvedValue({
+				affected: 0,
+			} as DeleteResult);
+
+			await expect(userService.logout(userId)).rejects.toThrow(
+				ServerError
+			);
+			await expect(userService.logout(userId)).rejects.toThrow(
+				USER_ERROR_MESSAGES.FAILED_TOKEN_DELETE
+			);
+		});
+	});
+
+	describe("checkPassword", () => {
+		const userId = 1;
+		const password = "password123";
+		const mockUser = createMockUser();
+		it("비밀번호 확인 성공 시 tempToken을 반환한다", async () => {
+			jest.spyOn(userRepository, "findOne").mockResolvedValue(mockUser);
+
+			const result = await userService.checkPassword(userId, password);
+
+			expect(result).toEqual({ tempToken: mockTempToken });
+		});
+
+		it("비밀번호가 일치하지 않을 때 ServerError를 발생시킨다", async () => {
+			jest.spyOn(userRepository, "findOne").mockResolvedValue(mockUser);
+			jest.spyOn(cryptoUtil, "makeHashedPassword").mockResolvedValue(
+				"wrongpassword"
+			);
+
+			const result = userService.checkPassword(userId, password);
+
+			await expect(result).rejects.toThrow(ServerError);
+			await expect(result).rejects.toThrow(
+				USER_ERROR_MESSAGES.INVALID_PASSWORD
+			);
+		});
+
+		it("존재하지 않는 사용자가 비밀번호 확인 시도 시 ServerError를 발생시킨다", async () => {
+			jest.spyOn(userRepository, "findOne").mockResolvedValue(undefined);
+
+			const result = userService.checkPassword(userId, password);
+
+			await expect(result).rejects.toThrow(ServerError);
+			await expect(result).rejects.toThrow(
+				USER_ERROR_MESSAGES.NOT_FOUND_USER
 			);
 		});
 	});

@@ -7,10 +7,10 @@ import {
 	IReadRoomRequest,
 } from "shared";
 
-dotenv.config();
+dotenv.config({ path: "./../.env" });
 
 const apiClient = axios.create({
-	baseURL: process.env.API_SERVER_ADDRESS || "http://localhost:8000",
+	baseURL: process.env.SERVER_ADDRESS || "http://localhost:8000",
 	timeout: 5000,
 	headers: {
 		"Content-Type": "application/json",

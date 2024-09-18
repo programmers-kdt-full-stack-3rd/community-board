@@ -1,4 +1,13 @@
 services:
+    client:
+        build:
+            dockerfile: ./client/Dockerfile
+        container_name: client
+        ports:
+            - 80:80
+        networks:
+            - app-network
+
     api-server:
         build:
             dockerfile: ./server/Dockerfile

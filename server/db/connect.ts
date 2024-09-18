@@ -1,7 +1,7 @@
 import mariaDB from "mysql2/promise";
 import dotenv from "dotenv";
 
-dotenv.config();
+dotenv.config({ path: "./../.env" });
 
 const port = process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 3306;
 const config = {

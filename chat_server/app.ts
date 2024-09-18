@@ -10,14 +10,14 @@ import { handleChatConnection } from "./controllers/chat_controller";
 import { handleNotificationConnection } from "./controllers/notification_controller";
 import { Socket } from "dgram";
 
-dotenv.config();
+dotenv.config({ path: "./../.env" });
 
 const httpServer = createServer();
 
 // socket.io 서버 설정
 const io = new Server(httpServer, {
 	cors: {
-		origin: process.env.CORS_SERVER_ADDRESS || "http://localhost:8000",
+		origin: process.env.SERVER_ADDRESS || "http://localhost:8000",
 		credentials: true,
 	},
 });
