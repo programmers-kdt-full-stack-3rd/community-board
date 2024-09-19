@@ -97,4 +97,16 @@ export class OAuthController {
 
 		return { url };
 	}
+
+	@Post("/link")
+	@HttpCode(HttpStatus.OK)
+	@UseGuards(LoginGuard)
+	async oAuthLink(
+		@Body() oAuthLoginDto: OAuthLoginDto,
+		@User() user: IUserEntity
+	) {
+		await this.oauthService.oAuthLink(oAuthLoginDto, user.userId);
+
+		return { message: "소셜 계정 연동 성공" };
+	}
 }

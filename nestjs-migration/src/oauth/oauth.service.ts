@@ -103,6 +103,45 @@ export class OAuthService {
 		return { tempToken };
 	}
 
+	async oAuthLink(oAuthLoginDto: OAuthLoginDto, userId: number) {
+		const provider = oAuthLoginDto.provider;
+		const authorizationCode = oAuthLoginDto.code;
+
+		const { oAuthAccountId, oAuthRefreshToken } =
+			await this.oAuthTokenService.verifyAuthorizationCode(
+				provider,
+				authorizationCode
+			);
+
+		let user = await this.userRepository.readUserByOAuth(
+			provider,
+			oAuthAccountId
+		);
+
+		if (user) {
+			throw ServerError.badRequest("이미 연동된 소셜 계정입니다.");
+		}
+
+		const oAuthConnections =
+			await this.oAuthConnectionRepository.getOAuthConnectionByUserId(
+				userId
+			);
+		const isProverLinked = oAuthConnections.find(
+			connection => connection.oAuthProvider.name === provider
+		);
+
+		if (isProverLinked) {
+			throw ServerError.badRequest("이미 연동된 소셜 계정입니다.");
+		}
+
+		await this.createOAuthConnection(
+			provider,
+			userId,
+			oAuthAccountId,
+			oAuthRefreshToken
+		);
+	}
+
 	@Transactional()
 	private async processOAuthLogin(
 		user: User,
