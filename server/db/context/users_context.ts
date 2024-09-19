@@ -81,7 +81,7 @@ export const addUser = async (userData: IUserRegData) => {
 		return rows;
 	} catch (err: any) {
 		if (err.code === "ER_DUP_ENTRY") {
-			handleDupEntry(err.sqlMessage as string, userData.email);
+			await handleDupEntry(err.sqlMessage as string, userData.email);
 		}
 
 		throw err;

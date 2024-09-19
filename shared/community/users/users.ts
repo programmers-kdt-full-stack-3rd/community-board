@@ -1,3 +1,5 @@
+import { TOAuthProvider } from "../oauth/oauths";
+
 export interface IUser {
 	id: number;
 	email: string;
@@ -5,6 +7,12 @@ export interface IUser {
 	isDelete: boolean;
 	password: string;
 	salt: string;
+}
+
+export interface INonSensitiveUser {
+	email: string | null;
+	nickname: string;
+	connected_oauth: TOAuthProvider[];
 }
 
 export interface IUserInfo {

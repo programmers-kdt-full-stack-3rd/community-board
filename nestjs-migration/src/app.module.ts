@@ -11,7 +11,10 @@ import appConfig from "./config/app.config";
 import { typeOrmConfig } from "./config/db.config";
 import jwtConfig from "./config/jwt.config";
 import oauthConfig from "./config/oauth.config";
+import { LikeModule } from "./like/like.module";
+import { LogModule } from "./log/log.module";
 import { OAuthModule } from "./oauth/oauth.module";
+import { PostModule } from "./post/post.module";
 import { RbacModule } from "./rbac/rbac.module";
 import { UserModule } from "./user/user.module";
 
@@ -24,12 +27,17 @@ import { UserModule } from "./user/user.module";
 		}),
 		TypeOrmModule.forRootAsync({
 			imports: [ConfigModule],
-			useFactory: (configService: ConfigService) =>
-				configService.get("typeorm"),
+			useFactory: (configService: ConfigService) => ({
+				...configService.get("typeorm"),
+				logging: false,
+			}),
 			inject: [ConfigService],
 		}),
 		UserModule,
 		AuthModule,
+		PostModule,
+		LogModule,
+		LikeModule,
 		RbacModule,
 		OAuthModule,
 	],
