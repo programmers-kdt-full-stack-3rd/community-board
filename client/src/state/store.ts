@@ -7,6 +7,7 @@ interface IUserState {
 	nickname: string;
 	loginTime: string;
 	isLogin: boolean;
+	isEmailRegistered: boolean;
 	socket: Socket | null;
 }
 
@@ -14,6 +15,7 @@ interface IUserActions {
 	setNickName: (nickName: string) => void;
 	setLoginTime: (loginTime: string) => void;
 	setIsLogin: (isLogin: boolean) => void;
+	setIsEmailRegistered: (isEmailRegistered: boolean) => void;
 	setSocket: (socket: Socket | null) => void;
 	setLoginUser: (nickname: string, loginTime: string) => void;
 	setLogoutUser: () => void;
@@ -28,6 +30,7 @@ const useUserStoreBase = create<TUserStore>()(
 				nickname: "",
 				loginTime: "",
 				isLogin: false,
+				isEmailRegistered: false,
 				socket: null,
 
 				actions: {
@@ -36,6 +39,8 @@ const useUserStoreBase = create<TUserStore>()(
 					setLoginTime: (loginTime: string) => set({ loginTime }),
 					setIsLogin: (isLogin: boolean) => set({ isLogin }),
 					setSocket: socket => set({ socket }),
+					setIsEmailRegistered: (isEmailRegistered: boolean) =>
+						set({ isEmailRegistered }),
 					setLoginUser: (nickname: string, loginTime: string) =>
 						set({
 							nickname,
@@ -64,6 +69,7 @@ const useUserStoreBase = create<TUserStore>()(
 				nickname: state.nickname,
 				loginTime: state.loginTime,
 				isLogin: state.isLogin,
+				isEmailRegistered: state.isEmailRegistered,
 			}),
 		}
 	)

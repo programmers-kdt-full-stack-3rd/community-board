@@ -35,18 +35,22 @@ const getDestination = (
 		};
 	} else if (loginType === "reconfirm") {
 		const nextAction = prevSearch.get("next");
+		const final = prevSearch.get("final") ?? "/";
 
-		if (nextAction === "profileUpdate") {
-			const search = new URLSearchParams();
-			search.set("final", prevSearch.get("final") ?? "/");
-
+		if (!nextAction) {
+			alert("재인증 후 수행할 동작이 없습니다.");
 			return {
-				ok: `/profileUpdate?${search.toString()}`,
+				ok: prevLocation,
 				err: prevLocation,
 			};
 		} else if (nextAction === "accountDelete") {
 			return {
 				ok: "/checkPassword?next=accountDelete&oAuthConfirmed=true",
+				err: prevLocation,
+			};
+		} else {
+			return {
+				ok: `/${nextAction}?final=${final}`,
 				err: prevLocation,
 			};
 		}

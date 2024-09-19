@@ -1,6 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { loginContainer, joinLink } from "../../page/User/Login.css";
+import {
+	loginContainer,
+	joinLink,
+	loginForm,
+	joinText,
+} from "../../page/User/Login.css";
 import { REGEX } from "./constants/constants";
 import EmailForm from "../../component/User/EmailForm";
 import PasswordForm from "../../component/User/PasswordForm";
@@ -9,21 +14,13 @@ import { useUserStore } from "../../state/store";
 import { ApiCall } from "../../api/api";
 import { ClientError } from "../../api/errors";
 import { sendPostLoginRequest } from "../../api/users/crud";
-import { ValidateText } from "./Join";
 import ErrorMessageForm from "../../component/User/ErrorMessageForm";
 import OAuthLoginButtons from "../../component/User/OAuthLoginButtons";
+import { useStringWithValidation } from "../../hook/useStringWithValidation";
 
 const Login: React.FC = () => {
-	const [email, setEmail] = useState<ValidateText>({
-		text: "",
-		isValid: false,
-		errorMessage: "",
-	});
-	const [password, setPassword] = useState<ValidateText>({
-		text: "",
-		isValid: false,
-		errorMessage: "",
-	});
+	const email = useStringWithValidation();
+	const password = useStringWithValidation();
 
 	const [errorMessage, setErrorMessage] = useState<string>("");
 
@@ -38,33 +35,33 @@ const Login: React.FC = () => {
 	const location = useLocation();
 
 	const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const isValid = REGEX.EMAIL.test(e.target.value);
-
 		setErrorMessage("");
-		setEmail({
-			...email,
-			text: e.target.value,
-			isValid: isValid,
-			errorMessage: "",
+
+		email.setValue(e.target.value, (value, pass, fail) => {
+			if (REGEX.EMAIL.test(value)) {
+				pass();
+			} else {
+				fail("");
+			}
 		});
 	};
 
 	const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const isValid = REGEX.PASSWORD.test(e.target.value);
-
 		setErrorMessage("");
-		setPassword({
-			...password,
-			text: e.target.value,
-			isValid: isValid,
-			errorMessage: "",
+
+		password.setValue(e.target.value, (value, pass, fail) => {
+			if (REGEX.PASSWORD.test(value)) {
+				pass();
+			} else {
+				fail("");
+			}
 		});
 	};
 
 	const handleLoginButton = async () => {
 		const body = {
-			email: email.text,
-			password: password.text,
+			email: email.value,
+			password: password.value,
 		};
 
 		const errorHandle = (err: ClientError) => {
@@ -84,6 +81,8 @@ const Login: React.FC = () => {
 			return;
 		}
 
+		// TODO: isEmailRegistered를 로그인 시 받아서 저장하도록 수정 필요.
+		//       수정 후 DropdownMenu 컴포넌트의 유저 정보 조회 API 호출 제거.
 		if (result.result) {
 			const { nickname, loginTime } = result.result;
 
@@ -98,15 +97,15 @@ const Login: React.FC = () => {
 	return (
 		<div className={loginContainer}>
 			<h1>로그인</h1>
-			<div>
+			<div className={loginForm}>
 				<EmailForm
-					email={email.text}
+					email={email.value}
 					onChange={handleEmailChange}
 					isValid={email.isValid}
 					errorMessage={email.errorMessage}
 				/>
 				<PasswordForm
-					password={password.text}
+					password={password.value}
 					onChange={handlePasswordChange}
 					labelText="비밀번호"
 					isValid={password.isValid}
@@ -118,7 +117,7 @@ const Login: React.FC = () => {
 				<SubmitButton onClick={handleLoginButton}>
 					로그인 버튼
 				</SubmitButton>
-				<p>
+				<p className={joinText}>
 					계정이 없으신가요?
 					<a
 						href="/join"

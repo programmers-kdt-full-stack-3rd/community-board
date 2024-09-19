@@ -1,10 +1,12 @@
-import { FC } from "react";
+import { forwardRef, ForwardRefRenderFunction, useLayoutEffect } from "react";
 import { dropdownMenu, dropdownMenuItem } from "./DropdownMenu.css";
 import { NavigateFunction } from "react-router-dom";
 import UserDeleteModal from "./UserDeleteModal";
+import { useUserStore } from "../../state/store";
+import { ApiCall } from "../../api/api";
+import { getUserMyself } from "../../api/users/crud";
 
 interface DropdownMenuProps {
-	ref: React.RefObject<HTMLDivElement>;
 	navigate: NavigateFunction;
 	warningModal: { isOpen: boolean; open: () => void; close: () => void };
 }
@@ -19,15 +21,37 @@ const MODAL_CONFIGS = {
 	},
 };
 
-const DropdownMenu: FC<DropdownMenuProps> = ({
-	ref,
-	navigate,
-	warningModal,
-}) => {
+const DropdownMenu: ForwardRefRenderFunction<
+	HTMLDivElement,
+	DropdownMenuProps
+> = ({ navigate, warningModal }, ref) => {
+	const isEmailRegistered = useUserStore.use.isEmailRegistered();
+	const { setIsEmailRegistered } = useUserStore.use.actions();
+
 	const currentPath = window.location.pathname;
+
+	useLayoutEffect(() => {
+		// TODO: isEmailRegistered를 로그인 시 받아서 저장하도록 서버와 클라이언트 수정 필요
+		ApiCall(
+			() => getUserMyself(),
+			err => {
+				console.error("사용자 정보를 가져올 수 없습니다.", err);
+			}
+		).then(response => {
+			if (response instanceof Error) {
+				return;
+			}
+
+			setIsEmailRegistered(!!response.email);
+		});
+	}, []);
 
 	const handleProfileUpdateClick = () => {
 		navigate(`/checkPassword?next=profileUpdate&final=${currentPath}`);
+	};
+
+	const handleEmailRegistrationClick = () => {
+		navigate(`/checkPassword?next=emailRegistration&final=${currentPath}`);
 	};
 
 	const handleOAuthManageClick = () => {
@@ -54,6 +78,14 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
 			>
 				회원정보 변경
 			</div>
+			{isEmailRegistered || (
+				<div
+					onClick={handleEmailRegistrationClick}
+					className={dropdownMenuItem}
+				>
+					로그인 이메일 등록
+				</div>
+			)}
 			<div
 				onClick={handleOAuthManageClick}
 				className={dropdownMenuItem}
@@ -84,4 +116,4 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
 	);
 };
 
-export default DropdownMenu;
+export default forwardRef(DropdownMenu);

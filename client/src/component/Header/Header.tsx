@@ -148,13 +148,13 @@ const Header: React.FC = () => {
 							/>
 						)}
 					</div>
-					{isUserMenuOpen &&
-						isLogin &&
-						DropdownMenu({
-							ref: dropdownMenuRef,
-							navigate: navigate,
-							warningModal: warningModal,
-						})}
+					{isUserMenuOpen && isLogin && (
+						<DropdownMenu
+							ref={dropdownMenuRef}
+							navigate={navigate}
+							warningModal={warningModal}
+						/>
+					)}
 				</div>
 			</div>
 		</div>

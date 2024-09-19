@@ -1,15 +1,15 @@
 import { style } from "@vanilla-extract/css";
 
 export const oAuthLinkWrapper = style({
-	position: "relative",
-	width: "460px",
-	height: "100%",
-	boxSizing: "border-box",
-	border: "1px solid #ccc",
-	display: "flex",
-	flexDirection: "column",
-	justifyContent: "center",
-	alignItems: "stretch",
-	padding: "24px",
-	gap: "10px",
+	width: "100%",
+	maxWidth: "350px",
+	margin: "0 auto",
+	padding: "20px",
+	boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+	borderRadius: "15px",
+	backgroundColor: "#333",
+});
+
+export const oAuthLinkTitle = style({
+	marginBottom: "40px",
 });
