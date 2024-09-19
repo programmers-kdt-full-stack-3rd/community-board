@@ -9,7 +9,7 @@ export const profileUpdateWrapper = style({
 	display: "flex",
 	flexDirection: "column",
 	justifyContent: "center",
-	alignItems: "center",
+	alignItems: "stretch",
 	padding: "24px",
 	gap: "10px",
 });
@@ -25,6 +25,7 @@ export const buttonsWrapper = style({
 export const cancleButton = style({
 	width: "100%",
 	height: "50px",
+	margin: "15px 0",
 	padding: "0px",
 	borderRadius: "4px",
 	backgroundColor: "gray",

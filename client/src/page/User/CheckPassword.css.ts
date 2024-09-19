@@ -9,7 +9,11 @@ export const checkPasswordWrapper = style({
 	display: "flex",
 	flexDirection: "column",
 	justifyContent: "center",
-	alignItems: "center",
+	alignItems: "stretch",
 	padding: "24px",
 	gap: "10px",
+});
+
+export const noPasswordMessage = style({
+	margin: "24px 0 0 0",
 });
