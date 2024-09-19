@@ -124,7 +124,7 @@ export class OAuthService {
 
 			const newUserId = user.id;
 
-			this.createOAuthConnection(
+			await this.createOAuthConnection(
 				provider,
 				newUserId,
 				oAuthAccountId,
@@ -185,7 +185,7 @@ export class OAuthService {
 		oAuthRefreshToken: string
 	) {
 		try {
-			const oAuthProvider = await this.oAuthProviderRepository.findOne({
+			let oAuthProvider = await this.oAuthProviderRepository.findOne({
 				select: ["id"],
 				where: { name: provider },
 			});
@@ -206,9 +206,9 @@ export class OAuthService {
 		} catch (error) {
 			if (error.code === "ER_DUP_ENTRY") {
 				throw ServerError.badRequest("이미 연동된 소셜 계정입니다.");
+			} else {
+				throw error;
 			}
-
-			throw error;
 		}
 	}
 
