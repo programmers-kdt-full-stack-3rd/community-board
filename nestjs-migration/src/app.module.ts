@@ -10,6 +10,8 @@ import { TokenGuard } from "./common/guard/token.guard";
 import appConfig from "./config/app.config";
 import { typeOrmConfig } from "./config/db.config";
 import jwtConfig from "./config/jwt.config";
+import oauthConfig from "./config/oauth.config";
+import { OAuthModule } from "./oauth/oauth.module";
 import { RbacModule } from "./rbac/rbac.module";
 import { UserModule } from "./user/user.module";
 
@@ -18,7 +20,7 @@ import { UserModule } from "./user/user.module";
 		ConfigModule.forRoot({
 			cache: true,
 			isGlobal: true,
-			load: [appConfig, typeOrmConfig, jwtConfig],
+			load: [appConfig, typeOrmConfig, jwtConfig, oauthConfig],
 		}),
 		TypeOrmModule.forRootAsync({
 			imports: [ConfigModule],
@@ -29,6 +31,7 @@ import { UserModule } from "./user/user.module";
 		UserModule,
 		AuthModule,
 		RbacModule,
+		OAuthModule,
 	],
 	controllers: [AppController],
 	providers: [
