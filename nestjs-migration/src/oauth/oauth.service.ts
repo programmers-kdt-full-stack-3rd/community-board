@@ -55,18 +55,12 @@ export class OAuthService {
 			throw ServerError.badRequest("탈퇴한 회원입니다.");
 		}
 
-		const { accessToken, refreshToken } = await this.processOAuthLogin(
+		return await this.processOAuthLogin(
 			user,
 			provider,
 			oAuthAccountId,
 			oAuthRefreshToken
 		);
-
-		return {
-			nickname: user.nickname,
-			accessToken,
-			refreshToken,
-		};
 	}
 
 	@Transactional()
@@ -106,6 +100,7 @@ export class OAuthService {
 		});
 
 		return {
+			nickname: user.nickname,
 			accessToken,
 			refreshToken,
 		};
@@ -120,7 +115,6 @@ export class OAuthService {
 			const nickname = generateNickname();
 
 			const user = await this.userRepository.save({ nickname });
-
 			if (!user) {
 				throw ServerError.etcError(
 					500,
