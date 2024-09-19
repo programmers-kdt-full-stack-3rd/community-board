@@ -33,11 +33,11 @@ export class PostController {
 	) {
 		try {
 			const authorId = req.user["userId"];
-			const values = {
+			const createPostDto = {
 				...createPostBodyDto,
 				authorId,
 			};
-			const postId = await this.postService.createPost(values);
+			const postId = await this.postService.createPost(createPostDto);
 			return { postId, message: "게시글 생성 success" };
 
 		} catch (err) {

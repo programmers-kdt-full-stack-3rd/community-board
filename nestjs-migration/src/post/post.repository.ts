@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { DataSource, Repository } from "typeorm";
+import { Brackets, DataSource, Repository } from "typeorm";
 import { Post } from "./entities/post.entity";
 import { ReadPostsQueryDto, SortBy } from "./dto/read-posts-query.dto";
 import { getPostHeadersDto } from "./dto/get-post-headers.dto";
@@ -16,7 +16,7 @@ export class PostRepository extends Repository<Post> {
 		userId: number
 	): Promise<getPostHeadersDto[]> {
 		let { index, perPage, keyword, sortBy } = readPostsQueryDto;
-		index -= 1;
+		index = index > 0 ? index - 1 : 0;
 
 		const queryBuilder = this.createQueryBuilder("post")
 			.leftJoinAndSelect("post.author", "user")
@@ -36,14 +36,13 @@ export class PostRepository extends Repository<Post> {
 				"likes"
 			)
 			.where("post.is_delete = :isDelete", { isDelete: false })
-			.andWhere(
-				"post.is_private = :isPrivateFalse OR (post.is_private = :isPrivateTrue AND post.author_id = :authorId)",
-				{
-					isPrivateFalse: false,
+			.andWhere(new Brackets(qb => {
+				qb.where('post.is_private = :isPrivateFalse', { isPrivateFalse: false })
+				  .orWhere('post.is_private = :isPrivateTrue AND post.author_id = :authorId', {
 					isPrivateTrue: true,
 					authorId: userId,
-				}
-			);
+				  });
+			}))
 
 		if (keyword) {
 			queryBuilder.andWhere("post.title LIKE :keyword", {
@@ -74,14 +73,13 @@ export class PostRepository extends Repository<Post> {
 		const queryBuilder = this.createQueryBuilder("post")
 			.leftJoinAndSelect("post.author", "user")
 			.where("post.is_delete = :isDelete", { isDelete: false })
-			.andWhere(
-				"post.is_private = :isPrivateFalse OR (post.is_private = :isPrivateTrue AND post.author_id = :authorId)",
-				{
-					isPrivateFalse: false,
+			.andWhere(new Brackets(qb => {
+				qb.where('post.is_private = :isPrivateFalse', { isPrivateFalse: false })
+				  .orWhere('post.is_private = :isPrivateTrue AND post.author_id = :authorId', {
 					isPrivateTrue: true,
 					authorId: userId,
-				}
-			);
+				  });
+			}));
 		if (keyword) {
 			queryBuilder.andWhere("post.title LIKE :keyword", {
 				keyword: `%${keyword.trim()}%`,
