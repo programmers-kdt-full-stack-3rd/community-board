@@ -21,3 +21,8 @@ export const sendOAuthLoginRequest = async (
 	const requestBody = convertToBody(body);
 	return await httpRequest(apiPath, HttpMethod.POST, requestBody);
 };
+
+export const deleteOAuthConnection = async (provider: TOAuthProvider) => {
+	const apiPath = `/oauth/link/${provider}`;
+	return await httpRequest(apiPath, HttpMethod.DELETE);
+};

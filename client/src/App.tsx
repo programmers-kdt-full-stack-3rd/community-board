@@ -12,7 +12,7 @@ import clsx from "clsx";
 import { useErrorModal } from "./state/errorModalStore";
 import { useLayoutEffect } from "react";
 import ErrorModal from "./component/utils/ErrorModal";
-import OAuthRedirectHandler from "./page/OAuthRedirectHandler";
+import OAuthRedirectHandler from "./page/OAuth/OAuthRedirectHandler";
 import ChatTestPage from "./page/Chat/ChatTestPage";
 import { AdminUserMgmtPage } from "./page/Admin/AdminUserMgmtPage";
 import { AdminPostMgmtPage } from "./page/Admin/AdminPostMgmtPage";
@@ -21,6 +21,7 @@ import NotFound from "./page/error/NotFound";
 import { useUserStore } from "./state/store";
 import { io } from "socket.io-client";
 import { AdminUserLogPage } from "./page/Admin/AdminUserLogPage";
+import OAuthLink from "./page/OAuth/OAuthLink";
 
 function MainContainer({ children }: { children: React.ReactNode }) {
 	const location = useLocation();
@@ -31,6 +32,7 @@ function MainContainer({ children }: { children: React.ReactNode }) {
 		"/join",
 		"/checkPassword",
 		"/profileUpdate",
+		"/oauth",
 	];
 
 	return (
@@ -112,6 +114,10 @@ function App() {
 						<Route
 							path="/profileUpdate"
 							element={<ProfileUpdate />}
+						/>
+						<Route
+							path="/oauth"
+							element={<OAuthLink />}
 						/>
 						<Route
 							path="/post/:id"
