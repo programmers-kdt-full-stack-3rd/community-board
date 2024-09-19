@@ -88,4 +88,13 @@ export class OAuthController {
 
 		return { message: "재확인 성공" };
 	}
+
+	@Get("/link-url/:provider")
+	@HttpCode(HttpStatus.OK)
+	getLinkUrl(@Param() param: OAuthProviderDto) {
+		const provider = param.provider;
+		const url = this.oauthService.getOAuthUrl("link", provider);
+
+		return { url };
+	}
 }

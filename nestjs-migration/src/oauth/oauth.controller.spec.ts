@@ -218,4 +218,28 @@ describe("OauthController", () => {
 			});
 		});
 	});
+
+	describe("GET /link-url/:provider", () => {
+		it("로그인 URL 생성 후 200 상태 코드와 url을 반환한다.", async () => {
+			const httpCode = Reflect.getMetadata(
+				"__httpCode__",
+				oAuthController.getLinkUrl
+			);
+
+			const url = "http://localhost:3000/oauth/redirect/google";
+
+			jest.spyOn(oAuthService, "getOAuthUrl").mockReturnValue(url);
+
+			const result = oAuthController.getLinkUrl({
+				provider: mockProvider,
+			});
+
+			expect(oAuthService.getOAuthUrl).toHaveBeenCalledWith(
+				"link",
+				mockProvider
+			);
+			expect(httpCode).toBe(HttpStatus.OK);
+			expect(result).toEqual({ url });
+		});
+	});
 });
