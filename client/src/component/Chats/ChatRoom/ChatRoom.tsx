@@ -1,4 +1,11 @@
-import { FC, useEffect, useLayoutEffect, useMemo, useState } from "react";
+import {
+	FC,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
 import { IMessage } from "shared";
 
 import { chatRoomBody, chatRoomContainer } from "./ChatRoom.css";
@@ -33,8 +40,6 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 	const messageMap: Map<string, IMessage[]> = useMemo(() => {
 		const map = new Map<string, IMessage[]>();
 
-		console.log(messageLogs);
-
 		messageLogs.forEach(message => {
 			const date: string = message.createdAt.toISOString().split("T")[0];
 			if (!map.get(date)) {
@@ -56,6 +61,8 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 
 		return map;
 	}, [messageLogs]);
+
+	const chatRef = useRef<HTMLDivElement>(null);
 
 	const [sortedMessages, setSortedMessages] = useState<IMessage[]>([]);
 
@@ -108,6 +115,13 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 			);
 		setSortedMessages(sorted);
 	}, [messageMap]);
+
+	useEffect(() => {
+		if (!chatRef.current) {
+			return;
+		}
+		chatRef.current.scrollTop = chatRef.current?.scrollHeight;
+	}, [sortedMessages]);
 
 	const backBtnClick = () => {
 		setSelectedRoom(null);
@@ -192,7 +206,12 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 				title={title}
 				onClick={backBtnClick}
 			/>
-			<div className={chatRoomBody}>{renderMessages()}</div>
+			<div
+				ref={chatRef}
+				className={chatRoomBody}
+			>
+				{renderMessages()}
+			</div>
 			<ChatInput
 				message={message}
 				setMessage={setMessage}

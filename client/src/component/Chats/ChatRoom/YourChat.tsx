@@ -27,7 +27,7 @@ const YourChat: React.FC<Props> = ({ name, content, time }) => {
 							marginLeft: "5px",
 						}}
 					>
-						{time.toString().slice(11, 16)}
+						{time.toISOString().slice(11, 16)}
 					</div>
 				</div>
 			</div>
