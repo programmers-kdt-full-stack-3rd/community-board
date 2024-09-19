@@ -1,4 +1,4 @@
-import { FC, useLayoutEffect, useState } from "react";
+import { FC, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { IMessage } from "shared";
 
 import { chatRoomBody, chatRoomContainer } from "./ChatRoom.css";
@@ -30,10 +30,46 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 	const [chatLoading, setChatLoading] = useState(false);
 	const [memberId, setMemberId] = useState<number>(0);
 
+	const messageMap: Map<string, IMessage[]> = useMemo(() => {
+		const map = new Map<string, IMessage[]>();
+
+		console.log(messageLogs);
+
+		messageLogs.forEach(message => {
+			const date: string = message.createdAt.toISOString().split("T")[0];
+			if (!map.get(date)) {
+				const [year, month, day] = date.split("-");
+				const dateTitle: IMessage = {
+					isSystem: true,
+					nickname: "System",
+					message: `${year}년 ${month}월 ${day}일`,
+					createdAt: new Date(date),
+					isMine: false,
+					memberId: 0,
+					roomId: message.roomId,
+				};
+				map.set(date, [dateTitle]);
+			}
+
+			map.get(date)?.push(message);
+		});
+
+		return map;
+	}, [messageLogs]);
+
+	const [sortedMessages, setSortedMessages] = useState<IMessage[]>([]);
+
+	const strToDate = (newMessage: IMessage) => {
+		const msg: IMessage = newMessage;
+		msg.createdAt = new Date(msg.createdAt);
+		return msg;
+	};
+
 	useLayoutEffect(() => {
 		if (socket) {
 			const handleReceiveMessage = (newMessage: IMessage) => {
-				setMessageLogs(prev => [...prev, newMessage]);
+				const msg: IMessage = strToDate(newMessage);
+				setMessageLogs(prev => [...prev, msg]);
 			};
 
 			// 이전 메시지 모두 불러오기
@@ -42,7 +78,10 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 				roomId,
 				(response: { memberId: number; messageLogs: IMessage[] }) => {
 					setMemberId(response.memberId);
-					setMessageLogs(response.messageLogs);
+					const msgs = response.messageLogs.map(message => {
+						return strToDate(message);
+					});
+					setMessageLogs(msgs);
 					setRoomLoading(false);
 				}
 			);
@@ -56,6 +95,19 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 			};
 		}
 	}, [roomId, socket, memberId]);
+
+	useEffect(() => {
+		const sorted = Array.from(messageMap.entries())
+			.sort(
+				([dateA], [dateB]) =>
+					new Date(dateA).getTime() - new Date(dateB).getTime()
+			)
+			.reduce(
+				(acc: IMessage[], [, messages]) => acc.concat(messages),
+				[]
+			);
+		setSortedMessages(sorted);
+	}, [messageMap]);
 
 	const backBtnClick = () => {
 		setSelectedRoom(null);
@@ -101,7 +153,7 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 			return <p>Loading...</p>;
 		}
 
-		return messageLogs.map((message, index) => {
+		return sortedMessages.map((message, index) => {
 			if (message.isSystem) {
 				return (
 					<SystemChat
