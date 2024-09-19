@@ -114,6 +114,7 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 					<MyChat
 						key={index}
 						content={message.message}
+						time={message.createdAt}
 					/>
 				);
 			}
@@ -126,6 +127,7 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 					key={index}
 					name={message.nickname!}
 					content={message.message}
+					time={message.createdAt}
 				/>
 			);
 		});

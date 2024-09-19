@@ -39,6 +39,7 @@ export const chatRoomBody = style({
 
 export const myChatContainer = style({
 	display: "flex",
+	flexDirection: "row",
 	justifyContent: "flex-end",
 	paddingRight: "20px",
 	paddingTop: "20px",
