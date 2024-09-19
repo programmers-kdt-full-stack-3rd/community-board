@@ -128,7 +128,7 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 	};
 
 	const chatInputClick = () => {
-		if (!message.length) {
+		if (!message.length || chatLoading) {
 			return;
 		}
 
@@ -154,11 +154,10 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 					// TODO : 재전송 로직 추가
 				}
 
+				setMessage("");
 				setChatLoading(false);
 			});
 		}
-
-		setMessage("");
 	};
 
 	const renderMessages = () => {
