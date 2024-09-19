@@ -6,20 +6,11 @@ import { RefreshTokensRepository } from "../auth/refresh-tokens.repository";
 import { ServerError } from "../common/exceptions/server-error.exception";
 import { User } from "../user/entities/user.entity";
 import { UserRepository } from "../user/user.repository";
-import {
-	buildOAuthState,
-	buildTokenFetchOptions,
-	extractOAuthAccountId,
-	generateNickname,
-} from "../utils/oauth.util";
+import { buildOAuthState, generateNickname } from "../utils/oauth.util";
 import { OAuthPropsConfig } from "./config/oauth-props.config";
-import { oAuthRequestContentType } from "./constants/oauth.constants";
 import { OAuthLoginDto } from "./dto/oauth-login.dto";
-import {
-	IOAuthTokens,
-	TOAuthLoginType,
-	TOAuthTokenRequestGrantType,
-} from "./interfaces/oauth.interface";
+import { TOAuthLoginType } from "./interfaces/oauth.interface";
+import { OAuthTokenService } from "./oauthtoken.service";
 import { OAuthConnectionRepository } from "./repositories/oauth-connection.repository";
 import { OAuthProviderRepository } from "./repositories/oauth-provider.repository";
 
@@ -31,7 +22,8 @@ export class OAuthService {
 		private userRepository: UserRepository,
 		private oAuthProviderRepository: OAuthProviderRepository,
 		private oAuthConnectionRepository: OAuthConnectionRepository,
-		private refreshTokenRepository: RefreshTokensRepository
+		private refreshTokenRepository: RefreshTokensRepository,
+		private oAuthTokenService: OAuthTokenService
 	) {}
 
 	private get oAuthProps() {
@@ -49,7 +41,10 @@ export class OAuthService {
 		const authorizationCode = oAuthLoginDto.code;
 
 		const { oAuthAccountId, oAuthRefreshToken } =
-			await this.verifyAuthorizationCode(provider, authorizationCode);
+			await this.oAuthTokenService.verifyAuthorizationCode(
+				provider,
+				authorizationCode
+			);
 
 		let user = await this.userRepository.readUserByOAuth(
 			provider,
@@ -268,70 +263,6 @@ export class OAuthService {
 			login: loginUrl.toString(),
 			reconfirm: reconfirmUrl.toString(),
 			link: linkUrl.toString(),
-		};
-	}
-
-	private async fetchOAuthTokens(
-		provider: TOAuthProvider,
-		grantType: TOAuthTokenRequestGrantType,
-		grantValue: string
-	) {
-		const oAuthTokenResponse = await fetch(
-			this.oAuthProps[provider].requestEndpoint.token,
-			buildTokenFetchOptions(
-				provider,
-				grantType,
-				grantValue,
-				this.oAuthProps
-			)
-		);
-
-		if (oAuthTokenResponse.status >= 500) {
-			throw ServerError.etcError(
-				500,
-				"OAuth 서비스 제공사 오류로 OAuth 토큰 조회에 실패했습니다."
-			);
-		} else if (oAuthTokenResponse.status >= 400) {
-			throw ServerError.badRequest(
-				"인가 수단이 유효하지 않아서 OAuth 토큰 조회에 실패했습니다."
-			);
-		}
-
-		return (await oAuthTokenResponse.json()) as IOAuthTokens;
-	}
-
-	private async fetchOAuthUserByAccessToken(
-		provider: TOAuthProvider,
-		accessToken: string
-	) {
-		const url = this.oAuthProps[provider].requestEndpoint.user;
-		const headers = {
-			Authorization: `Bearer ${accessToken}`,
-			"Content-type": oAuthRequestContentType,
-		};
-
-		const oAuthUserResponse = await fetch(url, { headers });
-		return await oAuthUserResponse.json();
-	}
-
-	private async verifyAuthorizationCode(
-		provider: TOAuthProvider,
-		authorizationCode: string
-	) {
-		const oAuthTokens = await this.fetchOAuthTokens(
-			provider,
-			"authorization_code",
-			authorizationCode
-		);
-
-		const oAuthUser = await this.fetchOAuthUserByAccessToken(
-			provider,
-			oAuthTokens.access_token
-		);
-
-		return {
-			oAuthAccountId: extractOAuthAccountId(provider, oAuthUser),
-			oAuthRefreshToken: oAuthTokens.refresh_token,
 		};
 	}
 }
