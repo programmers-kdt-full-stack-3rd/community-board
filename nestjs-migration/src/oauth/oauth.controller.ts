@@ -53,4 +53,13 @@ export class OAuthController {
 			result: { nickname: result.nickname, loginTime: getKstNow() },
 		};
 	}
+
+	@Get("/reconfirm-url/:provider")
+	@HttpCode(HttpStatus.OK)
+	getReconfirmUrl(@Param() param: OAuthProviderDto) {
+		const provider = param.provider;
+		const url = this.oauthService.getOAuthUrl("reconfirm", provider);
+
+		return { url };
+	}
 }

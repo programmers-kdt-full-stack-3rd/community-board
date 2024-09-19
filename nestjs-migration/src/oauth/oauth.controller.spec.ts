@@ -146,4 +146,28 @@ describe("OauthController", () => {
 			await expect(result).rejects.toThrow(error);
 		});
 	});
+
+	describe("GET oauth/reconfirm-url/:provider", () => {
+		it("재확인 URL 생성 후 200 상태 코드와 url을 반환한다.", async () => {
+			const httpCode = Reflect.getMetadata(
+				"__httpCode__",
+				oAuthController.getReconfirmUrl
+			);
+
+			const url = "http://localhost:3000/oauth/redirect/google";
+
+			jest.spyOn(oAuthService, "getOAuthUrl").mockReturnValue(url);
+
+			const result = oAuthController.getReconfirmUrl({
+				provider: mockProvider,
+			});
+
+			expect(oAuthService.getOAuthUrl).toHaveBeenCalledWith(
+				"reconfirm",
+				mockProvider
+			);
+			expect(httpCode).toBe(HttpStatus.OK);
+			expect(result).toEqual({ url });
+		});
+	});
 });
