@@ -1,11 +1,14 @@
+import { Transform } from "class-transformer";
 
 export class getPostHeadersDto {
-    id;
-    title;
-    nickname;
-    created_at
-    views
-    likes
+    id: number;
+    title: string;
+    nickname: string;
+    created_at: Date;
+    views: number;
+
+    @Transform(({value})=> parseInt(value))
+    likes: number;
 }
 export class asdf {
     
