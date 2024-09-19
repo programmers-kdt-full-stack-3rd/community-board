@@ -63,6 +63,46 @@ export class OAuthService {
 		);
 	}
 
+	async oAuthReconfirm(oAuthLoginDto: OAuthLoginDto, userId: number) {
+		const provider = oAuthLoginDto.provider;
+		const authorizationCode = oAuthLoginDto.code;
+
+		const { oAuthAccountId, oAuthRefreshToken } =
+			await this.oAuthTokenService.verifyAuthorizationCode(
+				provider,
+				authorizationCode
+			);
+
+		let user = await this.userRepository.readUserByOAuth(
+			provider,
+			oAuthAccountId
+		);
+
+		if (!user || user.id !== userId) {
+			throw ServerError.unauthorized(
+				"로그인한 유저와 연동하지 않은 소셜 계정입니다."
+			);
+		} else if (!user.id || !user.nickname) {
+			throw ServerError.reference("사용자 정보 오류");
+		} else if (user.email) {
+			throw ServerError.badRequest(
+				"이메일, 비밀번호를 등록한 계정은 비밀번호 재확인으로 인증해야 합니다."
+			);
+		}
+
+		if (oAuthRefreshToken) {
+			await this.updateOauthRefreshToken(
+				provider,
+				oAuthAccountId,
+				oAuthRefreshToken
+			);
+		}
+
+		const tempToken = this.authService.makeTempToken(user.id);
+
+		return { tempToken };
+	}
+
 	@Transactional()
 	private async processOAuthLogin(
 		user: User,
