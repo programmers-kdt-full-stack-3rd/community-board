@@ -214,7 +214,7 @@ describe("OauthController", () => {
 			);
 
 			expect(result).toEqual({
-				message: "소셜 계정 확인 성공",
+				message: "재확인 성공",
 			});
 		});
 	});
