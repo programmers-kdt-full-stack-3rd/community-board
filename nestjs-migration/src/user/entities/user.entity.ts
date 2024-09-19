@@ -1,12 +1,15 @@
-import { Like } from "../../like/entities/like.entity";
-import { Post } from "../../post/entities/post.entity";
 import {
 	Column,
 	CreateDateColumn,
 	Entity,
+	JoinColumn,
+	ManyToOne,
 	OneToMany,
 	PrimaryGeneratedColumn,
 } from "typeorm";
+import { Like } from "../../like/entities/like.entity";
+import { Post } from "../../post/entities/post.entity";
+import { Role } from "../../rbac/entities/roles.entity";
 
 @Entity("users")
 export class User {
@@ -31,18 +34,16 @@ export class User {
 	@Column({ name: "role_id", default: 2 })
 	roleId: number;
 
-	//TODO: Role Entity 추가후 주석 해제
-
-	// @ManyToOne(() => Role)
-	// @JoinColumn({ name: "role_id" })
-	// role: Role;
+	@ManyToOne(() => Role, role => role.id)
+	@JoinColumn({ name: "role_id" })
+	role: Role;
 
 	@CreateDateColumn({ name: "created_at" })
 	createdAt: Date;
 
-	@OneToMany(type=> Post, post => post.author)
-	posts: Post[]
+	@OneToMany(type => Post, post => post.author)
+	posts: Post[];
 
 	@OneToMany(type => Like, like => like.user)
-	likes: Like[]
+	likes: Like[];
 }

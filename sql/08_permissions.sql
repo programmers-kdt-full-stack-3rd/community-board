@@ -1,3 +1,7 @@
+/*
+    TODO: 마이그레이션 완료후 퍼미션 테이블 재구성
+*/
+
 CREATE TABLE IF NOT EXISTS permissions (
     id INTEGER PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(100) UNIQUE NOT NULL
