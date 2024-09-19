@@ -1,8 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { TOAuthProvider } from "shared";
+import { Transactional } from "typeorm-transactional";
 import { AuthService } from "../auth/auth.service";
 import { RefreshTokensRepository } from "../auth/refresh-tokens.repository";
 import { ServerError } from "../common/exceptions/server-error.exception";
+import { User } from "../user/entities/user.entity";
 import { UserRepository } from "../user/user.repository";
 import {
 	buildOAuthState,
@@ -58,6 +60,27 @@ export class OAuthService {
 			throw ServerError.badRequest("탈퇴한 회원입니다.");
 		}
 
+		const { accessToken, refreshToken } = await this.processOAuthLogin(
+			user,
+			provider,
+			oAuthAccountId,
+			oAuthRefreshToken
+		);
+
+		return {
+			nickname: user.nickname,
+			accessToken,
+			refreshToken,
+		};
+	}
+
+	@Transactional()
+	private async processOAuthLogin(
+		user: User,
+		provider: TOAuthProvider,
+		oAuthAccountId: string,
+		oAuthRefreshToken: string
+	) {
 		if (user && oAuthRefreshToken) {
 			await this.updateOauthRefreshToken(
 				provider,
@@ -81,14 +104,13 @@ export class OAuthService {
 			roleId: user.roleId,
 		});
 
-		this.refreshTokenRepository.save({
+		await this.refreshTokenRepository.save({
 			userId: user.id,
 			token: refreshToken,
 			expiredAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
 		});
 
 		return {
-			nickname: user.nickname,
 			accessToken,
 			refreshToken,
 		};
@@ -125,6 +147,8 @@ export class OAuthService {
 			if (error.code === "ER_DUP_ENTRY") {
 				throw ServerError.reference("이미 사용 중인 닉네임입니다.");
 			}
+
+			throw error;
 		}
 	}
 
@@ -160,6 +184,8 @@ export class OAuthService {
 			if (error.code === "ER_DUP_ENTRY") {
 				throw ServerError.badRequest("이미 연동된 소셜 계정입니다.");
 			}
+
+			throw error;
 		}
 	}
 
@@ -192,6 +218,8 @@ export class OAuthService {
 			if (error.code === "ER_DUP_ENTRY") {
 				throw ServerError.badRequest("이미 연동된 소셜 계정입니다.");
 			}
+
+			throw error;
 		}
 	}
 

@@ -67,6 +67,7 @@ export const buildTokenFetchOptions = (
 	};
 };
 
+//TODO: 자연스러운 닉네임 생성
 export const generateNickname = () => {
 	return (
 		"신규 " +
