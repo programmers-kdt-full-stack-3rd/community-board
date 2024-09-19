@@ -29,6 +29,7 @@ describe("OauthController", () => {
 						getOAuthUrl: jest.fn(),
 						oAuthLogin: jest.fn(),
 						oAuthReconfirm: jest.fn(),
+						oAuthLink: jest.fn(),
 					},
 				},
 				{
@@ -240,6 +241,40 @@ describe("OauthController", () => {
 			);
 			expect(httpCode).toBe(HttpStatus.OK);
 			expect(result).toEqual({ url });
+		});
+	});
+
+	describe("POST /link", () => {
+		const oAuthLoginDto: OAuthLoginDto = {
+			provider: "google",
+			code: "mock-code",
+		};
+
+		const mockUserEntity: IUserEntity = { userId: 1, roleId: 1 };
+
+		it("소셜 계정 연동 성공 시 200 상태 코드와 메시지를 반환한다", async () => {
+			const httpCode = Reflect.getMetadata(
+				"__httpCode__",
+				oAuthController.getLinkUrl
+			);
+
+			jest.spyOn(oAuthService, "oAuthLink").mockResolvedValue(true);
+
+			const result = await oAuthController.oAuthLink(
+				oAuthLoginDto,
+				mockUserEntity
+			);
+
+			expect(oAuthService.oAuthLink).toHaveBeenCalledWith(
+				oAuthLoginDto,
+				mockUserEntity.userId
+			);
+
+			expect(httpCode).toBe(HttpStatus.OK);
+
+			expect(result).toEqual({
+				message: "소셜 계정 연동 성공",
+			});
 		});
 	});
 });

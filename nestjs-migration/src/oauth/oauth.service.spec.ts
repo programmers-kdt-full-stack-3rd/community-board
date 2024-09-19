@@ -107,6 +107,7 @@ describe("OAuthService", () => {
 					provide: OAuthConnectionRepository,
 					useValue: {
 						getOAuthConnectionByProviderAndAccountId: jest.fn(),
+						getOAuthConnectionByUserId: jest.fn(),
 						update: jest.fn(),
 						insert: jest.fn(),
 					},
@@ -624,6 +625,85 @@ describe("OAuthService", () => {
 					await expect(result).rejects.toThrow(errorMessage);
 				}
 			);
+		});
+	});
+
+	describe("oAuthLink", () => {
+		const moackOAuthAccountId = "oauth-account-id";
+		const mockOAuthRefreshToken = "oauth-refresh-token";
+
+		const mockOAuthData = {
+			oAuthAccountId: moackOAuthAccountId,
+			oAuthRefreshToken: mockOAuthRefreshToken,
+		};
+
+		const oAuthLoginDto: OAuthLoginDto = {
+			provider: "google",
+			code: "code",
+		};
+
+		beforeEach(() => {
+			jest.spyOn(
+				oAuthTokenService,
+				"verifyAuthorizationCode"
+			).mockResolvedValue(mockOAuthData);
+
+			jest.spyOn(userRepository, "readUserByOAuth").mockResolvedValue(
+				undefined
+			);
+
+			jest.spyOn(
+				oAuthConnectionRepository,
+				"getOAuthConnectionByUserId"
+			).mockResolvedValue([
+				{
+					id: 1,
+					oAuthProvider: { name: "naver" },
+				},
+			] as OAuthConnection[]);
+
+			jest.spyOn(oAuthProviderRepository, "findOne").mockResolvedValue({
+				id: 1,
+			} as OAuthProvider);
+		});
+
+		describe("성공 케이스", () => {
+			it("소셜 계정 연동 성공", async () => {
+				const result = await oAuthService.oAuthLink(oAuthLoginDto, 1);
+
+				expect(result).toBe(true);
+			});
+		});
+
+		describe("실패 케이스", () => {
+			it("이미 OAuth로 가입한 계정이 있는 경우 에러를 반환한다", async () => {
+				jest.spyOn(userRepository, "readUserByOAuth").mockResolvedValue(
+					createMockUser()
+				);
+
+				const result = oAuthService.oAuthLink(oAuthLoginDto, 1);
+
+				await expect(result).rejects.toThrow(ServerError);
+				await expect(result).rejects.toThrow(
+					"이미 연동된 소셜 계정입니다."
+				);
+			});
+
+			it("사용자가 이미 동일한 OAuth 제공자와 연결되어 있는 경우 에러를 반환한다", async () => {
+				jest.spyOn(
+					oAuthConnectionRepository,
+					"getOAuthConnectionByUserId"
+				).mockResolvedValue([
+					{ id: 1, oAuthProvider: { name: "google" } },
+				] as OAuthConnection[]);
+
+				const result = oAuthService.oAuthLink(oAuthLoginDto, 1);
+
+				await expect(result).rejects.toThrow(ServerError);
+				await expect(result).rejects.toThrow(
+					"이미 연동된 소셜 계정입니다."
+				);
+			});
 		});
 	});
 });

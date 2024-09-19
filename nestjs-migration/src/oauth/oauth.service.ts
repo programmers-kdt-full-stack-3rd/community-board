@@ -140,6 +140,8 @@ export class OAuthService {
 			oAuthAccountId,
 			oAuthRefreshToken
 		);
+
+		return true;
 	}
 
 	@Transactional()
