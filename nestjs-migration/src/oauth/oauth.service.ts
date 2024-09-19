@@ -6,7 +6,11 @@ import { RefreshTokensRepository } from "../auth/refresh-tokens.repository";
 import { ServerError } from "../common/exceptions/server-error.exception";
 import { User } from "../user/entities/user.entity";
 import { UserRepository } from "../user/user.repository";
-import { buildOAuthState, generateNickname } from "../utils/oauth.util";
+import {
+	buildOAuthState,
+	buildRevokeFetchParameters,
+	generateNickname,
+} from "../utils/oauth.util";
 import { OAuthPropsConfig } from "./config/oauth-props.config";
 import { OAuthLoginDto } from "./dto/oauth-login.dto";
 import { TOAuthLoginType } from "./interfaces/oauth.interface";
@@ -140,6 +144,57 @@ export class OAuthService {
 			oAuthAccountId,
 			oAuthRefreshToken
 		);
+
+		return true;
+	}
+
+	async oAuthUnlink(provider: TOAuthProvider, userId: number) {
+		// 1. 유저 정보와 소셜 로그인 연동 정보 조회
+		const user = await this.userRepository.findOne({
+			where: { id: userId, isDelete: false },
+		});
+
+		if (!user) {
+			throw ServerError.badRequest("존재하지 않은 회원 입니다.");
+		}
+		const oAuthConnections =
+			await this.oAuthConnectionRepository.getOAuthConnectionByUserId(
+				userId
+			);
+
+		// 2. 지정한 프로바이더로의 연동 여부 확인
+		//    - 연동이 없으면 오류
+
+		const connectionToProvider = oAuthConnections.find(
+			connection => connection.oAuthProvider.name === provider
+		);
+
+		if (!connectionToProvider) {
+			throw ServerError.notFound(
+				"해당 서비스와 소셜 로그인을 연동하지 않았습니다."
+			);
+		}
+
+		// 3. 이메일 등록 여부 + 소셜 연동 개수 확인
+		//    - 이메일 등록이 없는데 소셜 연동 개수가 1개면 오류 (회원탈퇴 기능을 사용해야 함)
+		const isEmailRegistered = user.email && user.password && user.salt;
+		if (!isEmailRegistered && oAuthConnections.length === 1) {
+			throw ServerError.badRequest(
+				"이메일 등록이 없으므로 마지막 마지막 소셜 연동을 해제할 수 없습니다."
+			);
+		}
+
+		// 4. 지정한 프로바이더로의 연동 해제 처리
+		const { oAuthAccessToken } =
+			await this.oAuthTokenService.refreshOAuthAccessToken(
+				connectionToProvider.oAuthProvider.name,
+				connectionToProvider.oAuthRefreshToken
+			);
+		await this.revokeOAuth(provider, oAuthAccessToken);
+
+		// 5. DB에도 반영
+
+		await this.deleteOAuthConnection(provider, userId);
 
 		return true;
 	}
@@ -339,5 +394,67 @@ export class OAuthService {
 			reconfirm: reconfirmUrl.toString(),
 			link: linkUrl.toString(),
 		};
+	}
+
+	private async revokeOAuth(
+		provider: TOAuthProvider,
+		oAuthAccessToken: string
+	) {
+		const oAuthRevokeResponse = await fetch(
+			...buildRevokeFetchParameters(
+				provider,
+				oAuthAccessToken,
+				this.oAuthProps
+			)
+		);
+
+		const payload = await oAuthRevokeResponse.json();
+
+		if (oAuthRevokeResponse.status >= 500) {
+			throw ServerError.etcError(
+				500,
+				"OAuth 서비스 제공사 오류로 OAuth 연동 해제에 실패했습니다."
+			);
+		} else if (oAuthRevokeResponse.status >= 400) {
+			throw ServerError.badRequest(
+				"인가 수단이 유효하지 않아서 OAuth 연동 해제에 실패했습니다."
+			);
+		} else if (payload.error) {
+			throw ServerError.etcError(
+				500,
+				"서버의 요청 구성 문제로 OAuth 연동 해제에 실패했습니다."
+			);
+		}
+	}
+
+	private async deleteOAuthConnection(
+		provider: TOAuthProvider,
+		userId: number
+	) {
+		const oAuthConnection =
+			await this.oAuthConnectionRepository.getOAuthConnectionByProviderAndUserId(
+				provider,
+				userId
+			);
+
+		if (!oAuthConnection) {
+			throw ServerError.notFound(
+				"해당 서비스와 소셜 로그인을 연동하지 않았습니다."
+			);
+		}
+
+		const result = await this.oAuthConnectionRepository.update(
+			oAuthConnection.id,
+			{
+				isDelete: true,
+			}
+		);
+
+		if (result.affected === 0) {
+			throw ServerError.etcError(
+				500,
+				"소셜 로그인 연동 해제에 실패했습니다."
+			);
+		}
 	}
 }

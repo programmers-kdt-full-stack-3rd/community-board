@@ -58,6 +58,8 @@ export const buildTokenFetchOptions = (
 		querystringPairs.client_secret = clientSecret;
 	}
 
+	console.log(querystringPairs);
+
 	return {
 		method: "POST",
 		headers: {
@@ -65,6 +67,49 @@ export const buildTokenFetchOptions = (
 		},
 		body: stringify(querystringPairs),
 	};
+};
+
+export const buildRevokeFetchParameters = (
+	provider: TOAuthProvider,
+	oAuthAccessToken: string,
+	oAuthProps: Record<TOAuthProvider, TOAuthProps>
+): [string, RequestInit] => {
+	const {
+		requestEndpoint: { revoke: revokeEndpoint },
+		getAdditionalRequestOptionsFor,
+	} = oAuthProps[provider];
+
+	let searchParams, headers, body;
+
+	if (getAdditionalRequestOptionsFor?.revoke) {
+		const requestOptions = getAdditionalRequestOptionsFor.revoke({
+			accessToken: oAuthAccessToken,
+		});
+		({ searchParams = null, headers = null, body = null } = requestOptions);
+	} else {
+		searchParams = null;
+		headers = null;
+		body = null;
+	}
+
+	const url = new URL(revokeEndpoint);
+	if (searchParams) {
+		for (const key in searchParams) {
+			url.searchParams.set(key, searchParams[key]);
+		}
+	}
+
+	const fetchOptions: RequestInit = {
+		method: "POST",
+	};
+	if (headers) {
+		fetchOptions.headers = { ...headers };
+	}
+	if (body) {
+		fetchOptions.body = stringify(body);
+	}
+
+	return [url.toString(), fetchOptions];
 };
 
 //TODO: 자연스러운 닉네임 생성

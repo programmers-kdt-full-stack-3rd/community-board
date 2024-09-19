@@ -1,6 +1,7 @@
 import {
 	Body,
 	Controller,
+	Delete,
 	Get,
 	HttpCode,
 	HttpStatus,
@@ -108,5 +109,17 @@ export class OAuthController {
 		await this.oauthService.oAuthLink(oAuthLoginDto, user.userId);
 
 		return { message: "소셜 계정 연동 성공" };
+	}
+
+	@Delete("/link/:provider")
+	@HttpCode(HttpStatus.OK)
+	@UseGuards(LoginGuard)
+	async oAuthUnlink(
+		@Param() param: OAuthProviderDto,
+		@User() user: IUserEntity
+	) {
+		await this.oauthService.oAuthUnlink(param.provider, user.userId);
+
+		return { message: "소셜 계정 연동 해제 성공" };
 	}
 }
