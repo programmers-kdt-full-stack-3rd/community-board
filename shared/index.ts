@@ -11,6 +11,7 @@ export * from "./community/likes/likes_mapper";
 export * from "./community/posts/posts";
 export * from "./community/posts/post_mapper";
 export * from "./community/users/users";
+export * from "./community/users/users_mapper";
 export * from "./community/oauth/oauths";
 export * from "./community/oauth/oauth_mapper";
 export * from "./community/rbac";

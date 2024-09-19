@@ -12,7 +12,7 @@ import clsx from "clsx";
 import { useErrorModal } from "./state/errorModalStore";
 import { useLayoutEffect } from "react";
 import ErrorModal from "./component/utils/ErrorModal";
-import OAuthRedirectHandler from "./page/OAuthRedirectHandler";
+import OAuthRedirectHandler from "./page/OAuth/OAuthRedirectHandler";
 import ChatTestPage from "./page/Chat/ChatTestPage";
 import { AdminUserMgmtPage } from "./page/Admin/AdminUserMgmtPage";
 import { AdminPostMgmtPage } from "./page/Admin/AdminPostMgmtPage";
@@ -23,6 +23,8 @@ import { io } from "socket.io-client";
 import { AdminUserLogPage } from "./page/Admin/AdminUserLogPage";
 import ChatAside from "./component/Chats/ChatAside/ChatAside";
 import { useChatAside } from "./state/ChatAsideStore";
+import OAuthLink from "./page/OAuth/OAuthLink";
+import EmailRegistration from "./page/User/EmailRegistration";
 
 function MainContainer({ children }: { children: React.ReactNode }) {
 	const location = useLocation();
@@ -33,6 +35,8 @@ function MainContainer({ children }: { children: React.ReactNode }) {
 		"/join",
 		"/checkPassword",
 		"/profileUpdate",
+		"/emailRegistration",
+		"/oauth",
 	];
 
 	return (
@@ -154,6 +158,70 @@ function App() {
 					</MainContainer>
 					{isOpen && <ChatAside />}
 				</div>
+				<MainContainer>
+					<Routes>
+						<Route
+							path="/"
+							element={<Main />}
+						/>
+						<Route
+							path="/login"
+							element={<Login />}
+						/>
+						<Route
+							path="/join"
+							element={<Join />}
+						/>
+						<Route
+							path="/oauth/redirect/:provider"
+							element={<OAuthRedirectHandler />}
+						/>
+						<Route
+							path="/checkPassword"
+							element={<CheckPassword />}
+						/>
+						<Route
+							path="/profileUpdate"
+							element={<ProfileUpdate />}
+						/>
+						<Route
+							path="/emailRegistration"
+							element={<EmailRegistration />}
+						/>
+						<Route
+							path="/oauth"
+							element={<OAuthLink />}
+						/>
+						<Route
+							path="/post/:id"
+							element={<PostInfoPage />}
+						/>
+						<Route
+							path="/chat"
+							element={<ChatTestPage />}
+						/>
+						<Route
+							path="/admin/userMgmt"
+							element={<AdminUserMgmtPage />}
+						/>
+						<Route
+							path="/admin/postMgmt"
+							element={<AdminPostMgmtPage />}
+						/>
+						<Route
+							path="/admin/stats"
+							element={<AdminStatsPage />}
+						/>
+						<Route
+							path="/admin/userLog/:userId"
+							element={<AdminUserLogPage />}
+						/>
+						<Route
+							path="*"
+							element={<NotFound />}
+						/>
+					</Routes>
+				</MainContainer>
 			</BrowserRouter>
 		</div>
 	);

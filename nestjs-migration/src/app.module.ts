@@ -5,27 +5,31 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { AuthModule } from "./auth/auth.module";
+import { RbacGuard } from "./common/guard/rbac.guard";
 import { TokenGuard } from "./common/guard/token.guard";
 import appConfig from "./config/app.config";
 import { typeOrmConfig } from "./config/db.config";
 import jwtConfig from "./config/jwt.config";
+import oauthConfig from "./config/oauth.config";
+import { LikeModule } from "./like/like.module";
+import { LogModule } from "./log/log.module";
+import { OAuthModule } from "./oauth/oauth.module";
+import { PostModule } from "./post/post.module";
+import { RbacModule } from "./rbac/rbac.module";
 import { UserModule } from "./user/user.module";
-import { PostModule } from './post/post.module';
-import { LogModule } from './log/log.module';
-import { LikeModule } from './like/like.module';
 
 @Module({
 	imports: [
 		ConfigModule.forRoot({
 			cache: true,
 			isGlobal: true,
-			load: [appConfig, typeOrmConfig, jwtConfig],
+			load: [appConfig, typeOrmConfig, jwtConfig, oauthConfig],
 		}),
 		TypeOrmModule.forRootAsync({
 			imports: [ConfigModule],
 			useFactory: (configService: ConfigService) => ({
-			...configService.get("typeorm"),
-			logging: false,  
+				...configService.get("typeorm"),
+				logging: false,
 			}),
 			inject: [ConfigService],
 		}),
@@ -34,6 +38,8 @@ import { LikeModule } from './like/like.module';
 		PostModule,
 		LogModule,
 		LikeModule,
+		RbacModule,
+		OAuthModule,
 	],
 	controllers: [AppController],
 	providers: [
@@ -41,6 +47,10 @@ import { LikeModule } from './like/like.module';
 		{
 			provide: APP_GUARD,
 			useClass: TokenGuard,
+		},
+		{
+			provide: APP_GUARD,
+			useClass: RbacGuard,
 		},
 	],
 })
