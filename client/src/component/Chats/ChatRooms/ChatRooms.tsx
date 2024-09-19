@@ -54,12 +54,6 @@ const ChatRooms: FC<Props> = ({ setSelectedRoom }) => {
 	};
 
 	useLayoutEffect(() => {
-		if (!isLogin) {
-			// TODO : aside로 개발 시 로그인 안되있음을 표시 및 로그인 페이지 바로가기 버튼 생성
-			navigate(`/login?redirect=/chat`); // TEST: 로그인 페이지로 route
-			return;
-		}
-
 		if (socket && category === ChatAsideCategory.MYROOM) {
 			const data: IGetMyRoomRequestEvent = {
 				page: currentPage,
@@ -70,15 +64,37 @@ const ChatRooms: FC<Props> = ({ setSelectedRoom }) => {
 	}, [currentPage, isLogin, navigate, nickname, socket, category]);
 
 	return (
-		<div className={container}>
-			<ChatHeader />
-			{isOpen ? (
-				<CreateRoomModal
-					close={setIsOpen}
-					setSelectedRoom={setSelectedRoom}
-				/>
-			) : null}
-			{renderChatRoomPage()}
+		<div>
+			{isLogin ? (
+				<div className={container}>
+					<ChatHeader />
+					{isOpen ? (
+						<CreateRoomModal
+							close={setIsOpen}
+							setSelectedRoom={setSelectedRoom}
+						/>
+					) : null}
+					{renderChatRoomPage()}
+				</div>
+			) : (
+				<div
+					style={{
+						color: "white",
+					}}
+				>
+					<p>로그인 후 이용할 수 있습니다.</p>
+					<button
+						style={{
+							marginBottom: "10px",
+						}}
+						onClick={() => {
+							navigate("/login");
+						}}
+					>
+						로그인
+					</button>
+				</div>
+			)}
 		</div>
 	);
 };

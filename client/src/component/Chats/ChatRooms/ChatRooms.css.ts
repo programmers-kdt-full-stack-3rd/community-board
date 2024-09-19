@@ -4,7 +4,6 @@ export const container = style({
 	display: "flex",
 	flexDirection: "column",
 	width: "100%",
-	height: "500px",
 });
 
 export const roomsWrapper = style({
