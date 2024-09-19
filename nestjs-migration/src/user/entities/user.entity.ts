@@ -9,7 +9,7 @@ import {
 	OneToMany,
 	PrimaryGeneratedColumn,
 } from "typeorm";
-import { CommentLikes } from "src/comment/entities/comment-likes.entity";
+import { CommentLike } from "src/like/entities/comment-like.entity";
 
 @Entity("users")
 export class User {
@@ -52,7 +52,7 @@ export class User {
 	@OneToMany(type => Comment, comment => comment.author)
 	comments: Comment[];
 
-	@OneToMany(type => CommentLikes, commentLikes => commentLikes.user)
+	@OneToMany(type => CommentLike, commentLikes => commentLikes.user)
 	@JoinColumn({name: "comment_likes"})
-	commentLikes: CommentLikes[];
+	commentLikes: CommentLike[];
 }
