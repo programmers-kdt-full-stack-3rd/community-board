@@ -1,19 +1,28 @@
-import { FC, useEffect, useLayoutEffect, useState } from "react";
+import {
+	FC,
+	SetStateAction,
+	useEffect,
+	useLayoutEffect,
+	useState,
+} from "react";
 import { IReadRoomResponse } from "shared";
-import { roomsWrapper } from "./ChatRooms.css";
+import { createButton, roomsWrapper } from "./ChatRooms.css";
 import Rooms from "./Rooms/Rooms";
 import Pagenation from "./Pagenation/Pagenation";
 import { useChatRoom } from "../../../state/ChatRoomStore";
 import { useUserStore } from "../../../state/store";
+import { RiChatNewLine } from "react-icons/ri";
 
 interface Props {
 	currentPage: number;
+	open: React.Dispatch<SetStateAction<boolean>>;
 	setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
 	setSelectedRoom: (room: { title: string; roomId: number }) => void;
 }
 
 const MyChatRooms: FC<Props> = ({
 	currentPage,
+	open,
 	setCurrentPage,
 	setSelectedRoom,
 }) => {
@@ -58,7 +67,32 @@ const MyChatRooms: FC<Props> = ({
 
 	return (
 		<div>
-			<h3>내 채팅방</h3>
+			<div
+				style={{
+					display: "flex",
+					flexDirection: "row",
+					justifyContent: "space-between",
+					alignItems: "center",
+				}}
+			>
+				<p
+					style={{
+						fontSize: "20px",
+						fontWeight: "bold",
+						marginLeft: "10px",
+						color: "gray",
+					}}
+				>
+					내 채팅방
+				</p>
+				<button
+					className={createButton}
+					onClick={() => open(true)}
+				>
+					<RiChatNewLine title="채팅방 생성" />
+				</button>
+			</div>
+
 			<div
 				style={{
 					display: "flex",
@@ -70,7 +104,13 @@ const MyChatRooms: FC<Props> = ({
 					<div className={roomsWrapper}>
 						{Object.keys(roomState.myRoomInfo.rooms).length ===
 						0 ? (
-							"내 채팅방 없음"
+							<div
+								style={{
+									height: "100px",
+								}}
+							>
+								{"내 채팅방 없음"}
+							</div>
 						) : (
 							<Rooms
 								isMine={true}

@@ -37,7 +37,7 @@ export const PostBody = style({
 	flexDirection: "column",
 	textAlign: "start",
 	width: "780px",
-	height: "100%",
+	height: "fit",
 	resize: "none",
 	borderRadius: 5,
 	padding: 10,

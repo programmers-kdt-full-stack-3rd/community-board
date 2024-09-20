@@ -12,6 +12,7 @@ import { CiLock } from "react-icons/ci";
 import { useState } from "react";
 import { IJoinRoomRequest, IRoomHeader } from "shared";
 import { useUserStore } from "../../../../state/store";
+import { FaUsers } from "react-icons/fa";
 
 interface Props {
 	room: IRoomHeader;
@@ -30,7 +31,12 @@ const Room: React.FC<Props> = ({ room, isMine, index, setSelectedRoom }) => {
 	const [password, setPassword] = useState("");
 
 	const enterRoom = () => {
-		if (open && socket) {
+		if (!socket) {
+			console.log("소켓 연결 x");
+			return;
+		}
+
+		if (open) {
 			const data: IJoinRoomRequest = {
 				roomId: room.roomId,
 				nickname,
@@ -47,10 +53,24 @@ const Room: React.FC<Props> = ({ room, isMine, index, setSelectedRoom }) => {
 			});
 		}
 
-		// TODO: 해당 room으로 이동 -> aside에서 가능하도록 변경
-		if (!room.isPrivate) {
+		if (isMine || !room.isPrivate) {
 			setSelectedRoom({ roomId: room.roomId, title: room.title });
 			return;
+		} else {
+			const data: IJoinRoomRequest = {
+				roomId: room.roomId,
+				nickname,
+				isPrivate: room.isPrivate,
+				password: password,
+			};
+
+			socket.emit("join_room", data, (isSuccess: boolean) => {
+				if (isSuccess) {
+					setSelectedRoom({ roomId: room.roomId, title: room.title });
+				} else {
+					console.error("가입 실패");
+				}
+			});
 		}
 
 		// 서버로 비밀번호 확인 요청
@@ -81,7 +101,7 @@ const Room: React.FC<Props> = ({ room, isMine, index, setSelectedRoom }) => {
 							) : (
 								" "
 							)}
-							채팅방 이름: {room.title}
+							{room.title}
 						</div>
 						{room.isPrivate ? (
 							<input
@@ -90,7 +110,7 @@ const Room: React.FC<Props> = ({ room, isMine, index, setSelectedRoom }) => {
 								onChange={e => setPassword(e.target.value)}
 							/>
 						) : null}
-						<button onClick={enterRoom}>입장하기</button>
+						<button onClick={enterRoom}>입장</button>
 					</div>
 				</div>
 			) : (
@@ -105,12 +125,14 @@ const Room: React.FC<Props> = ({ room, isMine, index, setSelectedRoom }) => {
 							) : (
 								" "
 							)}
-							채팅방 이름: {room.title}
+							{room.title}
 						</div>
 						<div className={numContainer}>
 							{/* TODO : 접속 인원 소켓에서 추가 */}
 							{/* {isMine ? <span>접속 인원: </span> : null} */}
-							<span>참여 인원: {room.totalMembersCount}</span>
+							<span>
+								<FaUsers /> {room.totalMembersCount}
+							</span>
 						</div>
 					</div>
 					{isMine ? (
