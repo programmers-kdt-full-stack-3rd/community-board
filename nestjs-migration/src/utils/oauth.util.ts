@@ -58,8 +58,6 @@ export const buildTokenFetchOptions = (
 		querystringPairs.client_secret = clientSecret;
 	}
 
-	console.log(querystringPairs);
-
 	return {
 		method: "POST",
 		headers: {

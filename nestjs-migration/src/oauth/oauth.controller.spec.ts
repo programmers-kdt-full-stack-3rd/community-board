@@ -30,6 +30,7 @@ describe("OauthController", () => {
 						oAuthLogin: jest.fn(),
 						oAuthReconfirm: jest.fn(),
 						oAuthLink: jest.fn(),
+						oAuthUnlink: jest.fn(),
 					},
 				},
 				{
@@ -274,6 +275,35 @@ describe("OauthController", () => {
 
 			expect(result).toEqual({
 				message: "소셜 계정 연동 성공",
+			});
+		});
+	});
+
+	describe("DELETE /link/:provider", () => {
+		const mockUserEntity: IUserEntity = { userId: 1, roleId: 1 };
+
+		it("소셜 계정 연동 해제 성공 시 200 상태 코드와 메시지를 반환한다", async () => {
+			const httpCode = Reflect.getMetadata(
+				"__httpCode__",
+				oAuthController.getLinkUrl
+			);
+
+			jest.spyOn(oAuthService, "oAuthUnlink").mockResolvedValue(true);
+
+			const result = await oAuthController.oAuthUnlink(
+				{ provider: mockProvider },
+				mockUserEntity
+			);
+
+			expect(oAuthService.oAuthUnlink).toHaveBeenCalledWith(
+				mockProvider,
+				mockUserEntity.userId
+			);
+
+			expect(httpCode).toBe(HttpStatus.OK);
+
+			expect(result).toEqual({
+				message: "소셜 계정 연동 해제 성공",
 			});
 		});
 	});

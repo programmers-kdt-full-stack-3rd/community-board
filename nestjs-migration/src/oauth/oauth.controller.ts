@@ -118,7 +118,9 @@ export class OAuthController {
 		@Param() param: OAuthProviderDto,
 		@User() user: IUserEntity
 	) {
-		await this.oauthService.oAuthUnlink(param.provider, user.userId);
+		const provider = param.provider;
+
+		await this.oauthService.oAuthUnlink(provider, user.userId);
 
 		return { message: "소셜 계정 연동 해제 성공" };
 	}
