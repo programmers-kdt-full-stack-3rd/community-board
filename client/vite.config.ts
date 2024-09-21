@@ -1,21 +1,29 @@
-import { defineConfig } from "vite";
+import { defineConfig, UserConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { vanillaExtractPlugin } from "@vanilla-extract/vite-plugin";
-import dotenv from "dotenv";
-
-// .env 파일 로드
-dotenv.config({ path: "./../.env" });
 
 // https://vitejs.dev/config/
-export default defineConfig({
-	plugins: [react(), vanillaExtractPlugin()],
+export default defineConfig(env => {
+	const isDevMode = env.mode === "development";
 
-	build: {
-		chunkSizeWarningLimit:
-			process.env.NODE_ENV === "development" ? 2000 : undefined,
-	},
+	const baseConfig: UserConfig = {
+		envDir: "./../",
 
-	define: {
-		"process.env": process.env,
-	},
+		plugins: [react(), vanillaExtractPlugin()],
+	};
+
+	if (isDevMode) {
+		return {
+			...baseConfig,
+
+			build: {
+				chunkSizeWarningLimit: 8000,
+				minify: false,
+			},
+		};
+	}
+
+	return {
+		...baseConfig,
+	};
 });
