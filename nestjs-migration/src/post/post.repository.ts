@@ -66,7 +66,7 @@ export class PostRepository extends Repository<Post> {
 		return await queryBuilder.getRawMany();
 	}
 
-	async getPostTotal(readPostsQueryDto: ReadPostsQueryDto, userId: number) {
+	async getPostTotal(readPostsQueryDto: ReadPostsQueryDto, userId: number) : Promise<number> {
 		let { keyword } = readPostsQueryDto;
 		userId ? userId : 0;
 
@@ -89,7 +89,7 @@ export class PostRepository extends Repository<Post> {
 		return await queryBuilder.getCount();
 	}
 
-	async getPostHeader(postId, userId) {
+	async getPostHeader(postId: number, userId: number) : Promise<Post> {
 		const authorId = userId;
 		const queryBuilder = this.createQueryBuilder("post")
 			.select([

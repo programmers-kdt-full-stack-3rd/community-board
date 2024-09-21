@@ -104,6 +104,7 @@ export class PostController {
 		};
 	};
 
+	//?userID: admin때문인 것 같은데..
   	@UseGuards(LoginGuard)
 	@Delete(":postId")
 	@HttpCode(HttpStatus.OK)
@@ -113,7 +114,11 @@ export class PostController {
 	) {
 		try {
 			const userId = req.user["userId"];
-			await this.postService.deletePost( userId, postId );
+			const deletePostDto = {
+				postId,
+				authorId: userId,
+			}
+			await this.postService.deletePost( deletePostDto );
 			return {  message: "게시글 삭제 success" };
 		} catch (err) {
 			throw err;
