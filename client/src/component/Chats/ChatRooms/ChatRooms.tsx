@@ -6,7 +6,7 @@ import MyChatRooms from "./MyChatRooms";
 import SearchedChatRooms from "./SearchedChatRooms";
 import { useUserStore } from "../../../state/store";
 import { useNavigate } from "react-router-dom";
-import ChatHeader from "./ChatHeader";
+import ChatFooter from "./ChatFooter";
 import { ChatAsideCategory, useChatAside } from "../../../state/ChatAsideStore";
 
 export interface RoomsInfo {
@@ -64,10 +64,13 @@ const ChatRooms: FC<Props> = ({ setSelectedRoom }) => {
 	}, [currentPage, isLogin, navigate, nickname, socket, category]);
 
 	return (
-		<div>
+		<div
+			style={{
+				height: "100%",
+			}}
+		>
 			{isLogin ? (
 				<div className={container}>
-					<ChatHeader />
 					{isOpen ? (
 						<CreateRoomModal
 							close={setIsOpen}
@@ -75,6 +78,7 @@ const ChatRooms: FC<Props> = ({ setSelectedRoom }) => {
 						/>
 					) : null}
 					{renderChatRoomPage()}
+					<ChatFooter />
 				</div>
 			) : (
 				<div

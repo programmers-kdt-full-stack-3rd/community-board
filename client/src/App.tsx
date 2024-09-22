@@ -25,6 +25,7 @@ import ChatAside from "./component/Chats/ChatAside/ChatAside";
 import { useChatAside } from "./state/ChatAsideStore";
 import OAuthLink from "./page/OAuth/OAuthLink";
 import EmailRegistration from "./page/User/EmailRegistration";
+import ChatBtn from "./component/Chats/ChatBtn/ChatBtn";
 
 function MainContainer({ children }: { children: React.ReactNode }) {
 	const location = useLocation();
@@ -165,6 +166,7 @@ function App() {
 						</Routes>
 					</MainContainer>
 					{isOpen && <ChatAside />}
+					<ChatBtn />
 				</div>
 			</BrowserRouter>
 		</div>

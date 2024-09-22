@@ -11,7 +11,12 @@ const ChatPage: FC = () => {
 	const [selectedRoom, setSelectedRoom] = useState<IRoomInfo | null>(null);
 
 	return (
-		<>
+		<div
+			style={{
+				position: "relative",
+				height: "100%",
+			}}
+		>
 			{selectedRoom ? (
 				<ChatRoom
 					title={selectedRoom.title}
@@ -21,7 +26,7 @@ const ChatPage: FC = () => {
 			) : (
 				<ChatRooms setSelectedRoom={setSelectedRoom} />
 			)}
-		</>
+		</div>
 	);
 };
 

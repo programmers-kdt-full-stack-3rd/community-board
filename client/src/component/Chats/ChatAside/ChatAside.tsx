@@ -4,14 +4,22 @@ const ChatAside = () => {
 	return (
 		<div
 			style={{
-				width: "30%",
-				minWidth: "400px",
-				minHeight: "500px",
+				position: "fixed",
+				right: "20px",
+				bottom: "90px",
+				backgroundColor: "#444444",
+				width: "400px",
+				height: "calc(100% - 100px)",
+				maxHeight: "500px",
+				minHeight: "200px",
 				zIndex: "2",
-				border: "1px solid white",
+				borderRadius: "20px",
 				color: "black",
-				padding: "10px",
-				height: "100%",
+				paddingTop: "20px",
+				paddingBottom: "10px",
+				paddingLeft: "15px",
+				paddingRight: "15px",
+				overflowY: "hidden",
 			}}
 		>
 			<ChatPage />

@@ -3,7 +3,7 @@ import { IoMdSettings } from "react-icons/io";
 import { BsWechat } from "react-icons/bs";
 import { ChatAsideCategory, useChatAside } from "../../../state/ChatAsideStore";
 
-const ChatHeader = () => {
+const ChatFooter = () => {
 	const { category, setCategory } = useChatAside();
 	return (
 		<div
@@ -11,14 +11,17 @@ const ChatHeader = () => {
 				display: "grid",
 				gridTemplateColumns: "repeat(3, auto)",
 				cursor: "pointer",
+				width: "100%",
+				height: "40px",
 			}}
 		>
 			<div
 				style={{
-					border: "1px solid white",
-					backgroundColor:
-						category === ChatAsideCategory.SEARCH ? "white" : "",
 					cursor: "pointer",
+					display: "flex",
+					flexDirection: "column",
+					justifyContent: "center",
+					alignItems: "center",
 				}}
 				onClick={() => {
 					setCategory(ChatAsideCategory.SEARCH);
@@ -28,17 +31,30 @@ const ChatHeader = () => {
 					style={{
 						color:
 							category === ChatAsideCategory.SEARCH
-								? "black"
-								: "white",
+								? "white"
+								: "gray",
+						width: "30px",
+						height: "30px",
 					}}
 				/>
+				<div
+					style={{
+						color:
+							category === ChatAsideCategory.SEARCH
+								? "white"
+								: "gray",
+					}}
+				>
+					검색
+				</div>
 			</div>
 			<div
 				style={{
-					border: "1px solid white",
-					backgroundColor:
-						category === ChatAsideCategory.MYROOM ? "white" : "",
 					cursor: "pointer",
+					display: "flex",
+					flexDirection: "column",
+					justifyContent: "center",
+					alignItems: "center",
 				}}
 				onClick={() => {
 					setCategory(ChatAsideCategory.MYROOM);
@@ -48,16 +64,29 @@ const ChatHeader = () => {
 					style={{
 						color:
 							category === ChatAsideCategory.MYROOM
-								? "black"
-								: "white",
+								? "white"
+								: "gray",
+						width: "30px",
+						height: "30px",
 					}}
 				/>
+				<div
+					style={{
+						color:
+							category === ChatAsideCategory.MYROOM
+								? "white"
+								: "gray",
+					}}
+				>
+					채팅
+				</div>
 			</div>
 			<div
 				style={{
-					border: "1px solid white",
-					backgroundColor:
-						category === ChatAsideCategory.SETTING ? "white" : "",
+					display: "flex",
+					flexDirection: "column",
+					justifyContent: "center",
+					alignItems: "center",
 				}}
 				onClick={() => {
 					setCategory(ChatAsideCategory.SETTING);
@@ -67,13 +96,25 @@ const ChatHeader = () => {
 					style={{
 						color:
 							category === ChatAsideCategory.SETTING
-								? "black"
-								: "white",
+								? "white"
+								: "gray",
+						width: "30px",
+						height: "30px",
 					}}
 				/>
+				<div
+					style={{
+						color:
+							category === ChatAsideCategory.SETTING
+								? "white"
+								: "gray",
+					}}
+				>
+					설정
+				</div>
 			</div>
 		</div>
 	);
 };
 
-export default ChatHeader;
+export default ChatFooter;

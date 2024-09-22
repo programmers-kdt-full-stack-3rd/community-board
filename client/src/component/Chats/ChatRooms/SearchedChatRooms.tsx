@@ -129,6 +129,7 @@ const SearchedChatRooms: React.FC<Props> = ({ setSelectedRoom }) => {
 				flexDirection: "column",
 				justifyContent: "space-between",
 				gap: "10px",
+				height: "calc(100% - 54px)",
 			}}
 		>
 			<div className={searchContainer}>
@@ -158,6 +159,7 @@ const SearchedChatRooms: React.FC<Props> = ({ setSelectedRoom }) => {
 					display: "flex",
 					flexDirection: "column",
 					gap: "10px",
+					height: "100%",
 				}}
 			>
 				{isRendered && (
@@ -165,6 +167,8 @@ const SearchedChatRooms: React.FC<Props> = ({ setSelectedRoom }) => {
 						style={{
 							display: "flex",
 							flexDirection: "column",
+							overflowY: "hidden",
+							height: "100%",
 						}}
 					>
 						{Object.keys(searchedRooms.rooms).length === 0 ? (
@@ -173,7 +177,7 @@ const SearchedChatRooms: React.FC<Props> = ({ setSelectedRoom }) => {
 									display: "flex",
 									justifyContent: "center",
 									alignItems: "center",
-									height: "100px",
+									height: "100%",
 									color: "white",
 								}}
 							>

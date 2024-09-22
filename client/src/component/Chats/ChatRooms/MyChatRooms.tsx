@@ -66,7 +66,11 @@ const MyChatRooms: FC<Props> = ({
 	}, [currentPage]);
 
 	return (
-		<div>
+		<div
+			style={{
+				height: "calc(100% - 54px)",
+			}}
+		>
 			<div
 				style={{
 					display: "flex",
@@ -80,7 +84,7 @@ const MyChatRooms: FC<Props> = ({
 						fontSize: "20px",
 						fontWeight: "bold",
 						marginLeft: "10px",
-						color: "gray",
+						color: "white",
 					}}
 				>
 					내 채팅방
