@@ -3,10 +3,12 @@ import { Response } from "express";
 import { ServerError } from "../common/exceptions/server-error.exception";
 import { LoginGuard } from "../common/guard/login.guard";
 import { IUserEntity } from "../common/interface/user-entity.interface";
+import { OAuthConnection } from "../oauth/entities/oauth-connection.entity";
 import { RbacService } from "../rbac/rbac.service";
 import * as dateUtil from "../utils/date.util";
 import { COOKIE_MAX_AGE, USER_ERROR_MESSAGES } from "./constant/user.constants";
 import { CreateUserDto } from "./dto/create-user.dto";
+import { User } from "./entities/user.entity";
 import { UserController } from "./user.controller";
 import { UserService } from "./user.service";
 
@@ -21,6 +23,7 @@ describe("UserController", () => {
 		createUser: jest.fn(),
 		logout: jest.fn(),
 		checkPassword: jest.fn(),
+		readUser: jest.fn(),
 	};
 
 	const mockRbacService = {
@@ -73,6 +76,7 @@ describe("UserController", () => {
 		};
 
 		checkGuardApplied("logout");
+		checkGuardApplied("readUser");
 	});
 
 	describe("POST /user/join", () => {
@@ -294,6 +298,40 @@ describe("UserController", () => {
 			expect(rbacService.isAdmin).toHaveBeenCalledWith(2);
 			expect(rbacService.isAdmin).toHaveBeenCalledTimes(1);
 			expect(result).toEqual({ isAdmin: false });
+		});
+	});
+
+	describe("Get /user", () => {
+		it("사용자 정보 조회 성공 시 200 상태 코드와 사용자 정보를 반환한다", async () => {
+			const mockUser = {
+				email: "test@test.com",
+				nickname: "testuser",
+			} as User;
+
+			const mockOAuthConnections = [
+				{
+					oAuthProvider: {
+						name: "google",
+					},
+				},
+			] as OAuthConnection[];
+
+			const mockResult = {
+				user: mockUser,
+				oAuthConnections: mockOAuthConnections,
+			};
+
+			jest.spyOn(loginGuard, "canActivate").mockReturnValue(true);
+			jest.spyOn(userService, "readUser").mockResolvedValue(mockResult);
+
+			const result = await userController.readUser(mockUserEntity);
+
+			expect(userService.readUser).toHaveBeenCalledWith(1);
+			expect(result).toEqual({
+				email: mockUser.email,
+				nickname: mockUser.nickname,
+				connected_oauth: ["google"],
+			});
 		});
 	});
 });

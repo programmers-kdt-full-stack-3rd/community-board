@@ -3,6 +3,7 @@ import { DeleteResult } from "typeorm";
 import { AuthService } from "../auth/auth.service";
 import { RefreshTokensRepository } from "../auth/refresh-tokens.repository";
 import { ServerError } from "../common/exceptions/server-error.exception";
+import { OAuthConnectionRepository } from "../oauth/repositories/oauth-connection.repository";
 import * as cryptoUtil from "../utils/crypto.util";
 import { USER_ERROR_MESSAGES } from "./constant/user.constants";
 import { CreateUserDto } from "./dto/create-user.dto";
@@ -15,6 +16,7 @@ describe("UserService", () => {
 	let userRepository: UserRepository;
 	let authService: AuthService;
 	let refreshTokenRepository: RefreshTokensRepository;
+	let oAuthConnectionRepository: OAuthConnectionRepository;
 
 	const mockUserRepository = {
 		save: jest.fn(),
@@ -29,6 +31,10 @@ describe("UserService", () => {
 	const mockRefreshTokensRepository = {
 		save: jest.fn(),
 		delete: jest.fn(),
+	};
+
+	const mockOAuthConnectionRepository = {
+		getOAuthConnectionByUserId: jest.fn(),
 	};
 
 	const mockSalt = "mocksalt";
@@ -71,6 +77,10 @@ describe("UserService", () => {
 				{
 					provide: RefreshTokensRepository,
 					useValue: mockRefreshTokensRepository,
+				},
+				{
+					provide: OAuthConnectionRepository,
+					useValue: mockOAuthConnectionRepository,
 				},
 			],
 		}).compile();
@@ -306,6 +316,44 @@ describe("UserService", () => {
 			await expect(result).rejects.toThrow(
 				USER_ERROR_MESSAGES.NOT_FOUND_USER
 			);
+		});
+	});
+
+	describe("readUser", () => {
+		const mockUser = createMockUser();
+		const mockOAuthConnections = [{ oAuthProvider: { name: "google" } }];
+
+		beforeEach(() => {
+			jest.spyOn(userRepository, "findOne").mockResolvedValue(mockUser);
+
+			jest.spyOn(
+				mockOAuthConnectionRepository,
+				"getOAuthConnectionByUserId"
+			).mockResolvedValue([
+				{
+					oAuthProvider: { name: "google" },
+				},
+			]);
+		});
+
+		describe("성공 케이스", () => {
+			it("사용자 정보를 반환한다", async () => {
+				const userId = 1;
+
+				const result = await userService.readUser(userId);
+
+				expect(userRepository.findOne).toHaveBeenCalledWith({
+					where: { id: userId, isDelete: false },
+				});
+				expect(
+					mockOAuthConnectionRepository.getOAuthConnectionByUserId
+				).toHaveBeenCalledWith(userId);
+
+				expect(result).toEqual({
+					user: mockUser,
+					oAuthConnections: mockOAuthConnections,
+				});
+			});
 		});
 	});
 });
