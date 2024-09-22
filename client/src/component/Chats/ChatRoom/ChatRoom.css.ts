@@ -129,12 +129,12 @@ export const inputContainer = style({
 export const chatInput = style({
 	width: "100%",
 	height: "40px",
-	borderTopLeftRadius: "20px",
-	borderBottomLeftRadius: "20px",
+	borderTopLeftRadius: "10px",
+	borderBottomLeftRadius: "10px",
 	borderTopRightRadius: "0px",
 	borderBottomRightRadius: "0px",
-	paddingLeft: "20px",
-	paddingRight: "20px",
+	paddingLeft: "10px",
+	paddingRight: "10px",
 	backgroundColor: "gray",
 	border: "none",
 });
@@ -145,6 +145,6 @@ export const SendButton = style({
 	backgroundColor: "#141414",
 	borderTopLeftRadius: "0px",
 	borderBottomLeftRadius: "0px",
-	borderTopRightRadius: "20px",
-	borderBottomRightRadius: "20px",
+	borderTopRightRadius: "10px",
+	borderBottomRightRadius: "10px",
 });

@@ -37,14 +37,19 @@ export const searchContainer = style({
 
 export const searchInput = style({
 	width: "100%",
-	height: "34px",
+	height: "40px",
+	paddingLeft: "15px",
+	paddingRight: "15px",
+	borderRadius: "10px",
+	backgroundColor: "gray",
+	border: "none",
 });
 
 export const searchButton = style({
 	padding: "0px",
 	width: "50px",
 	cursor: "pointer",
-	height: "40px",
+	height: "42px",
 });
 
 export const searchForm = style({
