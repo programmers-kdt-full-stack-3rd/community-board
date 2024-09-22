@@ -1,5 +1,6 @@
 import { IsNotEmpty, ValidateIf } from "class-validator";
 import { POST_ERROR_MESSAGES } from "../constant/post.constants";
+import { User } from "src/user/entities/user.entity";
 
 
 export class UpdatePostBodyDto {

@@ -10,7 +10,3 @@ export class getPostHeadersDto {
     @Transform(({value})=> parseInt(value))
     likes: number;
 }
-export class asdf {
-    
-
-}

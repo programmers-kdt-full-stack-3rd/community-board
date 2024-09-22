@@ -3,22 +3,21 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { DataSource } from 'typeorm';
 import { changeBadWords, getRegex } from '../utils/bad-word-regex/regexTask';
-import {regexs} from "../utils/bad-word-regex/regexs.json";
+import { regexs } from "../utils/bad-word-regex/regexs.json";
 import { makeLogTitle } from '../utils/user-logs-utils';
 import { Post } from './entities/post.entity';
-import { UserRepository } from '../user/user.repository';
 import { ReadPostsQueryDto } from './dto/read-posts-query.dto';
 import { PostRepository } from './post.repository';
 import { Log } from '../log/entity/log.entity';
 import { ServerError } from '../common/exceptions/server-error.exception';
 import { getPostHeadersDto } from './dto/get-post-headers.dto';
+import { DeletePostDto } from './dto/delete-post.dto';
 
 
 @Injectable()
 export class PostService {
   constructor(private dataSource: DataSource,
               private postRepository: PostRepository,
-              private userRepository: UserRepository
   ) {}
 
   async createPost(createPostDto: CreatePostDto) : Promise<number> {
@@ -30,19 +29,13 @@ export class PostService {
 
       let {doFilter, content, title, authorId} = createPostDto;
 
-      const author = await this.userRepository.findOne({where: {id:authorId}});
-
-      if (!author) {
-        throw ServerError.notFound("존재하지 않는 유저입니다");
-      };
-
       if (doFilter) {
         const regex = getRegex(regexs);
         const newText = changeBadWords(content, regex);
         content = newText;
       };
 
-      const newPost = Object.assign(new Post(),{title,content,author});
+      const newPost = Object.assign(new Post(),{title,content,author: authorId});
       const logTitle = makeLogTitle(title);
       const logValue = Object.assign(new Log(), {userId: authorId, title: logTitle, categoryId: 1});
 
@@ -101,35 +94,28 @@ export class PostService {
 
     let {doFilter, content, title, authorId} = updatePostDto;
     
-    const author = await this.userRepository.findOne({where: {id:authorId}});
     const post = await this.postRepository.findOne({ where: { id: postId } });
 
-    if (!(author && post && !post.isDelete)) {
-      throw ServerError.notFound("없는 유저이거나 존재하지 않는 게시물입니다.")
+    if (!(post && !post.isDelete)) {
+      throw ServerError.notFound("게시물 수정 실패: 존재하지 않는 게시물입니다.")
     }
-
-    const newPost = new Post();
 
     if (content && doFilter) {
 			const regex = getRegex(regexs);
-			const newText = changeBadWords(content, regex);
-			content = newText;
+			content = changeBadWords(content, regex);
 		}
-
-    newPost.title = title;
-    newPost.content = content;
-    newPost.author = author;
 
     let result;
     if (content && title ) {
-      result = await this.postRepository.update({id: postId}, {title: newPost.title, content: newPost.content})
+      result = await this.postRepository.update({id: postId, author: {id: authorId}}, {title, content,})
     } else if (title) {
-      result = await this.postRepository.update({id: postId}, {title: newPost.title})
+      result = await this.postRepository.update({id: postId, author: {id: authorId}}, {title,})
     } else if (content) {
-      result = await this.postRepository.update({id: postId}, {content: newPost.content})
+      result = await this.postRepository.update({id: postId, author: {id: authorId}}, {content,})
     };
 
     //TODO: 같은 내용 update해도 affected = 1 _express와 동일
+    //WHERE문 추가로 affected=0으로 할 수는있음
     if (result && result.affected) {
       return true
     } else {
@@ -137,17 +123,16 @@ export class PostService {
     };
   };
 
-  async deletePost(userId, postId: number) : Promise<boolean> {
-
-
+  async deletePost(deletePostDto: DeletePostDto) : Promise<boolean> {
+    const {postId, authorId} = deletePostDto;
     const post = await this.postRepository.findOne({ where: { id: postId } });
 
     if (!(post && !post.isDelete)) {
-      throw ServerError.reference("게시글 삭제 실패");
+      throw ServerError.notFound("게시글 삭제 실패: 존재하지 않는 게시물입니다.");
     }
 
     const result = await this.postRepository
-      .update({id: postId, isDelete: 0, author: userId}, {isDelete: 1});
+      .update({id: postId, isDelete: 0, author: {id: authorId}}, {isDelete: 1});
 
       if(result.affected) {
         return true;
