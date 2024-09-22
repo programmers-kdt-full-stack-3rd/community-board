@@ -13,7 +13,7 @@ import { useErrorModal } from "./state/errorModalStore";
 import { useLayoutEffect } from "react";
 import ErrorModal from "./component/utils/ErrorModal";
 import OAuthRedirectHandler from "./page/OAuth/OAuthRedirectHandler";
-import ChatTestPage from "./page/Chat/ChatTestPage";
+import ChatTestPage from "./page/Chat/ChatPage";
 import { AdminUserMgmtPage } from "./page/Admin/AdminUserMgmtPage";
 import { AdminPostMgmtPage } from "./page/Admin/AdminPostMgmtPage";
 import { AdminStatsPage } from "./page/Admin/AdminStatsPage";
@@ -151,6 +151,14 @@ function App() {
 								element={<AdminUserLogPage />}
 							/>
 							<Route
+								path="/oauth"
+								element={<OAuthLink />}
+							/>
+							<Route
+								path="/emailRegistration"
+								element={<EmailRegistration />}
+							/>
+							<Route
 								path="*"
 								element={<NotFound />}
 							/>
@@ -158,70 +166,6 @@ function App() {
 					</MainContainer>
 					{isOpen && <ChatAside />}
 				</div>
-				<MainContainer>
-					<Routes>
-						<Route
-							path="/"
-							element={<Main />}
-						/>
-						<Route
-							path="/login"
-							element={<Login />}
-						/>
-						<Route
-							path="/join"
-							element={<Join />}
-						/>
-						<Route
-							path="/oauth/redirect/:provider"
-							element={<OAuthRedirectHandler />}
-						/>
-						<Route
-							path="/checkPassword"
-							element={<CheckPassword />}
-						/>
-						<Route
-							path="/profileUpdate"
-							element={<ProfileUpdate />}
-						/>
-						<Route
-							path="/emailRegistration"
-							element={<EmailRegistration />}
-						/>
-						<Route
-							path="/oauth"
-							element={<OAuthLink />}
-						/>
-						<Route
-							path="/post/:id"
-							element={<PostInfoPage />}
-						/>
-						<Route
-							path="/chat"
-							element={<ChatTestPage />}
-						/>
-						<Route
-							path="/admin/userMgmt"
-							element={<AdminUserMgmtPage />}
-						/>
-						<Route
-							path="/admin/postMgmt"
-							element={<AdminPostMgmtPage />}
-						/>
-						<Route
-							path="/admin/stats"
-							element={<AdminStatsPage />}
-						/>
-						<Route
-							path="/admin/userLog/:userId"
-							element={<AdminUserLogPage />}
-						/>
-						<Route
-							path="*"
-							element={<NotFound />}
-						/>
-					</Routes>
-				</MainContainer>
 			</BrowserRouter>
 		</div>
 	);

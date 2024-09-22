@@ -1,4 +1,4 @@
-import ChatPage from "../../../page/Chat/ChatTestPage";
+import ChatPage from "../../../page/Chat/ChatPage";
 
 const ChatAside = () => {
 	return (
