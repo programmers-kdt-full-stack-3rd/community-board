@@ -1,19 +1,9 @@
-import ChatPage from "../../../page/Chat/ChatTestPage";
+import ChatPage from "../../../page/Chat/ChatPage";
+import { chatAsideStyle } from "./ChatAside.css";
 
 const ChatAside = () => {
 	return (
-		<div
-			style={{
-				width: "30%",
-				minWidth: "400px",
-				minHeight: "500px",
-				zIndex: "2",
-				border: "1px solid white",
-				color: "black",
-				padding: "10px",
-				height: "100%",
-			}}
-		>
+		<div className={chatAsideStyle}>
 			<ChatPage />
 		</div>
 	);

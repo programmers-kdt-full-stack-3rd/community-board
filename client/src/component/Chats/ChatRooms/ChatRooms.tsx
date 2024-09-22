@@ -1,12 +1,17 @@
 import { FC, useLayoutEffect, useState } from "react";
-import { container } from "./ChatRooms.css";
+import {
+	chatRoomsContainer,
+	chatRoomsStyle,
+	container,
+	loginGuidanceStyle,
+} from "./ChatRooms.css";
 import { IGetMyRoomRequestEvent, IRoomHeader } from "shared";
 import CreateRoomModal from "./Modal/CreateRoomModal";
 import MyChatRooms from "./MyChatRooms";
 import SearchedChatRooms from "./SearchedChatRooms";
 import { useUserStore } from "../../../state/store";
 import { useNavigate } from "react-router-dom";
-import ChatHeader from "./ChatHeader";
+import ChatFooter from "./ChatFooter";
 import { ChatAsideCategory, useChatAside } from "../../../state/ChatAsideStore";
 
 export interface RoomsInfo {
@@ -33,7 +38,7 @@ const ChatRooms: FC<Props> = ({ setSelectedRoom }) => {
 	const isLogin = useUserStore.use.isLogin();
 	const nickname = useUserStore.use.nickname();
 	const socket = useUserStore.use.socket();
-	const { category } = useChatAside();
+	const { category, close } = useChatAside();
 
 	const renderChatRoomPage = () => {
 		switch (category) {
@@ -49,7 +54,7 @@ const ChatRooms: FC<Props> = ({ setSelectedRoom }) => {
 					/>
 				);
 			default:
-				return <div>미구현!</div>;
+				return <div className={chatRoomsContainer}>미구현!</div>;
 		}
 	};
 
@@ -64,10 +69,9 @@ const ChatRooms: FC<Props> = ({ setSelectedRoom }) => {
 	}, [currentPage, isLogin, navigate, nickname, socket, category]);
 
 	return (
-		<div>
+		<div className={container}>
 			{isLogin ? (
-				<div className={container}>
-					<ChatHeader />
+				<div className={chatRoomsStyle}>
 					{isOpen ? (
 						<CreateRoomModal
 							close={setIsOpen}
@@ -75,20 +79,15 @@ const ChatRooms: FC<Props> = ({ setSelectedRoom }) => {
 						/>
 					) : null}
 					{renderChatRoomPage()}
+					<ChatFooter />
 				</div>
 			) : (
-				<div
-					style={{
-						color: "white",
-					}}
-				>
+				<div className={loginGuidanceStyle}>
 					<p>로그인 후 이용할 수 있습니다.</p>
 					<button
-						style={{
-							marginBottom: "10px",
-						}}
 						onClick={() => {
 							navigate("/login");
+							close();
 						}}
 					>
 						로그인

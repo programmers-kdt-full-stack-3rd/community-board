@@ -6,8 +6,11 @@ import { ApiCall } from "../../../api/api";
 import { sendGetRoomHeadersRequest } from "../../../api/chats/crud";
 import { useErrorModal } from "../../../state/errorModalStore";
 import {
+	chatRoomsContainer,
 	searchButton,
 	searchContainer,
+	searchedChatRoomInfoStyle,
+	searchedChatRoomsStyle,
 	searchForm,
 	searchInput,
 } from "./ChatRooms.css";
@@ -30,6 +33,7 @@ const SearchedChatRooms: React.FC<Props> = ({ setSelectedRoom }) => {
 	const [keyword, setKeyword] = useState("");
 	const [curKeyword, setCurKeyword] = useState("");
 	const errorModal = useErrorModal();
+	const [isSearched, setIsSearched] = useState(false);
 
 	const GetRooms = async (body: IReadRoomRequest) => {
 		const queryString = `?page=${body.page}&perPage=${body.perPage}&isSearch=${body.isSearch}&keyword=${body.keyword}`;
@@ -73,6 +77,10 @@ const SearchedChatRooms: React.FC<Props> = ({ setSelectedRoom }) => {
 
 	// 채팅 input Change
 	const onSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
+		if (isSearched) {
+			setIsSearched(false);
+		}
+
 		setKeyword(event.target.value);
 	};
 
@@ -102,6 +110,29 @@ const SearchedChatRooms: React.FC<Props> = ({ setSelectedRoom }) => {
 			setCurrentPage(1);
 			setCurKeyword(keyword);
 			setKeyword("");
+			setIsSearched(true);
+		}
+	};
+
+	const renderSearchedRooms = () => {
+		if (Object.keys(searchedRooms.rooms).length === 0) {
+			let guidance = "";
+
+			if (isSearched) {
+				guidance = "검색된 채팅방 없음";
+			} else if (keyword === "") {
+				guidance = "채팅방을 찾아보세요!";
+			}
+
+			return <div className={searchedChatRoomInfoStyle}>{guidance}</div>;
+		} else {
+			return (
+				<Rooms
+					isMine={false}
+					rooms={searchedRooms.rooms[currentPage]}
+					setSelectedRoom={setSelectedRoom}
+				/>
+			);
 		}
 	};
 
@@ -123,14 +154,7 @@ const SearchedChatRooms: React.FC<Props> = ({ setSelectedRoom }) => {
 	}, [currentPage]);
 
 	return (
-		<div
-			style={{
-				display: "flex",
-				flexDirection: "column",
-				justifyContent: "space-between",
-				gap: "10px",
-			}}
-		>
+		<div className={chatRoomsContainer}>
 			<div className={searchContainer}>
 				<form
 					className={searchForm}
@@ -146,46 +170,18 @@ const SearchedChatRooms: React.FC<Props> = ({ setSelectedRoom }) => {
 						<FaSearch />
 					</button>
 				</form>
-				{/* <div onClick={() => open(true)}>
-					<CiCirclePlus
-						className={createButton}
-						title="채팅방 생성"
-					/>
-				</div> */}
 			</div>
 			<div
 				style={{
 					display: "flex",
 					flexDirection: "column",
 					gap: "10px",
+					height: "100%",
 				}}
 			>
 				{isRendered && (
-					<div
-						style={{
-							display: "flex",
-							flexDirection: "column",
-						}}
-					>
-						{Object.keys(searchedRooms.rooms).length === 0 ? (
-							<div
-								style={{
-									display: "flex",
-									justifyContent: "center",
-									alignItems: "center",
-									height: "100px",
-									color: "white",
-								}}
-							>
-								검색된 채팅방 없음
-							</div>
-						) : (
-							<Rooms
-								isMine={false}
-								rooms={searchedRooms.rooms[currentPage]}
-								setSelectedRoom={setSelectedRoom}
-							/>
-						)}
+					<div className={searchedChatRoomsStyle}>
+						{renderSearchedRooms()}
 					</div>
 				)}
 				{searchedRooms.totalRoomCount > 2 ? (
