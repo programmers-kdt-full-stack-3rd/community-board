@@ -1,5 +1,5 @@
-import { Comment } from "src/comment/entities/comment.entity";
-import { User } from "src/user/entities/user.entity";
+import { Comment } from "../../comment/entities/comment.entity";
+import { User } from "../../user/entities/user.entity";
 import { CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity("comment_likes")

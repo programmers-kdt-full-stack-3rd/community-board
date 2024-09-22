@@ -1,6 +1,6 @@
-import { CommentLike } from "src/like/entities/comment-like.entity";
-import { Post } from "src/post/entities/post.entity";
-import { User } from "src/user/entities/user.entity";
+import { CommentLike } from "../../like/entities/comment-like.entity";
+import { Post } from "../../post/entities/post.entity";
+import { User } from "../../user/entities/user.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 

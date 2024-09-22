@@ -1,8 +1,8 @@
-import { Controller, Delete, Param, ParseIntPipe, Post, Req, UseGuards } from '@nestjs/common';
+import { Controller, Delete, HttpCode, HttpStatus, Param, ParseIntPipe, Post, Req, UseGuards } from '@nestjs/common';
 import { LikeService } from './like.service';
 import { Request } from 'express';
-import { LoginGuard } from 'src/common/guard/login.guard';
-import { ServerError } from 'src/common/exceptions/server-error.exception';
+import { LoginGuard } from '../common/guard/login.guard';
+import { ServerError } from '../common/exceptions/server-error.exception';
 
 @Controller('like')
 export class LikeController {
@@ -10,13 +10,18 @@ export class LikeController {
 
   	@UseGuards(LoginGuard)
 	@Post("post/:post_id")
+	@HttpCode(HttpStatus.CREATED)
 	async handleAddLike(
 		@Param('post_id',ParseIntPipe) postId: number,
 		@Req() req: Request
-	 ) {
+	 ) : Promise<void>{
 		try{
 			const userId = req.user["userId"];
-			await this.likeService.createPostLike(postId, userId);
+			const createPostLikeDto = {
+				postId,
+				userId,
+			}
+			await this.likeService.createPostLike(createPostLikeDto);
 		} catch (err) {
 			if (err?.code === "ER_DUP_ENTRY") {
 				throw ServerError.badRequest(
@@ -36,13 +41,18 @@ export class LikeController {
 
 	@UseGuards(LoginGuard)
 	@Delete("post/:post_id")
+	@HttpCode(HttpStatus.OK)
 	async handleDeleteLike( 
 		@Param('post_id',ParseIntPipe) postId: number,
 		@Req() req: Request
-	) {
+	) : Promise<void>{
 		try{
 			const userId = req.user["userId"];
-			await this.likeService.deletePostLike(postId, userId);
+			const deletePostDto = {
+				postId,
+				userId,
+			}
+			await this.likeService.deletePostLike(deletePostDto);
 		} catch (err) {
       throw err;
 		}
@@ -50,13 +60,18 @@ export class LikeController {
 
 	@UseGuards(LoginGuard)
 	@Post("comment/:comment_id")
+	@HttpCode(HttpStatus.CREATED)
 	async handleAddCommentLike(
 		@Param('comment_id',ParseIntPipe) commentId: number,
 		@Req() req: Request
-	 ) {
+	 ): Promise<void> {
 		try{
 			const userId = req.user["userId"];
-			await this.likeService.createCommentLike(commentId, userId);
+			const createCommentLikeDto = {
+				commentId,
+				userId,
+			}
+			await this.likeService.createCommentLike(createCommentLikeDto);
 		} catch (err) {
 			if (err?.code === "ER_DUP_ENTRY") {
 				throw ServerError.badRequest(
@@ -74,13 +89,18 @@ export class LikeController {
 	}
 	@UseGuards(LoginGuard)
 	@Delete("comment/:comment_id")
+	@HttpCode(HttpStatus.OK)
 	async handleDeleteCommentLike( 
 		@Param('comment_id',ParseIntPipe) commentId: number,
 		@Req() req: Request
-	) {
+	): Promise<void> {
 		try{
 			const userId = req.user["userId"];
-			await this.likeService.deletePostLike(commentId, userId);
+			const deleteCommentLikeDto = {
+				commentId,
+				userId,
+			}
+			await this.likeService.deleteCommentLike(deleteCommentLikeDto);
 		} catch (err) {
       		throw err;
 		}
