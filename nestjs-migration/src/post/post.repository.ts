@@ -4,6 +4,7 @@ import { Post } from "./entities/post.entity";
 import { ReadPostsQueryDto, SortBy } from "./dto/read-posts-query.dto";
 import { getPostHeadersDto } from "./dto/get-post-headers.dto";
 import { Like } from "../like/entities/like.entity";
+import { plainToInstance } from "class-transformer";
 
 @Injectable()
 export class PostRepository extends Repository<Post> {
@@ -63,7 +64,9 @@ export class PostRepository extends Repository<Post> {
 			.limit(perPage)
 			.offset(index * perPage);
 
-		return await queryBuilder.getRawMany();
+		const results = await queryBuilder.getRawMany();
+
+		return plainToInstance(getPostHeadersDto, results);
 	}
 
 	async getPostTotal(readPostsQueryDto: ReadPostsQueryDto, userId: number) : Promise<number> {
