@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { AuthService } from "../auth/auth.service";
 import { RefreshTokensRepository } from "../auth/refresh-tokens.repository";
 import { ServerError } from "../common/exceptions/server-error.exception";
+import { OAuthConnectionRepository } from "../oauth/repositories/oauth-connection.repository";
 import { makeHashedPassword, makeSalt } from "../utils/crypto.util";
 import {
 	USER_ERROR_CODES,
@@ -17,6 +18,7 @@ export class UserService {
 	constructor(
 		private userRepository: UserRepository,
 		private refreshTokenRepository: RefreshTokensRepository,
+		private oAuthConnectionRepository: OAuthConnectionRepository,
 		private readonly authService: AuthService
 	) {}
 
@@ -65,6 +67,16 @@ export class UserService {
 		});
 
 		return { nickname: user.nickname, ...tokens };
+	}
+
+	async readUser(userId: number) {
+		const user = await this.findAndValidateUserById(userId);
+		const oAuthConnections =
+			await this.oAuthConnectionRepository.getOAuthConnectionByUserId(
+				userId
+			);
+
+		return { user, oAuthConnections };
 	}
 
 	async checkPassword(userId: number, password: string) {

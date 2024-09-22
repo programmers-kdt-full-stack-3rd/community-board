@@ -75,7 +75,23 @@ export class UserController {
 		return { message: "로그아웃 성공" };
 	}
 
-	//TODO: 소셜로그인 API 구현 후 유저 정보 읽기 API 구현
+	@UseGuards(LoginGuard)
+	@Get()
+	@HttpCode(HttpStatus.OK)
+	async readUser(@User() userEntity: IUserEntity) {
+		const userId = userEntity.userId;
+
+		const { user, oAuthConnections } =
+			await this.userService.readUser(userId);
+
+		return {
+			email: user.email,
+			nickname: user.nickname,
+			connected_oauth: oAuthConnections.map(
+				({ oAuthProvider }) => oAuthProvider.name
+			),
+		};
+	}
 
 	//TODO: 소셜로그인 API 구현후 유저 정보 수정 API 구현
 
