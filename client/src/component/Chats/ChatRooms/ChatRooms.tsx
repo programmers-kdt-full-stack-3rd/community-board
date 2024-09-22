@@ -1,5 +1,10 @@
 import { FC, useLayoutEffect, useState } from "react";
-import { container } from "./ChatRooms.css";
+import {
+	chatRoomsContainer,
+	chatRoomsStyle,
+	container,
+	loginGuidanceStyle,
+} from "./ChatRooms.css";
 import { IGetMyRoomRequestEvent, IRoomHeader } from "shared";
 import CreateRoomModal from "./Modal/CreateRoomModal";
 import MyChatRooms from "./MyChatRooms";
@@ -33,7 +38,7 @@ const ChatRooms: FC<Props> = ({ setSelectedRoom }) => {
 	const isLogin = useUserStore.use.isLogin();
 	const nickname = useUserStore.use.nickname();
 	const socket = useUserStore.use.socket();
-	const { category } = useChatAside();
+	const { category, close } = useChatAside();
 
 	const renderChatRoomPage = () => {
 		switch (category) {
@@ -49,7 +54,7 @@ const ChatRooms: FC<Props> = ({ setSelectedRoom }) => {
 					/>
 				);
 			default:
-				return <div>미구현!</div>;
+				return <div className={chatRoomsContainer}>미구현!</div>;
 		}
 	};
 
@@ -64,13 +69,9 @@ const ChatRooms: FC<Props> = ({ setSelectedRoom }) => {
 	}, [currentPage, isLogin, navigate, nickname, socket, category]);
 
 	return (
-		<div
-			style={{
-				height: "100%",
-			}}
-		>
+		<div className={container}>
 			{isLogin ? (
-				<div className={container}>
+				<div className={chatRoomsStyle}>
 					{isOpen ? (
 						<CreateRoomModal
 							close={setIsOpen}
@@ -81,18 +82,12 @@ const ChatRooms: FC<Props> = ({ setSelectedRoom }) => {
 					<ChatFooter />
 				</div>
 			) : (
-				<div
-					style={{
-						color: "white",
-					}}
-				>
+				<div className={loginGuidanceStyle}>
 					<p>로그인 후 이용할 수 있습니다.</p>
 					<button
-						style={{
-							marginBottom: "10px",
-						}}
 						onClick={() => {
 							navigate("/login");
+							close();
 						}}
 					>
 						로그인

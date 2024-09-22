@@ -1,5 +1,11 @@
 import React from "react";
-import { chatRoomHeader, goBack } from "./ChatRoom.css";
+import {
+	chatRoomHeader,
+	chatRoomHeaderIcon,
+	chatRoomHeaderTitle,
+	dropdown,
+	goBack,
+} from "./ChatRoom.css";
 import { FaArrowLeft } from "react-icons/fa";
 import { IoListOutline } from "react-icons/io5";
 
@@ -15,11 +21,11 @@ const ChatRoomHeader: React.FC<Props> = ({ title, onClick }) => {
 				className={goBack}
 				onClick={onClick}
 			>
-				<FaArrowLeft />
+				<FaArrowLeft className={chatRoomHeaderIcon} />
 			</div>
-			<div className="title">{title}</div>
-			<div className="dropdown">
-				<IoListOutline />
+			<div className={chatRoomHeaderTitle}>{title}</div>
+			<div className={dropdown}>
+				<IoListOutline className={chatRoomHeaderIcon} />
 			</div>
 		</div>
 	);

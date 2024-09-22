@@ -6,8 +6,11 @@ import { ApiCall } from "../../../api/api";
 import { sendGetRoomHeadersRequest } from "../../../api/chats/crud";
 import { useErrorModal } from "../../../state/errorModalStore";
 import {
+	chatRoomsContainer,
 	searchButton,
 	searchContainer,
+	searchedChatRoomInfoStyle,
+	searchedChatRoomsStyle,
 	searchForm,
 	searchInput,
 } from "./ChatRooms.css";
@@ -105,6 +108,32 @@ const SearchedChatRooms: React.FC<Props> = ({ setSelectedRoom }) => {
 		}
 	};
 
+	const renderSearchedRooms = () => {
+		if (Object.keys(searchedRooms.rooms).length === 0) {
+			if (keyword !== "") {
+				return (
+					<div className={searchedChatRoomInfoStyle}>
+						채팅방을 찾아보세요!
+					</div>
+				);
+			} else {
+				return (
+					<div className={searchedChatRoomInfoStyle}>
+						검색된 채팅방 없음
+					</div>
+				);
+			}
+		} else {
+			return (
+				<Rooms
+					isMine={false}
+					rooms={searchedRooms.rooms[currentPage]}
+					setSelectedRoom={setSelectedRoom}
+				/>
+			);
+		}
+	};
+
 	useLayoutEffect(() => {
 		if (!isRendered) {
 			if (Object.keys(searchedRooms.rooms).length === 0) {
@@ -123,15 +152,7 @@ const SearchedChatRooms: React.FC<Props> = ({ setSelectedRoom }) => {
 	}, [currentPage]);
 
 	return (
-		<div
-			style={{
-				display: "flex",
-				flexDirection: "column",
-				justifyContent: "space-between",
-				gap: "10px",
-				height: "calc(100% - 54px)",
-			}}
-		>
+		<div className={chatRoomsContainer}>
 			<div className={searchContainer}>
 				<form
 					className={searchForm}
@@ -147,12 +168,6 @@ const SearchedChatRooms: React.FC<Props> = ({ setSelectedRoom }) => {
 						<FaSearch />
 					</button>
 				</form>
-				{/* <div onClick={() => open(true)}>
-					<CiCirclePlus
-						className={createButton}
-						title="채팅방 생성"
-					/>
-				</div> */}
 			</div>
 			<div
 				style={{
@@ -163,33 +178,8 @@ const SearchedChatRooms: React.FC<Props> = ({ setSelectedRoom }) => {
 				}}
 			>
 				{isRendered && (
-					<div
-						style={{
-							display: "flex",
-							flexDirection: "column",
-							overflowY: "hidden",
-							height: "100%",
-						}}
-					>
-						{Object.keys(searchedRooms.rooms).length === 0 ? (
-							<div
-								style={{
-									display: "flex",
-									justifyContent: "center",
-									alignItems: "center",
-									height: "100%",
-									color: "white",
-								}}
-							>
-								검색된 채팅방 없음
-							</div>
-						) : (
-							<Rooms
-								isMine={false}
-								rooms={searchedRooms.rooms[currentPage]}
-								setSelectedRoom={setSelectedRoom}
-							/>
-						)}
+					<div className={searchedChatRoomsStyle}>
+						{renderSearchedRooms()}
 					</div>
 				)}
 				{searchedRooms.totalRoomCount > 2 ? (
