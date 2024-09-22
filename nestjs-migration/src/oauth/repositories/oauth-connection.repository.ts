@@ -31,6 +31,9 @@ export class OAuthConnectionRepository extends Repository<OAuthConnection> {
 				"oAuthProvider"
 			)
 			.where("oAuthConnection.userId = :userId", { userId })
+			.andWhere("oAuthConnection.isDelete = :isDelete", {
+				isDelete: false,
+			})
 			.getMany();
 	}
 
