@@ -87,6 +87,7 @@ describe("OAuthService", () => {
 					provide: AuthService,
 					useValue: {
 						generateTokens: jest.fn(),
+						makeTempToken: jest.fn(),
 					},
 				},
 				{
@@ -532,6 +533,97 @@ describe("OAuthService", () => {
 				await expect(result).rejects.toThrow(ServerError);
 				await expect(result).rejects.toThrow("사용자 정보 오류");
 			});
+		});
+	});
+
+	describe("oAuthReconfirm", () => {
+		const moackOAuthAccountId = "oauth-account-id";
+		const mockOAuthRefreshToken = "oauth-refresh-token";
+
+		const mockOAuthData = {
+			oAuthAccountId: moackOAuthAccountId,
+			oAuthRefreshToken: mockOAuthRefreshToken,
+		};
+
+		const oAuthLoginDto: OAuthLoginDto = {
+			provider: "google",
+			code: "code",
+		};
+
+		const mockTempToken = "temp-token";
+
+		beforeEach(() => {
+			jest.spyOn(
+				oAuthTokenService,
+				"verifyAuthorizationCode"
+			).mockResolvedValue(mockOAuthData);
+
+			jest.spyOn(authService, "makeTempToken").mockReturnValue(
+				"temp-token"
+			);
+
+			jest.spyOn(
+				oAuthConnectionRepository,
+				"getOAuthConnectionByProviderAndAccountId"
+			).mockResolvedValue({ id: 1 } as OAuthConnection);
+
+			jest.spyOn(oAuthConnectionRepository, "update").mockResolvedValue({
+				affected: 1,
+			} as UpdateResult);
+		});
+
+		describe("성공 케이스", () => {
+			it("소셜 로그인 재확인 성공", async () => {
+				const mockUser = createMockUser();
+				jest.spyOn(userRepository, "readUserByOAuth").mockResolvedValue(
+					mockUser
+				);
+
+				const result = await oAuthService.oAuthReconfirm(
+					oAuthLoginDto,
+					1
+				);
+
+				expect(result).toEqual({ tempToken: mockTempToken });
+			});
+		});
+
+		describe("실패 케이스", () => {
+			it.each([
+				[
+					"연동되지 않은 소셜 계정",
+					{ id: 2 },
+					"로그인한 유저와 연동하지 않은 소셜 계정입니다.",
+				],
+				[
+					"사용자 정보가 올바르지 않은 경우",
+					{ id: 1, nickname: null },
+					"사용자 정보 오류",
+				],
+				[
+					"이메일, 비밀번호를 등록한 계정",
+					{ id: 1, email: "test@email.com" },
+					"이메일, 비밀번호를 등록한 계정은 비밀번호 재확인으로 인증해야 합니다.",
+				],
+			])(
+				"%s인 경우 에러를 반환한다.",
+				async (_, userOverrides, errorMessage) => {
+					const mockUser = createMockUser(userOverrides);
+
+					jest.spyOn(
+						userRepository,
+						"readUserByOAuth"
+					).mockResolvedValue(mockUser);
+
+					const result = oAuthService.oAuthReconfirm(
+						oAuthLoginDto,
+						1
+					);
+
+					await expect(result).rejects.toThrow(ServerError);
+					await expect(result).rejects.toThrow(errorMessage);
+				}
+			);
 		});
 	});
 });
