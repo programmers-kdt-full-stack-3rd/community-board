@@ -33,6 +33,7 @@ const SearchedChatRooms: React.FC<Props> = ({ setSelectedRoom }) => {
 	const [keyword, setKeyword] = useState("");
 	const [curKeyword, setCurKeyword] = useState("");
 	const errorModal = useErrorModal();
+	const [isSearched, setIsSearched] = useState(false);
 
 	const GetRooms = async (body: IReadRoomRequest) => {
 		const queryString = `?page=${body.page}&perPage=${body.perPage}&isSearch=${body.isSearch}&keyword=${body.keyword}`;
@@ -76,6 +77,10 @@ const SearchedChatRooms: React.FC<Props> = ({ setSelectedRoom }) => {
 
 	// 채팅 input Change
 	const onSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
+		if (isSearched) {
+			setIsSearched(false);
+		}
+
 		setKeyword(event.target.value);
 	};
 
@@ -105,24 +110,21 @@ const SearchedChatRooms: React.FC<Props> = ({ setSelectedRoom }) => {
 			setCurrentPage(1);
 			setCurKeyword(keyword);
 			setKeyword("");
+			setIsSearched(true);
 		}
 	};
 
 	const renderSearchedRooms = () => {
 		if (Object.keys(searchedRooms.rooms).length === 0) {
-			if (keyword !== "") {
-				return (
-					<div className={searchedChatRoomInfoStyle}>
-						채팅방을 찾아보세요!
-					</div>
-				);
-			} else {
-				return (
-					<div className={searchedChatRoomInfoStyle}>
-						검색된 채팅방 없음
-					</div>
-				);
+			let guidance = "";
+
+			if (isSearched) {
+				guidance = "검색된 채팅방 없음";
+			} else if (keyword === "") {
+				guidance = "채팅방을 찾아보세요!";
 			}
+
+			return <div className={searchedChatRoomInfoStyle}>{guidance}</div>;
 		} else {
 			return (
 				<Rooms
