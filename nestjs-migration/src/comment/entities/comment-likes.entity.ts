@@ -1,6 +1,6 @@
 import { CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Comment } from "./comment.entity";
-import { User } from "src/user/entities/user.entity";
+import { User } from "../../user/entities/user.entity";
 
 @Entity("comment_likes")
 export class CommentLikes {

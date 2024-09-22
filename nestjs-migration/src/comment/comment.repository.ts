@@ -2,7 +2,6 @@ import { Injectable } from "@nestjs/common";
 import { DataSource, Repository } from "typeorm";
 import { Comment } from "./entities/comment.entity";
 import { CommentsDto, CommentsResultDto, ReadCommentQueryDto } from "./dto/read-comment.dto";
-import { Like } from "src/like/entities/like.entity";
 import { plainToInstance } from "class-transformer";
 import { CommentLikes } from "./entities/comment-likes.entity";
 

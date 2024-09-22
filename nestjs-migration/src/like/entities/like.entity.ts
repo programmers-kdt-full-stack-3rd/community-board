@@ -1,4 +1,4 @@
-import { Comment } from "src/comment/entities/comment.entity";
+import { Comment } from "../../comment/entities/comment.entity";
 import { Post } from "../../post/entities/post.entity";
 import { User } from "../../user/entities/user.entity";
 import { CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";

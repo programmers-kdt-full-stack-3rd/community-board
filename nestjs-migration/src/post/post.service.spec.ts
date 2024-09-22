@@ -7,7 +7,7 @@ import { LogRepository } from "../log/log.repository";
 import { DataSource } from "typeorm";
 import { Post } from "./entities/post.entity";
 import { UpdatePostDto } from "./dto/update-post.dto";
-import { User } from "src/user/entities/user.entity";
+import { User } from "../user/entities/user.entity";
 
 describe("PostService", () => {
 	let postService: PostService;

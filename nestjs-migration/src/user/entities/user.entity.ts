@@ -1,4 +1,4 @@
-import { Comment } from "src/comment/entities/comment.entity";
+import { Comment } from "../../comment/entities/comment.entity";
 import { Like } from "../../like/entities/like.entity";
 import { Post } from "../../post/entities/post.entity";
 import {
@@ -9,7 +9,7 @@ import {
 	OneToMany,
 	PrimaryGeneratedColumn,
 } from "typeorm";
-import { CommentLikes } from "src/comment/entities/comment-likes.entity";
+import { CommentLikes } from "../../comment/entities/comment-likes.entity";
 
 @Entity("users")
 export class User {

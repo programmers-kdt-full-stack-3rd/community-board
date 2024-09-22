@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, Quer
 import { CommentService } from './comment.service';
 import { CreateCommentBodyDto } from './dto/create-comment.dto';
 import { UpdateCommentBodyDto } from './dto/update-comment.dto';
-import { LoginGuard } from 'src/common/guard/login.guard';
+import { LoginGuard } from '../common/guard/login.guard';
 import { Request } from 'express';
 import { CommentsResultDto, ReadCommentQueryDto } from './dto/read-comment.dto';
 
@@ -99,11 +99,11 @@ export class CommentController {
   ) : Promise<void>{
     try {
       const authorId = req.user["userId"];
-      const values = {
+      const deleteCommentDto = {
         id: commentId,
         authorId,
       };
-      await this.commentService.deleteComment(values);
+      await this.commentService.deleteComment(deleteCommentDto);
     } catch (err) {
       throw err;
     }

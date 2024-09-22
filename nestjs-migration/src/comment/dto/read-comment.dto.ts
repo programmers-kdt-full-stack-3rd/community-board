@@ -16,12 +16,12 @@ export class ReadCommentQueryDto {
     @Transform(({ value }) => parseInt(value, 10), { toClassOnly: true })
     @IsInt()
     @IsPositive()
-    index: number;
+    index?: number;
 
     @Transform(({ value }) => parseInt(value, 10), { toClassOnly: true })
     @IsInt()
     @IsPositive()
-    perPage: number = 50;
+    perPage?: number = 50;
 
     userId?: number;
 

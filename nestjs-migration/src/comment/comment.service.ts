@@ -3,19 +3,17 @@ import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { DataSource } from 'typeorm';
 import { CommentRepository } from './comment.repository';
-import { makeLogTitle } from 'src/utils/user-logs-utils';
-import { ServerError } from 'src/common/exceptions/server-error.exception';
+import { makeLogTitle } from '../utils/user-logs-utils';
+import { ServerError } from '../common/exceptions/server-error.exception';
 import { Comment } from './entities/comment.entity';
-import { Log } from 'src/log/entities/log.entity';
+import { Log } from '../log/entities/log.entity';
 import { CommentsDto, ReadCommentQueryDto } from './dto/read-comment.dto';
-import { PostRepository } from 'src/post/post.repository';
 import { DeleteCommentDto } from './dto/delete-comment.dto';
 
 @Injectable()
 export class CommentService {
   constructor(private dataSource: DataSource,
               private commentRepository: CommentRepository,
-              private postRepository: PostRepository
   ) {}
 
   async createComment(createCommentDto: CreateCommentDto) : Promise<void>  {
