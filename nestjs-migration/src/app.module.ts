@@ -26,7 +26,7 @@ import { CommentModule } from './comment/comment.module';
 			imports: [ConfigModule],
 			useFactory: (configService: ConfigService) => ({
 			...configService.get("typeorm"),
-			logging: true,  
+			logging: false,  
 			}),
 			inject: [ConfigService],
 		}),

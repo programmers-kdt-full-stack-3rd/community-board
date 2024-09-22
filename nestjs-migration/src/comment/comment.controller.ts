@@ -1,10 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, Query, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, Query, ParseIntPipe, HttpCode, HttpStatus } from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { CreateCommentBodyDto } from './dto/create-comment.dto';
-import { UpdateCommentBodyDto, UpdateCommentDto } from './dto/update-comment.dto';
+import { UpdateCommentBodyDto } from './dto/update-comment.dto';
 import { LoginGuard } from 'src/common/guard/login.guard';
 import { Request } from 'express';
-import { ReadCommentQueryDto } from './dto/read-comment.dto';
+import { CommentsResultDto, ReadCommentQueryDto } from './dto/read-comment.dto';
 
 @Controller('comment')
 export class CommentController {
@@ -12,10 +12,11 @@ export class CommentController {
 
   @UseGuards(LoginGuard)
   @Post("/")
+  @HttpCode(HttpStatus.CREATED)
   async handleCommentCreate(
     @Body() createCommentBodyDto: CreateCommentBodyDto,
     @Req() req: Request
-  ) {
+  ) : Promise<void> {
     try {
       const authorId = req.user["userId"];
       const createCommentDto = {
@@ -31,26 +32,25 @@ export class CommentController {
   }
 
   @Get("/")
+  @HttpCode(HttpStatus.OK)
   async handleCommentsRead(
     @Query() readCommentQueryDto: ReadCommentQueryDto,
     @Req() req: Request
-  ) {
+  ) : Promise<CommentsResultDto> {
 
     try {
-      let {post_id: postId, index, perPage} = readCommentQueryDto;
+      let {post_id:postId, index, perPage} = readCommentQueryDto;
       const userId = req.user? req.user["userId"] : 0;
       const total = await this.commentService.getTotal(postId);
 
-      perPage = Math.max(1,
-                        perPage || 50
-                        );
-      const fallbackIndex = Math.max(1, Math.ceil(total/perPage));
+      perPage = Math.max(1,perPage || 50);
+      const fallbackIndex = Math.max(1, Math.ceil(total / perPage));
       index = Math.max(1,
                   index || fallbackIndex
               ) - 1; 
       
       const readCommentsDto = {
-        postId,
+        post_id:postId,
         index,
         perPage,
         userId
@@ -66,10 +66,11 @@ export class CommentController {
 
   @UseGuards(LoginGuard)
   @Patch("/")
+  @HttpCode(HttpStatus.OK)
   async handleCommentUpdate(
     @Body() updateCommentBodyDto: UpdateCommentBodyDto,
     @Req() req: Request
-    ) {
+    ) : Promise<void> {
     try {
 
       const authorId = req.user["userId"];
@@ -91,10 +92,11 @@ export class CommentController {
 
   @UseGuards(LoginGuard)
   @Delete("/:comment_id")
+  @HttpCode(HttpStatus.OK)
   async handleCommentDelete(
     @Param('comment_id', ParseIntPipe) commentId: number,
     @Req() req: Request,
-  ) {
+  ) : Promise<void>{
     try {
       const authorId = req.user["userId"];
       const values = {

@@ -1,13 +1,15 @@
-import { IsInt, IsNotEmpty, IsPositive, IsString } from "class-validator"
+import { IsDefined, IsInt, IsNotEmpty, IsPositive, IsString } from "class-validator"
 import { ERROR_MESSAGES } from "../constant/comment-constants"
 
 export class UpdateCommentBodyDto {
 
-    @IsNotEmpty()
-    @IsInt({message: ERROR_MESSAGES.INVALID_COMMENT_ID})
+    @IsDefined({message: ERROR_MESSAGES.COMMENT_ID_REQUIRED})
+    @IsNotEmpty({message: ERROR_MESSAGES.COMMENT_ID_REQUIRED})
+    @IsInt()
     @IsPositive({message: ERROR_MESSAGES.INVALID_COMMENT_ID})
     id: number
 
+    @IsDefined({message: ERROR_MESSAGES.CONTENT_REQUIRED})
     @IsNotEmpty({message: ERROR_MESSAGES.CONTENT_REQUIRED})
     @IsString({message: ERROR_MESSAGES.INVALID_CONTENT})
     content: string
