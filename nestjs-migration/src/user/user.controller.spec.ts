@@ -1,7 +1,9 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { Response } from "express";
+import { AuthService } from "../auth/auth.service";
 import { ServerError } from "../common/exceptions/server-error.exception";
 import { LoginGuard } from "../common/guard/login.guard";
+import { PasswordGuard } from "../common/guard/password.guard";
 import { IUserEntity } from "../common/interface/user-entity.interface";
 import { OAuthConnection } from "../oauth/entities/oauth-connection.entity";
 import { RbacService } from "../rbac/rbac.service";
@@ -41,11 +43,18 @@ describe("UserController", () => {
 		const module: TestingModule = await Test.createTestingModule({
 			controllers: [UserController],
 			providers: [
+				LoginGuard,
+				PasswordGuard,
+
+				{
+					provide: AuthService,
+					useValue: {},
+				},
+
 				{
 					provide: UserService,
 					useValue: mockUserService,
 				},
-				LoginGuard,
 				{
 					provide: RbacService,
 					useValue: mockRbacService,
