@@ -3,6 +3,8 @@ import { DeleteResult, UpdateResult } from "typeorm";
 import { AuthService } from "../auth/auth.service";
 import { RefreshTokensRepository } from "../auth/refresh-tokens.repository";
 import { ServerError } from "../common/exceptions/server-error.exception";
+import { OAuthService } from "../oauth/oauth.service";
+import { OAuthTokenService } from "../oauth/oauthtoken.service";
 import { OAuthConnectionRepository } from "../oauth/repositories/oauth-connection.repository";
 import * as cryptoUtil from "../utils/crypto.util";
 import { USER_ERROR_MESSAGES } from "./constant/user.constants";
@@ -83,6 +85,14 @@ describe("UserService", () => {
 				{
 					provide: OAuthConnectionRepository,
 					useValue: mockOAuthConnectionRepository,
+				},
+				{
+					provide: OAuthService,
+					useValue: {},
+				},
+				{
+					provide: OAuthTokenService,
+					useValue: {},
 				},
 			],
 		}).compile();
@@ -264,10 +274,11 @@ describe("UserService", () => {
 				affected: 1,
 			} as DeleteResult);
 
-			await userService.logout(userId);
+			await userService.logout(userId, mockRefreshToken);
 
 			expect(refreshTokenRepository.delete).toHaveBeenCalledWith({
 				userId,
+				token: mockRefreshToken,
 			});
 		});
 
@@ -278,10 +289,10 @@ describe("UserService", () => {
 				affected: 0,
 			} as DeleteResult);
 
-			await expect(userService.logout(userId)).rejects.toThrow(
-				ServerError
-			);
-			await expect(userService.logout(userId)).rejects.toThrow(
+			const result = userService.logout(userId, mockRefreshToken);
+
+			await expect(result).rejects.toThrow(ServerError);
+			await expect(result).rejects.toThrow(
 				USER_ERROR_MESSAGES.FAILED_TOKEN_DELETE
 			);
 		});

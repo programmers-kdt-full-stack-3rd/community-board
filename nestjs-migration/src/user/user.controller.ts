@@ -7,10 +7,11 @@ import {
 	HttpStatus,
 	Post,
 	Put,
+	Req,
 	Res,
 	UseGuards,
 } from "@nestjs/common";
-import { Response } from "express";
+import { Request, Response } from "express";
 import { RequiredPassword } from "../common/decorator/required-password.decorator";
 import { User } from "../common/decorator/user.decorator";
 import { LoginGuard } from "../common/guard/login.guard";
@@ -69,15 +70,17 @@ export class UserController {
 	@Post("logout")
 	@HttpCode(HttpStatus.OK)
 	async logout(
+		@Req() req: Request,
 		@User() user: IUserEntity,
 		@Res({ passthrough: true }) res: Response
 	) {
+		const refreshToken = req.cookies.refreshToken;
 		const userId = user.userId;
 
 		res.clearCookie("accessToken");
 		res.clearCookie("refreshToken");
 
-		await this.userService.logout(userId);
+		await this.userService.logout(userId, refreshToken);
 		return { message: "로그아웃 성공" };
 	}
 

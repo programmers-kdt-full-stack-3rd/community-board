@@ -1,5 +1,5 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { Response } from "express";
+import { Request, Response } from "express";
 import { AuthService } from "../auth/auth.service";
 import { ServerError } from "../common/exceptions/server-error.exception";
 import { LoginGuard } from "../common/guard/login.guard";
@@ -186,6 +186,12 @@ describe("UserController", () => {
 
 	describe("POST /user/logout", () => {
 		it("로그아웃 성공 시 200 상태 코드와 성공 메시지를 반환한다", async () => {
+			const mockRequest = {
+				cookies: {
+					refreshToken: "mock-refresh-token",
+				},
+			} as unknown as Request;
+
 			const mockResponse = {
 				clearCookie: jest.fn(),
 			} as unknown as Response;
@@ -194,11 +200,15 @@ describe("UserController", () => {
 			jest.spyOn(userService, "logout").mockResolvedValue(undefined);
 
 			const result = await userController.logout(
+				mockRequest,
 				mockUserEntity,
 				mockResponse
 			);
 
-			expect(userService.logout).toHaveBeenCalledWith(1);
+			expect(userService.logout).toHaveBeenCalledWith(
+				1,
+				"mock-refresh-token"
+			);
 			expect(mockResponse.clearCookie).toHaveBeenCalledTimes(2);
 			expect(mockResponse.clearCookie).toHaveBeenCalledWith(
 				"accessToken"

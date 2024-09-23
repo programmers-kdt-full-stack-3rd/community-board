@@ -98,14 +98,8 @@ export class UserService {
 		return { tempToken };
 	}
 
-	async logout(userId: number) {
-		const result = await this.refreshTokenRepository.delete({ userId });
-
-		if (result.affected < 1) {
-			throw ServerError.badRequest(
-				USER_ERROR_MESSAGES.FAILED_TOKEN_DELETE
-			);
-		}
+	async logout(userId: number, refreshToken: string) {
+		await this.deleteRefreshToken(userId, refreshToken);
 	}
 
 	async updateUser(userId: number, updateUserDto: UpdateUserDto) {
@@ -285,7 +279,9 @@ export class UserService {
 			await this.refreshTokenRepository.delete(deleteConditions);
 
 		if (result.affected === 0) {
-			throw ServerError.badRequest("토큰 삭제 실패");
+			throw ServerError.badRequest(
+				USER_ERROR_MESSAGES.FAILED_TOKEN_DELETE
+			);
 		}
 	}
 
