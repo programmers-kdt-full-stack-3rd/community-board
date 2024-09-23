@@ -5,12 +5,15 @@ import {
 	HttpCode,
 	HttpStatus,
 	Post,
+	Put,
 	Res,
 	UseGuards,
 } from "@nestjs/common";
 import { Response } from "express";
+import { RequiredPassword } from "../common/decorator/required-password.decorator";
 import { User } from "../common/decorator/user.decorator";
 import { LoginGuard } from "../common/guard/login.guard";
+import { PasswordGuard } from "../common/guard/password.guard";
 import { IUserEntity } from "../common/interface/user-entity.interface";
 import { RbacService } from "../rbac/rbac.service";
 import { getKstNow } from "../utils/date.util";
@@ -18,9 +21,11 @@ import { COOKIE_MAX_AGE } from "./constant/user.constants";
 import { CheckPasswordDto } from "./dto/check-password.dto";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { LoginDto } from "./dto/login.dto";
+import { UpdateUserDto } from "./dto/update-user.dto";
 import { UserService } from "./user.service";
 
 @Controller("user")
+@UseGuards(PasswordGuard)
 export class UserController {
 	constructor(
 		private readonly userService: UserService,
@@ -93,7 +98,20 @@ export class UserController {
 		};
 	}
 
-	//TODO: 소셜로그인 API 구현후 유저 정보 수정 API 구현
+	@Put()
+	@HttpCode(HttpStatus.OK)
+	@UseGuards(LoginGuard)
+	@RequiredPassword()
+	async updateUser(
+		@User() userEntity: IUserEntity,
+		@Body() updateUserDto: UpdateUserDto
+	) {
+		const userId = userEntity.userId;
+
+		await this.userService.updateUser(userId, updateUserDto);
+
+		return { message: "회원정보 수정 성공" };
+	}
 
 	//TODO: 소설로그인 API 구현후 유저 탈퇴 API 구현
 

@@ -10,6 +10,7 @@ import {
 } from "./constant/user.constants";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { LoginDto } from "./dto/login.dto";
+import { UpdateUserDto } from "./dto/update-user.dto";
 import { User } from "./entities/user.entity";
 import { UserRepository } from "./user.repository";
 
@@ -102,6 +103,57 @@ export class UserService {
 		}
 	}
 
+	async updateUser(userId: number, updateUserDto: UpdateUserDto) {
+		const currentUser = await this.findAndValidateUserById(userId);
+
+		if (currentUser.email && updateUserDto.email) {
+			throw ServerError.badRequest(
+				USER_ERROR_MESSAGES.CANNOT_CHANGE_EMAIL
+			);
+		} else if (!currentUser.email && !updateUserDto.email) {
+			throw ServerError.badRequest(
+				USER_ERROR_MESSAGES.SOCIAL_USER_NEED_EMAIL
+			);
+		}
+
+		const { email, password, nickname } = updateUserDto;
+
+		const salt = await makeSalt();
+		const hashedPassword = await makeHashedPassword(password, salt);
+
+		const updateData = {
+			email,
+			password: hashedPassword,
+			nickname,
+			salt,
+		};
+
+		if (currentUser.email) {
+			const newHashedPassword = await makeHashedPassword(
+				updateUserDto.password,
+				currentUser.salt
+			);
+
+			if (currentUser.password === newHashedPassword) {
+				throw ServerError.badRequest(USER_ERROR_MESSAGES.SAME_PASSWORD);
+			}
+
+			const result = await this.userRepository.updateUser(
+				userId,
+				updateData
+			);
+			if (result.affected === 0) {
+				throw ServerError.badRequest(
+					USER_ERROR_MESSAGES.UPDATE_USER_ERROR
+				);
+			}
+		} else {
+			await this.resisterUserEmail(userId, updateData);
+		}
+
+		return true;
+	}
+
 	private async handleDupEntry(sqlMessage: string, email: string) {
 		if (sqlMessage.includes("email")) {
 			const isDeleted = await this.isUserDeletedByEmail(email);
@@ -158,5 +210,37 @@ export class UserService {
 	): Promise<boolean> {
 		const hashedPassword = await makeHashedPassword(password, user.salt);
 		return hashedPassword === user.password;
+	}
+
+	private async resisterUserEmail(
+		userId: number,
+		updateData: Partial<
+			Pick<User, "email" | "nickname" | "password" | "salt">
+		>
+	) {
+		try {
+			if (!updateData.email) {
+				throw ServerError.etcError(
+					500,
+					"서버 로직에서 필수 정보를 누락했습니다."
+				);
+			}
+
+			const result = await this.userRepository.registerUserEmail(
+				userId,
+				updateData
+			);
+			if (result.affected === 0) {
+				throw ServerError.badRequest(
+					USER_ERROR_MESSAGES.UPDATE_RESISTER_USER_EMAIL
+				);
+			}
+		} catch (error) {
+			if (error.code === USER_ERROR_CODES.DUPLICATE_ENTRY) {
+				await this.handleDupEntry(error.sqlMessage, updateData.email);
+			}
+
+			throw error;
+		}
 	}
 }
