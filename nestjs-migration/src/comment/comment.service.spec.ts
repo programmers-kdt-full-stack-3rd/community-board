@@ -1,13 +1,19 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CommentService } from './comment.service';
 import { CommentRepository } from './comment.repository';
-import { DataSource } from 'typeorm';
+import { DataSource, QueryRunner } from 'typeorm';
 import { ServerError } from '../common/exceptions/server-error.exception';
+import { Log } from '../log/entities/log.entity';
 
 describe('CommentService', () => {
   let commentService: CommentService;
   let commentRepository: CommentRepository;
   let dataSource: DataSource;
+  let queryRunner: QueryRunner;
+
+  const qr = {
+    manager: {},
+  } as QueryRunner;
 
   const mockUserId = 1;
   const mockPostId = 1;
@@ -18,14 +24,26 @@ describe('CommentService', () => {
     getComments: jest.fn(),
     save: jest.fn(),
     update: jest.fn(),
-    findOne: jest.fn()
-
+    findOne: jest.fn(),
   };
-  const mockDataSource = {
-		createQueryRunner: jest.fn(),
-	};
 
   beforeEach(async () => {
+    Object.assign(qr.manager, {
+      save: jest.fn(),
+      getRepository: jest.fn().mockReturnValue({
+        save: jest.fn(),
+        })
+    });
+    qr.connect = jest.fn();
+    qr.release = jest.fn();
+    qr.startTransaction = jest.fn();
+    qr.commitTransaction = jest.fn();
+    qr.rollbackTransaction = jest.fn();
+    qr.release = jest.fn();
+  
+    const mockDataSource = {
+      createQueryRunner: jest.fn().mockReturnValue(qr)
+    };
     const module: TestingModule = await Test.createTestingModule({
       providers: [CommentService,
         {
@@ -42,50 +60,39 @@ describe('CommentService', () => {
     commentService = module.get<CommentService>(CommentService);
     commentRepository = module.get<CommentRepository>(CommentRepository);
 		dataSource = module.get<DataSource>(DataSource);
+    queryRunner = dataSource.createQueryRunner();
+
+    
   });
 
   describe("createComment", () => {
-    const mockQueryRunner = {
-			connect: jest.fn(),
-			startTransaction: jest.fn(),
-			commitTransaction: jest.fn(),
-			rollbackTransaction: jest.fn(),
-			release: jest.fn(),
-			manager: {
-				save: jest.fn(),
-				getRepository: jest.fn().mockReturnValue({
-					save: jest.fn(),
-				  })
-        }
-    };
-    mockDataSource.createQueryRunner.mockReturnValue(mockQueryRunner);
     const mockCreateCmtDto = {
       content: "mock content",
       post_id: mockPostId,
       authorId: mockUserId
-    }
+    };
     it("댓글 생성 성공", async () => {
-      mockQueryRunner.manager.save.mockResolvedValue(undefined);
-
       await commentService.createComment(mockCreateCmtDto);
 
-      expect(mockQueryRunner.connect).toHaveBeenCalled();
-			expect(mockQueryRunner.startTransaction).toHaveBeenCalled();
-			expect(mockQueryRunner.commitTransaction).toHaveBeenCalled();
-			expect(mockQueryRunner.release).toHaveBeenCalled();
+      expect(queryRunner.connect).toHaveBeenCalled();
+			expect(queryRunner.startTransaction).toHaveBeenCalled();
+      expect(queryRunner.manager.save).toHaveBeenCalledTimes(1);
+      expect(queryRunner.manager.getRepository).toHaveBeenCalledWith(Log);
+			expect(queryRunner.commitTransaction).toHaveBeenCalled();
+			expect(queryRunner.release).toHaveBeenCalled();
     });
-    it("댓글 생성 중 오류 발생 시 롤백된다", async () => {
-      const mockError = new Error("트랜잭션 중 에러 발생");
-			mockQueryRunner.manager.save.mockResolvedValue(undefined);
-			mockQueryRunner.manager.getRepository().save.mockRejectedValue(mockError);
-
+    it("없는 게시물에 댓글을 생성하면 롤백된다", async () => {
+      const mockError = ServerError.notFound("게시글 ID가 존재하지 않습니다.");
+      mockError["code"] ="ER_NO_REFERENCED_ROW_2";
+			jest.spyOn(queryRunner.manager, "save").mockRejectedValue(mockError);
+      
 			await expect(
 				commentService.createComment(mockCreateCmtDto)
 			).rejects.toThrow(mockError);
 
-			expect(mockQueryRunner.connect).toHaveBeenCalled();
-			expect(mockQueryRunner.rollbackTransaction).toHaveBeenCalled();
-			expect(mockQueryRunner.release).toHaveBeenCalled();
+			expect(queryRunner.startTransaction).toHaveBeenCalled();
+			expect(queryRunner.rollbackTransaction).toHaveBeenCalled();
+			expect(queryRunner.release).toHaveBeenCalled();
     });
   });
 

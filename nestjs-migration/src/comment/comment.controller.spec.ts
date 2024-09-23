@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CommentController } from './comment.controller';
 import { CommentService } from './comment.service';
 import { ServerError } from '../common/exceptions/server-error.exception';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
 
 describe('CommentController', () => {
   let commentController: CommentController;
@@ -36,8 +35,6 @@ describe('CommentController', () => {
     commentController = module.get<CommentController>(CommentController);
     commentService = module.get<CommentService>(CommentService);
   });
-
-  //TODO?: LOGIN안되어있을 때의 경우
 
   describe("POST /comment", () => {
     it("댓글 생성 성공", async () => {
