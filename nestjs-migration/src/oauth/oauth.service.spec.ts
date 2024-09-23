@@ -61,6 +61,8 @@ describe("OAuthService", () => {
 		},
 	};
 
+	const mockFetch = jest.fn();
+
 	const createMockUser = (overrides: Partial<User> = {}): User => {
 		const user = new User();
 		return Object.assign(
@@ -87,6 +89,7 @@ describe("OAuthService", () => {
 					provide: AuthService,
 					useValue: {
 						generateTokens: jest.fn(),
+						makeTempToken: jest.fn(),
 					},
 				},
 				{
@@ -94,6 +97,7 @@ describe("OAuthService", () => {
 					useValue: {
 						readUserByOAuth: jest.fn(),
 						save: jest.fn(),
+						findOne: jest.fn(),
 					},
 				},
 				{
@@ -106,6 +110,8 @@ describe("OAuthService", () => {
 					provide: OAuthConnectionRepository,
 					useValue: {
 						getOAuthConnectionByProviderAndAccountId: jest.fn(),
+						getOAuthConnectionByUserId: jest.fn(),
+						getOAuthConnectionByProviderAndUserId: jest.fn(),
 						update: jest.fn(),
 						insert: jest.fn(),
 					},
@@ -120,10 +126,13 @@ describe("OAuthService", () => {
 					provide: OAuthTokenService,
 					useValue: {
 						verifyAuthorizationCode: jest.fn(),
+						refreshOAuthAccessToken: jest.fn(),
 					},
 				},
 			],
 		}).compile();
+
+		global.fetch = mockFetch;
 
 		oAuthService = module.get<OAuthService>(OAuthService);
 		oAuthPropsConfig = module.get<OAuthPropsConfig>(OAuthPropsConfig);
@@ -531,6 +540,364 @@ describe("OAuthService", () => {
 
 				await expect(result).rejects.toThrow(ServerError);
 				await expect(result).rejects.toThrow("사용자 정보 오류");
+			});
+		});
+	});
+
+	describe("oAuthReconfirm", () => {
+		const moackOAuthAccountId = "oauth-account-id";
+		const mockOAuthRefreshToken = "oauth-refresh-token";
+
+		const mockOAuthData = {
+			oAuthAccountId: moackOAuthAccountId,
+			oAuthRefreshToken: mockOAuthRefreshToken,
+		};
+
+		const oAuthLoginDto: OAuthLoginDto = {
+			provider: "google",
+			code: "code",
+		};
+
+		const mockTempToken = "temp-token";
+
+		beforeEach(() => {
+			jest.spyOn(
+				oAuthTokenService,
+				"verifyAuthorizationCode"
+			).mockResolvedValue(mockOAuthData);
+
+			jest.spyOn(authService, "makeTempToken").mockReturnValue(
+				"temp-token"
+			);
+
+			jest.spyOn(
+				oAuthConnectionRepository,
+				"getOAuthConnectionByProviderAndAccountId"
+			).mockResolvedValue({ id: 1 } as OAuthConnection);
+
+			jest.spyOn(oAuthConnectionRepository, "update").mockResolvedValue({
+				affected: 1,
+			} as UpdateResult);
+		});
+
+		describe("성공 케이스", () => {
+			it("소셜 로그인 재확인 성공", async () => {
+				const mockUser = createMockUser();
+				jest.spyOn(userRepository, "readUserByOAuth").mockResolvedValue(
+					mockUser
+				);
+
+				const result = await oAuthService.oAuthReconfirm(
+					oAuthLoginDto,
+					1
+				);
+
+				expect(result).toEqual({ tempToken: mockTempToken });
+			});
+		});
+
+		describe("실패 케이스", () => {
+			it.each([
+				[
+					"연동되지 않은 소셜 계정",
+					{ id: 2 },
+					"로그인한 유저와 연동하지 않은 소셜 계정입니다.",
+				],
+				[
+					"사용자 정보가 올바르지 않은 경우",
+					{ id: 1, nickname: null },
+					"사용자 정보 오류",
+				],
+				[
+					"이메일, 비밀번호를 등록한 계정",
+					{ id: 1, email: "test@email.com" },
+					"이메일, 비밀번호를 등록한 계정은 비밀번호 재확인으로 인증해야 합니다.",
+				],
+			])(
+				"%s인 경우 에러를 반환한다.",
+				async (_, userOverrides, errorMessage) => {
+					const mockUser = createMockUser(userOverrides);
+
+					jest.spyOn(
+						userRepository,
+						"readUserByOAuth"
+					).mockResolvedValue(mockUser);
+
+					const result = oAuthService.oAuthReconfirm(
+						oAuthLoginDto,
+						1
+					);
+
+					await expect(result).rejects.toThrow(ServerError);
+					await expect(result).rejects.toThrow(errorMessage);
+				}
+			);
+		});
+	});
+
+	describe("oAuthLink", () => {
+		const moackOAuthAccountId = "oauth-account-id";
+		const mockOAuthRefreshToken = "oauth-refresh-token";
+
+		const mockOAuthData = {
+			oAuthAccountId: moackOAuthAccountId,
+			oAuthRefreshToken: mockOAuthRefreshToken,
+		};
+
+		const oAuthLoginDto: OAuthLoginDto = {
+			provider: "google",
+			code: "code",
+		};
+
+		beforeEach(() => {
+			jest.spyOn(
+				oAuthTokenService,
+				"verifyAuthorizationCode"
+			).mockResolvedValue(mockOAuthData);
+
+			jest.spyOn(userRepository, "readUserByOAuth").mockResolvedValue(
+				undefined
+			);
+
+			jest.spyOn(
+				oAuthConnectionRepository,
+				"getOAuthConnectionByUserId"
+			).mockResolvedValue([
+				{
+					id: 1,
+					oAuthProvider: { name: "naver" },
+				},
+			] as OAuthConnection[]);
+
+			jest.spyOn(oAuthProviderRepository, "findOne").mockResolvedValue({
+				id: 1,
+			} as OAuthProvider);
+		});
+
+		describe("성공 케이스", () => {
+			it("소셜 계정 연동 성공", async () => {
+				const result = await oAuthService.oAuthLink(oAuthLoginDto, 1);
+
+				expect(result).toBe(true);
+			});
+		});
+
+		describe("실패 케이스", () => {
+			it("이미 OAuth로 가입한 계정이 있는 경우 에러를 반환한다", async () => {
+				jest.spyOn(userRepository, "readUserByOAuth").mockResolvedValue(
+					createMockUser()
+				);
+
+				const result = oAuthService.oAuthLink(oAuthLoginDto, 1);
+
+				await expect(result).rejects.toThrow(ServerError);
+				await expect(result).rejects.toThrow(
+					"이미 연동된 소셜 계정입니다."
+				);
+			});
+
+			it("사용자가 이미 동일한 OAuth 제공자와 연결되어 있는 경우 에러를 반환한다", async () => {
+				jest.spyOn(
+					oAuthConnectionRepository,
+					"getOAuthConnectionByUserId"
+				).mockResolvedValue([
+					{ id: 1, oAuthProvider: { name: "google" } },
+				] as OAuthConnection[]);
+
+				const result = oAuthService.oAuthLink(oAuthLoginDto, 1);
+
+				await expect(result).rejects.toThrow(ServerError);
+				await expect(result).rejects.toThrow(
+					"이미 연동된 소셜 계정입니다."
+				);
+			});
+		});
+	});
+
+	describe("oAuthUnlink", () => {
+		const mockOAuthAccessToken = "oauth-access-token";
+
+		beforeEach(() => {
+			jest.spyOn(userRepository, "findOne").mockResolvedValue(
+				createMockUser({
+					email: "test@email.com",
+					password: "password",
+					salt: "salt",
+				})
+			);
+
+			jest.spyOn(
+				oAuthConnectionRepository,
+				"getOAuthConnectionByUserId"
+			).mockResolvedValue([
+				{
+					id: 1,
+					oAuthProvider: { name: "google" },
+				},
+			] as OAuthConnection[]);
+
+			jest.spyOn(
+				oAuthTokenService,
+				"refreshOAuthAccessToken"
+			).mockResolvedValue({
+				oAuthAccessToken: mockOAuthAccessToken,
+			});
+
+			jest.spyOn(
+				oAuthConnectionRepository,
+				"getOAuthConnectionByProviderAndUserId"
+			).mockResolvedValue({
+				id: 1,
+			} as OAuthConnection);
+
+			jest.spyOn(oAuthConnectionRepository, "update").mockResolvedValue({
+				affected: 1,
+			} as UpdateResult);
+
+			mockFetch.mockReset();
+
+			mockFetch.mockResolvedValueOnce({
+				ok: true,
+				status: 200,
+				json: async () => ({}),
+			});
+		});
+
+		describe("성공 케이스", () => {
+			it("소셜 계정 연동 해제 성공", async () => {
+				const result = await oAuthService.oAuthUnlink("google", 1);
+
+				expect(result).toBe(true);
+			});
+		});
+
+		describe("실패 케이스", () => {
+			it("존재 하지 않은 회원인경우 에러를 반환한다.", async () => {
+				jest.spyOn(userRepository, "findOne").mockResolvedValue(null);
+
+				const result = oAuthService.oAuthUnlink("google", 1);
+
+				await expect(result).rejects.toThrow(ServerError);
+				await expect(result).rejects.toThrow(
+					"존재하지 않은 회원 입니다."
+				);
+			});
+
+			it("연동되지 않은 소셜 계정인 경우 에러를 반환한다.", async () => {
+				jest.spyOn(
+					oAuthConnectionRepository,
+					"getOAuthConnectionByUserId"
+				).mockResolvedValue([
+					{
+						id: 1,
+						oAuthProvider: { name: "naver" },
+					},
+				] as OAuthConnection[]);
+
+				const result = oAuthService.oAuthUnlink("google", 1);
+
+				await expect(result).rejects.toThrow(ServerError);
+				await expect(result).rejects.toThrow(
+					"해당 서비스와 소셜 로그인을 연동하지 않았습니다."
+				);
+			});
+
+			it("이메일 등록 여부 확인 실패시 에러를 반환한다.", async () => {
+				jest.spyOn(userRepository, "findOne").mockResolvedValue(
+					createMockUser({ email: null })
+				);
+
+				const result = oAuthService.oAuthUnlink("google", 1);
+
+				await expect(result).rejects.toThrow(ServerError);
+				await expect(result).rejects.toThrow(
+					"이메일 등록이 없으므로 마지막 마지막 소셜 연동을 해제할 수 없습니다."
+				);
+			});
+
+			describe("revokeOAuth", () => {
+				it("서비스 제공사 오류로 인해 소셜 연동 해제 실패시 에러를 반환한다.", async () => {
+					mockFetch.mockReset();
+
+					mockFetch.mockResolvedValueOnce({
+						ok: false,
+						status: 500,
+						json: async () => ({}),
+					});
+
+					const result = oAuthService.oAuthUnlink("google", 1);
+
+					await expect(result).rejects.toThrow(ServerError);
+					await expect(result).rejects.toThrow(
+						"OAuth 서비스 제공사 오류로 OAuth 연동 해제에 실패했습니다."
+					);
+				});
+
+				it("인가 수단이 유효하지 않아서 소셜 연동 해제 실패시 에러를 반환한다.", async () => {
+					mockFetch.mockReset();
+
+					mockFetch.mockResolvedValueOnce({
+						ok: false,
+						status: 400,
+						json: async () => ({}),
+					});
+
+					const result = oAuthService.oAuthUnlink("google", 1);
+
+					await expect(result).rejects.toThrow(ServerError);
+					await expect(result).rejects.toThrow(
+						"인가 수단이 유효하지 않아서 OAuth 연동 해제에 실패했습니다."
+					);
+				});
+
+				it("서버 요청 구성문제로 소셜 연동 해제 실패시 에러를 반환한다.", async () => {
+					mockFetch.mockReset();
+
+					mockFetch.mockResolvedValueOnce({
+						ok: true,
+						status: 200,
+						json: async () => ({
+							error: "invalid_request",
+						}),
+					});
+
+					const result = oAuthService.oAuthUnlink("google", 1);
+
+					await expect(result).rejects.toThrow(ServerError);
+					await expect(result).rejects.toThrow(
+						"서버의 요청 구성 문제로 OAuth 연동 해제에 실패했습니다."
+					);
+				});
+			});
+
+			describe("deleteOAuthConnection", () => {
+				it("소셜로그인을 연동 하지 않았을 경우 에러를 반환한다.", async () => {
+					jest.spyOn(
+						oAuthConnectionRepository,
+						"getOAuthConnectionByProviderAndUserId"
+					).mockResolvedValue(null);
+
+					const result = oAuthService.oAuthUnlink("google", 1);
+
+					await expect(result).rejects.toThrow(ServerError);
+					await expect(result).rejects.toThrow(
+						"해당 서비스와 소셜 로그인을 연동하지 않았습니다."
+					);
+				});
+
+				it("소셜로그인 연동 해제 실패시 에러를 반환한다.", async () => {
+					jest.spyOn(
+						oAuthConnectionRepository,
+						"update"
+					).mockResolvedValue({ affected: 0 } as UpdateResult);
+
+					const result = oAuthService.oAuthUnlink("google", 1);
+
+					await expect(result).rejects.toThrow(ServerError);
+					await expect(result).rejects.toThrow(
+						"소셜 로그인 연동 해제에 실패했습니다."
+					);
+				});
 			});
 		});
 	});

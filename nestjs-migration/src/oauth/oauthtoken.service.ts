@@ -42,6 +42,20 @@ export class OAuthTokenService {
 		};
 	}
 
+	async refreshOAuthAccessToken(
+		provider: TOAuthProvider,
+		oAuthRefreshToken: string
+	) {
+		const oAuthTokens = await this.fetchOAuthTokens(
+			provider,
+			"refresh_token",
+			oAuthRefreshToken
+		);
+		return {
+			oAuthAccessToken: oAuthTokens.access_token,
+		};
+	}
+
 	private async fetchOAuthTokens(
 		provider: TOAuthProvider,
 		grantType: TOAuthTokenRequestGrantType,

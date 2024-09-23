@@ -91,6 +91,12 @@ const Room: React.FC<Props> = ({ room, isMine, index, setSelectedRoom }) => {
 		<div
 			className={roomWrapper}
 			key={index}
+			onClick={() => {
+				if (open) {
+					return;
+				}
+				onRoomClick();
+			}}
 		>
 			{open ? (
 				<div className={roomContainer}>
@@ -114,10 +120,7 @@ const Room: React.FC<Props> = ({ room, isMine, index, setSelectedRoom }) => {
 					</div>
 				</div>
 			) : (
-				<div
-					className={roomContainer}
-					onClick={onRoomClick}
-				>
+				<div className={roomContainer}>
 					<div className={roomHeaderContainer}>
 						<div className={titleContainer}>
 							{room.isPrivate ? (

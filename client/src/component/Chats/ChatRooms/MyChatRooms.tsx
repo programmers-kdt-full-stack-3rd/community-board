@@ -6,7 +6,13 @@ import {
 	useState,
 } from "react";
 import { IReadRoomResponse } from "shared";
-import { createButton, roomsWrapper } from "./ChatRooms.css";
+import {
+	chatRoomsContainer,
+	createButton,
+	myRoomTitleContainer,
+	myRoomTitleTextStyle,
+	roomsWrapper,
+} from "./ChatRooms.css";
 import Rooms from "./Rooms/Rooms";
 import Pagenation from "./Pagenation/Pagenation";
 import { useChatRoom } from "../../../state/ChatRoomStore";
@@ -56,6 +62,28 @@ const MyChatRooms: FC<Props> = ({
 		setIsRendered(false);
 	};
 
+	const renderMyChatRooms = () => {
+		if (Object.keys(roomState.myRoomInfo.rooms).length === 0) {
+			return (
+				<div
+					style={{
+						height: "100px",
+					}}
+				>
+					{"내 채팅방 없음"}
+				</div>
+			);
+		} else {
+			return (
+				<Rooms
+					isMine={true}
+					rooms={roomState.myRoomInfo.rooms[currentPage]}
+					setSelectedRoom={setSelectedRoom}
+				/>
+			);
+		}
+	};
+
 	useLayoutEffect(() => {
 		if (!isRendered) {
 			if (roomState.myRoomInfo.rooms[currentPage]) {
@@ -66,25 +94,9 @@ const MyChatRooms: FC<Props> = ({
 	}, [currentPage]);
 
 	return (
-		<div>
-			<div
-				style={{
-					display: "flex",
-					flexDirection: "row",
-					justifyContent: "space-between",
-					alignItems: "center",
-				}}
-			>
-				<p
-					style={{
-						fontSize: "20px",
-						fontWeight: "bold",
-						marginLeft: "10px",
-						color: "gray",
-					}}
-				>
-					내 채팅방
-				</p>
+		<div className={chatRoomsContainer}>
+			<div className={myRoomTitleContainer}>
+				<div className={myRoomTitleTextStyle}>내 채팅방</div>
 				<button
 					className={createButton}
 					onClick={() => open(true)}
@@ -92,33 +104,16 @@ const MyChatRooms: FC<Props> = ({
 					<RiChatNewLine title="채팅방 생성" />
 				</button>
 			</div>
-
 			<div
 				style={{
 					display: "flex",
 					flexDirection: "column",
 					gap: "10px",
+					height: "100%",
 				}}
 			>
 				{isRendered && (
-					<div className={roomsWrapper}>
-						{Object.keys(roomState.myRoomInfo.rooms).length ===
-						0 ? (
-							<div
-								style={{
-									height: "100px",
-								}}
-							>
-								{"내 채팅방 없음"}
-							</div>
-						) : (
-							<Rooms
-								isMine={true}
-								rooms={roomState.myRoomInfo.rooms[currentPage]}
-								setSelectedRoom={setSelectedRoom}
-							/>
-						)}
-					</div>
+					<div className={roomsWrapper}>{renderMyChatRooms()}</div>
 				)}
 				{roomState.myRoomInfo.totalRoomCount > 2 ? (
 					<Pagenation
