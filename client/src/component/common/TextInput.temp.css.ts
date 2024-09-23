@@ -9,6 +9,8 @@ export const outerWrapper = style({
 	display: "flex",
 	flexDirection: "column",
 	gap: "0.25rem",
+
+	textAlign: "left",
 });
 
 export const labelStyle = style({
