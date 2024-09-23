@@ -3,6 +3,7 @@ import { TOAuthProvider } from "shared";
 import { ServerError } from "../common/exceptions/server-error.exception";
 import { OAuthPropsConfig } from "./config/oauth-props.config";
 import { OAUTH_TOKEN_SERVICE_ERROR_MESSAGES } from "./constants/oauth-token-service.constatns";
+import { oAuthRequestContentType } from "./constants/oauth.constants";
 import { TOAuthProps } from "./interfaces/oauth.interface";
 import { OAuthTokenService } from "./oauthtoken.service";
 
@@ -134,6 +135,44 @@ describe("OAuthTokenService", () => {
 			);
 
 			expect(mockFetch).toHaveBeenCalledTimes(1);
+		});
+	});
+
+	describe("refreshOAuthAccessToken", () => {
+		it("토큰을 정상적으로 반환한다", async () => {
+			const mockAccessToken = "test-access-token";
+			const mockRefreshToken = "refresh-token";
+
+			mockFetch.mockResolvedValueOnce({
+				ok: true,
+				status: 200,
+				json: async () => ({
+					access_token: mockAccessToken,
+				}),
+			});
+
+			const result = await oAuthTokenService.refreshOAuthAccessToken(
+				"google",
+				mockRefreshToken
+			);
+
+			expect(result).toEqual({
+				oAuthAccessToken: mockAccessToken,
+			});
+
+			expect(mockFetch).toHaveBeenCalledTimes(1);
+			expect(mockFetch).toHaveBeenCalledWith(
+				"https://oauth2.googleapis.com/token",
+				expect.objectContaining({
+					method: "POST",
+					headers: {
+						"Content-Type": oAuthRequestContentType,
+					},
+					body: expect.stringContaining(
+						`refresh_token=${mockRefreshToken}`
+					),
+				})
+			);
 		});
 	});
 });

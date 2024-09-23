@@ -1,6 +1,7 @@
 import {
 	Body,
 	Controller,
+	Delete,
 	Get,
 	HttpCode,
 	HttpStatus,
@@ -87,5 +88,40 @@ export class OAuthController {
 		});
 
 		return { message: "재확인 성공" };
+	}
+
+	@Get("/link-url/:provider")
+	@HttpCode(HttpStatus.OK)
+	getLinkUrl(@Param() param: OAuthProviderDto) {
+		const provider = param.provider;
+		const url = this.oauthService.getOAuthUrl("link", provider);
+
+		return { url };
+	}
+
+	@Post("/link")
+	@HttpCode(HttpStatus.OK)
+	@UseGuards(LoginGuard)
+	async oAuthLink(
+		@Body() oAuthLoginDto: OAuthLoginDto,
+		@User() user: IUserEntity
+	) {
+		await this.oauthService.oAuthLink(oAuthLoginDto, user.userId);
+
+		return { message: "소셜 계정 연동 성공" };
+	}
+
+	@Delete("/link/:provider")
+	@HttpCode(HttpStatus.OK)
+	@UseGuards(LoginGuard)
+	async oAuthUnlink(
+		@Param() param: OAuthProviderDto,
+		@User() user: IUserEntity
+	) {
+		const provider = param.provider;
+
+		await this.oauthService.oAuthUnlink(provider, user.userId);
+
+		return { message: "소셜 계정 연동 해제 성공" };
 	}
 }

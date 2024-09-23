@@ -29,6 +29,8 @@ describe("OauthController", () => {
 						getOAuthUrl: jest.fn(),
 						oAuthLogin: jest.fn(),
 						oAuthReconfirm: jest.fn(),
+						oAuthLink: jest.fn(),
+						oAuthUnlink: jest.fn(),
 					},
 				},
 				{
@@ -215,6 +217,93 @@ describe("OauthController", () => {
 
 			expect(result).toEqual({
 				message: "재확인 성공",
+			});
+		});
+	});
+
+	describe("GET /link-url/:provider", () => {
+		it("로그인 URL 생성 후 200 상태 코드와 url을 반환한다.", async () => {
+			const httpCode = Reflect.getMetadata(
+				"__httpCode__",
+				oAuthController.getLinkUrl
+			);
+
+			const url = "http://localhost:3000/oauth/redirect/google";
+
+			jest.spyOn(oAuthService, "getOAuthUrl").mockReturnValue(url);
+
+			const result = oAuthController.getLinkUrl({
+				provider: mockProvider,
+			});
+
+			expect(oAuthService.getOAuthUrl).toHaveBeenCalledWith(
+				"link",
+				mockProvider
+			);
+			expect(httpCode).toBe(HttpStatus.OK);
+			expect(result).toEqual({ url });
+		});
+	});
+
+	describe("POST /link", () => {
+		const oAuthLoginDto: OAuthLoginDto = {
+			provider: "google",
+			code: "mock-code",
+		};
+
+		const mockUserEntity: IUserEntity = { userId: 1, roleId: 1 };
+
+		it("소셜 계정 연동 성공 시 200 상태 코드와 메시지를 반환한다", async () => {
+			const httpCode = Reflect.getMetadata(
+				"__httpCode__",
+				oAuthController.getLinkUrl
+			);
+
+			jest.spyOn(oAuthService, "oAuthLink").mockResolvedValue(true);
+
+			const result = await oAuthController.oAuthLink(
+				oAuthLoginDto,
+				mockUserEntity
+			);
+
+			expect(oAuthService.oAuthLink).toHaveBeenCalledWith(
+				oAuthLoginDto,
+				mockUserEntity.userId
+			);
+
+			expect(httpCode).toBe(HttpStatus.OK);
+
+			expect(result).toEqual({
+				message: "소셜 계정 연동 성공",
+			});
+		});
+	});
+
+	describe("DELETE /link/:provider", () => {
+		const mockUserEntity: IUserEntity = { userId: 1, roleId: 1 };
+
+		it("소셜 계정 연동 해제 성공 시 200 상태 코드와 메시지를 반환한다", async () => {
+			const httpCode = Reflect.getMetadata(
+				"__httpCode__",
+				oAuthController.getLinkUrl
+			);
+
+			jest.spyOn(oAuthService, "oAuthUnlink").mockResolvedValue(true);
+
+			const result = await oAuthController.oAuthUnlink(
+				{ provider: mockProvider },
+				mockUserEntity
+			);
+
+			expect(oAuthService.oAuthUnlink).toHaveBeenCalledWith(
+				mockProvider,
+				mockUserEntity.userId
+			);
+
+			expect(httpCode).toBe(HttpStatus.OK);
+
+			expect(result).toEqual({
+				message: "소셜 계정 연동 해제 성공",
 			});
 		});
 	});
