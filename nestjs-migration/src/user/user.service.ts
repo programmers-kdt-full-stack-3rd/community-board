@@ -219,13 +219,6 @@ export class UserService {
 		>
 	) {
 		try {
-			if (!updateData.email) {
-				throw ServerError.etcError(
-					500,
-					"서버 로직에서 필수 정보를 누락했습니다."
-				);
-			}
-
 			const result = await this.userRepository.registerUserEmail(
 				userId,
 				updateData
