@@ -25,6 +25,7 @@ import { ApiCall } from "../../api/api";
 import { ClientError } from "../../api/errors";
 import { useChatRoom } from "../../state/ChatRoomStore";
 import { useChatAside } from "../../state/ChatAsideStore";
+import { isDevMode } from "../../utils/detectMode"; // TODO: UI 리팩터링 완료 후 테스트 import 제거
 
 const Header: React.FC = () => {
 	const navigate = useNavigate();
@@ -109,6 +110,8 @@ const Header: React.FC = () => {
 				<span>CODEPLAY</span>
 			</Link>
 			<div className={userAuthPanel}>
+				{/* TODO: UI 리팩터링 완료 후 테스트 링크 제거 */}
+				{isDevMode() && <Link to="/test/ui">UI 컴포넌트 테스트</Link>}
 				{isLogin && (
 					<div className={nicknameInfo}>
 						{nickname}님 환영 합니다.
