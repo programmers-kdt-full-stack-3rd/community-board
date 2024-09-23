@@ -178,7 +178,9 @@ export class UserService {
 					userId
 				);
 			if (result.affected === 0) {
-				throw ServerError.badRequest("소셜 로그인 전체 연동 해제 실패");
+				throw ServerError.badRequest(
+					USER_ERROR_MESSAGES.DELETE_OAUTH_CONNECTION_ERROR
+				);
 			}
 		}
 
@@ -289,7 +291,7 @@ export class UserService {
 		const result = await this.userRepository.deleteUser(userId);
 
 		if (result.affected === 0) {
-			throw ServerError.badRequest("사용자 삭제 실패");
+			throw ServerError.badRequest(USER_ERROR_MESSAGES.DELETE_USER_ERROR);
 		}
 	}
 }

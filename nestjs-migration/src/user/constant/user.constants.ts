@@ -21,6 +21,8 @@ export const USER_ERROR_MESSAGES = {
 	UPDATE_RESISTER_USER_EMAIL:
 		"소셜 로그인으로 가입한 회원 정보에 이메일 등록 실패",
 	UPDATE_USER_ERROR: "회원정보 수정 실패",
+	DELETE_OAUTH_CONNECTION_ERROR: "소셜 로그인 전체 연동 해제 실패",
+	DELETE_USER_ERROR: "사용자 삭제 실패",
 };
 
 export const PASSWORD_POLICY = {

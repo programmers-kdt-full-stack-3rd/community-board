@@ -28,6 +28,7 @@ describe("UserController", () => {
 		checkPassword: jest.fn(),
 		readUser: jest.fn(),
 		updateUser: jest.fn(),
+		deleteUser: jest.fn(),
 	};
 
 	const mockRbacService = {
@@ -378,6 +379,32 @@ describe("UserController", () => {
 			);
 
 			expect(result).toEqual({ message: "회원정보 수정 성공" });
+		});
+	});
+
+	describe("DELETE /user", () => {
+		it("사용자 탈퇴 성공 시 200 상태 코드와 성공 메시지를 반환한다", async () => {
+			const mockResponse = {
+				clearCookie: jest.fn(),
+			} as unknown as Response;
+
+			jest.spyOn(loginGuard, "canActivate").mockReturnValue(true);
+			jest.spyOn(userService, "deleteUser").mockResolvedValue(undefined);
+
+			const result = await userController.deleteUser(
+				mockUserEntity,
+				mockResponse
+			);
+
+			expect(userService.deleteUser).toHaveBeenCalledWith(1);
+			expect(mockResponse.clearCookie).toHaveBeenCalledTimes(2);
+			expect(mockResponse.clearCookie).toHaveBeenCalledWith(
+				"accessToken"
+			);
+			expect(mockResponse.clearCookie).toHaveBeenCalledWith(
+				"refreshToken"
+			);
+			expect(result).toEqual({ message: "회원탈퇴 성공" });
 		});
 	});
 });

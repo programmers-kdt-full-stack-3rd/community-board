@@ -3,6 +3,7 @@ import { DeleteResult, UpdateResult } from "typeorm";
 import { AuthService } from "../auth/auth.service";
 import { RefreshTokensRepository } from "../auth/refresh-tokens.repository";
 import { ServerError } from "../common/exceptions/server-error.exception";
+import { OAuthConnection } from "../oauth/entities/oauth-connection.entity";
 import { OAuthService } from "../oauth/oauth.service";
 import { OAuthTokenService } from "../oauth/oauthtoken.service";
 import { OAuthConnectionRepository } from "../oauth/repositories/oauth-connection.repository";
@@ -13,18 +14,25 @@ import { User } from "./entities/user.entity";
 import { UserRepository } from "./user.repository";
 import { UserService } from "./user.service";
 
+jest.mock("typeorm-transactional", () => ({
+	Transactional: () => () => ({}),
+}));
+
 describe("UserService", () => {
 	let userService: UserService;
 	let userRepository: UserRepository;
 	let authService: AuthService;
 	let refreshTokenRepository: RefreshTokensRepository;
 	let oAuthConnectionRepository: OAuthConnectionRepository;
+	let oAuthService: OAuthService;
+	let oAuthTokenService: OAuthTokenService;
 
 	const mockUserRepository = {
 		save: jest.fn(),
 		findOne: jest.fn(),
 		updateUser: jest.fn(),
 		registerUserEmail: jest.fn(),
+		deleteUser: jest.fn(),
 	};
 
 	const mockAuthService = {
@@ -39,6 +47,15 @@ describe("UserService", () => {
 
 	const mockOAuthConnectionRepository = {
 		getOAuthConnectionByUserId: jest.fn(),
+		clearOAuthConnectionByUserId: jest.fn(),
+	};
+
+	const mockOAuthService = {
+		revokeOAuth: jest.fn(),
+	};
+
+	const mockOAuthTokenService = {
+		refreshOAuthAccessToken: jest.fn(),
 	};
 
 	const mockSalt = "mocksalt";
@@ -88,11 +105,11 @@ describe("UserService", () => {
 				},
 				{
 					provide: OAuthService,
-					useValue: {},
+					useValue: mockOAuthService,
 				},
 				{
 					provide: OAuthTokenService,
-					useValue: {},
+					useValue: mockOAuthTokenService,
 				},
 			],
 		}).compile();
@@ -103,6 +120,11 @@ describe("UserService", () => {
 		refreshTokenRepository = module.get<RefreshTokensRepository>(
 			RefreshTokensRepository
 		);
+		oAuthConnectionRepository = module.get<OAuthConnectionRepository>(
+			OAuthConnectionRepository
+		);
+		oAuthService = module.get<OAuthService>(OAuthService);
+		oAuthTokenService = module.get<OAuthTokenService>(OAuthTokenService);
 
 		jest.spyOn(cryptoUtil, "makeSalt").mockResolvedValue(mockSalt);
 		jest.spyOn(cryptoUtil, "makeHashedPassword").mockResolvedValue(
@@ -636,6 +658,135 @@ describe("UserService", () => {
 					await expect(result).rejects.toThrow(ServerError);
 					await expect(result).rejects.toThrow(
 						USER_ERROR_MESSAGES.DUPLICATE_EMAIL
+					);
+				});
+			});
+		});
+	});
+
+	describe("deleteUser", () => {
+		const userId = 1;
+
+		const mockOAuthAccessToken = "mockOAuthAccessToken";
+		const mockOAuthRefreshToken = "mockOAuthRefreshToken";
+
+		const mockOAuthConnections: OAuthConnection[] = [
+			{
+				oAuthProvider: { name: "google" },
+				oAuthRefreshToken: mockOAuthRefreshToken,
+			} as OAuthConnection,
+		];
+
+		beforeEach(() => {
+			jest.spyOn(
+				oAuthConnectionRepository,
+				"getOAuthConnectionByUserId"
+			).mockResolvedValue([]);
+			jest.spyOn(refreshTokenRepository, "delete").mockResolvedValue({
+				affected: 1,
+			} as DeleteResult);
+			jest.spyOn(userRepository, "deleteUser").mockResolvedValue({
+				affected: 1,
+			} as UpdateResult);
+		});
+
+		describe("성공 케이스", () => {
+			it("일반 사용자를 성공적으로 삭제한다", async () => {
+				const result = await userService.deleteUser(userId);
+
+				expect(refreshTokenRepository.delete).toHaveBeenCalledWith({
+					userId,
+				});
+
+				expect(userRepository.deleteUser).toHaveBeenCalledWith(userId);
+			});
+
+			it("소셜 사용자를 성공적으로 삭제한다", async () => {
+				jest.spyOn(
+					oAuthConnectionRepository,
+					"getOAuthConnectionByUserId"
+				).mockResolvedValue(mockOAuthConnections);
+
+				jest.spyOn(
+					oAuthTokenService,
+					"refreshOAuthAccessToken"
+				).mockResolvedValue({ oAuthAccessToken: mockOAuthAccessToken });
+
+				jest.spyOn(
+					oAuthConnectionRepository,
+					"clearOAuthConnectionByUserId"
+				).mockResolvedValue({
+					affected: 1,
+				} as UpdateResult);
+
+				const result = await userService.deleteUser(userId);
+
+				expect(
+					oAuthConnectionRepository.getOAuthConnectionByUserId
+				).toHaveBeenCalledWith(userId);
+
+				expect(
+					oAuthTokenService.refreshOAuthAccessToken
+				).toHaveBeenCalledWith(
+					mockOAuthConnections[0].oAuthProvider.name,
+					mockOAuthRefreshToken
+				);
+
+				expect(oAuthService.revokeOAuth).toHaveBeenCalledWith(
+					mockOAuthConnections[0].oAuthProvider.name,
+					mockOAuthAccessToken
+				);
+
+				expect(
+					oAuthConnectionRepository.clearOAuthConnectionByUserId
+				).toHaveBeenCalledWith(userId);
+
+				expect(refreshTokenRepository.delete).toHaveBeenCalledWith({
+					userId,
+				});
+
+				expect(userRepository.deleteUser).toHaveBeenCalledWith(userId);
+			});
+		});
+
+		describe("실패 케이스", () => {
+			it("소셜 로그인 전체 연동 해제 실패시 ServerError를 발생시킨다", async () => {
+				jest.spyOn(
+					oAuthConnectionRepository,
+					"getOAuthConnectionByUserId"
+				).mockResolvedValue(mockOAuthConnections);
+
+				jest.spyOn(
+					oAuthTokenService,
+					"refreshOAuthAccessToken"
+				).mockResolvedValue({ oAuthAccessToken: mockOAuthAccessToken });
+
+				jest.spyOn(
+					oAuthConnectionRepository,
+					"clearOAuthConnectionByUserId"
+				).mockResolvedValue({
+					affected: 0,
+				} as UpdateResult);
+
+				const result = userService.deleteUser(userId);
+
+				await expect(result).rejects.toThrow(ServerError);
+				await expect(result).rejects.toThrow(
+					USER_ERROR_MESSAGES.DELETE_OAUTH_CONNECTION_ERROR
+				);
+			});
+
+			describe("databaseDeleteUser", () => {
+				it("데이터베이스에서 사용자 삭제 실패시 ServerError를 발생시킨다", async () => {
+					jest.spyOn(userRepository, "deleteUser").mockResolvedValue({
+						affected: 0,
+					} as UpdateResult);
+
+					const result = userService.deleteUser(userId);
+
+					await expect(result).rejects.toThrow(ServerError);
+					await expect(result).rejects.toThrow(
+						USER_ERROR_MESSAGES.DELETE_USER_ERROR
 					);
 				});
 			});
