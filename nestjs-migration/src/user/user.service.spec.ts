@@ -1,5 +1,5 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { DeleteResult } from "typeorm";
+import { DeleteResult, UpdateResult } from "typeorm";
 import { AuthService } from "../auth/auth.service";
 import { RefreshTokensRepository } from "../auth/refresh-tokens.repository";
 import { ServerError } from "../common/exceptions/server-error.exception";
@@ -21,6 +21,8 @@ describe("UserService", () => {
 	const mockUserRepository = {
 		save: jest.fn(),
 		findOne: jest.fn(),
+		updateUser: jest.fn(),
+		registerUserEmail: jest.fn(),
 	};
 
 	const mockAuthService = {
@@ -99,6 +101,10 @@ describe("UserService", () => {
 
 		jest.spyOn(authService, "makeTempToken").mockReturnValue(mockTempToken);
 		jest.spyOn(authService, "generateTokens").mockReturnValue(mockTokens);
+	});
+
+	afterEach(() => {
+		jest.clearAllMocks();
 	});
 
 	describe("createUser", () => {
@@ -352,6 +358,274 @@ describe("UserService", () => {
 				expect(result).toEqual({
 					user: mockUser,
 					oAuthConnections: mockOAuthConnections,
+				});
+			});
+		});
+	});
+
+	describe("updateUser", () => {
+		const mockUser = createMockUser();
+
+		const newNickname = "newnickname";
+
+		const oldPassword = "oldpassword";
+		const newPassword = "newpassword";
+
+		const mockOldHashedPassword = mockHashedPassword;
+		const mockNewHashedPassword = "mockNewHashedPassword";
+
+		const newEmail = "test@email.com";
+
+		beforeEach(() => {
+			jest.spyOn(userRepository, "findOne").mockResolvedValue(mockUser);
+			jest.spyOn(cryptoUtil, "makeHashedPassword").mockImplementation(
+				(password, salt) => {
+					if (password === oldPassword) {
+						return Promise.resolve(mockOldHashedPassword);
+					}
+					if (password === newPassword) {
+						return Promise.resolve(mockNewHashedPassword);
+					}
+				}
+			);
+
+			jest.spyOn(userRepository, "updateUser").mockResolvedValue({
+				affected: 1,
+			} as UpdateResult);
+
+			jest.spyOn(userRepository, "registerUserEmail").mockResolvedValue({
+				affected: 1,
+			} as UpdateResult);
+		});
+
+		describe("성공 케이스", () => {
+			it("유저정보에 email이 있을때 유저 정보를 업데이트 한다.", async () => {
+				const userId = 1;
+				const updateUserDto = {
+					nickname: newNickname,
+					password: newPassword,
+				};
+
+				const mockUpdateData = {
+					email: undefined,
+					password: mockNewHashedPassword,
+					nickname: newNickname,
+					salt: mockSalt,
+				};
+
+				const result = await userService.updateUser(
+					userId,
+					updateUserDto
+				);
+
+				expect(cryptoUtil.makeHashedPassword).toHaveBeenCalledTimes(2);
+
+				expect(cryptoUtil.makeHashedPassword).toHaveBeenCalledWith(
+					newPassword,
+					mockSalt
+				);
+
+				expect(userRepository.findOne).toHaveBeenCalledWith({
+					where: { id: userId, isDelete: false },
+				});
+
+				expect(userRepository.updateUser).toHaveBeenCalledWith(
+					userId,
+					mockUpdateData
+				);
+
+				expect(result).toEqual(true);
+			});
+
+			it("유저정보에 email이 없을때 email,password,salt를 등록한다.", async () => {
+				const userId = 1;
+				const updateUserDto = {
+					email: newEmail,
+					nickname: newNickname,
+					password: newPassword,
+				};
+
+				const mockUser = createMockUser({ email: null });
+
+				jest.spyOn(userRepository, "findOne").mockResolvedValue(
+					mockUser
+				);
+
+				const mockUpdateData = {
+					email: newEmail,
+					password: mockNewHashedPassword,
+					nickname: newNickname,
+					salt: mockSalt,
+				};
+
+				const result = await userService.updateUser(
+					userId,
+					updateUserDto
+				);
+
+				expect(cryptoUtil.makeHashedPassword).toHaveBeenCalledTimes(1);
+
+				expect(cryptoUtil.makeHashedPassword).toHaveBeenCalledWith(
+					newPassword,
+					mockSalt
+				);
+
+				expect(userRepository.findOne).toHaveBeenCalledWith({
+					where: { id: userId, isDelete: false },
+				});
+
+				expect(userRepository.registerUserEmail).toHaveBeenCalledWith(
+					userId,
+					mockUpdateData
+				);
+
+				expect(result).toEqual(true);
+			});
+		});
+
+		describe("실패 케이스", () => {
+			describe("updateUser 실패 케이스", () => {
+				it("email이 존재하는 사용자가 dto에 email을 포함 하고 있을때 ServerError를 발생시킨다", async () => {
+					const userId = 1;
+					const updateUserDto = {
+						email: newEmail,
+						nickname: newNickname,
+						password: newPassword,
+					};
+
+					const result = userService.updateUser(
+						userId,
+						updateUserDto
+					);
+
+					await expect(result).rejects.toThrow(ServerError);
+					await expect(result).rejects.toThrow(
+						USER_ERROR_MESSAGES.CANNOT_CHANGE_EMAIL
+					);
+				});
+				it("email이 존재하지 않은 사용자가 dto에 email을 포함 하고 있지 않을때 ServerError를 발생시킨다", async () => {
+					const userId = 1;
+					const updateUserDto = {
+						nickname: newNickname,
+						password: newPassword,
+					};
+
+					const mockUser = createMockUser({ email: null });
+
+					jest.spyOn(userRepository, "findOne").mockResolvedValue(
+						mockUser
+					);
+
+					const result = userService.updateUser(
+						userId,
+						updateUserDto
+					);
+
+					await expect(result).rejects.toThrow(ServerError);
+					await expect(result).rejects.toThrow(
+						USER_ERROR_MESSAGES.SOCIAL_USER_NEED_EMAIL
+					);
+				});
+
+				it("기존 비밀번호와 새 비밀번호가 같을 때 ServerError를 발생시킨다", async () => {
+					const userId = 1;
+					const updateUserDto = {
+						nickname: newNickname,
+						password: oldPassword,
+					};
+
+					const result = userService.updateUser(
+						userId,
+						updateUserDto
+					);
+
+					await expect(result).rejects.toThrow(ServerError);
+					await expect(result).rejects.toThrow(
+						USER_ERROR_MESSAGES.SAME_PASSWORD
+					);
+				});
+
+				it("update 실패 시 ServerError를 발생시킨다", async () => {
+					jest.spyOn(userRepository, "updateUser").mockResolvedValue({
+						affected: 0,
+					} as UpdateResult);
+
+					const userId = 1;
+					const updateUserDto = {
+						nickname: newNickname,
+						password: newPassword,
+					};
+
+					const result = userService.updateUser(
+						userId,
+						updateUserDto
+					);
+
+					await expect(result).rejects.toThrow(ServerError);
+					await expect(result).rejects.toThrow(
+						USER_ERROR_MESSAGES.UPDATE_USER_ERROR
+					);
+				});
+			});
+
+			describe("resisterUserEmail 실패케이스", () => {
+				beforeEach(() => {
+					jest.spyOn(userRepository, "findOne").mockResolvedValue(
+						createMockUser({ email: null })
+					);
+				});
+
+				it("registerUserEmail 실패 시 ServerError를 발생시킨다", async () => {
+					jest.spyOn(
+						userRepository,
+						"registerUserEmail"
+					).mockResolvedValue({
+						affected: 0,
+					} as UpdateResult);
+
+					const userId = 1;
+					const updateUserDto = {
+						email: newEmail,
+						nickname: newNickname,
+						password: newPassword,
+					};
+
+					const result = userService.updateUser(
+						userId,
+						updateUserDto
+					);
+
+					await expect(result).rejects.toThrow(ServerError);
+					await expect(result).rejects.toThrow(
+						USER_ERROR_MESSAGES.UPDATE_RESISTER_USER_EMAIL
+					);
+				});
+
+				it("error.code가 USER_ERROR_CODES.DUPLICATE_ENTRY일 때 ServerError를 발생시킨다", async () => {
+					jest.spyOn(
+						userRepository,
+						"registerUserEmail"
+					).mockRejectedValue({
+						code: "ER_DUP_ENTRY",
+						sqlMessage: "Duplicate entry for key email",
+					});
+
+					const userId = 1;
+					const updateUserDto = {
+						email: newEmail,
+						nickname: newNickname,
+						password: newPassword,
+					};
+
+					const result = userService.updateUser(
+						userId,
+						updateUserDto
+					);
+
+					await expect(result).rejects.toThrow(ServerError);
+					await expect(result).rejects.toThrow(
+						USER_ERROR_MESSAGES.DUPLICATE_EMAIL
+					);
 				});
 			});
 		});

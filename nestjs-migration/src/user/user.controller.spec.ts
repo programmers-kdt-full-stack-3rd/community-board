@@ -10,6 +10,7 @@ import { RbacService } from "../rbac/rbac.service";
 import * as dateUtil from "../utils/date.util";
 import { COOKIE_MAX_AGE, USER_ERROR_MESSAGES } from "./constant/user.constants";
 import { CreateUserDto } from "./dto/create-user.dto";
+import { UpdateUserDto } from "./dto/update-user.dto";
 import { User } from "./entities/user.entity";
 import { UserController } from "./user.controller";
 import { UserService } from "./user.service";
@@ -26,6 +27,7 @@ describe("UserController", () => {
 		logout: jest.fn(),
 		checkPassword: jest.fn(),
 		readUser: jest.fn(),
+		updateUser: jest.fn(),
 	};
 
 	const mockRbacService = {
@@ -86,6 +88,7 @@ describe("UserController", () => {
 
 		checkGuardApplied("logout");
 		checkGuardApplied("readUser");
+		checkGuardApplied("updateUser");
 	});
 
 	describe("POST /user/join", () => {
@@ -341,6 +344,30 @@ describe("UserController", () => {
 				nickname: mockUser.nickname,
 				connected_oauth: ["google"],
 			});
+		});
+	});
+
+	describe("PUT /user", () => {
+		it("사용자 정보 수정 성공 시 200 상태 코드와 성공 메시지를 반환한다", async () => {
+			const updateUserDto: UpdateUserDto = {
+				password: "password123",
+				nickname: "testuser",
+			};
+
+			jest.spyOn(loginGuard, "canActivate").mockReturnValue(true);
+			jest.spyOn(userService, "updateUser").mockResolvedValue(true);
+
+			const result = await userController.updateUser(
+				mockUserEntity,
+				updateUserDto
+			);
+
+			expect(userService.updateUser).toHaveBeenCalledWith(
+				1,
+				updateUserDto
+			);
+
+			expect(result).toEqual({ message: "회원정보 수정 성공" });
 		});
 	});
 });
