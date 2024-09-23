@@ -59,8 +59,7 @@ describe('LikeService', () => {
       expect(likeRepository.save).toHaveBeenCalledWith({
         post: mockLikePostDto.postId,
         user: mockLikePostDto.userId
-      })
-
+      });
     });
     it("게시물 좋아요 save 실패", async () => {
       const mockError = ServerError.reference("mock error")
@@ -89,6 +88,11 @@ describe('LikeService', () => {
       await expect(likeService.deletePostLike(mockLikePostDto)).rejects.toThrow(
         ServerError.reference('게시글 좋아요 취소 실패')
       );
+    });
+    it("게시물 좋아요 delete 쿼리 중간에 실패 시 예외 반환", async () => {
+      mockLikeRepository.delete.mockRejectedValue(new Error());
+
+      await expect(likeService.deletePostLike(mockLikePostDto)).rejects.toThrow(Error); 
     });
   });
 
@@ -127,6 +131,11 @@ describe('LikeService', () => {
       await expect(likeService.deleteCommentLike(mockCommentDto)).rejects.toThrow(
         ServerError.reference('댓글 좋아요 취소 실패')
       );
+    });
+    it("댓글 좋아요 delete 쿼리 중간에 실패 시 에러 반환", async () => {
+      mockCommentLikeRepository.delete.mockRejectedValue(new Error());
+
+      await expect(likeService.deleteCommentLike(mockCommentDto)).rejects.toThrow(Error);
     });
   });
 });

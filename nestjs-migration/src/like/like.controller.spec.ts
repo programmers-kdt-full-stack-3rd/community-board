@@ -54,8 +54,17 @@ describe('LikeController', () => {
 
       expect(likeService.createPostLike).toHaveBeenCalledWith(mockPostLikeDto);
     });
-    it("게시물 좋아요 추가 실패", async() => {
-      const mockError = ServerError.reference("mock error");
+    it("이미 좋아요한 게시물이면 에러 반환", async () => {
+      const mockError = ServerError.badRequest("이미 좋아요 표시한 게시물입니다.");
+      mockError["code"] = "ER_DUP_ENTRY"
+
+      mockLikeService.createPostLike.mockRejectedValue(mockError);
+
+      await expect(likeController.handleAddLike(mockCommentId, mockReq)).rejects.toThrow(mockError)
+    })
+    it("없는 게시물이면 에러 반환", async() => {
+      const mockError = ServerError.notFound("게시물이 존재하지 않습니다.");
+      mockError["code"] = "ER_NO_REFERENCED_ROW_2"
       mockLikeService.createPostLike.mockRejectedValue(mockError);
 
       await expect(likeController.handleAddLike(mockCommentId,mockReq)).rejects.toThrow(mockError);
@@ -86,11 +95,22 @@ describe('LikeController', () => {
 
       expect(likeService.createCommentLike).toHaveBeenCalledWith(mockCommentLikeDto);
     });
-    it("댓글 좋아요 추가 실패", async() => {
-      const mockError = ServerError.reference("mock error");
+    it("이미 좋아요한 댓글이면 에러 반환", async () => {
+      const mockError = ServerError.badRequest("이미 좋아요 표시한 댓글입니다.");
+      mockError["code"] = "ER_DUP_ENTRY";
+
       mockLikeService.createCommentLike.mockRejectedValue(mockError);
 
-      await expect(likeController.handleAddCommentLike(mockCommentId,mockReq)).rejects.toThrow(mockError);
+      await expect(likeController.handleAddCommentLike(mockCommentId, mockReq)).rejects.toThrow(mockError);
+      
+    })
+    it("없는 댓글이면 에러 반환", async() => {
+      const mockError = ServerError.notFound("댓글이 존재하지 않습니다.");
+      mockError["code"] = "ER_NO_REFERENCED_ROW_2";
+
+      mockLikeService.createCommentLike.mockRejectedValue(mockError);
+
+      await expect(likeController.handleAddCommentLike(mockCommentId, mockReq)).rejects.toThrow(mockError);
     });
   });
 

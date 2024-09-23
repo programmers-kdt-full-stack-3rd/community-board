@@ -3,6 +3,8 @@ import { LikeService } from './like.service';
 import { Request } from 'express';
 import { LoginGuard } from '../common/guard/login.guard';
 import { ServerError } from '../common/exceptions/server-error.exception';
+import { HandleLikeDto } from './dto/handle-like-dto';
+import { HandleCommentLikeDto } from './dto/handle-comment-like-dto';
 
 @Controller('like')
 export class LikeController {
@@ -17,7 +19,7 @@ export class LikeController {
 	 ) : Promise<void>{
 		try{
 			const userId = req.user["userId"];
-			const createPostLikeDto = {
+			const createPostLikeDto : HandleLikeDto = {
 				postId,
 				userId,
 			}
@@ -31,7 +33,7 @@ export class LikeController {
 				err?.code === "ER_NO_REFERENCED_ROW_2"
 			) {
 				throw ServerError.notFound(
-					"게시물이 존재하지 않습니다." //throw필요
+					"게시물이 존재하지 않습니다." 
 				);
 			}
 			throw err;
@@ -48,13 +50,13 @@ export class LikeController {
 	) : Promise<void>{
 		try{
 			const userId = req.user["userId"];
-			const deletePostDto = {
+			const deletePostDto : HandleLikeDto = {
 				postId,
 				userId,
 			}
 			await this.likeService.deletePostLike(deletePostDto);
 		} catch (err) {
-      throw err;
+      		throw err;
 		}
 	}
 
@@ -67,7 +69,7 @@ export class LikeController {
 	 ): Promise<void> {
 		try{
 			const userId = req.user["userId"];
-			const createCommentLikeDto = {
+			const createCommentLikeDto : HandleCommentLikeDto = {
 				commentId,
 				userId,
 			}
@@ -96,7 +98,7 @@ export class LikeController {
 	): Promise<void> {
 		try{
 			const userId = req.user["userId"];
-			const deleteCommentLikeDto = {
+			const deleteCommentLikeDto : HandleCommentLikeDto = {
 				commentId,
 				userId,
 			}
