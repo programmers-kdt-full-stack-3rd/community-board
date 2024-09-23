@@ -12,8 +12,8 @@ import clsx from "clsx";
 import { useErrorModal } from "./state/errorModalStore";
 import { useLayoutEffect } from "react";
 import ErrorModal from "./component/utils/ErrorModal";
-import OAuthRedirectHandler from "./page/OAuthRedirectHandler";
-import ChatTestPage from "./page/Chat/ChatTestPage";
+import OAuthRedirectHandler from "./page/OAuth/OAuthRedirectHandler";
+import ChatTestPage from "./page/Chat/ChatPage";
 import { AdminUserMgmtPage } from "./page/Admin/AdminUserMgmtPage";
 import { AdminPostMgmtPage } from "./page/Admin/AdminPostMgmtPage";
 import { AdminStatsPage } from "./page/Admin/AdminStatsPage";
@@ -21,6 +21,11 @@ import NotFound from "./page/error/NotFound";
 import { useUserStore } from "./state/store";
 import { io } from "socket.io-client";
 import { AdminUserLogPage } from "./page/Admin/AdminUserLogPage";
+import ChatAside from "./component/Chats/ChatAside/ChatAside";
+import { useChatAside } from "./state/ChatAsideStore";
+import OAuthLink from "./page/OAuth/OAuthLink";
+import EmailRegistration from "./page/User/EmailRegistration";
+import ChatBtn from "./component/Chats/ChatBtn/ChatBtn";
 
 function MainContainer({ children }: { children: React.ReactNode }) {
 	const location = useLocation();
@@ -31,6 +36,8 @@ function MainContainer({ children }: { children: React.ReactNode }) {
 		"/join",
 		"/checkPassword",
 		"/profileUpdate",
+		"/emailRegistration",
+		"/oauth",
 	];
 
 	return (
@@ -51,6 +58,7 @@ function App() {
 
 	const isLogin = useUserStore.use.isLogin();
 	const socket = useUserStore.use.socket();
+	const { isOpen } = useChatAside();
 
 	const { setSocket } = useUserStore.use.actions();
 
@@ -79,70 +87,87 @@ function App() {
 	return (
 		<div className={AppContainer}>
 			<BrowserRouter>
-				{errorModal.isOpen && (
-					<ErrorModal
-						message={errorModal.errorMessage}
-						onError={errorModal.onError}
-						close={errorModal.close}
-					/>
-				)}
 				<Header />
-				<MainContainer>
-					<Routes>
-						<Route
-							path="/"
-							element={<Main />}
-						/>
-						<Route
-							path="/login"
-							element={<Login />}
-						/>
-						<Route
-							path="/join"
-							element={<Join />}
-						/>
-						<Route
-							path="/oauth/redirect/:provider"
-							element={<OAuthRedirectHandler />}
-						/>
-						<Route
-							path="/checkPassword"
-							element={<CheckPassword />}
-						/>
-						<Route
-							path="/profileUpdate"
-							element={<ProfileUpdate />}
-						/>
-						<Route
-							path="/post/:id"
-							element={<PostInfoPage />}
-						/>
-						<Route
-							path="/chat"
-							element={<ChatTestPage />}
-						/>
-						<Route
-							path="/admin/userMgmt"
-							element={<AdminUserMgmtPage />}
-						/>
-						<Route
-							path="/admin/postMgmt"
-							element={<AdminPostMgmtPage />}
-						/>
-						<Route
-							path="/admin/stats"
-							element={<AdminStatsPage />}
-						/>
-						<Route
-							path="/admin/userLog/:userId"
-							element={<AdminUserLogPage />}
-						/>
-						<Route
-							path="*"
-							element={<NotFound />}
-						/>
-					</Routes>
-				</MainContainer>
+				<div
+					style={{
+						display: "flex",
+						flexDirection: "row",
+					}}
+				>
+					<MainContainer>
+						{errorModal.isOpen && (
+							<ErrorModal
+								message={errorModal.errorMessage}
+								onError={errorModal.onError}
+								close={errorModal.close}
+							/>
+						)}
+						<Routes>
+							<Route
+								path="/"
+								element={<Main />}
+							/>
+							<Route
+								path="/login"
+								element={<Login />}
+							/>
+							<Route
+								path="/join"
+								element={<Join />}
+							/>
+							<Route
+								path="/oauth/redirect/:provider"
+								element={<OAuthRedirectHandler />}
+							/>
+							<Route
+								path="/checkPassword"
+								element={<CheckPassword />}
+							/>
+							<Route
+								path="/profileUpdate"
+								element={<ProfileUpdate />}
+							/>
+							<Route
+								path="/post/:id"
+								element={<PostInfoPage />}
+							/>
+							<Route
+								path="/chat"
+								element={<ChatTestPage />}
+							/>
+							<Route
+								path="/admin/userMgmt"
+								element={<AdminUserMgmtPage />}
+							/>
+							<Route
+								path="/admin/postMgmt"
+								element={<AdminPostMgmtPage />}
+							/>
+							<Route
+								path="/admin/stats"
+								element={<AdminStatsPage />}
+							/>
+							<Route
+								path="/admin/userLog/:userId"
+								element={<AdminUserLogPage />}
+							/>
+							<Route
+								path="/oauth"
+								element={<OAuthLink />}
+							/>
+							<Route
+								path="/emailRegistration"
+								element={<EmailRegistration />}
+							/>
+							<Route
+								path="*"
+								element={<NotFound />}
+							/>
+						</Routes>
+					</MainContainer>
+					{isOpen && <ChatAside />}
+					<ChatBtn />
+				</div>
 			</BrowserRouter>
 		</div>
 	);

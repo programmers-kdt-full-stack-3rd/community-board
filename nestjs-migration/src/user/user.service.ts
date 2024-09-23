@@ -53,7 +53,10 @@ export class UserService {
 			throw ServerError.badRequest(USER_ERROR_MESSAGES.INVALID_LOGIN);
 		}
 
-		const tokens = this.authService.generateTokens(user.id);
+		const tokens = this.authService.generateTokens({
+			userId: user.id,
+			roleId: user.roleId,
+		});
 
 		this.refreshTokenRepository.save({
 			userId: user.id,

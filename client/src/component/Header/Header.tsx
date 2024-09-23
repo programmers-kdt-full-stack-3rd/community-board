@@ -24,6 +24,7 @@ import { useModal } from "../../hook/useModal";
 import { ApiCall } from "../../api/api";
 import { ClientError } from "../../api/errors";
 import { useChatRoom } from "../../state/ChatRoomStore";
+import { useChatAside } from "../../state/ChatAsideStore";
 
 const Header: React.FC = () => {
 	const navigate = useNavigate();
@@ -34,6 +35,8 @@ const Header: React.FC = () => {
 	const { initializeChatState } = useChatRoom();
 	const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 	const dropdownMenuRef = useRef<HTMLDivElement>(null);
+
+	const { isOpen, open, close } = useChatAside();
 
 	// Modal hooks
 	const warningModal = useModal();
@@ -88,6 +91,14 @@ const Header: React.FC = () => {
 		navigate("/join");
 	};
 
+	const handleChatAside = () => {
+		if (isOpen) {
+			close();
+		} else {
+			open();
+		}
+	};
+
 	return (
 		<div className={header}>
 			<Link
@@ -104,14 +115,15 @@ const Header: React.FC = () => {
 					</div>
 				)}
 				<div className={iconButtonGroup}>
-					<div className={button}>
-						<Link to="/chat">
-							<FiMessageSquare
-								size="30"
-								title="채팅"
-								color="#ffffff"
-							/>
-						</Link>
+					<div
+						className={button}
+						onClick={() => handleChatAside()}
+					>
+						<FiMessageSquare
+							size="30"
+							title="채팅"
+							color="#ffffff"
+						/>
 					</div>
 					<div
 						className={button}
@@ -148,13 +160,13 @@ const Header: React.FC = () => {
 							/>
 						)}
 					</div>
-					{isUserMenuOpen &&
-						isLogin &&
-						DropdownMenu({
-							ref: dropdownMenuRef,
-							navigate: navigate,
-							warningModal: warningModal,
-						})}
+					{isUserMenuOpen && isLogin && (
+						<DropdownMenu
+							ref={dropdownMenuRef}
+							navigate={navigate}
+							warningModal={warningModal}
+						/>
+					)}
 				</div>
 			</div>
 		</div>

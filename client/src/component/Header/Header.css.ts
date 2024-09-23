@@ -6,7 +6,6 @@ export const header = style({
 	justifyContent: "space-between",
 	alignItems: "center",
 	height: "50px",
-	marginBottom: "20px",
 	padding: "0 20px",
 	backgroundColor: "#333",
 	color: "#fff",

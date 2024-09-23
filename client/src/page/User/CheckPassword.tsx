@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, useLayoutEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
 	sendDeleteUserRequest,
@@ -6,13 +6,17 @@ import {
 } from "../../api/users/crud";
 import PasswordForm from "../../component/User/PasswordForm";
 import SubmitButton from "../../component/User/SubmitButton";
-import { checkPasswordWrapper } from "./CheckPassword.css";
+import {
+	checkPasswordWrapper,
+	labelWithoutPassword,
+} from "./CheckPassword.css";
 import { REGEX } from "./constants/constants";
 import { useModal } from "../../hook/useModal";
 import UserDeleteModal from "../../component/Header/UserDeleteModal";
 import { useUserStore } from "../../state/store";
 import { ClientError } from "../../api/errors";
 import { ApiCall } from "../../api/api";
+import OAuthLoginButtons from "../../component/User/OAuthLoginButtons";
 
 const MODAL_CONFIGS = {
 	final: {
@@ -30,11 +34,19 @@ const CheckPassword: FC = () => {
 
 	const searchParams = new URLSearchParams(location.search);
 	const next = searchParams.get("next");
-	const final = searchParams.get("final");
+	const final = searchParams.get("final") || "/";
+	const oAuthConfirmed = searchParams.get("oAuthConfirmed");
 
 	const { setLogoutUser } = useUserStore.use.actions();
+	const isEmailRegistered = useUserStore.use.isEmailRegistered();
 
 	const finalModal = useModal();
+
+	useLayoutEffect(() => {
+		if (next === "accountDelete" && oAuthConfirmed === "true") {
+			finalModal.open();
+		}
+	}, [next, oAuthConfirmed]);
 
 	const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setPassword(e.target.value);
@@ -74,7 +86,11 @@ const CheckPassword: FC = () => {
 			return;
 		}
 
-		if (next === "accountDelete") {
+		if (!next) {
+			alert("비밀번호 재확인 이후 진행할 동작이 없습니다.");
+			navigate("/");
+			return;
+		} else if (next === "accountDelete") {
 			finalModal.open();
 			return;
 		}
@@ -108,12 +124,23 @@ const CheckPassword: FC = () => {
 	return (
 		<>
 			<div className={checkPasswordWrapper}>
-				<PasswordForm
-					labelText="비밀번호 재확인"
-					password={password}
-					onChange={handlePasswordChange}
-				/>
-				<SubmitButton onClick={handleSubmit}>확인</SubmitButton>
+				{isEmailRegistered ? (
+					<>
+						<PasswordForm
+							labelText="비밀번호 재확인"
+							password={password}
+							onChange={handlePasswordChange}
+						/>
+						<SubmitButton onClick={handleSubmit}>확인</SubmitButton>
+					</>
+				) : (
+					<>
+						<p className={labelWithoutPassword}>
+							소셜 로그인으로 계정 소유 확인
+						</p>
+						<OAuthLoginButtons loginType="reconfirm" />
+					</>
+				)}
 			</div>
 
 			<UserDeleteModal

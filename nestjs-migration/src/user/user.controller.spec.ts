@@ -2,6 +2,8 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { Response } from "express";
 import { ServerError } from "../common/exceptions/server-error.exception";
 import { LoginGuard } from "../common/guard/login.guard";
+import { IUserEntity } from "../common/interface/user-entity.interface";
+import { RbacService } from "../rbac/rbac.service";
 import * as dateUtil from "../utils/date.util";
 import { COOKIE_MAX_AGE, USER_ERROR_MESSAGES } from "./constant/user.constants";
 import { CreateUserDto } from "./dto/create-user.dto";
@@ -12,6 +14,7 @@ describe("UserController", () => {
 	let userController: UserController;
 	let userService: UserService;
 	let loginGuard: LoginGuard;
+	let rbacService: RbacService;
 
 	const mockUserService = {
 		login: jest.fn(),
@@ -20,7 +23,16 @@ describe("UserController", () => {
 		checkPassword: jest.fn(),
 	};
 
+	const mockRbacService = {
+		isAdmin: jest.fn(),
+	};
+
 	const mockTime = "2024-01-01T00:00:00.000+09:00";
+
+	const mockUserEntity: IUserEntity = {
+		userId: 1,
+		roleId: 2,
+	};
 
 	beforeEach(async () => {
 		const module: TestingModule = await Test.createTestingModule({
@@ -31,12 +43,17 @@ describe("UserController", () => {
 					useValue: mockUserService,
 				},
 				LoginGuard,
+				{
+					provide: RbacService,
+					useValue: mockRbacService,
+				},
 			],
 		}).compile();
 
 		userController = module.get<UserController>(UserController);
 		userService = module.get<UserService>(UserService);
 		loginGuard = module.get<LoginGuard>(LoginGuard);
+		rbacService = module.get<RbacService>(RbacService);
 
 		jest.spyOn(dateUtil, "getKstNow").mockImplementation(() => {
 			return mockTime;
@@ -153,10 +170,6 @@ describe("UserController", () => {
 
 	describe("POST /user/logout", () => {
 		it("로그아웃 성공 시 200 상태 코드와 성공 메시지를 반환한다", async () => {
-			const mockRequest = {
-				user: { userId: 1 },
-			};
-
 			const mockResponse = {
 				clearCookie: jest.fn(),
 			} as unknown as Response;
@@ -165,7 +178,7 @@ describe("UserController", () => {
 			jest.spyOn(userService, "logout").mockResolvedValue(undefined);
 
 			const result = await userController.logout(
-				mockRequest as any,
+				mockUserEntity,
 				mockResponse
 			);
 
@@ -183,10 +196,6 @@ describe("UserController", () => {
 
 	describe("POST /user/check-password", () => {
 		it("비밀번호 확인 성공 시 200 상태 코드와 임시 토큰을 반환한다", async () => {
-			const mockRequest = {
-				user: { userId: 1 },
-			};
-
 			const mockResponse = {
 				cookie: jest.fn(),
 			} as unknown as Response;
@@ -205,7 +214,7 @@ describe("UserController", () => {
 			);
 
 			const result = await userController.checkPassword(
-				mockRequest as any,
+				mockUserEntity,
 				mockResponse,
 				checkPasswordDto
 			);
@@ -253,6 +262,38 @@ describe("UserController", () => {
 					checkPasswordDto
 				)
 			).rejects.toThrow(error);
+		});
+	});
+
+	describe("POST /user/check-admin", () => {
+		beforeEach(() => {
+			jest.clearAllMocks();
+		});
+		it("관리자 확인 성공 시 200 상태 코드와 성공 메시지를 반환한다", async () => {
+			jest.spyOn(loginGuard, "canActivate").mockReturnValue(true);
+			jest.spyOn(rbacService, "isAdmin").mockResolvedValue(true);
+
+			const adminUserEntity = {
+				...mockUserEntity,
+				roleId: 1,
+			};
+
+			const result = await userController.checkIsAdmin(adminUserEntity);
+
+			expect(rbacService.isAdmin).toHaveBeenCalledWith(1);
+			expect(rbacService.isAdmin).toHaveBeenCalledTimes(1);
+			expect(result).toEqual({ isAdmin: true });
+		});
+
+		it("관리자 확인 실패 시 200상태 코드와 실패 메시지를 반환한다", async () => {
+			jest.spyOn(loginGuard, "canActivate").mockReturnValue(true);
+			jest.spyOn(rbacService, "isAdmin").mockResolvedValue(false);
+
+			const result = await userController.checkIsAdmin(mockUserEntity);
+
+			expect(rbacService.isAdmin).toHaveBeenCalledWith(2);
+			expect(rbacService.isAdmin).toHaveBeenCalledTimes(1);
+			expect(result).toEqual({ isAdmin: false });
 		});
 	});
 });
