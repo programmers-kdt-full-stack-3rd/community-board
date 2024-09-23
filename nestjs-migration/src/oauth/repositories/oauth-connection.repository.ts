@@ -51,4 +51,12 @@ export class OAuthConnectionRepository extends Repository<OAuthConnection> {
 			.andWhere("oAuthConnection.userId = :userId", { userId })
 			.getOne();
 	}
+
+	async clearOAuthConnectionByUserId(userId: number) {
+		return this.createQueryBuilder("oAuthConnection")
+			.update()
+			.set({ oAuthRefreshToken: null, isDelete: true })
+			.where("userId = :userId", { userId })
+			.execute();
+	}
 }

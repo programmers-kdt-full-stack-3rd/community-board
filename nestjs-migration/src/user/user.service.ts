@@ -1,7 +1,10 @@
 import { Injectable } from "@nestjs/common";
+import { Transactional } from "typeorm-transactional";
 import { AuthService } from "../auth/auth.service";
 import { RefreshTokensRepository } from "../auth/refresh-tokens.repository";
 import { ServerError } from "../common/exceptions/server-error.exception";
+import { OAuthService } from "../oauth/oauth.service";
+import { OAuthTokenService } from "../oauth/oauthtoken.service";
 import { OAuthConnectionRepository } from "../oauth/repositories/oauth-connection.repository";
 import { makeHashedPassword, makeSalt } from "../utils/crypto.util";
 import {
@@ -20,7 +23,9 @@ export class UserService {
 		private userRepository: UserRepository,
 		private refreshTokenRepository: RefreshTokensRepository,
 		private oAuthConnectionRepository: OAuthConnectionRepository,
-		private readonly authService: AuthService
+		private readonly authService: AuthService,
+		private readonly oAuthServices: OAuthService,
+		private readonly oAuthTokenService: OAuthTokenService
 	) {}
 
 	async createUser(createUserDto: CreateUserDto) {
@@ -154,6 +159,39 @@ export class UserService {
 		return true;
 	}
 
+	@Transactional()
+	async deleteUser(userId: number) {
+		const oAuthConnections =
+			await this.oAuthConnectionRepository.getOAuthConnectionByUserId(
+				userId
+			);
+
+		if (oAuthConnections.length > 0) {
+			for (const connection of oAuthConnections) {
+				const { oAuthAccessToken } =
+					await this.oAuthTokenService.refreshOAuthAccessToken(
+						connection.oAuthProvider.name,
+						connection.oAuthRefreshToken
+					);
+				await this.oAuthServices.revokeOAuth(
+					connection.oAuthProvider.name,
+					oAuthAccessToken
+				);
+			}
+
+			const result =
+				await this.oAuthConnectionRepository.clearOAuthConnectionByUserId(
+					userId
+				);
+			if (result.affected === 0) {
+				throw ServerError.badRequest("소셜 로그인 전체 연동 해제 실패");
+			}
+		}
+
+		await this.deleteRefreshToken(userId);
+		await this.databaseDeleteUser(userId);
+	}
+
 	private async handleDupEntry(sqlMessage: string, email: string) {
 		if (sqlMessage.includes("email")) {
 			const isDeleted = await this.isUserDeletedByEmail(email);
@@ -234,6 +272,28 @@ export class UserService {
 			}
 
 			throw error;
+		}
+	}
+
+	private async deleteRefreshToken(userId: number, refreshToken?: string) {
+		const deleteConditions: { userId: number; token?: string } = { userId };
+		if (refreshToken) {
+			deleteConditions.token = refreshToken;
+		}
+
+		const result =
+			await this.refreshTokenRepository.delete(deleteConditions);
+
+		if (result.affected === 0) {
+			throw ServerError.badRequest("토큰 삭제 실패");
+		}
+	}
+
+	private async databaseDeleteUser(userId: number) {
+		const result = await this.userRepository.deleteUser(userId);
+
+		if (result.affected === 0) {
+			throw ServerError.badRequest("사용자 삭제 실패");
 		}
 	}
 }

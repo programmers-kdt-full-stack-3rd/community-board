@@ -1,6 +1,7 @@
 import {
 	Body,
 	Controller,
+	Delete,
 	Get,
 	HttpCode,
 	HttpStatus,
@@ -113,7 +114,23 @@ export class UserController {
 		return { message: "회원정보 수정 성공" };
 	}
 
-	//TODO: 소설로그인 API 구현후 유저 탈퇴 API 구현
+	@Delete()
+	@HttpCode(HttpStatus.OK)
+	@UseGuards(LoginGuard)
+	@RequiredPassword()
+	async deleteUser(
+		@User() userEntity: IUserEntity,
+		@Res({ passthrough: true }) res: Response
+	) {
+		const userId = userEntity.userId;
+
+		await this.userService.deleteUser(userId);
+
+		res.clearCookie("accessToken");
+		res.clearCookie("refreshToken");
+
+		return { message: "회원탈퇴 성공" };
+	}
 
 	@Post("/check-password")
 	@HttpCode(HttpStatus.OK)

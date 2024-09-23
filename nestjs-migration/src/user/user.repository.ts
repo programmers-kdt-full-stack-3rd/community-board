@@ -48,6 +48,15 @@ export class UserRepository extends Repository<User> {
 			.execute();
 	}
 
+	deleteUser(userId: number) {
+		return this.createQueryBuilder("user")
+			.update()
+			.set({ isDelete: true })
+			.where("id = :userId", { userId })
+			.andWhere("isDelete = :isDelete", { isDelete: false })
+			.execute();
+	}
+
 	//예시 코드
 
 	// async customMethod(id: number): Promise<User> {
