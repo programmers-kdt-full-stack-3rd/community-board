@@ -8,12 +8,12 @@ export const textareaBase = style({
 
 	boxSizing: "border-box",
 	margin: "0",
-	border: "1px solid #71717a",
+	border: "1px solid #737373",
 	borderRadius: "0.5rem",
 	padding: "0.5rem 0.75rem",
 	background: "none",
 
-	color: "#ffffff",
+	color: "#000000",
 	fontFamily: "inherit",
 	fontSize: "1rem",
 
@@ -26,6 +26,6 @@ export const textareaBase = style({
 });
 
 export const invalid = style({
-	border: "1px solid #ef4444",
-	color: "#fca5a5",
+	border: "1px solid #dc2626",
+	backgroundColor: "#fef2f2",
 });
