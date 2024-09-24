@@ -15,19 +15,19 @@ export class Post {
     @Column()
     content: string
     
-    @CreateDateColumn({ name: "created_at", default: false })
+    @CreateDateColumn({ name: "created_at"})
     createdAt: Date
 
-    @UpdateDateColumn({ name: "updated_at", default: false })
+    @UpdateDateColumn({ name: "updated_at"})
     updatedAt: Date
 
-    @Column()
+    @Column({default: 0})
     views: number
 
-    @Column({ name: "is_delete" })
+    @Column({ name: "is_delete" ,default: 0})
     isDelete: number
 
-    @Column({ name: "is_private"})
+    @Column({ name: "is_private", default: 0})
     isPrivate: number
 
     @ManyToOne(type=> User, user => user.posts)

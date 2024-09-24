@@ -4,6 +4,7 @@ import { PostService } from "./post.service";
 import {  CreatePostDto } from "./dto/create-post.dto";
 import { ServerError } from "../common/exceptions/server-error.exception";
 import { POST_ERROR_MESSAGES } from "./constant/post.constants";
+import { ReadPostsQueryDto } from "./dto/read-posts-query.dto";
 
 describe("PostController", () => {
 	let postController: PostController;
@@ -21,6 +22,11 @@ describe("PostController", () => {
 	let mockReq: any;
 	let mockUserId: number;
 	let mockPostId: number;
+	mockUserId = 1;
+	mockPostId = 9;
+	mockReq = {
+		user: { userId: mockUserId },
+	} as any;
 
 	beforeEach(async () => {
 		const module: TestingModule = await Test.createTestingModule({
@@ -35,26 +41,21 @@ describe("PostController", () => {
 
 		postController = module.get<PostController>(PostController);
 		postService = module.get<PostService>(PostService);
-
-		mockUserId = 1;
-		mockPostId = 9;
-		mockReq = {
-			user: { userId: mockUserId },
-		} as any;
 	});
 
 	describe("POST /post", () => {
 		const mockCreatePostDto: CreatePostDto = {
 			title: "Test Title",
 			content: "Test Content",
-      authorId: mockUserId,
+     		authorId: mockUserId,
 			doFilter: true,
 		};
 
 		it("게시물 생성 성공", async () => {
-			jest.spyOn(mockPostService, "createPost").mockResolvedValue(
+			mockPostService.createPost.mockResolvedValue(
 				mockPostId
 			);
+			
 			const result = await postController.handlePostCreate(
 				mockCreatePostDto,
 				mockReq
@@ -79,28 +80,30 @@ describe("PostController", () => {
 			const error = ServerError.badRequest(
 				POST_ERROR_MESSAGES.REQUIRE_CONTENT
 			);
-			jest.spyOn(postService, "createPost").mockRejectedValue(error);
+			mockPostService.createPost.mockRejectedValue(error);
 
-      const result = await postController.handlePostCreate(invalidPostDto, mockReq);
-
-			expect(result).toEqual({
-        message: `${error.name}: ${error.message}`,
-      });
+			await expect(postController.handlePostCreate(invalidPostDto, mockReq)).rejects.toThrow(error);
+		});
 	});
 
 	describe("GET /post", () => {
-		const mockReadPostsQueryDto = {};
+		const mockReadPostsQueryDto: ReadPostsQueryDto = {};
 
 		it("전체 게시물 조회 성공", async () => {
 			const mockTotalPosts = 5;
-			const mockPostHeaders = [];
-
-			jest.spyOn(mockPostService, "findPostHeaders").mockResolvedValue(
-				mockPostHeaders
-			);
-			jest.spyOn(mockPostService, "findPostTotal").mockResolvedValue(
-				mockTotalPosts
-			);
+			const mockPostHeaders = [
+						{
+								"id": 32,
+								"title": "finally",
+								"author_nickname": "moon",
+								"created_at": "2024-09-18T17:46:59.000Z",
+								"views": 0,
+								"likes": "0"
+						}
+			];
+			
+			mockPostService.findPostHeaders.mockResolvedValue(mockPostHeaders);
+			mockPostService.findPostTotal.mockResolvedValue(mockTotalPosts);
 
 			expect(
 				await postController.handlePostsRead(
@@ -116,36 +119,44 @@ describe("PostController", () => {
 		it("전체 게시물 조회 실패 시 에러를 반환한다.", async () => {
 			const error = ServerError.badRequest("잘못된 입력입니다");
 
-			jest.spyOn(mockPostService, "findPostHeaders").mockRejectedValue(
-				error
-			);
-			jest.spyOn(mockPostService, "findPostTotal").mockRejectedValue(
-				error
-			);
+			mockPostService.findPostHeaders.mockRejectedValue(error);
+			mockPostService.findPostTotal.mockRejectedValue(error);
 
 			await expect(
 				postController.handlePostsRead(mockReadPostsQueryDto, mockReq)
 			).rejects.toThrow(error);
 		});
 	});
+
 	describe("GET /post/:post_id", () => {
-		const mockPostId = 1;
 
 		it("개별 게시물 조회 성공", async () => {
-			const mockEachPost = [];
-			jest.spyOn(mockPostService, "findPost").mockResolvedValue(
-				mockEachPost
-			);
+			const mockEachPost =  {
+						"id": 17,
+						"title": "5번째 게시물",
+						"content": "게시물 내용을 입력",
+						"author_id": 1,
+						"author_nickname": "moon",
+						"is_author": 0,
+						"created_at": "2024-09-18T02:00:07.000Z",
+						"updated_at": null,
+						"views": 0,
+						"user_liked": 0,
+						"likes": "3"
+				};
+
+			mockPostService.findPost.mockResolvedValue(mockEachPost);
 
 			expect(
 				await postController.handlePostRead(mockPostId, mockReq)
 			).toEqual({
-				post: [],
+				post: mockEachPost,
 			});
 		});
+		
 		it("개별 게시물 조회 실패 시 에러를 반환한다.", async () => {
 			const error = ServerError.badRequest("잘못된 입력입니다");
-			jest.spyOn(mockPostService, "findPost").mockRejectedValue(error);
+			mockPostService.findPost.mockRejectedValue(error);
 
 			await expect(
 				postController.handlePostRead(mockPostId, mockReq)
@@ -154,62 +165,56 @@ describe("PostController", () => {
 	});
 
 	describe("PATCH /post/:post_id", () => {
-		const mockPostId = 1;
 		const updateBodyDto = {
 			title: "title",
 			content: "content",
 			doFilter: true,
 		};
 		it("게시물 수정 성공", async () => {
-			mockPostService.updatePost.mockResolvedValue([]);
+			mockPostService.updatePost.mockResolvedValue(undefined);
 
-      const result = await postController.handlePostUpdate(
-        mockPostId,
-        updateBodyDto,
-        mockReq
-      );
+			const result = await postController.handlePostUpdate(
+				mockPostId,
+				updateBodyDto,
+				mockReq
+			);
 
-      expect(postService.updatePost).toHaveBeenCalledWith(mockPostId, {
-        ...updateBodyDto,
-        authorId: mockUserId,
-      });
+			expect(postService.updatePost).toHaveBeenCalledWith(mockPostId, {
+				...updateBodyDto,
+				authorId: mockUserId,
+			});
 			expect(result).toEqual({
 				message: "게시글 수정 success",
 			});
 		});
 		it("게시물 수정 실패 시 에러를 반환한다.", async () => {
 			const error = ServerError.badRequest("잘못된 입력입니다");
-			jest.spyOn(mockPostService, "updatePost").mockRejectedValue(error);
+			mockPostService.updatePost.mockRejectedValue(error);
 
-      const result = await postController.handlePostUpdate(mockPostId, updateBodyDto, mockReq);
-      console.log(result)
-      expect(result).toEqual({
-        message: `${error.name}: ${error.message}`
-		  });
-    });
+			await expect(postController.handlePostUpdate(mockPostId, updateBodyDto, mockReq)).rejects.toThrow(error);
+    	});
 	});
-	describe("DELETE /post/:post_id", () => {
-		const mockPostId = 1;
-		it("게시물 삭제 성공", async () => {
-			mockPostService.deletePost.mockResolvedValue([]);
-			jest.spyOn(mockPostService, "deletePost").mockResolvedValue([]);
 
-      const result = await postController.handlePostDelete(mockPostId, mockReq);
-      
-      expect(postService.deletePost).toHaveBeenCalledWith(mockPostId, mockUserId);
+	describe("DELETE /post/:post_id", () => {
+		const deletePostDto = {
+			authorId: mockUserId,
+			postId: mockPostId
+		}
+		it("게시물 삭제 성공", async () => {
+			mockPostService.deletePost.mockResolvedValue(undefined);
+			const result = await postController.handlePostDelete(mockPostId, mockReq);
+
+			expect(postService.deletePost).toHaveBeenCalledWith(deletePostDto);
 			expect(result).toEqual({
 				message: "게시글 삭제 success",
 			});
 		});
+
 		it("게시물 삭제 실패 시 에러를 반환한다.", async () => {
 			const error = ServerError.badRequest("잘못된 입력입니다");
-			jest.spyOn(mockPostService, "deletePost").mockRejectedValue(error);
+			mockPostService.deletePost.mockRejectedValue(error);
 
-      const result = await postController.handlePostDelete(mockPostId, mockReq);
-      expect(result).toEqual({
-        message: `${error.name}: ${error.message}`
-		  });
+			await expect(postController.handlePostDelete(mockPostId, mockReq)).rejects.toThrow(error);
 		});
 	});
-});
 });
