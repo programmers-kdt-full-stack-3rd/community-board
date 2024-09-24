@@ -2,8 +2,6 @@ import { Socket } from "socket.io";
 import jwt from "jsonwebtoken";
 import cookie from "cookie";
 
-export const onlineUsers = new Set<number>();
-
 export const authMiddleware = (io: any) => (socket: Socket, next: any) => {
 	try {
 		const cookieString = socket.handshake.headers.cookie;
@@ -24,21 +22,9 @@ export const authMiddleware = (io: any) => (socket: Socket, next: any) => {
 
 		(socket as any).userId = userId;
 
-		onlineUsers.add(userId);
-		io.emit("update_online_users", Array.from(onlineUsers));
-
 		next();
 	} catch (error) {
 		console.error("Authentication error:", error);
 		next(new Error("Authentication error"));
 	}
-};
-
-export const handleUserDisconnection = (io: any, socket: Socket) => {
-	const userId = (socket as any).userId;
-	if (userId) {
-		onlineUsers.delete(userId);
-	}
-
-	io.emit("update_online_users", Array.from(onlineUsers));
 };
