@@ -12,15 +12,10 @@ export class ReadCommentQueryDto {
     @IsPositive({ message: ERROR_MESSAGES.INVALID_POST_ID})
     post_id: number;
 
-    @IsOptional()
-    @Transform(({ value }) => parseInt(value, 10), { toClassOnly: true })
-    @IsInt()
-    @IsPositive()
+    @Transform(({ value }) => (value == "" ?  undefined : parseInt(value, 10)), { toClassOnly: true })
     index?: number;
 
-    @Transform(({ value }) => parseInt(value, 10), { toClassOnly: true })
-    @IsInt()
-    @IsPositive()
+    @Transform(({ value }) => (value === "" ?  undefined : parseInt(value, 10)), { toClassOnly: true })
     perPage?: number = 50;
 
     userId?: number;
