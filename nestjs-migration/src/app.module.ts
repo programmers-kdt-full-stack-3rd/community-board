@@ -13,12 +13,13 @@ import appConfig from "./config/app.config";
 import { typeOrmConfig } from "./config/db.config";
 import jwtConfig from "./config/jwt.config";
 import oauthConfig from "./config/oauth.config";
-import { LikeModule } from "./like/like.module";
-import { LogModule } from "./log/log.module";
 import { OAuthModule } from "./oauth/oauth.module";
 import { PostModule } from "./post/post.module";
 import { RbacModule } from "./rbac/rbac.module";
 import { UserModule } from "./user/user.module";
+import { LogModule } from './log/log.module';
+import { LikeModule } from './like/like.module';
+import { CommentModule } from './comment/comment.module';
 
 @Module({
 	imports: [
@@ -50,6 +51,7 @@ import { UserModule } from "./user/user.module";
 		LikeModule,
 		RbacModule,
 		OAuthModule,
+		CommentModule,
 	],
 	controllers: [AppController],
 	providers: [
