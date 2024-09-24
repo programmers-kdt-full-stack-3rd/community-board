@@ -19,5 +19,7 @@ import { OAuthProviderRepository } from "./repositories/oauth-provider.repositor
 		OAuthProviderRepository,
 		UserRepository,
 	],
+
+	exports: [OAuthService, OAuthTokenService],
 })
 export class OAuthModule {}

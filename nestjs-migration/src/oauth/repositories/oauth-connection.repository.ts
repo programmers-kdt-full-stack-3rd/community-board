@@ -31,6 +31,9 @@ export class OAuthConnectionRepository extends Repository<OAuthConnection> {
 				"oAuthProvider"
 			)
 			.where("oAuthConnection.userId = :userId", { userId })
+			.andWhere("oAuthConnection.isDelete = :isDelete", {
+				isDelete: false,
+			})
 			.getMany();
 	}
 
@@ -47,5 +50,13 @@ export class OAuthConnectionRepository extends Repository<OAuthConnection> {
 			.andWhere("oAuthProvider.name = :provider", { provider })
 			.andWhere("oAuthConnection.userId = :userId", { userId })
 			.getOne();
+	}
+
+	async clearOAuthConnectionByUserId(userId: number) {
+		return this.createQueryBuilder("oAuthConnection")
+			.update()
+			.set({ oAuthRefreshToken: null, isDelete: true })
+			.where("userId = :userId", { userId })
+			.execute();
 	}
 }

@@ -396,10 +396,7 @@ export class OAuthService {
 		};
 	}
 
-	private async revokeOAuth(
-		provider: TOAuthProvider,
-		oAuthAccessToken: string
-	) {
+	async revokeOAuth(provider: TOAuthProvider, oAuthAccessToken: string) {
 		const oAuthRevokeResponse = await fetch(
 			...buildRevokeFetchParameters(
 				provider,

@@ -14,6 +14,15 @@ export const USER_ERROR_MESSAGES = {
 	INVALID_LOGIN: "이메일 또는 비밀번호가 틀렸습니다.",
 	FAILED_TOKEN_DELETE: "토큰 삭제 실패",
 	INVALID_PASSWORD: "비밀번호가 틀렸습니다.",
+	CANNOT_CHANGE_EMAIL: "한번 등록한 이메일은 변경할 수 없습니다.",
+	SOCIAL_USER_NEED_EMAIL:
+		"소셜 로그인으로 가입한 유저는 최초 정보 수정 시 이메일을 등록해야 합니다.",
+	SAME_PASSWORD: "비밀번호가 현재와 동일합니다.",
+	UPDATE_RESISTER_USER_EMAIL:
+		"소셜 로그인으로 가입한 회원 정보에 이메일 등록 실패",
+	UPDATE_USER_ERROR: "회원정보 수정 실패",
+	DELETE_OAUTH_CONNECTION_ERROR: "소셜 로그인 전체 연동 해제 실패",
+	DELETE_USER_ERROR: "사용자 삭제 실패",
 };
 
 export const PASSWORD_POLICY = {

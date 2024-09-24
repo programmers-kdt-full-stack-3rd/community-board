@@ -22,6 +22,41 @@ export class UserRepository extends Repository<User> {
 			.getOne();
 	}
 
+	updateUser(
+		userId: number,
+		updateData: Partial<Pick<User, "nickname" | "password" | "salt">>
+	) {
+		return this.createQueryBuilder("user")
+			.update()
+			.set(updateData)
+			.where("id = :userId", { userId })
+			.andWhere("isDelete = :isDelete", { isDelete: false })
+			.execute();
+	}
+
+	registerUserEmail(
+		userId: number,
+		updateData: Partial<
+			Pick<User, "email" | "nickname" | "password" | "salt">
+		>
+	) {
+		return this.createQueryBuilder("user")
+			.update()
+			.where("id = :userId", { userId })
+			.set(updateData)
+			.andWhere("isDelete = :isDelete", { isDelete: false })
+			.execute();
+	}
+
+	deleteUser(userId: number) {
+		return this.createQueryBuilder("user")
+			.update()
+			.set({ isDelete: true })
+			.where("id = :userId", { userId })
+			.andWhere("isDelete = :isDelete", { isDelete: false })
+			.execute();
+	}
+
 	//예시 코드
 
 	// async customMethod(id: number): Promise<User> {
