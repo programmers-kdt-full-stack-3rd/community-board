@@ -1,6 +1,3 @@
-import { Comment } from "../../comment/entities/comment.entity";
-import { Like } from "../../like/entities/like.entity";
-import { Post } from "../../post/entities/post.entity";
 import {
 	Column,
 	CreateDateColumn,
@@ -10,10 +7,10 @@ import {
 	OneToMany,
 	PrimaryGeneratedColumn,
 } from "typeorm";
+import { Comment } from "../../comment/entities/comment.entity";
 import { Like } from "../../like/entities/like.entity";
 import { Post } from "../../post/entities/post.entity";
 import { Role } from "../../rbac/entities/roles.entity";
-import { CommentLikes } from "../../comment/entities/comment-likes.entity";
 import { CommentLike } from "../../like/entities/comment-like.entity";
 
 @Entity("users")
