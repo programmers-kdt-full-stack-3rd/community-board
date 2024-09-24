@@ -1,5 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { IUserInfoResponse } from "shared";
+import { UpdateResult } from "typeorm";
+import { ServerError } from "../common/exceptions/server-error.exception";
 import { UserRepository } from "../user/user.repository";
 import { UserService } from "../user/user.service";
 import { AdminService } from "./admin.service";
@@ -18,6 +20,7 @@ describe("AdminService", () => {
 					provide: UserRepository,
 					useValue: {
 						getUserInfo: jest.fn(),
+						restoreUser: jest.fn(),
 					},
 				},
 
@@ -126,6 +129,32 @@ describe("AdminService", () => {
 			await expect(adminService.deleteUser(userId)).rejects.toThrow(
 				"deleteUser error"
 			);
+		});
+	});
+
+	describe("restoreUser", () => {
+		it("성공적으로 유저를 복구한다.", async () => {
+			const userId = 1;
+			jest.spyOn(userRepository, "restoreUser").mockResolvedValue({
+				affected: 1,
+			} as UpdateResult);
+
+			await adminService.restoreUser(userId);
+
+			expect(userRepository.restoreUser).toHaveBeenCalledWith(userId);
+			expect(userRepository.restoreUser).toHaveBeenCalledTimes(1);
+		});
+
+		it("유저 복구 실패 시 예외를 던진다.", async () => {
+			const userId = 1;
+			jest.spyOn(userRepository, "restoreUser").mockResolvedValue({
+				affected: 0,
+			} as UpdateResult);
+
+			const result = adminService.restoreUser(userId);
+
+			await expect(result).rejects.toThrow(ServerError);
+			await expect(result).rejects.toThrow("회원 복구 실패");
 		});
 	});
 });

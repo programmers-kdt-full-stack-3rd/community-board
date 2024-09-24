@@ -6,6 +6,7 @@ import {
 	HttpStatus,
 	Param,
 	ParseIntPipe,
+	Patch,
 	Query,
 	UseGuards,
 } from "@nestjs/common";
@@ -34,5 +35,13 @@ export class AdminController {
 		await this.adminService.deleteUser(userId);
 
 		return { message: "회원 삭제 성공" };
+	}
+
+	@Patch("/user/:userId/restore")
+	@HttpCode(HttpStatus.OK)
+	async restoreUser(@Param("userId", ParseIntPipe) userId: number) {
+		await this.adminService.restoreUser(userId);
+
+		return { message: "회원 복구 성공" };
 	}
 }

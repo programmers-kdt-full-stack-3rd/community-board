@@ -1,5 +1,6 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { IUserInfoResponse } from "shared";
+import { ServerError } from "../common/exceptions/server-error.exception";
 import { AdminController } from "./admin.controller";
 import { AdminService } from "./admin.service";
 import { GetUsersDto } from "./dto/get-users.dto";
@@ -17,6 +18,7 @@ describe("AdminController", () => {
 					useValue: {
 						getUsers: jest.fn(),
 						deleteUser: jest.fn(),
+						restoreUser: jest.fn(),
 					},
 				},
 			],
@@ -73,6 +75,32 @@ describe("AdminController", () => {
 
 			expect(adminService.deleteUser).toHaveBeenCalledWith(userId);
 			expect(result).toEqual({ message: "회원 삭제 성공" });
+		});
+	});
+
+	describe("PATCH /api/admin/users/:userId/restore", () => {
+		it("성공적으로 유저를 복구한다.", async () => {
+			const userId = 1;
+
+			jest.spyOn(adminService, "restoreUser").mockResolvedValue();
+
+			const result = await adminController.restoreUser(userId);
+
+			expect(adminService.restoreUser).toHaveBeenCalledWith(userId);
+			expect(result).toEqual({ message: "회원 복구 성공" });
+		});
+
+		it("유저 복구 실패", async () => {
+			const userId = 1;
+
+			jest.spyOn(adminService, "restoreUser").mockRejectedValue(
+				ServerError.badRequest("회원 복구 실패")
+			);
+
+			const result = adminController.restoreUser(userId);
+
+			await expect(result).rejects.toThrow(ServerError);
+			await expect(result).rejects.toThrow("회원 복구 실패");
 		});
 	});
 });
