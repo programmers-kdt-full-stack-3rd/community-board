@@ -15,6 +15,7 @@ import {
 } from "./Main.css";
 import { ApiCall } from "../../api/api";
 import { ClientError } from "../../api/errors";
+import OnlineUsers from "../../component/OnlineUser/OnlineUsers";
 
 const Main = () => {
 	const isLogin = useUserStore(state => state.isLogin);
@@ -99,39 +100,43 @@ const Main = () => {
 	};
 
 	return (
-		<div className={mainPageStyle}>
-			{isModalOpen && <PostModal close={setIsModalOpen} />}
+		<div>
+			<div className={mainPageStyle}>
+				<OnlineUsers />
 
-			<PostList
-				posts={posts}
-				keyword={parsed.keyword}
-				sortBy={parsed.sortBy}
-				onSort={handlePostSort}
-			/>
+				{isModalOpen && <PostModal close={setIsModalOpen} />}
 
-			<Pagination
-				currentPage={parsed.index}
-				totalPosts={totalPosts}
-				perPage={parsed.perPage}
-				onChange={handlePageChange}
-			/>
-
-			<div className={postListActions}>
-				{isLogin && (
-					<div className={createPostButtonWrapper}>
-						<button
-							className={createPostButton}
-							onClick={handleCreatePostClick}
-						>
-							글쓰기
-						</button>
-					</div>
-				)}
-
-				<SearchForm
-					defaultKeyword={parsed.keyword}
-					onSubmit={handleSearchSubmit}
+				<PostList
+					posts={posts}
+					keyword={parsed.keyword}
+					sortBy={parsed.sortBy}
+					onSort={handlePostSort}
 				/>
+
+				<Pagination
+					currentPage={parsed.index}
+					totalPosts={totalPosts}
+					perPage={parsed.perPage}
+					onChange={handlePageChange}
+				/>
+
+				<div className={postListActions}>
+					{isLogin && (
+						<div className={createPostButtonWrapper}>
+							<button
+								className={createPostButton}
+								onClick={handleCreatePostClick}
+							>
+								글쓰기
+							</button>
+						</div>
+					)}
+
+					<SearchForm
+						defaultKeyword={parsed.keyword}
+						onSubmit={handleSearchSubmit}
+					/>
+				</div>
 			</div>
 		</div>
 	);

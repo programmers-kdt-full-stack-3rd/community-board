@@ -10,7 +10,7 @@ import CheckPassword from "./page/User/CheckPassword";
 import ProfileUpdate from "./page/User/ProfileUpdate";
 import clsx from "clsx";
 import { useErrorModal } from "./state/errorModalStore";
-import { useLayoutEffect } from "react";
+import { useEffect, useLayoutEffect } from "react";
 import ErrorModal from "./component/utils/ErrorModal";
 import OAuthRedirectHandler from "./page/OAuth/OAuthRedirectHandler";
 import ChatTestPage from "./page/Chat/ChatPage";
@@ -59,6 +59,7 @@ function App() {
 
 	const isLogin = useUserStore.use.isLogin();
 	const socket = useUserStore.use.socket();
+	const nickname = useUserStore.use.nickname();
 	const { isOpen } = useChatAside();
 
 	const { setSocket } = useUserStore.use.actions();
@@ -84,6 +85,14 @@ function App() {
 			return;
 		}
 	}, []);
+
+	useEffect(() => {
+		// 로그인 성공, 온라인 상태 업데이트
+		if (isLogin && socket) {
+			socket.emit("update_online_users", nickname);
+			return;
+		}
+	}, [socket, isLogin]);
 
 	return (
 		<div className={AppContainer}>
