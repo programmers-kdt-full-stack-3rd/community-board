@@ -1,8 +1,11 @@
 import {
 	Controller,
+	Delete,
 	Get,
 	HttpCode,
 	HttpStatus,
+	Param,
+	ParseIntPipe,
 	Query,
 	UseGuards,
 } from "@nestjs/common";
@@ -23,5 +26,13 @@ export class AdminController {
 		const result = await this.adminService.getUsers(getUsersDto);
 
 		return result;
+	}
+
+	@Delete("/user/:userId")
+	@HttpCode(HttpStatus.OK)
+	async deleteUser(@Param("userId", ParseIntPipe) userId: number) {
+		await this.adminService.deleteUser(userId);
+
+		return { message: "회원 삭제 성공" };
 	}
 }

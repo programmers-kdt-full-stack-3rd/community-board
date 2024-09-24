@@ -1,12 +1,14 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { IUserInfoResponse } from "shared";
 import { UserRepository } from "../user/user.repository";
+import { UserService } from "../user/user.service";
 import { AdminService } from "./admin.service";
 import { GetUsersDto } from "./dto/get-users.dto";
 
 describe("AdminService", () => {
 	let adminService: AdminService;
 	let userRepository: UserRepository;
+	let userService: UserService;
 
 	beforeEach(async () => {
 		const module: TestingModule = await Test.createTestingModule({
@@ -18,11 +20,19 @@ describe("AdminService", () => {
 						getUserInfo: jest.fn(),
 					},
 				},
+
+				{
+					provide: UserService,
+					useValue: {
+						deleteUser: jest.fn(),
+					},
+				},
 			],
 		}).compile();
 
 		adminService = module.get<AdminService>(AdminService);
 		userRepository = module.get<UserRepository>(UserRepository);
+		userService = module.get<UserService>(UserService);
 	});
 
 	it("should be defined", () => {
@@ -92,6 +102,30 @@ describe("AdminService", () => {
 			);
 
 			expect(result).toEqual(mockResult);
+		});
+	});
+
+	describe("deleteUser", () => {
+		it("성공적으로 유저를 삭제한다.", async () => {
+			const userId = 1;
+
+			jest.spyOn(userService, "deleteUser").mockResolvedValue();
+
+			await adminService.deleteUser(userId);
+
+			expect(userService.deleteUser).toHaveBeenCalledWith(userId);
+			expect(userService.deleteUser).toHaveBeenCalledTimes(1);
+		});
+
+		it("userService.deleteUser가 예외를 던지면 그 예외를 그대로 전파한다", async () => {
+			const userId = 1;
+			jest.spyOn(userService, "deleteUser").mockRejectedValue(
+				new Error("deleteUser error")
+			);
+
+			await expect(adminService.deleteUser(userId)).rejects.toThrow(
+				"deleteUser error"
+			);
 		});
 	});
 });

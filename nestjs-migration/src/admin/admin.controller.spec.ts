@@ -16,6 +16,7 @@ describe("AdminController", () => {
 					provide: AdminService,
 					useValue: {
 						getUsers: jest.fn(),
+						deleteUser: jest.fn(),
 					},
 				},
 			],
@@ -59,6 +60,19 @@ describe("AdminController", () => {
 				perPage: 10,
 			});
 			expect(result).toEqual(mockResult);
+		});
+	});
+
+	describe("DELETE /api/admin/users/:userId", () => {
+		it("성공적으로 유저를 삭제한다.", async () => {
+			const userId = 1;
+
+			jest.spyOn(adminService, "deleteUser").mockResolvedValue();
+
+			const result = await adminController.deleteUser(userId);
+
+			expect(adminService.deleteUser).toHaveBeenCalledWith(userId);
+			expect(result).toEqual({ message: "회원 삭제 성공" });
 		});
 	});
 });
