@@ -1,8 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { DataSource, Repository } from "typeorm";
 import { Comment } from "./entities/comment.entity";
-import { ReadCommentsDto } from "./dto/read-comment.dto";
-import { Like } from "src/like/entities/like.entity";
+import { CommentsDto, CommentsResultDto, ReadCommentQueryDto } from "./dto/read-comment.dto";
+import { plainToInstance } from "class-transformer";
+import { CommentLikes } from "./entities/comment-likes.entity";
 
 @Injectable()
 export class CommentRepository extends Repository<Comment> {
@@ -10,7 +11,7 @@ export class CommentRepository extends Repository<Comment> {
         super(Comment, dataSource.createEntityManager());
     };
 
-    async getTotalComments (postId: number) {
+    async getTotalComments (postId: number) : Promise<number> {
         const queryBuilder = this.createQueryBuilder("comment")
         .innerJoin("comment.post", "post")
         .andWhere("post_id = :postId ", {postId,})
@@ -19,11 +20,11 @@ export class CommentRepository extends Repository<Comment> {
         .andWhere("author.is_delete = :isDelete", {isDelete: 0})
         
         const total = await queryBuilder.getCount();
-        return {total};
+        return total;
     }
 
-    async getComments(readCommentsDto: ReadCommentsDto) {
-        const {postId, userId, index, perPage} = readCommentsDto;
+    async getComments(readCommentsQueryDto: ReadCommentQueryDto) : Promise <CommentsDto[]> {
+        let {post_id: postId, userId, index, perPage} = readCommentsQueryDto;
         const authorId = userId;
 
         const queryBuilder = this.createQueryBuilder("comment")
@@ -44,7 +45,8 @@ export class CommentRepository extends Repository<Comment> {
         .addSelect(
             subQuery => 
                 subQuery.select("COUNT(*)")
-                        .from(Like, "post_likes"),
+                        .from(CommentLikes, "cl")
+                        .where("cl.comment_id = comment.id"),
                 "likes"
         )
         .innerJoin("comment.post", "post")
@@ -58,7 +60,10 @@ export class CommentRepository extends Repository<Comment> {
         .offset(index * perPage)
         .setParameters({ authorId, userId });
 
-        return await queryBuilder.getRawMany();
+        const results = await queryBuilder.getRawMany();
+        const comments = plainToInstance(CommentsDto, results)
+
+        return comments
     }
 
 }

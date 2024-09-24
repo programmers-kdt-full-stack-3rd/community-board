@@ -14,6 +14,11 @@ const ChatInput: React.FC<Props> = ({ message, setMessage, onClick }) => {
 				className={chatInput}
 				value={message}
 				onChange={e => setMessage(e.target.value)}
+				onKeyDown={e => {
+					if (e.key === "Enter") {
+						onClick();
+					}
+				}}
 			/>
 			<button
 				className={SendButton}

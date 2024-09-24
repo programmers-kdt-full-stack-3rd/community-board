@@ -16,7 +16,6 @@ export const containerStyle = style({
 	flexDirection: "column",
 	justifyContent: "center",
 	alignItems: "center",
-	height: "100vh",
 });
 
 export const textStyle = style({

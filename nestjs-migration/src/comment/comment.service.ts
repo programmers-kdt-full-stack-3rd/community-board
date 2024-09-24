@@ -3,24 +3,20 @@ import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { DataSource } from 'typeorm';
 import { CommentRepository } from './comment.repository';
-import { UserRepository } from 'src/user/user.repository';
-import { makeLogTitle } from 'src/utils/user-logs-utils';
-import { ServerError } from 'src/common/exceptions/server-error.exception';
+import { makeLogTitle } from '../utils/user-logs-utils';
+import { ServerError } from '../common/exceptions/server-error.exception';
 import { Comment } from './entities/comment.entity';
-import { Log } from 'src/log/entities/log.entity';
-import { ReadCommentsDto } from './dto/read-comment.dto';
-import { PostRepository } from 'src/post/post.repository';
+import { Log } from '../log/entities/log.entity';
+import { CommentsDto, ReadCommentQueryDto } from './dto/read-comment.dto';
 import { DeleteCommentDto } from './dto/delete-comment.dto';
 
 @Injectable()
 export class CommentService {
   constructor(private dataSource: DataSource,
               private commentRepository: CommentRepository,
-              private userRepository: UserRepository,
-              private postRepository: PostRepository
   ) {}
 
-  async createComment(createCommentDto: CreateCommentDto) {
+  async createComment(createCommentDto: CreateCommentDto) : Promise<void>  {
     const queryRunner = this.dataSource.createQueryRunner();
     let isTransactionStarted = false;
 
@@ -35,9 +31,9 @@ export class CommentService {
       isTransactionStarted = true;
 
       const newComment = Object.assign(new Comment(), { content, post: postId, author: authorId });
+
       await queryRunner.manager.save(newComment);
       await queryRunner.manager.getRepository(Log).save(logValue);
-
       await queryRunner.commitTransaction();
 
       return
@@ -60,31 +56,30 @@ export class CommentService {
     }
   }
 
-  async getTotal(postId: number) {
-    const {total} = await this.commentRepository.getTotalComments(postId);
+  async getTotal(postId: number) : Promise<number> {
+    const total = await this.commentRepository.getTotalComments(postId);
 
     return total;
   }
 
-  async readComments(readCommentsDto : ReadCommentsDto) {
+  async readComments(readCommentsDto : ReadCommentQueryDto) : Promise<CommentsDto[]> {
     return await this.commentRepository.getComments(readCommentsDto)
   }
 
-  async updateComment(updateCommentDto: UpdateCommentDto) {
+  async updateComment(updateCommentDto: UpdateCommentDto): Promise<boolean> {
     const {id, authorId, content} = updateCommentDto;
 
-    const author = await this.userRepository.findOne({where: {id: authorId}});
     const comment = await this.commentRepository.findOne({ where: { id, } });
 
-    if (!(author && comment && !comment.isDelete)) {
-      throw ServerError.notFound("없는 유저이거나 존재하지 않는 댓글입니다.")
+    if (!(comment && !comment.isDelete)) {
+      throw ServerError.notFound("존재하지 않는 댓글입니다.")
     };
 
     await this.commentRepository.update({id, author: authorId, isDelete: false}, {content,});
     return true;
   }
 
-  async deleteComment(deleteCommentDto: DeleteCommentDto) {
+  async deleteComment(deleteCommentDto: DeleteCommentDto): Promise<boolean> {
 
     const {id, authorId} = deleteCommentDto;
     

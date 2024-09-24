@@ -1,5 +1,9 @@
 import { HttpMethod, convertToBody, httpRequest } from "../api";
 
+export const getUserMyself = async () => {
+	return await httpRequest("user", HttpMethod.GET);
+};
+
 export const sendPostLoginRequest = async (body: object) => {
 	return await httpRequest(
 		"user/login",

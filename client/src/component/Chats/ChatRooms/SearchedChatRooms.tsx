@@ -1,10 +1,4 @@
-import {
-	ChangeEvent,
-	FormEvent,
-	SetStateAction,
-	useLayoutEffect,
-	useState,
-} from "react";
+import { ChangeEvent, FormEvent, useLayoutEffect, useState } from "react";
 import { RoomsInfo } from "./ChatRooms";
 import { IReadRoomRequest, IReadRoomResponse } from "shared";
 import { ClientError } from "../../../api/errors";
@@ -12,22 +6,24 @@ import { ApiCall } from "../../../api/api";
 import { sendGetRoomHeadersRequest } from "../../../api/chats/crud";
 import { useErrorModal } from "../../../state/errorModalStore";
 import {
-	createButton,
+	chatRoomsContainer,
 	searchButton,
 	searchContainer,
+	searchedChatRoomInfoStyle,
+	searchedChatRoomsStyle,
 	searchForm,
 	searchInput,
 } from "./ChatRooms.css";
 import Rooms from "./Rooms/Rooms";
 import Pagenation from "./Pagenation/Pagenation";
-import { CiCirclePlus } from "react-icons/ci";
+import { FaSearch } from "react-icons/fa";
 
 interface Props {
-	open: React.Dispatch<SetStateAction<boolean>>;
+	//open: React.Dispatch<SetStateAction<boolean>>;
 	setSelectedRoom: (room: { title: string; roomId: number }) => void;
 }
 
-const SearchedChatRooms: React.FC<Props> = ({ open, setSelectedRoom }) => {
+const SearchedChatRooms: React.FC<Props> = ({ setSelectedRoom }) => {
 	const [isRendered, setIsRendered] = useState(false);
 	const [currentPage, setCurrentPage] = useState<number>(1);
 	const [searchedRooms, setSearchedRooms] = useState<RoomsInfo>({
@@ -37,6 +33,7 @@ const SearchedChatRooms: React.FC<Props> = ({ open, setSelectedRoom }) => {
 	const [keyword, setKeyword] = useState("");
 	const [curKeyword, setCurKeyword] = useState("");
 	const errorModal = useErrorModal();
+	const [isSearched, setIsSearched] = useState(false);
 
 	const GetRooms = async (body: IReadRoomRequest) => {
 		const queryString = `?page=${body.page}&perPage=${body.perPage}&isSearch=${body.isSearch}&keyword=${body.keyword}`;
@@ -80,6 +77,10 @@ const SearchedChatRooms: React.FC<Props> = ({ open, setSelectedRoom }) => {
 
 	// 채팅 input Change
 	const onSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
+		if (isSearched) {
+			setIsSearched(false);
+		}
+
 		setKeyword(event.target.value);
 	};
 
@@ -109,6 +110,29 @@ const SearchedChatRooms: React.FC<Props> = ({ open, setSelectedRoom }) => {
 			setCurrentPage(1);
 			setCurKeyword(keyword);
 			setKeyword("");
+			setIsSearched(true);
+		}
+	};
+
+	const renderSearchedRooms = () => {
+		if (Object.keys(searchedRooms.rooms).length === 0) {
+			let guidance = "";
+
+			if (isSearched) {
+				guidance = "검색된 채팅방 없음";
+			} else if (keyword === "") {
+				guidance = "채팅방을 찾아보세요!";
+			}
+
+			return <div className={searchedChatRoomInfoStyle}>{guidance}</div>;
+		} else {
+			return (
+				<Rooms
+					isMine={false}
+					rooms={searchedRooms.rooms[currentPage]}
+					setSelectedRoom={setSelectedRoom}
+				/>
+			);
 		}
 	};
 
@@ -130,14 +154,7 @@ const SearchedChatRooms: React.FC<Props> = ({ open, setSelectedRoom }) => {
 	}, [currentPage]);
 
 	return (
-		<div
-			style={{
-				display: "flex",
-				flexDirection: "column",
-				justifyContent: "space-between",
-				gap: "10px",
-			}}
-		>
+		<div className={chatRoomsContainer}>
 			<div className={searchContainer}>
 				<form
 					className={searchForm}
@@ -149,38 +166,22 @@ const SearchedChatRooms: React.FC<Props> = ({ open, setSelectedRoom }) => {
 						value={keyword}
 						onChange={onSearchChange}
 					/>
-					<button className={searchButton}>검색</button>
+					<button className={searchButton}>
+						<FaSearch />
+					</button>
 				</form>
-				<div onClick={() => open(true)}>
-					<CiCirclePlus
-						className={createButton}
-						title="채팅방 생성"
-					/>
-				</div>
 			</div>
 			<div
 				style={{
 					display: "flex",
 					flexDirection: "column",
 					gap: "10px",
+					height: "100%",
 				}}
 			>
 				{isRendered && (
-					<div
-						style={{
-							display: "flex",
-							flexDirection: "column",
-						}}
-					>
-						{Object.keys(searchedRooms.rooms).length === 0 ? (
-							"검색된 채팅방 없음"
-						) : (
-							<Rooms
-								isMine={false}
-								rooms={searchedRooms.rooms[currentPage]}
-								setSelectedRoom={setSelectedRoom}
-							/>
-						)}
+					<div className={searchedChatRoomsStyle}>
+						{renderSearchedRooms()}
 					</div>
 				)}
 				{searchedRooms.totalRoomCount > 2 ? (

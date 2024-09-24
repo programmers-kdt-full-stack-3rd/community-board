@@ -7,6 +7,21 @@ export class UserRepository extends Repository<User> {
 		super(User, dataSource.createEntityManager());
 	}
 
+	readUserByOAuth(provider: string, oauthAccountId: string) {
+		return this.createQueryBuilder("user")
+			.innerJoin("oauth_connections", "oc", "oc.userId = user.id")
+			.innerJoin("oauth_providers", "op", "op.id = oc.oauth_provider_id")
+			.where("oc.oauth_account_id = :oauthAccountId", { oauthAccountId })
+			.andWhere("op.name = :provider", { provider })
+			.select([
+				"user.id",
+				"user.email",
+				"user.nickname",
+				"user.is_delete",
+			])
+			.getOne();
+	}
+
 	//예시 코드
 
 	// async customMethod(id: number): Promise<User> {

@@ -10,6 +10,12 @@ export const joinWrapper = style({
 	backgroundColor: "#333",
 });
 
+export const joinForm = style({
+	display: "flex",
+	flexDirection: "column",
+	gap: "10px",
+});
+
 export const passwordReqStyle = style({
 	color: "gray",
 	fontSize: "12px",
