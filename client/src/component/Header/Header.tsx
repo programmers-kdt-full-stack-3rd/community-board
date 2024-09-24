@@ -75,6 +75,7 @@ const Header: React.FC = () => {
 		}
 
 		if (socket) {
+			socket.emit("logout", nickname);
 			socket.disconnect();
 			console.log("로그아웃, socket disconnect");
 		}
