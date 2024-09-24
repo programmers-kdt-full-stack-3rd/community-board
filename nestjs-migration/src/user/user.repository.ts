@@ -1,5 +1,7 @@
 import { Injectable } from "@nestjs/common";
+import { IUserInfoResponse } from "shared";
 import { DataSource, Repository } from "typeorm";
+import { GetUsersDto } from "../admin/dto/get-users.dto";
 import { User } from "./entities/user.entity";
 @Injectable()
 export class UserRepository extends Repository<User> {
@@ -55,6 +57,60 @@ export class UserRepository extends Repository<User> {
 			.where("id = :userId", { userId })
 			.andWhere("isDelete = :isDelete", { isDelete: false })
 			.execute();
+	}
+
+	async getUserInfo({
+		index,
+		perPage,
+		nickname,
+		email,
+	}: GetUsersDto): Promise<IUserInfoResponse> {
+		const queryBuilder = this.createQueryBuilder("user").select([
+			"user.id",
+			"user.email",
+			"user.nickname",
+			"user.isDelete",
+			"user.createdAt",
+			"(SELECT COUNT(*) FROM posts WHERE posts.author_id = user.id) AS postCount",
+			"(SELECT COUNT(*) FROM comments WHERE comments.author_id = user.id) AS commentCount",
+		]);
+
+		if (nickname) {
+			queryBuilder.andWhere("user.nickname LIKE :nickname", {
+				nickname: `%${nickname}%`,
+			});
+		}
+
+		if (email) {
+			queryBuilder.andWhere("user.email LIKE :email", {
+				email: `%${email}%`,
+			});
+		}
+
+		queryBuilder
+			.orderBy("user.id", "ASC")
+			.limit(perPage)
+			.offset(index * perPage);
+
+		const [userInfo, total] = await Promise.all([
+			queryBuilder.getRawMany(),
+			queryBuilder.getCount(),
+		]);
+
+		return {
+			total,
+			userInfo: userInfo.map(row => ({
+				id: row.user_id,
+				email: row.user_email,
+				nickname: row.user_nickname,
+				createdAt: row.user_created_at,
+				isDelete: row.user_is_delete,
+				statistics: {
+					comments: parseInt(row.commentCount),
+					posts: parseInt(row.postCount),
+				},
+			})),
+		};
 	}
 
 	//예시 코드
