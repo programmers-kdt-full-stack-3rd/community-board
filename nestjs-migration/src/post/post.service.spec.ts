@@ -1,13 +1,10 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { PostService } from "./post.service";
 import { CreatePostDto } from "./dto/create-post.dto";
-import { DataSource, Repository } from "typeorm";
-import { Post } from "./entities/post.entity";
+import { DataSource } from "typeorm";
 import { UpdatePostDto } from "./dto/update-post.dto";
 import { User } from "../user/entities/user.entity";
 import { ServerError } from "../common/exceptions/server-error.exception";
-import { getRepositoryToken } from "@nestjs/typeorm";
-import { Log } from "../log/entity/log.entity";
 import { PostRepository } from "./post.repository";
 import { LogRepository } from "../log/log.repository";
 

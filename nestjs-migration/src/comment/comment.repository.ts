@@ -3,7 +3,8 @@ import { DataSource, Repository } from "typeorm";
 import { Comment } from "./entities/comment.entity";
 import { CommentsDto, CommentsResultDto, ReadCommentQueryDto } from "./dto/read-comment.dto";
 import { plainToInstance } from "class-transformer";
-import { CommentLikes } from "./entities/comment-likes.entity";
+import { CommentLike } from "src/like/entities/comment-like.entity";
+
 
 @Injectable()
 export class CommentRepository extends Repository<Comment> {
@@ -45,7 +46,7 @@ export class CommentRepository extends Repository<Comment> {
         .addSelect(
             subQuery => 
                 subQuery.select("COUNT(*)")
-                        .from(CommentLikes, "cl")
+                        .from(CommentLike, "cl")
                         .where("cl.comment_id = comment.id"),
                 "likes"
         )

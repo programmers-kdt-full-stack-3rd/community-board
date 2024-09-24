@@ -39,5 +39,4 @@ export class Post {
 
     @OneToMany(type => Comment, comment => comment.post)
     comments: Comment[]
-
 }

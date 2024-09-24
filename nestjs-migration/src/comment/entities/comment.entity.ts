@@ -1,8 +1,8 @@
-import { Like } from "../../like/entities/like.entity";
+import { CommentLike } from "../../like/entities/comment-like.entity";
 import { Post } from "../../post/entities/post.entity";
 import { User } from "../../user/entities/user.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { CommentLikes } from "./comment-likes.entity";
+
 
 @Entity("comments")
 export class Comment {
@@ -29,11 +29,8 @@ export class Comment {
     @Column({name: "is_delete", nullable: false, default: 0})
     isDelete: boolean;
 
-    @OneToMany(type => Like, like => like.comment)
-    likes: Like[]
-
-    @OneToMany(type => CommentLikes, commentLikes => commentLikes.comment)
-    comment_likes: CommentLikes[]
+    @OneToMany(type => CommentLike, commentLikes => commentLikes.comment)
+    comment_likes: CommentLike[]
 }
 
 

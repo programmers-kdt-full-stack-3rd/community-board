@@ -1,16 +1,16 @@
-import { Post } from "../../post/entities/post.entity";
+import { Comment } from "../../comment/entities/comment.entity";
 import { User } from "../../user/entities/user.entity";
 import { CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity("post_likes")
-export class Like {
+@Entity("comment_likes")
+export class CommentLike {
     
     @PrimaryGeneratedColumn()
     id: number
 
-    @ManyToOne(type => Post, post => post.likes)
-    @JoinColumn({name: "post_id"})
-    post: number;
+    @ManyToOne(type => Comment, comment => comment.comment_likes)
+    @JoinColumn({name: "comment_id"})
+    comment: number;
 
     @ManyToOne(type => User, user => user.likes)
     @JoinColumn({name:"user_id"})
