@@ -155,6 +155,8 @@ export class UserService {
 
 	@Transactional()
 	async deleteUser(userId: number) {
+		await this.findAndValidateUserById(userId);
+
 		const oAuthConnections =
 			await this.oAuthConnectionRepository.getOAuthConnectionByUserId(
 				userId
