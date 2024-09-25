@@ -69,4 +69,20 @@ export class AdminController {
 
 		return { message: "게시글 복구 성공" };
 	}
+
+	@Patch("/post/:postId/public")
+	@HttpCode(HttpStatus.OK)
+	async publicPost(@Param("postId", ParseIntPipe) postId: number) {
+		await this.adminService.publicPost(postId);
+
+		return { message: "게시글 공개 성공" };
+	}
+
+	@Patch("/post/:postId/private")
+	@HttpCode(HttpStatus.OK)
+	async privatePost(@Param("postId", ParseIntPipe) postId: number) {
+		await this.adminService.privatePost(postId);
+
+		return { message: "게시글 비공개 성공" };
+	}
 }

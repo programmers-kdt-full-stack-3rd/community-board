@@ -315,4 +315,66 @@ describe("AdminService", () => {
 			await expect(result).rejects.toThrow("게시글 복구 실패");
 		});
 	});
+
+	describe("publicPost", () => {
+		it("성공적으로 게시글을 공개한다.", async () => {
+			const postId = 1;
+
+			jest.spyOn(postRepository, "update").mockResolvedValue({
+				affected: 1,
+			} as UpdateResult);
+
+			await adminService.publicPost(postId);
+
+			expect(postRepository.update).toHaveBeenCalledWith(
+				{ id: postId, isPrivate: 1 },
+				{ isPrivate: 0 }
+			);
+			expect(postRepository.update).toHaveBeenCalledTimes(1);
+		});
+
+		it("게시글 공개 실패 시 예외를 던진다.", async () => {
+			const postId = 1;
+
+			jest.spyOn(postRepository, "update").mockResolvedValue({
+				affected: 0,
+			} as UpdateResult);
+
+			const result = adminService.publicPost(postId);
+
+			await expect(result).rejects.toThrow(ServerError);
+			await expect(result).rejects.toThrow("게시글 공개 실패");
+		});
+	});
+
+	describe("privatePost", () => {
+		it("성공적으로 게시글을 비공개한다.", async () => {
+			const postId = 1;
+
+			jest.spyOn(postRepository, "update").mockResolvedValue({
+				affected: 1,
+			} as UpdateResult);
+
+			await adminService.privatePost(postId);
+
+			expect(postRepository.update).toHaveBeenCalledWith(
+				{ id: postId, isPrivate: 0 },
+				{ isPrivate: 1 }
+			);
+			expect(postRepository.update).toHaveBeenCalledTimes(1);
+		});
+
+		it("게시글 비공개 실패 시 예외를 던진다.", async () => {
+			const postId = 1;
+
+			jest.spyOn(postRepository, "update").mockResolvedValue({
+				affected: 0,
+			} as UpdateResult);
+
+			const result = adminService.privatePost(postId);
+
+			await expect(result).rejects.toThrow(ServerError);
+			await expect(result).rejects.toThrow("게시글 비공개 실패");
+		});
+	});
 });

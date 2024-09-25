@@ -23,6 +23,8 @@ describe("AdminController", () => {
 						getPosts: jest.fn(),
 						deletePost: jest.fn(),
 						restorePost: jest.fn(),
+						publicPost: jest.fn(),
+						privatePost: jest.fn(),
 					},
 				},
 			],
@@ -158,6 +160,32 @@ describe("AdminController", () => {
 
 			expect(adminService.restorePost).toHaveBeenCalledWith(postId);
 			expect(result).toEqual({ message: "게시글 복구 성공" });
+		});
+	});
+
+	describe("PATCH /api/admin/post/:postId/public", () => {
+		it("성공적으로 게시글을 공개한다.", async () => {
+			const postId = 1;
+
+			jest.spyOn(adminService, "publicPost").mockResolvedValue();
+
+			const result = await adminController.publicPost(postId);
+
+			expect(adminService.publicPost).toHaveBeenCalledWith(postId);
+			expect(result).toEqual({ message: "게시글 공개 성공" });
+		});
+	});
+
+	describe("PATCH /api/admin/post/:postId/private", () => {
+		it("성공적으로 게시글을 비공개한다.", async () => {
+			const postId = 1;
+
+			jest.spyOn(adminService, "privatePost").mockResolvedValue();
+
+			const result = await adminController.privatePost(postId);
+
+			expect(adminService.privatePost).toHaveBeenCalledWith(postId);
+			expect(result).toEqual({ message: "게시글 비공개 성공" });
 		});
 	});
 });

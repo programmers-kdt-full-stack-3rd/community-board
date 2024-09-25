@@ -80,4 +80,26 @@ export class AdminService {
 			throw ServerError.badRequest("게시글 복구 실패");
 		}
 	}
+
+	async publicPost(postId: number) {
+		const result = await this.postRepository.update(
+			{ id: postId, isPrivate: 1 },
+			{ isPrivate: 0 }
+		);
+
+		if (result.affected === 0) {
+			throw ServerError.badRequest("게시글 공개 실패");
+		}
+	}
+
+	async privatePost(postId: number) {
+		const result = await this.postRepository.update(
+			{ id: postId, isPrivate: 0 },
+			{ isPrivate: 1 }
+		);
+
+		if (result.affected === 0) {
+			throw ServerError.badRequest("게시글 비공개 실패");
+		}
+	}
 }
