@@ -4,7 +4,7 @@ import { IsOptional } from "class-validator";
 export class GetUsersDto {
 	@IsOptional()
 	@Transform(({ value }) => parseInt(value, 10))
-	index?: number = 0;
+	index?: number = 1;
 
 	@IsOptional()
 	@Transform(({ value }) => parseInt(value, 10))
