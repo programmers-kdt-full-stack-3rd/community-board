@@ -12,6 +12,8 @@ import {
 } from "@nestjs/common";
 import { AdminOnly } from "../common/decorator/rbac.decorator";
 import { LoginGuard } from "../common/guard/login.guard";
+import { GetLogQueryDto } from "../log/dto/get-log-query.dto";
+import { LogService } from "../log/log.service";
 import { AdminService } from "./admin.service";
 import { GetPostsDto } from "./dto/get-posts.dto";
 import { GetUsersDto } from "./dto/get-users.dto";
@@ -20,7 +22,10 @@ import { GetUsersDto } from "./dto/get-users.dto";
 @Controller("admin")
 @AdminOnly()
 export class AdminController {
-	constructor(private readonly adminService: AdminService) {}
+	constructor(
+		private readonly adminService: AdminService,
+		private readonly logService: LogService
+	) {}
 
 	@Get("/user")
 	@HttpCode(HttpStatus.OK)
@@ -84,5 +89,16 @@ export class AdminController {
 		await this.adminService.privatePost(postId);
 
 		return { message: "게시글 비공개 성공" };
+	}
+
+	@Get("/log/:userId")
+	@HttpCode(HttpStatus.OK)
+	async getLogs(
+		@Query() getLogQueryDto: GetLogQueryDto,
+		@Param("userId", ParseIntPipe) userId: number
+	) {
+		const result = await this.logService.getLogs(getLogQueryDto, userId);
+
+		return result;
 	}
 }
