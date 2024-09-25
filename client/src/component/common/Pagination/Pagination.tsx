@@ -6,12 +6,8 @@ import {
 	FiChevronsRight,
 } from "react-icons/fi";
 import { clamp } from "../../../utils/clamp";
-import {
-	arrowButton,
-	current,
-	pageButton,
-	paginationStyle,
-} from "./Pagination.css";
+import { pageButton, paginationStyle } from "./Pagination.css";
+import Button from "../Button";
 
 interface IPaginationProps {
 	currentPage: number;
@@ -47,46 +43,55 @@ const Pagination = ({
 
 	return (
 		<div className={paginationStyle}>
-			<button
-				className={clsx(pageButton, arrowButton)}
+			<Button
+				variant="text"
+				size="medium"
+				color="neutral"
 				onClick={handlePageClickWith(1)}
 			>
 				<FiChevronsLeft />
-			</button>
+			</Button>
 
-			<button
-				className={clsx(pageButton, arrowButton)}
+			<Button
+				variant="text"
+				size="medium"
+				color="neutral"
 				onClick={handlePageClickWith(prevGroupLastPage)}
 			>
 				<FiChevronLeft />
-			</button>
+			</Button>
 
 			{Array.from({ length: currentGroupSize }, (_, index) => (
-				<button
+				<Button
+					variant="text"
 					key={currentGroupFirstPage + index}
 					className={clsx(pageButton, {
-						[current]:
+						"text-white":
 							currentGroupFirstPage + index === actualCurrentPage,
 					})}
 					onClick={handlePageClickWith(currentGroupFirstPage + index)}
 				>
 					{currentGroupFirstPage + index}
-				</button>
+				</Button>
 			))}
 
-			<button
-				className={clsx(pageButton, arrowButton)}
+			<Button
+				variant="text"
+				size="medium"
+				color="neutral"
 				onClick={handlePageClickWith(nextGroupFirstPage)}
 			>
 				<FiChevronRight />
-			</button>
+			</Button>
 
-			<button
-				className={clsx(pageButton, arrowButton)}
+			<Button
+				variant="text"
+				size="medium"
+				color="neutral"
 				onClick={handlePageClickWith(totalPages)}
 			>
 				<FiChevronsRight />
-			</button>
+			</Button>
 		</div>
 	);
 };
