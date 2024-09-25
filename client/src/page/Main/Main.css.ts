@@ -4,7 +4,7 @@ import { vars } from "../../App.css.ts";
 export const mainPageStyle = style({
 	display: "flex",
 	flexDirection: "column",
-	rowGap: "48px",
+	rowGap: "15px",
 	alignItems: "stretch",
 	width: "800px",
 });
