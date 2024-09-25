@@ -58,4 +58,26 @@ export class AdminService {
 
 		return result;
 	}
+
+	async deletePost(postId: number) {
+		const result = await this.postRepository.update(
+			{ id: postId, isDelete: 0 },
+			{ isDelete: 1 }
+		);
+
+		if (result.affected === 0) {
+			throw ServerError.badRequest("게시글 삭제 실패");
+		}
+	}
+
+	async restorePost(postId: number) {
+		const result = await this.postRepository.update(
+			{ id: postId, isDelete: 1 },
+			{ isDelete: 0 }
+		);
+
+		if (result.affected === 0) {
+			throw ServerError.badRequest("게시글 복구 실패");
+		}
+	}
 }

@@ -21,6 +21,8 @@ describe("AdminController", () => {
 						deleteUser: jest.fn(),
 						restoreUser: jest.fn(),
 						getPosts: jest.fn(),
+						deletePost: jest.fn(),
+						restorePost: jest.fn(),
 					},
 				},
 			],
@@ -130,6 +132,32 @@ describe("AdminController", () => {
 
 			expect(adminService.getPosts).toHaveBeenCalledWith(mockGetPostsDto);
 			expect(result).toEqual(mockResult);
+		});
+	});
+
+	describe("DELETE /api/admin/post/:postId", () => {
+		it("성공적으로 게시글을 삭제한다.", async () => {
+			const postId = 1;
+
+			jest.spyOn(adminService, "deletePost").mockResolvedValue();
+
+			const result = await adminController.deletePost(postId);
+
+			expect(adminService.deletePost).toHaveBeenCalledWith(postId);
+			expect(result).toEqual({ message: "게시글 삭제 성공" });
+		});
+	});
+
+	describe("PATCH /api/admin/post/:postId/restore", () => {
+		it("성공적으로 게시글을 복구한다.", async () => {
+			const postId = 1;
+
+			jest.spyOn(adminService, "restorePost").mockResolvedValue();
+
+			const result = await adminController.restorePost(postId);
+
+			expect(adminService.restorePost).toHaveBeenCalledWith(postId);
+			expect(result).toEqual({ message: "게시글 복구 성공" });
 		});
 	});
 });

@@ -53,4 +53,20 @@ export class AdminController {
 
 		return result;
 	}
+
+	@Delete("/post/:postId")
+	@HttpCode(HttpStatus.OK)
+	async deletePost(@Param("postId", ParseIntPipe) postId: number) {
+		await this.adminService.deletePost(postId);
+
+		return { message: "게시글 삭제 성공" };
+	}
+
+	@Patch("/post/:postId/restore")
+	@HttpCode(HttpStatus.OK)
+	async restorePost(@Param("postId", ParseIntPipe) postId: number) {
+		await this.adminService.restorePost(postId);
+
+		return { message: "게시글 복구 성공" };
+	}
 }

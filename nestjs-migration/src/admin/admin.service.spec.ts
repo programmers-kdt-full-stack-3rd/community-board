@@ -37,6 +37,7 @@ describe("AdminService", () => {
 					provide: PostRepository,
 					useValue: {
 						getAdminPosts: jest.fn(),
+						update: jest.fn(),
 					},
 				},
 			],
@@ -250,6 +251,68 @@ describe("AdminService", () => {
 					"게시글이 존재하지 않습니다."
 				);
 			});
+		});
+	});
+
+	describe("deletePost", () => {
+		it("성공적으로 게시글을 삭제한다.", async () => {
+			const postId = 1;
+
+			jest.spyOn(postRepository, "update").mockResolvedValue({
+				affected: 1,
+			} as UpdateResult);
+
+			await adminService.deletePost(postId);
+
+			expect(postRepository.update).toHaveBeenCalledWith(
+				{ id: postId, isDelete: 0 },
+				{ isDelete: 1 }
+			);
+			expect(postRepository.update).toHaveBeenCalledTimes(1);
+		});
+
+		it("게시글 삭제 실패 시 예외를 던진다.", async () => {
+			const postId = 1;
+
+			jest.spyOn(postRepository, "update").mockResolvedValue({
+				affected: 0,
+			} as UpdateResult);
+
+			const result = adminService.deletePost(postId);
+
+			await expect(result).rejects.toThrow(ServerError);
+			await expect(result).rejects.toThrow("게시글 삭제 실패");
+		});
+	});
+
+	describe("restorePost", () => {
+		it("성공적으로 게시글을 복구한다.", async () => {
+			const postId = 1;
+
+			jest.spyOn(postRepository, "update").mockResolvedValue({
+				affected: 1,
+			} as UpdateResult);
+
+			await adminService.restorePost(postId);
+
+			expect(postRepository.update).toHaveBeenCalledWith(
+				{ id: postId, isDelete: 1 },
+				{ isDelete: 0 }
+			);
+			expect(postRepository.update).toHaveBeenCalledTimes(1);
+		});
+
+		it("게시글 복구 실패 시 예외를 던진다.", async () => {
+			const postId = 1;
+
+			jest.spyOn(postRepository, "update").mockResolvedValue({
+				affected: 0,
+			} as UpdateResult);
+
+			const result = adminService.restorePost(postId);
+
+			await expect(result).rejects.toThrow(ServerError);
+			await expect(result).rejects.toThrow("게시글 복구 실패");
 		});
 	});
 });
