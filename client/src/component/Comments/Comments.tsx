@@ -8,15 +8,7 @@ import {
 import Pagination from "../common/Pagination/Pagination";
 import CommentForm from "./CommentForm/CommentForm";
 import CommentItem from "./CommentItem/CommentItem";
-import {
-	commentCount,
-	commentFormTitle,
-	commentList,
-	commentSection,
-	commentSectionTitle,
-	commentWriteSection,
-	noComment,
-} from "./Comments.css";
+import { commentList, commentSection } from "./Comments.css";
 import { ApiCall } from "../../api/api";
 import { ClientError } from "../../api/errors";
 import { useErrorModal } from "../../state/errorModalStore";
@@ -134,12 +126,15 @@ const Comments = ({ postId }: ICommentsProps) => {
 
 	return (
 		<div className={commentSection}>
-			<h2 className={commentSectionTitle}>
-				댓글<span className={commentCount}> ({total}개)</span>
-			</h2>
+			<div>
+				<span className="text-xl font-bold">댓글 {total}</span>
+				<hr className="bg-customGray mt-3 h-0.5 border-none"></hr>
+			</div>
 
-			<div className={commentWriteSection}>
-				<h3 className={commentFormTitle}>새 댓글을 남겨 보세요.</h3>
+			<div className="flex flex-col items-start gap-2">
+				<span className="text-sm text-gray-200">
+					새로운 댓글을 남겨보세요
+				</span>
 				<CommentForm onSubmit={handleCommentCreate} />
 			</div>
 
@@ -157,9 +152,8 @@ const Comments = ({ postId }: ICommentsProps) => {
 						/>
 					))
 				) : (
-					<p className={noComment}>
-						아직 댓글이 없습니다.
-						<br />첫 댓글을 작성해 보세요.
+					<p className="text-customGray text-center text-base font-bold">
+						아직 댓글이 없습니다. 첫 댓글을 작성해 보세요.
 					</p>
 				)}
 			</div>

@@ -7,20 +7,10 @@ import {
 import { dateToStr } from "../../../utils/date-to-str";
 import CommentForm from "../CommentForm/CommentForm";
 import CommentLikeButton from "../CommentLikeButton/CommentLikeButton";
-import {
-	commentHeader,
-	commentContainer,
-	commentBody,
-	commentAuthor,
-	commentTimestamp,
-	isCommentUpdated,
-	commentContent,
-	commentFooter,
-	commentEditButtons,
-} from "./CommentItem.css";
 import { ApiCall } from "../../../api/api";
 import { useErrorModal } from "../../../state/errorModalStore";
 import { ClientError } from "../../../api/errors";
+import Button from "../../common/Button";
 
 interface ICommentItemProps {
 	comment: IComment;
@@ -111,54 +101,72 @@ const CommentItem = ({ comment, onUpdate, onDelete }: ICommentItemProps) => {
 	};
 
 	return (
-		<div className={commentContainer}>
-			<div className={commentHeader}>
-				<div className={commentAuthor}>{comment.author_nickname}</div>
-				<div className={commentTimestamp}>
-					{dateToStr(comment.created_at)}
-					{comment.updated_at ? (
-						<>
-							{" "}
-							<span
-								className={isCommentUpdated}
-								title={`최종 수정: ${dateToStr(comment.updated_at)}`}
+		<div className="border-b-customGray flex w-full border-spacing-3 flex-row items-center justify-between border-b">
+			<div className="flex-grow">
+				<div className="mb-2 flex flex-row items-center justify-between">
+					<div className="flex flex-row items-center gap-2">
+						<div className="font-bold">
+							{comment.author_nickname}
+						</div>
+						<div className="text-gray-500">
+							{dateToStr(comment.created_at)}
+							{comment.updated_at ? (
+								<>
+									{" "}
+									<span
+										title={`최종 수정: ${dateToStr(comment.updated_at)}`}
+									>
+										(수정됨)
+									</span>
+								</>
+							) : null}
+						</div>
+					</div>
+
+					{comment.is_author && !isEditMode && (
+						<div className="flex gap-1">
+							<Button
+								size="small"
+								variant="text"
+								onClick={handleEditModeToggle}
 							>
-								(수정됨)
-							</span>
-						</>
-					) : null}
+								수정
+							</Button>
+							<Button
+								size="small"
+								variant="text"
+								color="danger"
+								onClick={handleDeleteClick}
+							>
+								삭제
+							</Button>
+						</div>
+					)}
+				</div>
+
+				<div>
+					{isEditMode ? (
+						<CommentForm
+							defaultContent={comment.content}
+							isUpdateMode={true}
+							onSubmit={handleEditionSubmit}
+							onCancel={handleEditModeToggle}
+						/>
+					) : (
+						<div className="mb-4">{contentNodes}</div>
+					)}
 				</div>
 			</div>
 
-			<div className={commentBody}>
-				{isEditMode ? (
-					<CommentForm
-						defaultContent={comment.content}
-						isUpdateMode={true}
-						onSubmit={handleEditionSubmit}
-						onCancel={handleEditModeToggle}
-					/>
-				) : (
-					<div className={commentContent}>{contentNodes}</div>
-				)}
-			</div>
-
-			{isEditMode || (
-				<div className={commentFooter}>
+			<div className="flex-none">
+				{!isEditMode && (
 					<CommentLikeButton
 						commentId={comment.id}
 						likes={comment.likes}
 						userLiked={comment.user_liked}
 					/>
-
-					{comment.is_author && (
-						<div className={commentEditButtons}>
-							<button onClick={handleEditModeToggle}>수정</button>
-							<button onClick={handleDeleteClick}>삭제</button>
-						</div>
-					)}
-				</div>
-			)}
+				)}
+			</div>
 		</div>
 	);
 };
