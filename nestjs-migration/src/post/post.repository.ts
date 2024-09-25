@@ -1,16 +1,18 @@
 import { Injectable } from "@nestjs/common";
-import { Brackets, DataSource, Repository } from "typeorm";
-import { Post } from "./entities/post.entity";
-import { ReadPostsQueryDto, SortBy } from "./dto/read-posts-query.dto";
-import { getPostHeadersDto } from "./dto/get-post-headers.dto";
-import { Like } from "../like/entities/like.entity";
 import { plainToInstance } from "class-transformer";
+import { IAdminPostResponse } from "shared";
+import { Brackets, DataSource, Repository } from "typeorm";
+import { GetPostsDto } from "../admin/dto/get-posts.dto";
+import { Like } from "../like/entities/like.entity";
+import { getPostHeadersDto } from "./dto/get-post-headers.dto";
+import { ReadPostsQueryDto, SortBy } from "./dto/read-posts-query.dto";
+import { Post } from "./entities/post.entity";
 
 @Injectable()
 export class PostRepository extends Repository<Post> {
 	constructor(private dataSource: DataSource) {
 		super(Post, dataSource.createEntityManager());
-	};
+	}
 
 	async getPostHeaders(
 		readPostsQueryDto: ReadPostsQueryDto,
@@ -37,13 +39,19 @@ export class PostRepository extends Repository<Post> {
 				"likes"
 			)
 			.where("post.is_delete = :isDelete", { isDelete: false })
-			.andWhere(new Brackets(qb => {
-				qb.where('post.is_private = :isPrivateFalse', { isPrivateFalse: false })
-				  .orWhere('post.is_private = :isPrivateTrue AND post.author_id = :authorId', {
-					isPrivateTrue: true,
-					authorId: userId,
-				  });
-			}))
+			.andWhere(
+				new Brackets(qb => {
+					qb.where("post.is_private = :isPrivateFalse", {
+						isPrivateFalse: false,
+					}).orWhere(
+						"post.is_private = :isPrivateTrue AND post.author_id = :authorId",
+						{
+							isPrivateTrue: true,
+							authorId: userId,
+						}
+					);
+				})
+			);
 
 		if (keyword) {
 			queryBuilder.andWhere("post.title LIKE :keyword", {
@@ -69,20 +77,29 @@ export class PostRepository extends Repository<Post> {
 		return plainToInstance(getPostHeadersDto, results);
 	}
 
-	async getPostTotal(readPostsQueryDto: ReadPostsQueryDto, userId: number) : Promise<number> {
+	async getPostTotal(
+		readPostsQueryDto: ReadPostsQueryDto,
+		userId: number
+	): Promise<number> {
 		let { keyword } = readPostsQueryDto;
 		userId ? userId : 0;
 
 		const queryBuilder = this.createQueryBuilder("post")
 			.leftJoinAndSelect("post.author", "user")
 			.where("post.is_delete = :isDelete", { isDelete: false })
-			.andWhere(new Brackets(qb => {
-				qb.where('post.is_private = :isPrivateFalse', { isPrivateFalse: false })
-				  .orWhere('post.is_private = :isPrivateTrue AND post.author_id = :authorId', {
-					isPrivateTrue: true,
-					authorId: userId,
-				  });
-			}));
+			.andWhere(
+				new Brackets(qb => {
+					qb.where("post.is_private = :isPrivateFalse", {
+						isPrivateFalse: false,
+					}).orWhere(
+						"post.is_private = :isPrivateTrue AND post.author_id = :authorId",
+						{
+							isPrivateTrue: true,
+							authorId: userId,
+						}
+					);
+				})
+			);
 		if (keyword) {
 			queryBuilder.andWhere("post.title LIKE :keyword", {
 				keyword: `%${keyword.trim()}%`,
@@ -92,7 +109,7 @@ export class PostRepository extends Repository<Post> {
 		return await queryBuilder.getCount();
 	}
 
-	async getPostHeader(postId: number, userId: number) : Promise<Post> {
+	async getPostHeader(postId: number, userId: number): Promise<Post> {
 		const authorId = userId;
 		const queryBuilder = this.createQueryBuilder("post")
 			.select([
@@ -125,5 +142,51 @@ export class PostRepository extends Repository<Post> {
 			.setParameters({ authorId, userId });
 
 		return await queryBuilder.getRawOne();
+	}
+
+	async getAdminPosts(getPostsDto: GetPostsDto): Promise<IAdminPostResponse> {
+		const { index, perPage, keyword } = getPostsDto;
+
+		const queryBuilder = this.createQueryBuilder("post")
+			.select([
+				"post.id",
+				"post.title",
+				"user.nickname as author",
+				"post.created_at",
+				"post.is_delete",
+				"post.is_private",
+			])
+			.leftJoin("post.author", "user")
+			.where("post.is_delete = :isDelete", { isDelete: false });
+
+		if (keyword) {
+			queryBuilder.andWhere("post.title LIKE :keyword", {
+				keyword: `%${keyword}%`,
+			});
+		}
+
+		queryBuilder
+			.orderBy("post.id", "ASC")
+			.limit(perPage)
+			.offset(index * perPage);
+
+		const [posts, total] = await Promise.all([
+			queryBuilder.getRawMany(),
+			queryBuilder.getCount(),
+		]);
+
+		return {
+			total,
+			postHeaders: posts.map(post => {
+				return {
+					id: post.post_id,
+					title: post.post_title,
+					author: post.author,
+					createdAt: post.created_at,
+					isDelete: post.is_delete,
+					isPrivate: post.is_private,
+				};
+			}),
+		};
 	}
 }

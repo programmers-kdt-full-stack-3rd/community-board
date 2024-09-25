@@ -13,6 +13,7 @@ import {
 import { AdminOnly } from "../common/decorator/rbac.decorator";
 import { LoginGuard } from "../common/guard/login.guard";
 import { AdminService } from "./admin.service";
+import { GetPostsDto } from "./dto/get-posts.dto";
 import { GetUsersDto } from "./dto/get-users.dto";
 
 @UseGuards(LoginGuard)
@@ -43,5 +44,13 @@ export class AdminController {
 		await this.adminService.restoreUser(userId);
 
 		return { message: "회원 복구 성공" };
+	}
+
+	@Get("/post")
+	@HttpCode(HttpStatus.OK)
+	async getPosts(@Query() getPostsDto: GetPostsDto) {
+		const result = await this.adminService.getPosts(getPostsDto);
+
+		return result;
 	}
 }
