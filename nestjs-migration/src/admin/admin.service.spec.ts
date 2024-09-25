@@ -1,16 +1,19 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { IUserInfoResponse } from "shared";
+import { IAdminPostResponse, IUserInfoResponse } from "shared";
 import { UpdateResult } from "typeorm";
 import { ServerError } from "../common/exceptions/server-error.exception";
+import { PostRepository } from "../post/post.repository";
 import { UserRepository } from "../user/user.repository";
 import { UserService } from "../user/user.service";
 import { AdminService } from "./admin.service";
+import { GetPostsDto } from "./dto/get-posts.dto";
 import { GetUsersDto } from "./dto/get-users.dto";
 
 describe("AdminService", () => {
 	let adminService: AdminService;
 	let userRepository: UserRepository;
 	let userService: UserService;
+	let postRepository: PostRepository;
 
 	beforeEach(async () => {
 		const module: TestingModule = await Test.createTestingModule({
@@ -30,12 +33,19 @@ describe("AdminService", () => {
 						deleteUser: jest.fn(),
 					},
 				},
+				{
+					provide: PostRepository,
+					useValue: {
+						getAdminPosts: jest.fn(),
+					},
+				},
 			],
 		}).compile();
 
 		adminService = module.get<AdminService>(AdminService);
 		userRepository = module.get<UserRepository>(UserRepository);
 		userService = module.get<UserService>(UserService);
+		postRepository = module.get<PostRepository>(PostRepository);
 	});
 
 	it("should be defined", () => {
@@ -68,9 +78,10 @@ describe("AdminService", () => {
 
 			const result = await adminService.getUsers(mockGetUsersDto);
 
-			expect(userRepository.getUserInfo).toHaveBeenCalledWith(
-				mockGetUsersDto
-			);
+			expect(userRepository.getUserInfo).toHaveBeenCalledWith({
+				index: 0,
+				perPage: 10,
+			});
 			expect(result).toEqual(mockResult);
 		});
 
@@ -155,6 +166,90 @@ describe("AdminService", () => {
 
 			await expect(result).rejects.toThrow(ServerError);
 			await expect(result).rejects.toThrow("회원 복구 실패");
+		});
+	});
+
+	describe("getPosts", () => {
+		const mockGetPostsDto = new GetPostsDto();
+		const mockResult: IAdminPostResponse = {
+			total: 1,
+			postHeaders: [
+				{
+					id: 1,
+					title: "test",
+					author: "testUser",
+					createdAt: new Date("2024-01-01"),
+					isDelete: false,
+					isPrivate: false,
+				},
+			],
+		};
+
+		describe("성공 케이스", () => {
+			it("게시글 리스트를 가져온다.", async () => {
+				jest.spyOn(postRepository, "getAdminPosts").mockResolvedValue(
+					mockResult
+				);
+
+				const result = await adminService.getPosts(mockGetPostsDto);
+
+				expect(postRepository.getAdminPosts).toHaveBeenCalledWith(
+					mockGetPostsDto
+				);
+				expect(result).toEqual(mockResult);
+			});
+
+			it("게시글 리스트를 가져온다. (index < 1)", async () => {
+				mockGetPostsDto.index = 0;
+
+				jest.spyOn(postRepository, "getAdminPosts").mockResolvedValue(
+					mockResult
+				);
+
+				const result = await adminService.getPosts(mockGetPostsDto);
+
+				expect(postRepository.getAdminPosts).toHaveBeenCalledWith(
+					expect.objectContaining({
+						index: 0,
+					})
+				);
+
+				expect(result).toEqual(mockResult);
+			});
+
+			it("게시글 리스트를 가져온다. (perPage < 0)", async () => {
+				mockGetPostsDto.perPage = -1;
+
+				jest.spyOn(postRepository, "getAdminPosts").mockResolvedValue(
+					mockResult
+				);
+
+				const result = await adminService.getPosts(mockGetPostsDto);
+
+				expect(postRepository.getAdminPosts).toHaveBeenCalledWith(
+					expect.objectContaining({
+						perPage: 10,
+					})
+				);
+
+				expect(result).toEqual(mockResult);
+			});
+		});
+
+		describe("실패 케이스", () => {
+			it("게시글이 존재하지 않는 경우", async () => {
+				jest.spyOn(postRepository, "getAdminPosts").mockResolvedValue({
+					total: 0,
+					postHeaders: [],
+				});
+
+				const result = adminService.getPosts(mockGetPostsDto);
+
+				await expect(result).rejects.toThrow(ServerError);
+				await expect(result).rejects.toThrow(
+					"게시글이 존재하지 않습니다."
+				);
+			});
 		});
 	});
 });

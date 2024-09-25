@@ -1,8 +1,9 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { IUserInfoResponse } from "shared";
+import { IAdminPostResponse, IUserInfoResponse } from "shared";
 import { ServerError } from "../common/exceptions/server-error.exception";
 import { AdminController } from "./admin.controller";
 import { AdminService } from "./admin.service";
+import { GetPostsDto } from "./dto/get-posts.dto";
 import { GetUsersDto } from "./dto/get-users.dto";
 
 describe("AdminController", () => {
@@ -19,6 +20,7 @@ describe("AdminController", () => {
 						getUsers: jest.fn(),
 						deleteUser: jest.fn(),
 						restoreUser: jest.fn(),
+						getPosts: jest.fn(),
 					},
 				},
 			],
@@ -58,7 +60,7 @@ describe("AdminController", () => {
 			const result = await adminController.getUsers(mockGetUsersDto);
 
 			expect(adminService.getUsers).toHaveBeenCalledWith({
-				index: 0,
+				index: 1,
 				perPage: 10,
 			});
 			expect(result).toEqual(mockResult);
@@ -101,6 +103,33 @@ describe("AdminController", () => {
 
 			await expect(result).rejects.toThrow(ServerError);
 			await expect(result).rejects.toThrow("회원 복구 실패");
+		});
+	});
+
+	describe("GET /api/admin/post", () => {
+		const mockGetPostsDto = new GetPostsDto();
+
+		it("게시글 리스트를 가져온다.", async () => {
+			const mockResult: IAdminPostResponse = {
+				total: 1,
+				postHeaders: [
+					{
+						id: 1,
+						title: "test",
+						author: "testUser",
+						createdAt: new Date("2024-01-01"),
+						isDelete: false,
+						isPrivate: false,
+					},
+				],
+			};
+
+			jest.spyOn(adminService, "getPosts").mockResolvedValue(mockResult);
+
+			const result = await adminController.getPosts(mockGetPostsDto);
+
+			expect(adminService.getPosts).toHaveBeenCalledWith(mockGetPostsDto);
+			expect(result).toEqual(mockResult);
 		});
 	});
 });
