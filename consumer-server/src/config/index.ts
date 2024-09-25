@@ -8,8 +8,6 @@ import { kafkaConfig, consumerConfig } from "./kafka.config";
 process.env.NODE_ENV !== "production" &&
 	require("dotenv").config({ path: "./../.env" });
 
-process.env.NODE_ENV === "production" && require("dotenv").config();
-
 interface IConsumerConfig {
 	readonly host?: string;
 	readonly db: PoolOptions;
