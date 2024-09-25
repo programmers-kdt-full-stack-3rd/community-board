@@ -22,6 +22,7 @@ const kafkaConfig: KafkaConfig = Object.freeze({
 });
 
 const consumerConfig = Object.freeze({
+	autoCommit: false, // 자동 커밋 비활성화
 	sessionTimeout: 30000, // 30초, 컨슈머 그룹이 해당 클라이언트가 연결을 끊었다고 간주하 전 대기 시간
 	heartbeatInterval: 3000, // 3초, 브로커와의 연결을 확인하는 대기 시간
 	retry: {
