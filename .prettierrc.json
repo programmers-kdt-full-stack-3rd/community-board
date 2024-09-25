@@ -15,6 +15,7 @@
 	"proseWrap": "preserve",
 	"htmlWhitespaceSensitivity": "strict",
 	"singleAttributePerLine": true,
+	"plugins": ["prettier-plugin-tailwindcss"],
 	"overrides": [
 		{
 			"files": "*.json",
