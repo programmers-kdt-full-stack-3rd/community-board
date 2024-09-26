@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import { IUserLogResponse } from "shared";
 import { DataSource, Repository } from "typeorm";
 import { GetLogQueryDto } from "./dto/get-log-query.dto";
 import { Log } from "./entities/log.entity";
@@ -9,7 +10,10 @@ export class LogRepository extends Repository<Log> {
 		super(Log, dataSource.createEntityManager());
 	}
 
-	async getLogs(getLogQueryDto: GetLogQueryDto, userId: number) {
+	async getLogs(
+		getLogQueryDto: GetLogQueryDto,
+		userId: number
+	): Promise<IUserLogResponse> {
 		const { index, perPage } = getLogQueryDto;
 
 		const queryBuilder = this.createQueryBuilder("log")
