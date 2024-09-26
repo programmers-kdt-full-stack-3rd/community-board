@@ -1,6 +1,5 @@
 import clsx from "clsx";
 import React from "react";
-import { invalid, textareaBase } from "./Textarea.temp.css";
 
 interface ITextareaProps
 	extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
@@ -15,7 +14,11 @@ const Textarea: React.FC<ITextareaProps> = ({
 	return (
 		<textarea
 			{...textareaProps}
-			className={clsx(className, textareaBase, isValid || invalid)}
+			className={clsx(
+				className,
+				"m-0 box-border flex-1 resize-y rounded-md border bg-transparent p-2 text-base text-black",
+				isValid ? "border-gray-500" : "border-red-500 bg-red-50"
+			)}
 		/>
 	);
 };

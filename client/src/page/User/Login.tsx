@@ -101,7 +101,7 @@ const Login: React.FC = () => {
 				<hr className="flex-grow text-gray-500" />
 			</div>
 			<div className="flex w-full flex-col gap-2">
-				{/*  */}
+				{/* 미리 정의된 컴포넌트로 수정 아직 안 함*/}
 				<EmailForm
 					email={email.value}
 					onChange={handleEmailChange}
