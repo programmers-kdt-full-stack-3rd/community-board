@@ -9,6 +9,7 @@ import { UpdateResult } from "typeorm";
 import { CommentRepository } from "../comment/comment.repository";
 import { ServerError } from "../common/exceptions/server-error.exception";
 import { PostRepository } from "../post/post.repository";
+import { User } from "../user/entities/user.entity";
 import { UserRepository } from "../user/user.repository";
 import { UserService } from "../user/user.service";
 import { AdminService } from "./admin.service";
@@ -45,6 +46,7 @@ describe("AdminService", () => {
 						restoreUser: jest.fn(),
 						countActiveUsers: jest.fn(),
 						getIntervalStats: jest.fn(),
+						findOne: jest.fn(),
 					},
 				},
 				{
@@ -54,6 +56,7 @@ describe("AdminService", () => {
 						update: jest.fn(),
 						getPostStats: jest.fn(),
 						getIntervalStats: jest.fn(),
+						getPostStatByUser: jest.fn(),
 					},
 				},
 				{
@@ -61,6 +64,7 @@ describe("AdminService", () => {
 					useValue: {
 						countActiveComments: jest.fn(),
 						getIntervalStats: jest.fn(),
+						getCommentStatByUser: jest.fn(),
 					},
 				},
 			],
@@ -517,6 +521,73 @@ describe("AdminService", () => {
 				await expect(result).rejects.toThrow(ServerError);
 				await expect(result).rejects.toThrow(
 					"잘못된 interval 값입니다."
+				);
+			});
+		});
+	});
+
+	describe("getUserStat", () => {
+		const mockUserId = 1;
+		const mockUser = new User();
+
+		const mockPostStat = {
+			count: 1,
+			views: 1,
+		};
+
+		const mockCommentStat = {
+			count: 1,
+		};
+
+		const mockUserStat = {
+			posts: 1,
+			views: 1,
+			comments: 1,
+		};
+
+		beforeEach(() => {
+			jest.spyOn(userRepository, "findOne").mockResolvedValue(mockUser);
+			jest.spyOn(postRepository, "getPostStatByUser").mockResolvedValue(
+				mockPostStat
+			);
+			jest.spyOn(
+				commentRepository,
+				"getCommentStatByUser"
+			).mockResolvedValue(mockCommentStat);
+		});
+
+		describe("성공 케이스", () => {
+			it("유저 통계를 가져온다.", async () => {
+				mockUser.nickname = "testUser";
+
+				const result = await adminService.getUserStat(mockUserId);
+				expect(userRepository.findOne).toHaveBeenCalledWith({
+					where: { id: mockUserId },
+				});
+				expect(postRepository.getPostStatByUser).toHaveBeenCalledWith(
+					mockUserId
+				);
+				expect(
+					commentRepository.getCommentStatByUser
+				).toHaveBeenCalledWith(mockUserId);
+				expect(result).toEqual({
+					nickname: mockUser.nickname,
+					stats: mockUserStat,
+				});
+			});
+		});
+
+		describe("실패 케이스", () => {
+			it("유저가 존재하지 않는 경우", async () => {
+				jest.spyOn(userRepository, "findOne").mockResolvedValue(
+					undefined
+				);
+
+				const result = adminService.getUserStat(mockUserId);
+
+				await expect(result).rejects.toThrow(ServerError);
+				await expect(result).rejects.toThrow(
+					"존재 하지 않는 사용자입니다."
 				);
 			});
 		});

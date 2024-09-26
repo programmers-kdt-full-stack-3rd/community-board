@@ -29,6 +29,7 @@ describe("AdminController", () => {
 						publicPost: jest.fn(),
 						privatePost: jest.fn(),
 						getStats: jest.fn(),
+						getUserStat: jest.fn(),
 					},
 				},
 
@@ -265,6 +266,30 @@ describe("AdminController", () => {
 			);
 
 			expect(result).toEqual(mockStats);
+		});
+	});
+
+	describe("GET /api/admin/stat/:userId", () => {
+		const userId = 1;
+
+		it("성공적으로 유저 통계를 가져온다.", async () => {
+			const mockResult = {
+				nickname: "testUser",
+				stats: {
+					posts: 1,
+					comments: 1,
+					views: 1,
+				},
+			};
+
+			jest.spyOn(adminService, "getUserStat").mockResolvedValue(
+				mockResult
+			);
+
+			const result = await adminController.getUserStat(userId);
+
+			expect(adminService.getUserStat).toHaveBeenCalledWith(userId);
+			expect(result).toEqual(mockResult);
 		});
 	});
 });
