@@ -6,7 +6,6 @@ import {
 	FiChevronsRight,
 } from "react-icons/fi";
 import { clamp } from "../../../utils/clamp";
-import { pageButton, paginationStyle } from "./Pagination.css";
 import Button from "../Button";
 
 interface IPaginationProps {
@@ -42,7 +41,7 @@ const Pagination = ({
 	};
 
 	return (
-		<div className={paginationStyle}>
+		<div className="flex justify-center gap-2 align-baseline">
 			<Button
 				variant="text"
 				size="medium"
@@ -65,7 +64,7 @@ const Pagination = ({
 				<Button
 					variant="text"
 					key={currentGroupFirstPage + index}
-					className={clsx(pageButton, {
+					className={clsx("h-[44px] w-[44px] p-0", {
 						"text-white":
 							currentGroupFirstPage + index === actualCurrentPage,
 					})}
