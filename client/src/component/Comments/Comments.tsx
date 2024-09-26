@@ -8,7 +8,6 @@ import {
 import Pagination from "../common/Pagination/Pagination";
 import CommentForm from "./CommentForm/CommentForm";
 import CommentItem from "./CommentItem/CommentItem";
-import { commentList, commentSection } from "./Comments.css";
 import { ApiCall } from "../../api/api";
 import { ClientError } from "../../api/errors";
 import { useErrorModal } from "../../state/errorModalStore";
@@ -125,7 +124,7 @@ const Comments = ({ postId }: ICommentsProps) => {
 	};
 
 	return (
-		<div className={commentSection}>
+		<div className="my-5 box-border flex w-[800px] flex-col items-stretch justify-start gap-5 text-left">
 			<div>
 				<span className="text-xl font-bold">댓글 {total}</span>
 				<hr className="bg-customGray mt-3 h-0.5 border-none"></hr>
@@ -139,7 +138,7 @@ const Comments = ({ postId }: ICommentsProps) => {
 			</div>
 
 			<div
-				className={commentList}
+				className="flex flex-col gap-5"
 				ref={commentListRef}
 			>
 				{comments.length > 0 ? (

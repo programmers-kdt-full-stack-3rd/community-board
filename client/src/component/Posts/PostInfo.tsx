@@ -1,4 +1,3 @@
-import { PostHeader } from "./PostInfo.css";
 import { dateToStr } from "../../utils/date-to-str";
 import { IPostInfo } from "shared";
 import { useLayoutEffect, useState } from "react";
@@ -79,6 +78,7 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 
 	return (
 		<div>
+			{/* 모달 부분 css 수정 x*/}
 			{updateModalOpen ? (
 				<PostModal
 					close={setUpdateModalOpen}
@@ -92,7 +92,7 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 					postId={postInfo.id}
 				/>
 			) : null}
-			<div className={PostHeader}>
+			<div className="flex w-[800px] flex-col pb-2.5 pt-2.5">
 				<div className="bg-customGray relative mb-4 mt-4 flex flex-col justify-between rounded-lg text-left">
 					<span className="m-5 text-lg font-bold text-white">
 						자유게시판
