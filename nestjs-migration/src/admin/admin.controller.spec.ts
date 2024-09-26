@@ -5,6 +5,7 @@ import { LogService } from "../log/log.service";
 import { AdminController } from "./admin.controller";
 import { AdminService } from "./admin.service";
 import { GetPostsDto } from "./dto/get-posts.dto";
+import { GetStatsQueryDto } from "./dto/get-stats.dto";
 import { GetUsersDto } from "./dto/get-users.dto";
 
 describe("AdminController", () => {
@@ -27,6 +28,7 @@ describe("AdminController", () => {
 						restorePost: jest.fn(),
 						publicPost: jest.fn(),
 						privatePost: jest.fn(),
+						getStats: jest.fn(),
 					},
 				},
 
@@ -229,6 +231,40 @@ describe("AdminController", () => {
 				userId
 			);
 			expect(result).toEqual(mockLogs);
+		});
+	});
+
+	describe("GET /api/admin/stat", () => {
+		const getStatsQueryDto = new GetStatsQueryDto();
+		const mockStats = {
+			totalStats: {
+				posts: 1,
+				comments: 1,
+				users: 1,
+				views: 1,
+			},
+
+			intervalStats: [
+				{
+					date: "2024-01-01",
+					posts: 1,
+					comments: 1,
+					views: 1,
+					users: 1,
+				},
+			],
+		};
+
+		it("성공적으로 통계를 가져온다.", async () => {
+			jest.spyOn(adminService, "getStats").mockResolvedValue(mockStats);
+
+			const result = await adminController.getStats(getStatsQueryDto);
+
+			expect(adminService.getStats).toHaveBeenCalledWith(
+				getStatsQueryDto
+			);
+
+			expect(result).toEqual(mockStats);
 		});
 	});
 });
