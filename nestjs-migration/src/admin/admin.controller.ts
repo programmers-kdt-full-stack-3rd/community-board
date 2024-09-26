@@ -16,6 +16,7 @@ import { GetLogQueryDto } from "../log/dto/get-log-query.dto";
 import { LogService } from "../log/log.service";
 import { AdminService } from "./admin.service";
 import { GetPostsDto } from "./dto/get-posts.dto";
+import { GetStatsQueryDto } from "./dto/get-stats.dto";
 import { GetUsersDto } from "./dto/get-users.dto";
 
 @UseGuards(LoginGuard)
@@ -98,6 +99,14 @@ export class AdminController {
 		@Param("userId", ParseIntPipe) userId: number
 	) {
 		const result = await this.logService.getLogs(getLogQueryDto, userId);
+
+		return result;
+	}
+
+	@Get("/stat")
+	@HttpCode(HttpStatus.OK)
+	async getStats(@Query() getStatsQueryDto: GetStatsQueryDto) {
+		const result = await this.adminService.getStats(getStatsQueryDto);
 
 		return result;
 	}

@@ -189,4 +189,52 @@ export class PostRepository extends Repository<Post> {
 			}),
 		};
 	}
+
+	async getPostStats() {
+		const result = await this.createQueryBuilder("post")
+			.select("COUNT(post.id)", "count")
+			.addSelect("COALESCE(SUM(post.views),0)", "views")
+			.innerJoin("post.author", "user")
+			.where("post.isDelete = :isDelete", { isDelete: false })
+			.andWhere("user.isDelete = :isDelete", { isDelete: false })
+			.getRawOne();
+
+		return {
+			count: parseInt(result.count, 10),
+			views: parseInt(result.views, 10),
+		};
+	}
+
+	async getIntervalStats(
+		dateFormat: string,
+		startDate?: Date,
+		endDate?: Date
+	) {
+		const queryBuilder = this.createQueryBuilder("post")
+			.select("DATE_FORMAT(post.createdAt, :dateFormat)", "date")
+			.setParameter("dateFormat", dateFormat)
+			.addSelect("COUNT(post.id)", "count")
+			.addSelect("COALESCE(SUM(post.views), 0)", "views")
+			.innerJoin("post.author", "user")
+			.where("user.isDelete = :isDelete", { isDelete: false })
+			.andWhere("post.isDelete = :isDelete", { isDelete: false });
+
+		if (startDate) {
+			queryBuilder.andWhere("user.createdAt >= :startDate", {
+				startDate,
+			});
+		}
+
+		if (endDate) {
+			queryBuilder.andWhere("user.createdAt <= :endDate", { endDate });
+		}
+
+		const result = await queryBuilder.groupBy("date").getRawMany();
+
+		return result.map(row => ({
+			...row,
+			count: parseInt(row.count, 10),
+			views: parseInt(row.views, 10),
+		}));
+	}
 }
