@@ -171,7 +171,7 @@ const Header: React.FC = () => {
 
 							<div
 								onClick={isLogin ? handleUserInfo : handleJoin}
-								className="text-lg text-white"
+								className="relative text-lg text-white"
 							>
 								{isLogin ? (
 									<div className="flex items-center">
@@ -187,15 +187,15 @@ const Header: React.FC = () => {
 										title="회원가입"
 									/>
 								)}
-							</div>
 
-							{isUserMenuOpen && isLogin && (
-								<DropdownMenu
-									ref={dropdownMenuRef}
-									navigate={navigate}
-									warningModal={warningModal}
-								/>
-							)}
+								{isUserMenuOpen && isLogin && (
+									<DropdownMenu
+										ref={dropdownMenuRef}
+										navigate={navigate}
+										warningModal={warningModal}
+									/>
+								)}
+							</div>
 						</div>
 					</div>
 				</nav>
