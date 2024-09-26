@@ -167,4 +167,26 @@ export class AdminService {
 
 		return { posts, comments, users };
 	}
+
+	async getUserStat(userId: number) {
+		const user = await this.userRepository.findOne({
+			where: { id: userId },
+		});
+		if (!user) {
+			throw ServerError.badRequest("존재 하지 않는 사용자입니다.");
+		}
+
+		const postCount = await this.postRepository.getPostStatByUser(userId);
+		const commentCount =
+			await this.commentRepository.getCommentStatByUser(userId);
+
+		return {
+			nickname: user.nickname,
+			stats: {
+				posts: postCount.count,
+				views: postCount.views,
+				comments: commentCount.count,
+			},
+		};
+	}
 }

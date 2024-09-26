@@ -115,4 +115,19 @@ export class CommentRepository extends Repository<Comment> {
 			count: parseInt(row.count, 10),
 		}));
 	}
+
+	async getCommentStatByUser(userId: number) {
+		const queryBuilder = this.createQueryBuilder("comment")
+			.select("COUNT(*)", "count")
+			.innerJoin("comment.author", "user")
+			.where("comment.isDelete = :isDelete", { isDelete: false })
+			.andWhere("user.isDelete = :isDelete", { isDelete: false })
+			.andWhere("comment.author_id = :authorId", { authorId: userId });
+
+		const result = await queryBuilder.getRawOne();
+
+		return {
+			count: parseInt(result.count, 10),
+		};
+	}
 }

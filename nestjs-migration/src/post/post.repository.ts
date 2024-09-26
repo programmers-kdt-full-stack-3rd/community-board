@@ -237,4 +237,19 @@ export class PostRepository extends Repository<Post> {
 			views: parseInt(row.views, 10),
 		}));
 	}
+
+	async getPostStatByUser(userId: number) {
+		const queryBuilder = this.createQueryBuilder("post")
+			.select("COUNT(*)", "count")
+			.addSelect("COALESCE(SUM(post.views),0)", "views")
+			.where("post.isDelete = :isDelete", { isDelete: false })
+			.andWhere("post.author_id = :authorId", { authorId: userId });
+
+		const result = await queryBuilder.getRawOne();
+
+		return {
+			count: parseInt(result.count, 10),
+			views: parseInt(result.views, 10),
+		};
+	}
 }

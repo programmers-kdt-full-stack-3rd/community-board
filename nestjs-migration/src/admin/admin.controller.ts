@@ -110,4 +110,12 @@ export class AdminController {
 
 		return result;
 	}
+
+	@Get("/stat/:userId")
+	@HttpCode(HttpStatus.OK)
+	async getUserStat(@Param("userId", ParseIntPipe) userId: number) {
+		const result = await this.adminService.getUserStat(userId);
+
+		return result;
+	}
 }
