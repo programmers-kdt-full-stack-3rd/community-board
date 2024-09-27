@@ -352,7 +352,7 @@ describe('ChatService', () => {
       roomId: mockRoomId
     }
     it("채팅방에 나가기 성공", async () => {
-      mockMemberRepository.update.mockResolvedValue(undefined);
+      mockMemberRepository.update.mockResolvedValue({affected: true});
 
       const result = await chatService.leaveRoom(mockLeaveroomDto);
 
@@ -370,10 +370,4 @@ describe('ChatService', () => {
       );
     });
   });
-
-
-
-  
-
-
 });
