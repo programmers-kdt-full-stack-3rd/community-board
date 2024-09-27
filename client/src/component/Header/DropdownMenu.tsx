@@ -1,10 +1,14 @@
 import { forwardRef, ForwardRefRenderFunction, useLayoutEffect } from "react";
-import { dropdownMenu, dropdownMenuItem } from "./DropdownMenu.css";
 import { NavigateFunction } from "react-router-dom";
 import UserDeleteModal from "./UserDeleteModal";
 import { useUserStore } from "../../state/store";
 import { ApiCall } from "../../api/api";
 import { getUserMyself } from "../../api/users/crud";
+import { MdOutlineAdminPanelSettings } from "react-icons/md";
+import { AiOutlineUserDelete } from "react-icons/ai";
+import { IoShareSocialOutline } from "react-icons/io5";
+import { MdOutlineAttachEmail } from "react-icons/md";
+import { FaRegUserCircle } from "react-icons/fa";
 
 interface DropdownMenuProps {
 	navigate: NavigateFunction;
@@ -70,48 +74,59 @@ const DropdownMenu: ForwardRefRenderFunction<
 	return (
 		<div
 			ref={ref}
-			className={dropdownMenu}
+			className="bg-customGray absolute right-0 top-12 z-50 min-w-[160px] rounded-md"
 		>
-			<div
-				onClick={handleProfileUpdateClick}
-				className={dropdownMenuItem}
-			>
-				회원정보 변경
-			</div>
-			{isEmailRegistered || (
+			<div className="m-4 cursor-pointer text-left text-base">
 				<div
-					onClick={handleEmailRegistrationClick}
-					className={dropdownMenuItem}
+					className="flex flex-row items-center gap-2 py-2 hover:opacity-70"
+					onClick={handleProfileUpdateClick}
 				>
-					로그인 이메일 등록
+					<FaRegUserCircle />
+					회원정보 변경
 				</div>
-			)}
-			<div
-				onClick={handleOAuthManageClick}
-				className={dropdownMenuItem}
-			>
-				소셜 로그인 연동 관리
-			</div>
-			<div
-				onClick={warningModal.open}
-				className={dropdownMenuItem}
-			>
-				회원 탈퇴
-			</div>
-			{/* 권한 확인 과정 구현 필요*/}
-			<div
-				onClick={handleAdminPageClick}
-				className={dropdownMenuItem}
-			>
-				관리자 페이지
-			</div>
 
-			<UserDeleteModal
-				{...MODAL_CONFIGS.warning}
-				isOpen={warningModal.isOpen}
-				onClose={warningModal.close}
-				onConfirm={handleWarningCorfirm}
-			/>
+				{!isEmailRegistered && (
+					<div
+						className="flex flex-row items-center gap-2 py-2 hover:opacity-70"
+						onClick={handleEmailRegistrationClick}
+					>
+						<MdOutlineAttachEmail />
+						이메일 등록
+					</div>
+				)}
+
+				<div
+					className="flex flex-row items-center gap-2 py-2 hover:opacity-70"
+					onClick={handleOAuthManageClick}
+				>
+					<IoShareSocialOutline />
+					로그인 연동
+				</div>
+
+				<div
+					className="flex flex-row items-center gap-2 py-2 hover:opacity-70"
+					onClick={warningModal.open}
+				>
+					<AiOutlineUserDelete />
+					회원 탈퇴
+				</div>
+
+				{/* 권한 확인 과정 구현 필요 */}
+				<div
+					className="flex flex-row items-center gap-2 py-2 hover:opacity-70"
+					onClick={handleAdminPageClick}
+				>
+					<MdOutlineAdminPanelSettings />
+					관리자 페이지
+				</div>
+
+				<UserDeleteModal
+					{...MODAL_CONFIGS.warning}
+					isOpen={warningModal.isOpen}
+					onClose={warningModal.close}
+					onConfirm={handleWarningCorfirm}
+				/>
+			</div>
 		</div>
 	);
 };

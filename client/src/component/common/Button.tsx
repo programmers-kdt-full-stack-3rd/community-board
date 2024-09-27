@@ -1,23 +1,5 @@
 import clsx from "clsx";
 import React from "react";
-import {
-	buttonBase,
-	dangerBackground,
-	dangerText,
-	dangerOutline,
-	largeSize,
-	mediumSize,
-	neutralBackground,
-	neutralText,
-	neutralOutline,
-	primaryBackground,
-	primaryText,
-	primaryOutline,
-	smallSize,
-	actionBackground,
-	actionText,
-	actionOutline,
-} from "./Button.temp.css";
 
 interface IButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 	color?: "primary" | "action" | "neutral" | "danger";
@@ -33,42 +15,52 @@ const Button: React.FC<IButtonProps> = ({
 	size = "medium",
 	...buttonProps
 }) => {
+	const baseClass =
+		"box-border m-0 border-0 rounded-md cursor-pointer transition duration-200";
+
+	// 색은 나중에 수정
+	const colorClass = {
+		primary: {
+			solid: "bg-blue-800 text-white hover:bg-blue-700",
+			outline:
+				"border border-blue-800 text-blue-800 hover:bg-blue-800 hover:text-white",
+			text: "text-blue-800 hover:bg-blue-100",
+		},
+		neutral: {
+			solid: "bg-customGray text-white hover:bg-gray-600",
+			outline:
+				"border border-gray-600 text-gray-600 hover:bg-gray-600 hover:text-white",
+			text: "text-gray-600 hover:bg-gray-100",
+		},
+		action: {
+			solid: "bg-blue-500 text-white hover:bg-blue-400",
+			outline:
+				"border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white",
+			text: "text-blue-500 hover:bg-blue-100",
+		},
+		danger: {
+			solid: "bg-red-600 text-white hover:bg-red-500",
+			outline:
+				"border border-red-600 text-red-600 hover:bg-red-600 hover:text-white",
+			text: "text-red-600 hover:bg-red-100",
+		},
+	};
+
+	const sizeClass = {
+		small: "py-1 px-3 text-sm leading-4",
+		medium: "py-2 px-4 text-base leading-5",
+		large: "py-3 px-6 text-lg leading-5",
+	};
+
 	return (
 		<button
 			{...buttonProps}
 			type={buttonProps.type || "button"}
 			className={clsx(
-				className,
-				buttonBase,
-				color === "primary" &&
-					(variant === "solid"
-						? [primaryBackground, primaryOutline]
-						: variant === "outline"
-							? [primaryOutline, primaryText]
-							: primaryText),
-				color === "neutral" &&
-					(variant === "solid"
-						? [neutralBackground, neutralOutline]
-						: variant === "outline"
-							? [neutralOutline, neutralText]
-							: neutralText),
-				color === "action" &&
-					(variant === "solid"
-						? [actionBackground, actionOutline]
-						: variant === "outline"
-							? [actionOutline, actionText]
-							: actionText),
-				color === "danger" &&
-					(variant === "solid"
-						? [dangerBackground, dangerOutline]
-						: variant === "outline"
-							? [dangerOutline, dangerText]
-							: dangerText),
-				size === "small"
-					? smallSize
-					: size === "medium"
-						? mediumSize
-						: largeSize
+				baseClass,
+				colorClass[color][variant],
+				sizeClass[size],
+				className
 			)}
 		>
 			{children}

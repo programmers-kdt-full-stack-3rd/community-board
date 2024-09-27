@@ -1,29 +1,15 @@
+import { UserRank } from "../../component/Posts/Rank/UserRank";
+import { Link } from "react-router-dom";
+import { IPostHeader, mapDBToPostHeaders } from "shared";
 import { useLayoutEffect, useState } from "react";
-import { IPostHeader, mapDBToPostHeaders, SortBy } from "shared";
-import { sendGetPostsRequest } from "../../api/posts/crud";
-import PostModal from "../../component/Posts/Modal/PostModal";
-import Pagination from "../../component/common/Pagination/Pagination";
-import PostList from "../../component/Posts/PostList/PostList";
-import SearchForm from "../../component/common/SearchForm/SearchForm";
 import useMainPageSearchParams from "../../hook/useMainPageSearchParams";
-import { useUserStore } from "../../state/store";
-import {
-	createPostButton,
-	createPostButtonWrapper,
-	mainPageStyle,
-	postListActions,
-} from "./Main.css";
 import { ApiCall } from "../../api/api";
 import { ClientError } from "../../api/errors";
+import { sendGetPostsRequest } from "../../api/posts/crud";
+import MainPortList from "../../component/Posts/PostList/MainPostList";
 
 const Main = () => {
-	const isLogin = useUserStore(state => state.isLogin);
-
-	const [isModalOpen, setIsModalOpen] = useState(false);
-
 	const [posts, setPosts] = useState<IPostHeader[] | null>([]);
-	const [totalPosts, setTotalPosts] = useState(0);
-
 	const { searchParams, setSearchParams, parsed } = useMainPageSearchParams();
 
 	useLayoutEffect(() => {
@@ -54,84 +40,94 @@ const Main = () => {
 				setSearchParams(nextSearchParams);
 			} else {
 				setPosts(mapDBToPostHeaders(res.postHeaders));
-				setTotalPosts(res.total ?? 0);
 			}
 		});
 	}, [parsed.index, parsed.perPage, parsed.keyword, parsed.sortBy]);
 
-	const handlePostSort = (sortBy: SortBy | null) => {
-		const nextSearchParams = new URLSearchParams(searchParams);
-
-		nextSearchParams.set("index", "1");
-
-		if (sortBy === null) {
-			nextSearchParams.delete("sortBy");
-		} else {
-			nextSearchParams.set("sortBy", String(sortBy));
-		}
-
-		setSearchParams(nextSearchParams);
-	};
-
-	const handlePageChange = async (page: number) => {
-		const nextSearchParams = new URLSearchParams(searchParams);
-		nextSearchParams.set("index", String(page));
-
-		setSearchParams(nextSearchParams);
-	};
-
-	const handleCreatePostClick = () => {
-		setIsModalOpen(true);
-	};
-
-	const handleSearchSubmit = (keyword: string) => {
-		const nextSearchParams = new URLSearchParams(searchParams);
-
-		nextSearchParams.set("index", "1");
-
-		if (keyword) {
-			nextSearchParams.set("keyword", keyword);
-		} else {
-			nextSearchParams.delete("keyword");
-		}
-
-		setSearchParams(nextSearchParams);
-	};
-
 	return (
-		<div className={mainPageStyle}>
-			{isModalOpen && <PostModal close={setIsModalOpen} />}
+		<div>
+			<div className="mx-auto mt-2 w-full max-w-7xl px-4 lg:mt-[18px] lg:px-0">
+				<div className="ml-4 flex lg:space-x-10">
+					<UserRank />
 
-			<PostList
-				posts={posts}
-				keyword={parsed.keyword}
-				sortBy={parsed.sortBy}
-				onSort={handlePostSort}
-			/>
+					<div className="w-full min-w-0 flex-auto lg:static lg:max-h-full lg:overflow-visible">
+						<div className="min-w-0 flex-auto">
+							<div className="my-12 mr-4 flex flex-col gap-x-10 gap-y-10 sm:my-8 md:flex-row">
+								<div className="w-full">
+									<div className="bg-customGray relative mb-2 flex h-14 items-center justify-between rounded-lg">
+										<span className="m-4 text-lg font-bold text-white">
+											자유게시판
+										</span>
+										<Link
+											className="m-4 justify-end text-base text-gray-300 hover:text-gray-500"
+											to="/category/community"
+										>
+											바로가기
+										</Link>
+									</div>
+									<MainPortList
+										posts={posts ? posts.slice(0, 5) : []}
+										keyword={parsed.keyword}
+									/>
+								</div>
+								<div className="w-full">
+									<div className="bg-customGray relative mb-2 flex h-14 items-center justify-between rounded-lg">
+										<span className="m-4 text-lg font-bold text-white">
+											QnA
+										</span>
+										<Link
+											className="m-4 justify-end text-base text-gray-300 hover:text-gray-500"
+											to="/category/community"
+										>
+											바로가기
+										</Link>
+									</div>
+									<MainPortList
+										posts={posts ? posts.slice(0, 5) : []}
+										keyword={parsed.keyword}
+									/>
+								</div>
+							</div>
 
-			<Pagination
-				currentPage={parsed.index}
-				totalPosts={totalPosts}
-				perPage={parsed.perPage}
-				onChange={handlePageChange}
-			/>
-
-			<div className={postListActions}>
-				{isLogin && (
-					<div className={createPostButtonWrapper}>
-						<button
-							className={createPostButton}
-							onClick={handleCreatePostClick}
-						>
-							글쓰기
-						</button>
+							<div className="my-12 mr-4 flex flex-col gap-x-10 gap-y-10 sm:my-8 md:flex-row">
+								<div className="w-full">
+									<div className="bg-customGray relative mb-2 flex h-14 items-center justify-between rounded-lg">
+										<span className="m-4 text-lg font-bold text-white">
+											팀원모집
+										</span>
+										<Link
+											className="m-4 justify-end text-base text-gray-300 hover:text-gray-500"
+											to="/category/community"
+										>
+											바로가기
+										</Link>
+									</div>
+									<MainPortList
+										posts={posts ? posts.slice(0, 5) : []}
+										keyword={parsed.keyword}
+									/>
+								</div>
+								<div className="w-full">
+									<div className="bg-customGray relative mb-2 flex h-14 items-center justify-between rounded-lg">
+										<span className="m-4 text-lg font-bold text-white">
+											도전과제
+										</span>
+										<Link
+											className="m-4 justify-end text-base text-gray-300 hover:text-gray-500"
+											to="/category/community"
+										>
+											바로가기
+										</Link>
+									</div>
+									<MainPortList
+										posts={posts ? posts.slice(0, 5) : []}
+										keyword={parsed.keyword}
+									/>
+								</div>
+							</div>
+						</div>
 					</div>
-				)}
-
-				<SearchForm
-					defaultKeyword={parsed.keyword}
-					onSubmit={handleSearchSubmit}
-				/>
+				</div>
 			</div>
 		</div>
 	);

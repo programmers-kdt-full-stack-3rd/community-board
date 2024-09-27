@@ -1,22 +1,8 @@
-import {
-	EtcInfo,
-	EtcInfoItem,
-	FullButtons,
-	OneButton,
-	PostBody,
-	PostHeader,
-	Title,
-	AuthorBtn,
-	LikeBtn,
-	LikedColor,
-	UnLikedColor,
-} from "./PostInfo.css";
 import { dateToStr } from "../../utils/date-to-str";
 import { IPostInfo } from "shared";
 import { useLayoutEffect, useState } from "react";
 import PostModal from "./Modal/PostModal";
 import DeleteModal from "./Modal/DeleteModal";
-import { AiFillLike } from "react-icons/ai";
 import {
 	sendCreatePostLikeRequest,
 	sendDeletePostLikeRequest,
@@ -25,7 +11,9 @@ import { useUserStore } from "../../state/store";
 import { ApiCall } from "../../api/api";
 import { ClientError } from "../../api/errors";
 import { useErrorModal } from "../../state/errorModalStore";
-
+import Button from "../common/Button";
+import { IoEyeOutline } from "react-icons/io5";
+import { FaRegThumbsUp } from "react-icons/fa6";
 interface IPostInfoProps {
 	postInfo: IPostInfo;
 }
@@ -90,6 +78,7 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 
 	return (
 		<div>
+			{/* 모달 부분 css 수정 x*/}
 			{updateModalOpen ? (
 				<PostModal
 					close={setUpdateModalOpen}
@@ -103,49 +92,72 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 					postId={postInfo.id}
 				/>
 			) : null}
-			<div className={PostHeader}>
-				<div className={Title}>{postInfo.title}</div>
-				<div className={EtcInfo}>
-					<div className={EtcInfoItem}>
-						<div>{postInfo.author_nickname}</div>
-						<div>{dateToStr(time) + updateTxt}</div>
+			<div className="flex w-[800px] flex-col pb-2.5 pt-2.5">
+				<div className="bg-customGray relative mb-4 mt-4 flex flex-col justify-between rounded-lg text-left">
+					<span className="m-5 text-lg font-bold text-white">
+						자유게시판
+					</span>
+				</div>
+
+				<div className="border-b-customGray border-t-customGray border-spacing-3 border-y">
+					<div className="text-left text-2xl font-bold">
+						<div className="mb-2 mt-4">{postInfo.title}</div>
 					</div>
-					<div className={EtcInfoItem}>
-						<div>{"조회 " + postInfo.views}</div>
-						<div>{"좋아요 " + postInfo.likes}</div>
+					<div className="mb-4 flex items-center justify-between">
+						<div className="flex items-center gap-2 text-lg">
+							<div>{postInfo.author_nickname}</div>
+							<div>{dateToStr(time) + updateTxt}</div>
+						</div>
+						<div className="flex items-center gap-2 text-base">
+							<IoEyeOutline></IoEyeOutline>
+							<div>{postInfo.views}</div>
+							<FaRegThumbsUp></FaRegThumbsUp>
+							<div>{postInfo.likes}</div>
+							{isAuthor ? (
+								<Button
+									size="small"
+									onClick={() => setUpdateModalOpen(true)}
+									variant="text"
+									color="neutral"
+								>
+									수정
+								</Button>
+							) : null}
+							{isAuthor ? (
+								<Button
+									size="small"
+									onClick={() => setDeleteModalOpen(true)}
+									variant="text"
+									color="danger"
+								>
+									삭제
+								</Button>
+							) : null}
+						</div>
 					</div>
 				</div>
 			</div>
-			<div className={PostBody}>{content}</div>
-			<div className={isAuthor ? FullButtons : OneButton}>
-				{isAuthor ? (
-					<button
-						className={AuthorBtn}
-						onClick={() => setUpdateModalOpen(true)}
-					>
-						수정
-					</button>
-				) : null}
+			<div className="flex flex-col">
+				<div className="flex h-full w-[780px] resize-none flex-col text-start">
+					{content}
+				</div>
 				<div
-					className={LikeBtn}
-					onClick={handleLike}
+					className={`mt-10 flex flex-col items-center justify-center`}
 				>
-					<AiFillLike
-						color={userLiked ? "#36B700" : "#000000"}
-						size={50}
-					/>
-					<div className={userLiked ? LikedColor : UnLikedColor}>
-						{likes}
+					<div
+						className="flex flex-col items-center"
+						onClick={handleLike}
+					>
+						<FaRegThumbsUp
+							className={`text-3xl ${userLiked ? "text-green-500" : "text-gray-200"}`}
+						/>
+						<div
+							className={`text-1xl ${userLiked ? "text-green-500" : "text-gray-200"}`}
+						>
+							{likes}
+						</div>
 					</div>
 				</div>
-				{isAuthor ? (
-					<button
-						className={AuthorBtn}
-						onClick={() => setDeleteModalOpen(true)}
-					>
-						삭제
-					</button>
-				) : null}
 			</div>
 		</div>
 	);

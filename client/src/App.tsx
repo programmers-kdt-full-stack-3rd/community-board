@@ -5,7 +5,7 @@ import PostInfoPage from "./page/Posts/PostInfoPage";
 import Join from "./page/User/Join";
 import Main from "./page/Main/Main";
 import Header from "./component/Header/Header";
-import { AppContainer, justifyCenter, mainContainer } from "./App.css";
+import { justifyCenter, mainContainer } from "./App.css";
 import CheckPassword from "./page/User/CheckPassword";
 import ProfileUpdate from "./page/User/ProfileUpdate";
 import clsx from "clsx";
@@ -27,6 +27,7 @@ import OAuthLink from "./page/OAuth/OAuthLink";
 import EmailRegistration from "./page/User/EmailRegistration";
 import ChatBtn from "./component/Chats/ChatBtn/ChatBtn";
 import UITest from "./page/UITest"; // TODO: UI 리팩터링 완료 후 테스트 import 제거
+import Community from "./page/Category/Community";
 
 function MainContainer({ children }: { children: React.ReactNode }) {
 	const location = useLocation();
@@ -40,6 +41,10 @@ function MainContainer({ children }: { children: React.ReactNode }) {
 		"/emailRegistration",
 		"/oauth",
 	];
+
+	if (location.pathname === "/") {
+		return <>{children}</>; // 메인 페이지에서는 children만 렌더링
+	}
 
 	return (
 		<div
@@ -86,94 +91,91 @@ function App() {
 	}, []);
 
 	return (
-		<div className={AppContainer}>
+		<div>
 			<BrowserRouter>
 				<Header />
-				<div
-					style={{
-						display: "flex",
-						flexDirection: "row",
-					}}
-				>
-					<MainContainer>
-						{errorModal.isOpen && (
-							<ErrorModal
-								message={errorModal.errorMessage}
-								onError={errorModal.onError}
-								close={errorModal.close}
-							/>
-						)}
-						<Routes>
-							<Route
-								path="/"
-								element={<Main />}
-							/>
-							<Route
-								path="/login"
-								element={<Login />}
-							/>
-							<Route
-								path="/join"
-								element={<Join />}
-							/>
-							<Route
-								path="/oauth/redirect/:provider"
-								element={<OAuthRedirectHandler />}
-							/>
-							<Route
-								path="/checkPassword"
-								element={<CheckPassword />}
-							/>
-							<Route
-								path="/profileUpdate"
-								element={<ProfileUpdate />}
-							/>
-							<Route
-								path="/post/:id"
-								element={<PostInfoPage />}
-							/>
-							<Route
-								path="/chat"
-								element={<ChatTestPage />}
-							/>
-							<Route
-								path="/admin/userMgmt"
-								element={<AdminUserMgmtPage />}
-							/>
-							<Route
-								path="/admin/postMgmt"
-								element={<AdminPostMgmtPage />}
-							/>
-							<Route
-								path="/admin/stats"
-								element={<AdminStatsPage />}
-							/>
-							<Route
-								path="/admin/userLog/:userId"
-								element={<AdminUserLogPage />}
-							/>
-							<Route
-								path="/oauth"
-								element={<OAuthLink />}
-							/>
-							<Route
-								path="/emailRegistration"
-								element={<EmailRegistration />}
-							/>
-							{/* TODO: UI 리팩터링 완료 후 테스트 라우팅 제거 */}
-							<Route
-								path="/test/ui"
-								element={<UITest />}
-							/>
-							<Route
-								path="*"
-								element={<NotFound />}
-							/>
-						</Routes>
-					</MainContainer>
-					{isOpen && <ChatAside />}
-					<ChatBtn />
-				</div>
+				<MainContainer>
+					{errorModal.isOpen && (
+						<ErrorModal
+							message={errorModal.errorMessage}
+							onError={errorModal.onError}
+							close={errorModal.close}
+						/>
+					)}
+					<Routes>
+						<Route
+							path="/"
+							element={<Main />}
+						/>
+						<Route
+							path="/login"
+							element={<Login />}
+						/>
+						<Route
+							path="/join"
+							element={<Join />}
+						/>
+						<Route
+							path="/oauth/redirect/:provider"
+							element={<OAuthRedirectHandler />}
+						/>
+						<Route
+							path="/checkPassword"
+							element={<CheckPassword />}
+						/>
+						<Route
+							path="/profileUpdate"
+							element={<ProfileUpdate />}
+						/>
+						<Route
+							path="/post/:id"
+							element={<PostInfoPage />}
+						/>
+						<Route
+							path="/chat"
+							element={<ChatTestPage />}
+						/>
+						<Route
+							path="/admin/userMgmt"
+							element={<AdminUserMgmtPage />}
+						/>
+						<Route
+							path="/admin/postMgmt"
+							element={<AdminPostMgmtPage />}
+						/>
+						<Route
+							path="/admin/stats"
+							element={<AdminStatsPage />}
+						/>
+						<Route
+							path="/admin/userLog/:userId"
+							element={<AdminUserLogPage />}
+						/>
+						<Route
+							path="/oauth"
+							element={<OAuthLink />}
+						/>
+						<Route
+							path="/emailRegistration"
+							element={<EmailRegistration />}
+						/>
+						{/* TODO: UI 리팩터링 완료 후 테스트 라우팅 제거 */}
+						<Route
+							path="/test/ui"
+							element={<UITest />}
+						/>
+						<Route
+							path="*"
+							element={<NotFound />}
+						/>
+						<Route
+							path="/category/community"
+							element={<Community />}
+						/>
+					</Routes>
+				</MainContainer>
+				{isOpen && <ChatAside />}
+				<ChatBtn />
 			</BrowserRouter>
 		</div>
 	);
