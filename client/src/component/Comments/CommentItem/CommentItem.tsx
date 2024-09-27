@@ -102,7 +102,7 @@ const CommentItem = ({ comment, onUpdate, onDelete }: ICommentItemProps) => {
 
 	return (
 		<div className="border-b-customGray flex w-full border-spacing-3 flex-row items-center justify-between border-b">
-			<div className="flex-grow">
+			<div className="max-w-[750px] flex-grow">
 				<div className="mb-2 flex flex-row items-center justify-between">
 					<div className="flex flex-row items-center gap-2">
 						<div className="font-bold">
@@ -153,7 +153,9 @@ const CommentItem = ({ comment, onUpdate, onDelete }: ICommentItemProps) => {
 							onCancel={handleEditModeToggle}
 						/>
 					) : (
-						<div className="mb-4">{contentNodes}</div>
+						<div className="mb-4 max-w-full break-words">
+							{contentNodes}
+						</div>
 					)}
 				</div>
 			</div>
