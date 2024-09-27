@@ -1,15 +1,15 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { ChatService } from './chat.service';
-import { User } from 'src/common/decorator/user.decorator';
-import { IUserEntity } from 'src/common/interface/user-entity.interface';
+import { User } from '../common/decorator/user.decorator';
+import { IUserEntity } from '../common/interface/user-entity.interface';
 import { CreateRoomBodyDto } from './dto/create-room.dto';
 import { ReadRoomQueryDto } from './dto/read-room-query.dto';
 import { Request } from 'express';
-import { LoginGuard } from 'src/common/guard/login.guard';
+import { LoginGuard } from '../common/guard/login.guard';
 import { JoinRoomBodyDto, JoinRoomDto } from './dto/join-room.dto';
 import { EnterRoomBodyDto, EnterRoomDto } from './dto/enter-room.dto';
 import { LeaveRoomBodyDto } from './dto/leave-room.dto';
-import { ServerError } from 'src/common/exceptions/server-error.exception';
+import { ServerError } from '../common/exceptions/server-error.exception';
 import { IMessage } from './dto/message.dto';
 import { EnterRoomResultDto, GetRoomsResultDto, ICreateRoomResult, IJoinRoomResult } from './dto/chat-result.dto';
 
@@ -43,7 +43,7 @@ export class ChatController {
   @HttpCode(HttpStatus.OK)
   async handleRoomsRead (
     @Query() readRoomQueryDto: ReadRoomQueryDto,
-    @Req() req: Request
+    @User() user: IUserEntity
   ) : Promise<GetRoomsResultDto> {
     try{
       let { page, perPage, keyword, isSearch} = readRoomQueryDto;
@@ -62,7 +62,7 @@ export class ChatController {
         results = await this.chatService.getRoomsBykeyword(readRoomByKeywordDto);
       } else {
         const readRoomByUserIdDto = {
-          userId: req.user["userId"],
+          userId: user.userId,
           page,
           perPage,
         }
@@ -71,7 +71,7 @@ export class ChatController {
 
       return results;
     } catch(err) {
-      throw err;
+        throw ServerError.reference("채팅방 불러오기 실패");
     };
   };
 
@@ -87,9 +87,9 @@ export class ChatController {
       return result;      
 
     } catch(err) {
-      throw err;
+      throw ServerError.reference("메세지 로그 불러오기 실패");
     };
-  }
+  };
 
   @Post("/join")
   @UseGuards(LoginGuard)
@@ -109,7 +109,7 @@ export class ChatController {
 
       return {roomId: result}
     } catch(err) {
-      throw err;
+        throw ServerError.reference("채팅방 가입 실패");
     };
   }
 
@@ -122,8 +122,7 @@ export class ChatController {
   ) : Promise<EnterRoomResultDto> {
     try{
       const userId = user.userId;
-      const {roomId} = enterRoomBodyDto;
-      
+
       const enterRoomDto = {
         ...enterRoomBodyDto,
         userId,
@@ -133,7 +132,7 @@ export class ChatController {
       return {memberId,};
 
     } catch(err) {
-      throw err;
+      throw ServerError.reference("채팅방 입장 실패");
     };
   };
 
@@ -157,7 +156,7 @@ export class ChatController {
       return;
 
     } catch(err) {
-      throw err;
+      throw ServerError.reference("채팅방 나가기 실패");
     };
   };
 };

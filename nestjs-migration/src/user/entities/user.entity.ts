@@ -12,7 +12,7 @@ import { Like } from "../../like/entities/like.entity";
 import { Post } from "../../post/entities/post.entity";
 import { Role } from "../../rbac/entities/roles.entity";
 import { CommentLike } from "../../like/entities/comment-like.entity";
-import { Member } from "src/chat/entities/member.entity";
+import { Member } from "../../chat/entities/member.entity";
 
 @Entity("users")
 export class User {

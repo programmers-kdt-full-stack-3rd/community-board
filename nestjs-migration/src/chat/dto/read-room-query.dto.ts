@@ -1,12 +1,17 @@
+import { IsOptional } from "class-validator";
 
 export class ReadRoomQueryDto {
-    
+
+    @IsOptional()
     page: number = 0;
 
+    @IsOptional()
     perPage: number = 2;
 
+    @IsOptional()
     isSearch: boolean; //string??
 
+    @IsOptional()
     keyword: string;
 }
 

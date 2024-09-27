@@ -1,4 +1,4 @@
-import { IsDefined } from "class-validator";
+import { IsDefined, IsOptional } from "class-validator";
 
 export class CreateRoomBodyDto {
 
@@ -8,6 +8,7 @@ export class CreateRoomBodyDto {
     @IsDefined()
     isPrivate: boolean;
 
+    @IsOptional()
     password: string;
 }
 

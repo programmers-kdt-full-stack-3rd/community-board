@@ -4,7 +4,7 @@ import { Room } from "../entities/room.entity";
 import { plainToInstance } from "class-transformer";
 import { Member } from "../entities/member.entity";
 import { ReadRoomByKeywordDto, ReadRoomByUserIdDto } from "../dto/read-room-query.dto";
-import { User } from "src/user/entities/user.entity";
+import { User } from "../../user/entities/user.entity";
 import { Message } from "../entities/message.entity";
 import { IMessage } from "../dto/message.dto";
 import { IRoomHeader } from "../dto/chat-result.dto";

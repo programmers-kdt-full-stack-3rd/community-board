@@ -7,11 +7,10 @@ import { ReadRoomByKeywordDto, ReadRoomByUserIdDto } from './dto/read-room-query
 import { JoinRoomDto } from './dto/join-room.dto';
 import { EnterRoomDto } from './dto/enter-room.dto';
 import { LeaveRoomDto } from './dto/leave-room.dto';
-import { ServerError } from 'src/common/exceptions/server-error.exception';
+import { ServerError } from '../common/exceptions/server-error.exception';
 import { IMessage } from './dto/message.dto';
 import { GetRoomsResultDto } from './dto/chat-result.dto';
 
-//repository 오타 수정
 @Injectable()
 export class ChatService {
   constructor(
@@ -152,7 +151,6 @@ export class ChatService {
           room: {id: roomId},
         }
       });
-      console.log(result)
       const memberId = result.id;
   
       return memberId;
