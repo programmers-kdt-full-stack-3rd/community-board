@@ -17,7 +17,6 @@ const PostList = ({ posts, keyword, sortBy, onSort }: IPostListProps) => {
 	const handleSortableClickWith =
 		(nextSortBy: SortBy | null) => (event: MouseEvent) => {
 			event.preventDefault();
-
 			onSort(nextSortBy);
 		};
 
@@ -35,8 +34,8 @@ const PostList = ({ posts, keyword, sortBy, onSort }: IPostListProps) => {
 				<div className="postListHeaderRow:text-center flex-1 text-left">
 					제목
 				</div>
-				<div className="w-[96px] flex-none text-[0.9rem]">작성자</div>
-				<div className="w-[96px] flex-none text-[0.9rem]">
+				<div className="w-24 flex-none text-[0.9rem]">작성자</div>
+				<div className="w-24 flex-none text-[0.9rem]">
 					<a
 						className={clsx(
 							"postListLinks:hover:bg-transparent flex items-center justify-center gap-[2px]",
@@ -58,7 +57,7 @@ const PostList = ({ posts, keyword, sortBy, onSort }: IPostListProps) => {
 						</span>
 					</a>
 				</div>
-				<div className="w-[64px] flex-none">
+				<div className="w-16 flex-none">
 					<a
 						className={clsx(
 							"postListLinks:hover:bg-transparent flex items-center justify-center gap-[2px]",
@@ -80,7 +79,7 @@ const PostList = ({ posts, keyword, sortBy, onSort }: IPostListProps) => {
 						</span>
 					</a>
 				</div>
-				<div className="w-[64px] flex-none">
+				<div className="w-16 flex-none">
 					<a
 						className={clsx(
 							"postListLinks:hover:bg-transparent flex items-center justify-center gap-[2px]",
@@ -108,7 +107,7 @@ const PostList = ({ posts, keyword, sortBy, onSort }: IPostListProps) => {
 				<div className="flex flex-col">
 					{isPostsEmpty ? (
 						<EmptyPostListBody
-							className="my-30 text-center text-2xl text-gray-500"
+							className="my-30 text-center text-lg text-gray-500"
 							isFetchFailed={isFetchFailed}
 							keyword={keyword}
 						/>
@@ -125,16 +124,16 @@ const PostList = ({ posts, keyword, sortBy, onSort }: IPostListProps) => {
 								<div className="postListHeaderRow:text-center flex-1 text-left">
 									{postHeader.title}
 								</div>
-								<div className="w-[96px] flex-none text-[0.9rem]">
+								<div className="w-24 flex-none text-[0.9rem]">
 									{postHeader.author_nickname}
 								</div>
-								<div className="w-[96px] flex-none text-[0.9rem]">
+								<div className="w-24 flex-none text-[0.9rem]">
 									{dateToStr(postHeader.created_at, true)}
 								</div>
-								<div className="w-[64px] flex-none">
+								<div className="w-16 flex-none">
 									{postHeader.likes}
 								</div>
-								<div className="w-[64px] flex-none">
+								<div className="w-16 flex-none">
 									{postHeader.views}
 								</div>
 							</Link>
