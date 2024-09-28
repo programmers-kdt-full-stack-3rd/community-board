@@ -122,6 +122,39 @@ export class UserRepository extends Repository<User> {
 			.execute();
 	}
 
+	async countActiveUsers() {
+		return this.count({ where: { isDelete: false } });
+	}
+
+	async getIntervalStats(
+		dateFormat: string,
+		startDate?: Date,
+		endDate?: Date
+	) {
+		const queryBuilder = this.createQueryBuilder("user")
+			.select("DATE_FORMAT(user.createdAt, :dateFormat)", "date")
+			.setParameter("dateFormat", dateFormat)
+			.addSelect("COUNT(user.id)", "count")
+			.where("user.isDelete = :isDelete", { isDelete: false });
+
+		if (startDate) {
+			queryBuilder.andWhere("user.createdAt >= :startDate", {
+				startDate,
+			});
+		}
+
+		if (endDate) {
+			queryBuilder.andWhere("user.createdAt <= :endDate", { endDate });
+		}
+
+		const result = await queryBuilder.groupBy("date").getRawMany();
+
+		return result.map(row => ({
+			...row,
+			count: parseInt(row.count, 10),
+		}));
+	}
+
 	//예시 코드
 
 	// async customMethod(id: number): Promise<User> {

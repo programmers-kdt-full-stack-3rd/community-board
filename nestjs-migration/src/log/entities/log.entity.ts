@@ -1,20 +1,31 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
+import {
+	Column,
+	CreateDateColumn,
+	Entity,
+	JoinColumn,
+	ManyToOne,
+	PrimaryGeneratedColumn,
+} from "typeorm";
+import { LogCategory } from "./log-category.entity";
 
 @Entity("user_logs")
 export class Log {
+	@PrimaryGeneratedColumn()
+	id: number;
 
-    @PrimaryGeneratedColumn()
-    id: number
+	@Column({ name: "user_id" })
+	userId: number;
 
-    @Column({ name: "user_id"})
-    userId: number
+	@Column()
+	title: string;
 
-    @Column()
-    title: string
+	@Column({ name: "category_id" })
+	categoryId: number;
 
-    @Column({ name: "category_id"})
-    categoryId: number
+	@CreateDateColumn({ name: "created_at" })
+	createdAt: Date;
 
-    @CreateDateColumn({ name: "created_at"})
-    createdAt: Date
+	@ManyToOne(() => LogCategory, category => category.id)
+	@JoinColumn({ name: "category_id" })
+	category: LogCategory;
 }

@@ -71,9 +71,10 @@ export class TokenGuard implements CanActivate {
 				throw ServerError.badRequest(ERROR_MESSAGES.DELETED_USER);
 			}
 
-			const { accessToken } = this.authService.generateTokens(
-				payload.userId
-			);
+			const { accessToken } = this.authService.generateTokens({
+				userId: payload.userId,
+				roleId: payload.roleId,
+			});
 			response.cookie(COOKIE_CONSTANTS.ACCESS_TOKEN, accessToken, {
 				httpOnly: true,
 				secure: true,
