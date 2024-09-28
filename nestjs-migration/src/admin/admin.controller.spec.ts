@@ -1,14 +1,17 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { IAdminPostResponse, IUserInfoResponse } from "shared";
 import { ServerError } from "../common/exceptions/server-error.exception";
+import { LogService } from "../log/log.service";
 import { AdminController } from "./admin.controller";
 import { AdminService } from "./admin.service";
 import { GetPostsDto } from "./dto/get-posts.dto";
+import { GetStatsQueryDto } from "./dto/get-stats.dto";
 import { GetUsersDto } from "./dto/get-users.dto";
 
 describe("AdminController", () => {
 	let adminController: AdminController;
 	let adminService: AdminService;
+	let logService: LogService;
 
 	beforeEach(async () => {
 		const module: TestingModule = await Test.createTestingModule({
@@ -25,6 +28,15 @@ describe("AdminController", () => {
 						restorePost: jest.fn(),
 						publicPost: jest.fn(),
 						privatePost: jest.fn(),
+						getStats: jest.fn(),
+						getUserStat: jest.fn(),
+					},
+				},
+
+				{
+					provide: LogService,
+					useValue: {
+						getLogs: jest.fn(),
 					},
 				},
 			],
@@ -32,6 +44,7 @@ describe("AdminController", () => {
 
 		adminController = module.get<AdminController>(AdminController);
 		adminService = module.get<AdminService>(AdminService);
+		logService = module.get<LogService>(LogService);
 	});
 
 	it("should be defined", () => {
@@ -186,6 +199,97 @@ describe("AdminController", () => {
 
 			expect(adminService.privatePost).toHaveBeenCalledWith(postId);
 			expect(result).toEqual({ message: "게시글 비공개 성공" });
+		});
+	});
+
+	describe("GET /api/admin/log/:userId", () => {
+		const mockLogs = {
+			total: 1,
+			logs: [
+				{
+					title: "test",
+					category: "게시글",
+					createdAt: new Date("2024-01-01"),
+				},
+			],
+		};
+
+		it("성공적으로 로그를 가져온다.", async () => {
+			const userId = 1;
+			const getLogQueryDto = {
+				index: 5,
+				perPage: 10,
+			};
+
+			jest.spyOn(logService, "getLogs").mockResolvedValue(mockLogs);
+			const result = await adminController.getLogs(
+				getLogQueryDto,
+				userId
+			);
+
+			expect(logService.getLogs).toHaveBeenCalledWith(
+				getLogQueryDto,
+				userId
+			);
+			expect(result).toEqual(mockLogs);
+		});
+	});
+
+	describe("GET /api/admin/stat", () => {
+		const getStatsQueryDto = new GetStatsQueryDto();
+		const mockStats = {
+			totalStats: {
+				posts: 1,
+				comments: 1,
+				users: 1,
+				views: 1,
+			},
+
+			intervalStats: [
+				{
+					date: "2024-01-01",
+					posts: 1,
+					comments: 1,
+					views: 1,
+					users: 1,
+				},
+			],
+		};
+
+		it("성공적으로 통계를 가져온다.", async () => {
+			jest.spyOn(adminService, "getStats").mockResolvedValue(mockStats);
+
+			const result = await adminController.getStats(getStatsQueryDto);
+
+			expect(adminService.getStats).toHaveBeenCalledWith(
+				getStatsQueryDto
+			);
+
+			expect(result).toEqual(mockStats);
+		});
+	});
+
+	describe("GET /api/admin/stat/:userId", () => {
+		const userId = 1;
+
+		it("성공적으로 유저 통계를 가져온다.", async () => {
+			const mockResult = {
+				nickname: "testUser",
+				stats: {
+					posts: 1,
+					comments: 1,
+					views: 1,
+				},
+			};
+
+			jest.spyOn(adminService, "getUserStat").mockResolvedValue(
+				mockResult
+			);
+
+			const result = await adminController.getUserStat(userId);
+
+			expect(adminService.getUserStat).toHaveBeenCalledWith(userId);
+			expect(result).toEqual(mockResult);
 		});
 	});
 });
