@@ -78,7 +78,7 @@ export const InputIndex = style({
 	justifyContent: "space-between",
 	alignItems: "center",
 	fontWeight: "bolder",
-	color: vars.color.darkText,
+	color: vars.color.brightText,
 	marginLeft: 10,
 	marginBottom: 10,
 	"::placeholder": {},
