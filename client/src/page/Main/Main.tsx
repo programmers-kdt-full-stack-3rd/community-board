@@ -54,7 +54,7 @@ const Main = () => {
 						<div className="min-w-0 flex-auto">
 							<div className="my-12 mr-4 flex flex-col gap-x-10 gap-y-10 sm:my-8 md:flex-row">
 								<div className="w-full">
-									<div className="bg-customGray relative mb-2 flex h-14 items-center justify-between rounded-lg">
+									<div className="dark:bg-customGray relative mb-2 flex h-14 items-center justify-between rounded-lg bg-blue-900">
 										<span className="m-4 text-lg font-bold text-white">
 											자유게시판
 										</span>
@@ -71,7 +71,7 @@ const Main = () => {
 									/>
 								</div>
 								<div className="w-full">
-									<div className="bg-customGray relative mb-2 flex h-14 items-center justify-between rounded-lg">
+									<div className="dark:bg-customGray relative mb-2 flex h-14 items-center justify-between rounded-lg bg-blue-900">
 										<span className="m-4 text-lg font-bold text-white">
 											QnA
 										</span>
@@ -91,7 +91,7 @@ const Main = () => {
 
 							<div className="my-12 mr-4 flex flex-col gap-x-10 gap-y-10 sm:my-8 md:flex-row">
 								<div className="w-full">
-									<div className="bg-customGray relative mb-2 flex h-14 items-center justify-between rounded-lg">
+									<div className="dark:bg-customGray relative mb-2 flex h-14 items-center justify-between rounded-lg bg-blue-900">
 										<span className="m-4 text-lg font-bold text-white">
 											팀원모집
 										</span>
@@ -108,7 +108,7 @@ const Main = () => {
 									/>
 								</div>
 								<div className="w-full">
-									<div className="bg-customGray relative mb-2 flex h-14 items-center justify-between rounded-lg">
+									<div className="dark:bg-customGray relative mb-2 flex h-14 items-center justify-between rounded-lg bg-blue-900">
 										<span className="m-4 text-lg font-bold text-white">
 											도전과제
 										</span>

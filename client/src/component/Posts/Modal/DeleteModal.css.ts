@@ -2,6 +2,7 @@ import { style } from "@vanilla-extract/css";
 import { vars } from "../../../App.css.ts";
 
 export const DeleteModalContainer = style({
+	border: `1px solid ${vars.color.secondaryDarkText}`,
 	position: "absolute",
 	top: "50%",
 	left: "50%",
