@@ -1,8 +1,17 @@
-import React from "react";
+import clsx from "clsx";
+import React, { createContext, useContext, useMemo } from "react";
 import { createPortal } from "react-dom";
+import { FiAlertTriangle, FiInfo, FiXCircle } from "react-icons/fi";
+
+type TModalVariant = "error" | "warning" | "info" | "base";
+
+interface IModalContextValue {
+	variant?: TModalVariant;
+}
 
 interface IModalRootProps {
 	children: React.ReactNode;
+	variant?: TModalVariant;
 	isOpen?: boolean;
 	onClose?: () => void;
 }
@@ -27,11 +36,21 @@ type TModalComponent = React.FC<IModalRootProps> & {
 
 const modalRootElement = document.getElementById("modal-root")!;
 
+const ModalContext = createContext<IModalContextValue>({});
+
 const ModalRoot: React.FC<IModalRootProps> = ({
 	children,
+	variant = "base",
 	isOpen,
 	onClose,
 }) => {
+	const contextValue: IModalContextValue = useMemo(
+		() => ({
+			variant,
+		}),
+		[variant]
+	);
+
 	const handleClose = () => {
 		if (typeof onClose === "function") {
 			onClose();
@@ -42,15 +61,17 @@ const ModalRoot: React.FC<IModalRootProps> = ({
 		<>
 			{isOpen &&
 				createPortal(
-					<div className="fixed inset-0 z-50 flex h-full w-full items-center justify-center bg-black/50">
-						<div
-							className="absolute inset-0 -z-10 h-full w-full"
-							onClick={handleClose}
-						/>
-						<section className="bg-customDarkGray flex max-h-full w-96 flex-col gap-6 rounded-lg p-6 shadow-lg">
-							{children}
-						</section>
-					</div>,
+					<ModalContext.Provider value={contextValue}>
+						<div className="fixed inset-0 z-50 flex h-full w-full items-center justify-center bg-black/50">
+							<div
+								className="absolute inset-0 -z-10 h-full w-full"
+								onClick={handleClose}
+							/>
+							<section className="bg-customDarkGray flex max-h-full w-96 flex-col gap-6 rounded-lg p-6 shadow-lg">
+								{children}
+							</section>
+						</div>
+					</ModalContext.Provider>,
 					modalRootElement
 				)}
 		</>
@@ -58,9 +79,31 @@ const ModalRoot: React.FC<IModalRootProps> = ({
 };
 
 const ModalTitle: React.FC<IModalTitleProps> = ({ children }) => {
+	const { variant = "base" } = useContext(ModalContext);
+
+	const classNameByVariant = {
+		error: "text-red-300",
+		warning: "text-yellow-300",
+		info: "text-blue-300",
+		base: "text-neutral-300",
+	};
+
+	const iconByVariant = {
+		error: <FiXCircle />,
+		warning: <FiAlertTriangle />,
+		info: <FiInfo />,
+		base: null,
+	};
+
 	return (
-		<header className="text-center text-2xl font-bold text-neutral-300">
-			<h2>{children}</h2>
+		<header
+			className={clsx(
+				"flex items-center justify-center gap-2 text-2xl",
+				classNameByVariant[variant] ?? classNameByVariant.base
+			)}
+		>
+			{iconByVariant[variant]}
+			<h2 className="font-bold text-inherit">{children}</h2>
 		</header>
 	);
 };
