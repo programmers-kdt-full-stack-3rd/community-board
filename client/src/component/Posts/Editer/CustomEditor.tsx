@@ -34,7 +34,10 @@ const CustomEditor: React.FC<Props> = ({ content, setContent }) => {
 	const contentState = useMemo(() => {
 		const convertedContent = convertFromHTML(
 			// <ins>태그가 편집기에서 게시글 수정 상황일 때 제대로 적용이 안되서 추가함
-			content.replace("<ins>", "<u>").replace("</ins>", "</u>")
+			content
+				.replace("<ins>", "<u>")
+				.replace("</ins>", "</u>")
+				.replace("%20", " ")
 		);
 
 		return ContentState.createFromBlockArray(
@@ -66,7 +69,7 @@ const CustomEditor: React.FC<Props> = ({ content, setContent }) => {
 			return;
 		}
 
-		return res.imgUrl;
+		return { data: { link: res.imgUrl } };
 	};
 
 	return (
@@ -90,7 +93,13 @@ const CustomEditor: React.FC<Props> = ({ content, setContent }) => {
 					backgroundColor: "white",
 				}}
 				toolbar={{
-					image: { uploadCallback: uploadCallback },
+					image: {
+						uploadCallback: uploadCallback,
+						previewImage: true,
+						alt: { present: true, mandatory: false },
+						inputAccept:
+							"image/gif,image/jpeg,image/jpg,image/png,image/svg",
+					},
 				}}
 			/>
 		</div>

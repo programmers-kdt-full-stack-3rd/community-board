@@ -32,7 +32,7 @@ export const uploadImageRequest = async (file: File | Blob) => {
 
 	const form = new FormData();
 
-	form.append("imageFile", file, "image");
+	form.append("image", file, "image");
 
-	return await httpRequest(url, HttpMethod.POST, form);
+	return await httpRequest(url, HttpMethod.POST, form, true);
 };
