@@ -1,9 +1,17 @@
-const mysql = require("mysql2/promise");
-const path = require("path");
-const fs = require("fs").promises;
+import fs from "fs/promises";
+import mysql from "mysql2/promise";
+import path from "path";
 
-async function initializeDatabase() {
-	const connections = [
+interface DatabaseConfig {
+	host: string;
+	port: number;
+	user: string;
+	password: string;
+	database: string;
+}
+
+async function initializeDatabase(): Promise<void> {
+	const connections: DatabaseConfig[] = [
 		{
 			host: "localhost",
 			port: 3307,
@@ -38,7 +46,7 @@ async function initializeDatabase() {
 		} catch (error) {
 			console.error(
 				`Error initializing database ${config.database}:`,
-				error
+				error instanceof Error ? error.message : String(error)
 			);
 		} finally {
 			await connection.end();
@@ -46,4 +54,4 @@ async function initializeDatabase() {
 	}
 }
 
-module.exports = initializeDatabase;
+export default initializeDatabase;
