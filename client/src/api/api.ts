@@ -20,7 +20,7 @@ export const convertToBody = (body: object) => {
 export const httpRequest = async (
 	address: string,
 	method: HttpMethod,
-	body?: string
+	body?: string | FormData
 ) => {
 	let requestAddress = `${
 		import.meta.env.VITE_SERVER_ADDRESS

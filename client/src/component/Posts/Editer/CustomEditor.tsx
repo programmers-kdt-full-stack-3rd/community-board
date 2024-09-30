@@ -8,6 +8,10 @@ import draftToHtml from "draftjs-to-html";
 import { SetStateAction, useMemo, useState } from "react";
 import { Editor } from "react-draft-wysiwyg";
 import { container } from "./CustomEditor.css";
+import { ApiCall } from "../../../api/api";
+import { useErrorModal } from "../../../state/errorModalStore";
+import { uploadImageRequest } from "../../../api/posts/crud";
+import { ClientError } from "../../../api/errors";
 /*
 client
 - html tag 추가, 수정, 삭제 가능
@@ -25,6 +29,8 @@ interface Props {
 }
 
 const CustomEditor: React.FC<Props> = ({ content, setContent }) => {
+	const errorModal = useErrorModal();
+
 	const contentState = useMemo(() => {
 		const convertedContent = convertFromHTML(
 			// <ins>태그가 편집기에서 게시글 수정 상황일 때 제대로 적용이 안되서 추가함
@@ -47,8 +53,20 @@ const CustomEditor: React.FC<Props> = ({ content, setContent }) => {
 	};
 
 	// const [images, setImages] = useState<string[]>([]);
-	const uploadCallback = () => {
-		console.log("이미지 업로드");
+	const uploadCallback = async (file: Blob) => {
+		const res = await ApiCall(
+			() => uploadImageRequest(file),
+			err => {
+				errorModal.setErrorMessage(err.message);
+				errorModal.open();
+			}
+		);
+
+		if (res instanceof ClientError) {
+			return;
+		}
+
+		return res.imgUrl;
 	};
 
 	return (
