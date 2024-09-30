@@ -118,6 +118,7 @@ const Header: React.FC = () => {
 			<ConfirmModal
 				variant="warning"
 				isOpen={accountDeleteModal.isOpen}
+				okButtonColor="danger"
 				okButtonLabel="계속 진행"
 				onAccept={handleAccountDeleteAccept}
 				onClose={accountDeleteModal.close}

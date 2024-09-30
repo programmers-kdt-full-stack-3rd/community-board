@@ -4,9 +4,10 @@ import Modal, {
 	IModalRootProps,
 	IModalTitleProps,
 } from "./Modal";
-import Button from "../Button";
+import Button, { TButtonColor } from "../Button";
 
 interface IConfirmModalRootProps extends IModalRootProps {
+	okButtonColor?: TButtonColor;
 	okButtonLabel?: React.ReactNode;
 	cancelButtonLabel?: React.ReactNode;
 	onAccept?: () => void;
@@ -18,6 +19,7 @@ type TConfirmModalComponent = React.FC<IConfirmModalRootProps> & {
 };
 
 const ConfirmModalRoot: React.FC<IConfirmModalRootProps> = ({
+	okButtonColor = "action",
 	okButtonLabel = "확인",
 	cancelButtonLabel = "취소",
 	onAccept,
@@ -38,7 +40,7 @@ const ConfirmModalRoot: React.FC<IConfirmModalRootProps> = ({
 				</Button>
 
 				<Button
-					color="action"
+					color={okButtonColor}
 					onClick={onAccept}
 				>
 					{okButtonLabel}

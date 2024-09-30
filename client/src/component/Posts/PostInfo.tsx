@@ -123,6 +123,7 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 			<ConfirmModal
 				variant="warning"
 				isOpen={deleteModal.isOpen}
+				okButtonColor="danger"
 				okButtonLabel="삭제"
 				onAccept={handlePostDelete}
 				onClose={deleteModal.close}

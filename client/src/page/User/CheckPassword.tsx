@@ -117,6 +117,7 @@ const CheckPassword: FC = () => {
 			<ConfirmModal
 				variant="warning"
 				isOpen={accountDeleteModal.isOpen}
+				okButtonColor="danger"
 				okButtonLabel="탈퇴 확정"
 				onAccept={handleAccountDeleteAccept}
 				onClose={accountDeleteModal.close}
