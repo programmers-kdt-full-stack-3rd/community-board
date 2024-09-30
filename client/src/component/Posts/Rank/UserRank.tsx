@@ -7,8 +7,10 @@ export const UserRank = () => {
 				<div className="my-4 space-y-8 first:mt-0">
 					<div className="hidden space-y-2 divide-y divide-gray-500/30 lg:block">
 						<div className="flex items-center">
-							<FaCrown className="mr-1"></FaCrown>
-							<div className="text-base font-bold">Rank</div>
+							<FaCrown className="mr-1 text-blue-900 dark:text-white"></FaCrown>
+							<div className="text-lg font-bold text-blue-900 dark:text-white">
+								Rank
+							</div>
 						</div>
 						<div>
 							<ul className="text-left">
@@ -23,8 +25,8 @@ export const UserRank = () => {
 
 					<div className="hidden space-y-2 divide-y divide-gray-500/30 lg:block">
 						<div className="flex items-center">
-							<FaCrown className="mr-1"></FaCrown>
-							<div className="text-base font-bold">
+							<FaCrown className="mr-1 text-blue-900 dark:text-white"></FaCrown>
+							<div className="text-lg font-bold text-blue-900 dark:text-white">
 								Top Writers
 							</div>
 						</div>
@@ -41,8 +43,8 @@ export const UserRank = () => {
 
 					<div className="hidden space-y-2 divide-y divide-gray-500/30 lg:block">
 						<div className="flex items-center">
-							<FaCrown className="mr-1"></FaCrown>
-							<div className="text-base font-bold">
+							<FaCrown className="mr-1 text-blue-900 dark:text-white"></FaCrown>
+							<div className="text-lg font-bold text-blue-900 dark:text-white">
 								Top Visitors
 							</div>
 						</div>

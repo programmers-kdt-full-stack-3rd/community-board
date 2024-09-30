@@ -65,7 +65,7 @@ const Pagination = ({
 					variant="text"
 					key={currentGroupFirstPage + index}
 					className={clsx("h-[44px] w-[44px] p-0", {
-						"text-white":
+						"font-bold text-black dark:text-white":
 							currentGroupFirstPage + index === actualCurrentPage,
 					})}
 					onClick={handlePageClickWith(currentGroupFirstPage + index)}

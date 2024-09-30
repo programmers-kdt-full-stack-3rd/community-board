@@ -107,7 +107,7 @@ const PostList = ({ posts, keyword, sortBy, onSort }: IPostListProps) => {
 				<div className="flex flex-col">
 					{isPostsEmpty ? (
 						<EmptyPostListBody
-							className="my-30 text-center text-lg text-gray-500"
+							className="my-30 text-center text-lg text-gray-600 dark:text-gray-500"
 							isFetchFailed={isFetchFailed}
 							keyword={keyword}
 						/>
@@ -117,7 +117,7 @@ const PostList = ({ posts, keyword, sortBy, onSort }: IPostListProps) => {
 								key={postHeader.id}
 								className={clsx(
 									"flex items-center justify-center gap-2",
-									"box-border flex min-h-[48px] items-center gap-2 border-b border-t border-gray-400/25 py-1 pl-2 text-white first:border-t-0 last:border-b-0"
+									"box-border flex min-h-[48px] items-center gap-2 border-b border-t border-gray-400/25 py-1 pl-2 text-gray-700 first:border-t-0 last:border-b-0 dark:text-white"
 								)}
 								to={`/post/${postHeader.id}`}
 							>

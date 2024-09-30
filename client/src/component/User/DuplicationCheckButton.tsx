@@ -7,13 +7,15 @@ interface Props {
 
 const DuplicationCheckButton: React.FC<Props> = ({ onClick }) => {
 	return (
-		<Button
-			color="neutral"
-			onClick={onClick}
-			variant="solid"
-		>
-			중복확인
-		</Button>
+		<div className="ml-4">
+			<Button
+				color="neutral"
+				onClick={onClick}
+				variant="solid"
+			>
+				중복확인
+			</Button>
+		</div>
 	);
 };
 

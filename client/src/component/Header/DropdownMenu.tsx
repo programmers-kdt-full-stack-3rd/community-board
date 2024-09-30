@@ -74,9 +74,9 @@ const DropdownMenu: ForwardRefRenderFunction<
 	return (
 		<div
 			ref={ref}
-			className="bg-customGray absolute right-0 top-12 z-50 min-w-[160px] rounded-md"
+			className="dark:bg-customGray absolute right-0 top-12 z-50 min-w-[160px] rounded-md bg-white shadow-xl"
 		>
-			<div className="m-4 cursor-pointer text-left text-base">
+			<div className="m-4 cursor-pointer text-left text-base text-gray-700 dark:text-white">
 				<div
 					className="flex flex-row items-center gap-2 py-2 hover:opacity-70"
 					onClick={handleProfileUpdateClick}
