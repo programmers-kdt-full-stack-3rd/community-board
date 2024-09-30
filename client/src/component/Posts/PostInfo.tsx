@@ -93,7 +93,7 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 				/>
 			) : null}
 			<div className="flex w-[800px] flex-col pb-2.5 pt-2.5">
-				<div className="bg-customGray relative mb-4 mt-4 flex flex-col justify-between rounded-lg text-left">
+				<div className="dark:bg-customGray relative mb-4 mt-4 flex flex-col justify-between rounded-lg bg-blue-900 text-left">
 					<span className="m-5 text-lg font-bold text-white">
 						자유게시판
 					</span>
@@ -149,10 +149,10 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 						onClick={handleLike}
 					>
 						<FaRegThumbsUp
-							className={`text-3xl ${userLiked ? "text-green-500" : "text-gray-200"}`}
+							className={`text-3xl ${userLiked ? "text-green-500" : "text-gray-600 dark:text-gray-200"}`}
 						/>
 						<div
-							className={`text-1xl ${userLiked ? "text-green-500" : "text-gray-200"}`}
+							className={`text-1xl ${userLiked ? "text-green-500" : "text-gray-600 dark:text-gray-200"}`}
 						>
 							{likes}
 						</div>
