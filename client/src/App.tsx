@@ -174,9 +174,9 @@ function App() {
 							element={<Community />}
 						/>
 						<Route
-                            path="/post/new"
-                            element={<UpsertPostPage/>}
-                        />
+							path="/post/new"
+							element={<UpsertPostPage />}
+						/>
 					</Routes>
 				</MainContainer>
 				{isOpen && <ChatAside />}
