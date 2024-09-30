@@ -17,7 +17,11 @@ const ErrorModal: React.FC<ErrorModalProps> = ({ message, close, onError }) => {
 	const [title, msg] = message.split(":");
 
 	return (
-		<div>
+		<div
+			style={{
+				zIndex: 999,
+			}}
+		>
 			<div className={Background} />
 			<div className={ErrorModalContainer}>
 				<div className={ErrorModalTitle}>{title}</div>

@@ -14,11 +14,14 @@ import { useErrorModal } from "../../state/errorModalStore";
 import Button from "../common/Button";
 import { IoEyeOutline } from "react-icons/io5";
 import { FaRegThumbsUp } from "react-icons/fa6";
+import { useNavigate } from "react-router-dom";
 interface IPostInfoProps {
 	postInfo: IPostInfo;
 }
 
 const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
+	const navigate = useNavigate();
+
 	const [updateModalOpen, setUpdateModalOpen] = useState(false);
 	const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 	const [userLiked, setUserLiked] = useState(false);
@@ -38,12 +41,7 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 
 	const isAuthor = postInfo.is_author;
 
-	const content = postInfo.content.split("\n").map((line, index) => (
-		<span key={index}>
-			{line}
-			<br />
-		</span>
-	));
+	const content = postInfo.content;
 
 	const isLogin = useUserStore(state => state.isLogin);
 
@@ -116,7 +114,11 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 							{isAuthor ? (
 								<Button
 									size="small"
-									onClick={() => setUpdateModalOpen(true)}
+									onClick={() => {
+										navigate(
+											`/post/new?postId=${postInfo.id}&title=${postInfo.title}&content=${postInfo.content}`
+										);
+									}}
 									variant="text"
 									color="neutral"
 								>
@@ -138,9 +140,10 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 				</div>
 			</div>
 			<div className="flex flex-col">
-				<div className="flex h-full w-[780px] resize-none flex-col text-start">
-					{content}
-				</div>
+				<div
+					className="flex h-full w-[780px] resize-none flex-col text-start"
+					dangerouslySetInnerHTML={{ __html: content }}
+				/>
 				<div
 					className={`mt-10 flex flex-col items-center justify-center`}
 				>

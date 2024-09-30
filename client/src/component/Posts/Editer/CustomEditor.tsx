@@ -26,7 +26,11 @@ interface Props {
 
 const CustomEditor: React.FC<Props> = ({ content, setContent }) => {
 	const contentState = useMemo(() => {
-		const convertedContent = convertFromHTML(content);
+		const convertedContent = convertFromHTML(
+			// <ins>태그가 편집기에서 게시글 수정 상황일 때 제대로 적용이 안되서 추가함
+			content.replace("<ins>", "<u>").replace("</ins>", "</u>")
+		);
+
 		return ContentState.createFromBlockArray(
 			convertedContent.contentBlocks,
 			convertedContent.entityMap
