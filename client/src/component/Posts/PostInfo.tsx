@@ -9,7 +9,7 @@ import {
 } from "../../api/likes/crud";
 import { useUserStore } from "../../state/store";
 import { ApiCall } from "../../api/api";
-import { useErrorModal } from "../../state/errorModalStore";
+import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
 import Button from "../common/Button";
 import { IoEyeOutline } from "react-icons/io5";
 import { FaRegThumbsUp } from "react-icons/fa6";
@@ -26,7 +26,7 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 
 	const updateModal = useModal();
 	const deleteModal = useModal();
-	const errorModal = useErrorModal();
+	const globalErrorModal = useGlobalErrorModal();
 
 	const [userLiked, setUserLiked] = useState(false);
 	const [likes, setLikes] = useState(0);
@@ -63,10 +63,10 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 			userLiked
 				? () => sendDeletePostLikeRequest(postInfo.id)
 				: () => sendCreatePostLikeRequest(postInfo.id),
-			err => {
-				errorModal.setErrorMessage(err.message);
-				errorModal.open();
-			}
+			err =>
+				globalErrorModal.openWithMessageSplit({
+					messageWithTitle: err.message,
+				})
 		);
 
 		if (res instanceof Error) {
@@ -84,8 +84,10 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 
 	const handlePostDelete = useCallback(async () => {
 		if (!isAuthor) {
-			errorModal.setErrorMessage("error:삭제권한이 없습니다.");
-			errorModal.open();
+			globalErrorModal.open({
+				title: "오류",
+				message: "삭제 권한이 없습니다.",
+			});
 			return;
 		}
 
@@ -93,8 +95,9 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 			() => sendDeletePostRequest(postInfo.id.toString()),
 			err => {
 				deleteModal.close();
-				errorModal.setErrorMessage(err.message);
-				errorModal.open();
+				globalErrorModal.openWithMessageSplit({
+					messageWithTitle: err.message,
+				});
 			}
 		);
 
