@@ -1,5 +1,6 @@
 import { ChangeEvent, FormEvent, useCallback, useState } from "react";
-import { searchInput, searchStyle } from "./SearchForm.css";
+import TextInput from "../TextInput";
+import Button from "../Button";
 
 interface ISearchFormProps {
 	defaultKeyword?: string;
@@ -25,17 +26,23 @@ const SearchForm = ({ defaultKeyword = "", onSubmit }: ISearchFormProps) => {
 	);
 
 	return (
-		<form
-			className={searchStyle}
-			onSubmit={handleSearchSubmit}
-		>
-			<input
-				type="text"
-				className={searchInput}
+		<form onSubmit={handleSearchSubmit}>
+			<TextInput
+				className="w-30 text-gray-200"
 				value={keyword}
 				onChange={handleKeywordChange}
+				placeholder="검색하기"
+				actionButton={
+					<Button
+						className="bg-customGray"
+						size="medium"
+						color="neutral"
+						type="submit"
+					>
+						검색
+					</Button>
+				}
 			/>
-			<button type="submit">검색</button>
 		</form>
 	);
 };

@@ -1,4 +1,5 @@
 import React from "react";
+import Button from "../common/Button";
 
 interface Props {
 	onClick: () => void;
@@ -6,15 +7,13 @@ interface Props {
 
 const DuplicationCheckButton: React.FC<Props> = ({ onClick }) => {
 	return (
-		<button
-			style={{
-				paddingLeft: 10,
-				paddingRight: 10,
-			}}
+		<Button
+			color="neutral"
 			onClick={onClick}
+			variant="solid"
 		>
-			중복 확인
-		</button>
+			중복확인
+		</Button>
 	);
 };
 

@@ -1,6 +1,5 @@
 import { useLayoutEffect, useState } from "react";
 import PostInfo from "../../component/Posts/PostInfo";
-import { PostInfoPageStyle } from "./PostInfoPage.css";
 import { useNavigate, useParams } from "react-router-dom";
 import { IPostInfo, mapDBToPostInfo } from "shared";
 import { sendGetPostRequest } from "../../api/posts/crud";
@@ -53,7 +52,7 @@ const PostInfoPage = () => {
 	}, []);
 
 	return (
-		<div className={PostInfoPageStyle}>
+		<div className="flex h-full w-full flex-col items-center">
 			<PostInfo postInfo={postInfo} />
 			<Comments postId={postInfo.id || parseInt(id ?? "0", 10) || 0} />
 		</div>

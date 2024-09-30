@@ -155,6 +155,8 @@ export class UserService {
 
 	@Transactional()
 	async deleteUser(userId: number) {
+		await this.findAndValidateUserById(userId);
+
 		const oAuthConnections =
 			await this.oAuthConnectionRepository.getOAuthConnectionByUserId(
 				userId
@@ -280,7 +282,7 @@ export class UserService {
 		const result =
 			await this.refreshTokenRepository.delete(deleteConditions);
 
-		if (result.affected === 0) {
+		if (result.affected === 0 && refreshToken) {
 			throw ServerError.badRequest(
 				USER_ERROR_MESSAGES.FAILED_TOKEN_DELETE
 			);

@@ -4,16 +4,13 @@ import PasswordForm from "../../component/User/PasswordForm";
 import SubmitButton from "../../component/User/SubmitButton";
 import NicknameForm from "../../component/User/NicknameForm";
 import { ERROR_MESSAGE, REGEX } from "./constants/constants";
-import { joinForm, joinWrapper } from "./Join.css";
-import {
-	applySubmitButtonStyle,
-	submitButtonStyle,
-} from "../../component/User/css/SubmitButton.css";
+
 import { ClientError } from "../../api/errors";
 import { ApiCall } from "../../api/api";
 import { sendPostJoinRequest } from "../../api/users/crud";
 import { useNavigate } from "react-router-dom";
 import { useStringWithValidation } from "../../hook/useStringWithValidation";
+import { FaComments } from "react-icons/fa6";
 
 const Join: FC = () => {
 	const navigate = useNavigate();
@@ -134,15 +131,24 @@ const Join: FC = () => {
 	};
 
 	return (
-		<div className={joinWrapper}>
-			<h1>회원가입</h1>
-			<div className={joinForm}>
+		<div className="mx-auto flex w-1/3 max-w-md flex-col items-center justify-center">
+			<div className="mb-4 flex flex-row items-center gap-2 text-4xl font-bold">
+				<FaComments />
+				<span>CODEPLAY</span>
+			</div>
+			<div className="my-4 flex w-full items-center">
+				<hr className="flex-grow text-gray-500" />
+				<span className="px-3 font-bold text-gray-400">회원가입</span>
+				<hr className="flex-grow text-gray-500" />
+			</div>
+			<div className="flex w-full flex-col gap-4">
+				{/* 미리 정의된 컴포넌트로 수정 아직 안 함*/}
 				<EmailForm
 					email={email.value}
 					onChange={handleEmail}
 					duplicationCheckFunc={checkEmailDuplication}
-					errorMessage={email.errorMessage}
 					isValid={email.isValid}
+					errorMessage={email.errorMessage}
 					isDuplicateCheck={true}
 				/>
 				<NicknameForm
@@ -172,13 +178,11 @@ const Join: FC = () => {
 				/>
 
 				<SubmitButton
-					className={
-						btnApply ? applySubmitButtonStyle : submitButtonStyle
-					}
+					className={btnApply ? "" : "bg-gray-300"}
 					onClick={submitJoin}
 					apply={btnApply}
 				>
-					회원 가입
+					회원가입
 				</SubmitButton>
 			</div>
 		</div>

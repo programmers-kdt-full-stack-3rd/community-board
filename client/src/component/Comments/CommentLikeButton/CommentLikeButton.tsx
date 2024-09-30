@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { AiFillLike } from "react-icons/ai";
-import { vars } from "../../../App.css";
+
 import {
 	sendCreateCommentLikeRequest,
 	sendDeleteCommentLikeRequest,
 } from "../../../api/likes/crud";
 import { useUserStore } from "../../../state/store";
-import { likeButton } from "./CommentLikeButton.css";
 import { ApiCall } from "../../../api/api";
 import { ClientError } from "../../../api/errors";
 import { useErrorModal } from "../../../state/errorModalStore";
+import Button from "../../common/Button";
 
 interface ICommentLikeButtonProps {
 	commentId: number;
@@ -54,15 +54,20 @@ const CommentLikeButton = ({
 	};
 
 	return (
-		<button
-			className={likeButton}
+		<Button
+			className="flex flex-col items-center"
+			variant="text"
 			onClick={handleLikeClick}
 		>
 			<AiFillLike
-				color={actualUserLiked ? vars.color.successButton : "#808080"}
+				className={` ${actualUserLiked ? "text-green-500" : "text-gray-200"}`}
 			/>
-			{likes + diff}
-		</button>
+			<div
+				className={` ${actualUserLiked ? "text-green-500" : "text-gray-200"}`}
+			>
+				{likes + diff}
+			</div>
+		</Button>
 	);
 };
 
