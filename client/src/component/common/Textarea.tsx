@@ -16,7 +16,7 @@ const Textarea: React.FC<ITextareaProps> = ({
 			{...textareaProps}
 			className={clsx(
 				className,
-				"m-0 box-border flex-1 resize-y rounded-md border bg-transparent p-2 text-base text-black",
+				"m-0 box-border flex-1 resize-y rounded-md border bg-transparent p-2 text-base text-black dark:text-gray-200",
 				isValid ? "border-gray-500" : "border-red-500 bg-red-50"
 			)}
 		/>

@@ -91,14 +91,16 @@ const Login: React.FC = () => {
 
 	return (
 		<div className="mx-auto flex w-1/3 max-w-md flex-col items-center justify-center">
-			<div className="mb-4 flex flex-row items-center gap-2 text-4xl font-bold">
+			<div className="mb-4 flex flex-row items-center gap-2 text-4xl font-bold text-blue-900 dark:text-white">
 				<FaComments />
 				<span>CODEPLAY</span>
 			</div>
 			<div className="my-4 flex w-full items-center">
-				<hr className="flex-grow text-gray-500" />
-				<span className="px-3 font-bold text-gray-400">로그인</span>
-				<hr className="flex-grow text-gray-500" />
+				<hr className="flex-grow text-gray-600 dark:text-gray-500" />
+				<span className="px-3 font-bold text-gray-600 dark:text-gray-400">
+					로그인
+				</span>
+				<hr className="flex-grow text-gray-600 dark:text-gray-500" />
 			</div>
 			<div className="flex w-full flex-col gap-2">
 				{/* 미리 정의된 컴포넌트로 수정 아직 안 함*/}
