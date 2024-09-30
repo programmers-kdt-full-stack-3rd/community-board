@@ -127,11 +127,11 @@ const Comments = ({ postId }: ICommentsProps) => {
 		<div className="my-5 box-border flex w-[800px] flex-col items-stretch justify-start gap-5 text-left">
 			<div>
 				<span className="text-xl font-bold">댓글 {total}</span>
-				<hr className="bg-customGray mt-3 h-0.5 border-none"></hr>
+				<hr className="dark:bg-customGray mt-3 h-0.5 border-none bg-gray-300"></hr>
 			</div>
 
 			<div className="flex flex-col items-start gap-2">
-				<span className="text-sm text-gray-200">
+				<span className="text-sm text-gray-700 dark:text-gray-200">
 					새로운 댓글을 남겨보세요
 				</span>
 				<CommentForm onSubmit={handleCommentCreate} />

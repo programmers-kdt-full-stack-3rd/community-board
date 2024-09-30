@@ -60,10 +60,10 @@ const CommentLikeButton = ({
 			onClick={handleLikeClick}
 		>
 			<AiFillLike
-				className={` ${actualUserLiked ? "text-green-500" : "text-gray-200"}`}
+				className={` ${actualUserLiked ? "text-green-500" : "text-gray-500 dark:text-gray-200"}`}
 			/>
 			<div
-				className={` ${actualUserLiked ? "text-green-500" : "text-gray-200"}`}
+				className={` ${actualUserLiked ? "text-green-500" : "text-gray-500 dark:text-gray-200"}`}
 			>
 				{likes + diff}
 			</div>
