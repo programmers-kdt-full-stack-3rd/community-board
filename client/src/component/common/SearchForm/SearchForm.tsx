@@ -34,7 +34,7 @@ const SearchForm = ({ defaultKeyword = "", onSubmit }: ISearchFormProps) => {
 				placeholder="검색하기"
 				actionButton={
 					<Button
-						className="bg-customGray"
+						className="dark:bg-customGray bg-blue-900"
 						size="medium"
 						color="neutral"
 						type="submit"
