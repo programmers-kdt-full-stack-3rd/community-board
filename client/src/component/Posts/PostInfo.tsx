@@ -1,34 +1,40 @@
 import { dateToStr } from "../../utils/date-to-str";
 import { IPostInfo } from "shared";
-import { useLayoutEffect, useState } from "react";
+import { useCallback, useLayoutEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import PostModal from "./Modal/PostModal";
-import DeleteModal from "./Modal/DeleteModal";
 import {
 	sendCreatePostLikeRequest,
 	sendDeletePostLikeRequest,
 } from "../../api/likes/crud";
 import { useUserStore } from "../../state/store";
 import { ApiCall } from "../../api/api";
-import { ClientError } from "../../api/errors";
 import { useErrorModal } from "../../state/errorModalStore";
 import Button from "../common/Button";
 import { IoEyeOutline } from "react-icons/io5";
 import { FaRegThumbsUp } from "react-icons/fa6";
+import ConfirmModal from "../common/Modal/ConfirmModal";
+import { sendDeletePostRequest } from "../../api/posts/crud";
+import { useModal } from "../../hook/useModal";
+
 interface IPostInfoProps {
 	postInfo: IPostInfo;
 }
 
 const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
-	const [updateModalOpen, setUpdateModalOpen] = useState(false);
-	const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+	const navigate = useNavigate();
+
+	const updateModal = useModal();
+	const deleteModal = useModal();
+	const errorModal = useErrorModal();
+
 	const [userLiked, setUserLiked] = useState(false);
 	const [likes, setLikes] = useState(0);
-	const errorModal = useErrorModal();
 
 	useLayoutEffect(() => {
 		setUserLiked(postInfo.user_liked);
 		setLikes(postInfo.likes);
-	}, [postInfo]);
+	}, [postInfo.user_liked, postInfo.likes]);
 
 	const time = postInfo.updated_at
 		? new Date(postInfo.updated_at)
@@ -63,7 +69,7 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 			}
 		);
 
-		if (res instanceof ClientError) {
+		if (res instanceof Error) {
 			return;
 		}
 
@@ -76,22 +82,54 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 		}
 	};
 
+	const handlePostDelete = useCallback(async () => {
+		if (!isAuthor) {
+			errorModal.setErrorMessage("error:삭제권한이 없습니다.");
+			errorModal.open();
+			return;
+		}
+
+		const res = await ApiCall(
+			() => sendDeletePostRequest(postInfo.id.toString()),
+			err => {
+				deleteModal.close();
+				errorModal.setErrorMessage(err.message);
+				errorModal.open();
+			}
+		);
+
+		if (res instanceof Error) {
+			return;
+		}
+
+		deleteModal.close();
+		alert("삭제에 성공했습니다.");
+		navigate("/category/community");
+	}, [isAuthor]);
+
 	return (
 		<div>
 			{/* 모달 부분 css 수정 x*/}
-			{updateModalOpen ? (
+			{updateModal.isOpen ? (
 				<PostModal
-					close={setUpdateModalOpen}
+					close={() => updateModal.close()}
 					originalPostData={postInfo}
 				/>
 			) : null}
-			{deleteModalOpen ? (
-				<DeleteModal
-					close={setDeleteModalOpen}
-					isAuthor={isAuthor}
-					postId={postInfo.id}
-				/>
-			) : null}
+
+			<ConfirmModal
+				variant="warning"
+				isOpen={deleteModal.isOpen}
+				okButtonLabel="삭제"
+				onAccept={handlePostDelete}
+				onClose={deleteModal.close}
+			>
+				<ConfirmModal.Title>게시글 삭제 확인</ConfirmModal.Title>
+				<ConfirmModal.Body>
+					정말로 이 게시글을 삭제할까요?
+				</ConfirmModal.Body>
+			</ConfirmModal>
+
 			<div className="flex w-[800px] flex-col pb-2.5 pt-2.5">
 				<div className="dark:bg-customGray relative mb-4 mt-4 flex flex-col justify-between rounded-lg bg-blue-900 text-left">
 					<span className="m-5 text-lg font-bold text-white">
@@ -109,14 +147,14 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 							<div>{dateToStr(time) + updateTxt}</div>
 						</div>
 						<div className="flex items-center gap-2 text-base">
-							<IoEyeOutline></IoEyeOutline>
+							<IoEyeOutline />
 							<div>{postInfo.views}</div>
-							<FaRegThumbsUp></FaRegThumbsUp>
+							<FaRegThumbsUp />
 							<div>{postInfo.likes}</div>
 							{isAuthor ? (
 								<Button
 									size="small"
-									onClick={() => setUpdateModalOpen(true)}
+									onClick={updateModal.open}
 									variant="text"
 									color="neutral"
 								>
@@ -126,7 +164,7 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 							{isAuthor ? (
 								<Button
 									size="small"
-									onClick={() => setDeleteModalOpen(true)}
+									onClick={deleteModal.open}
 									variant="text"
 									color="danger"
 								>
