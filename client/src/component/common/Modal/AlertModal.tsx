@@ -6,7 +6,7 @@ import Modal, {
 } from "./Modal";
 import Button from "../Button";
 
-interface IAlertModalRootProps extends IModalRootProps {
+export interface IAlertModalRootProps extends IModalRootProps {
 	okButtonLabel?: React.ReactNode;
 }
 
