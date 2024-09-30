@@ -91,7 +91,7 @@ function App() {
 	}, []);
 
 	return (
-		<div>
+		<div className="min-h-full">
 			<BrowserRouter>
 				<Header />
 				<MainContainer>
