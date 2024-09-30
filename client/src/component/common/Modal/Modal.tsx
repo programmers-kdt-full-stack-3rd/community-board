@@ -3,28 +3,28 @@ import React, { createContext, useContext, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { FiAlertTriangle, FiInfo, FiXCircle } from "react-icons/fi";
 
-type TModalVariant = "error" | "warning" | "info" | "base";
+export type TModalVariant = "error" | "warning" | "info" | "base";
 
 interface IModalContextValue {
 	variant?: TModalVariant;
 }
 
-interface IModalRootProps {
+export interface IModalRootProps {
 	children: React.ReactNode;
 	variant?: TModalVariant;
 	isOpen?: boolean;
 	onClose?: () => void;
 }
 
-interface IModalTitleProps {
+export interface IModalTitleProps {
 	children: React.ReactNode;
 }
 
-interface IModalBodyProps {
+export interface IModalBodyProps {
 	children: React.ReactNode;
 }
 
-interface IModalFooterProps {
+export interface IModalFooterProps {
 	children: React.ReactNode;
 }
 
