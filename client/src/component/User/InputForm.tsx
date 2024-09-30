@@ -26,12 +26,7 @@ const InputForm: FC<IInputFormProps> = ({
 	checkFunc = () => {},
 }) => {
 	return (
-		<div
-			style={{
-				display: "flex",
-				flexDirection: "column",
-			}}
-		>
+		<div className="flex flex-col">
 			<InputField
 				labelText={labelText}
 				id={type}

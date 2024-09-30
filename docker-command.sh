@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ $1 == "ka" ]; then
-    docker-compose -f docker-compose-kafka.yaml -p kafka up -d
+    docker-compose -f docker-compose-kafka.yaml --env-file ./nginx/.env -p kafka up -d
 elif [ $1 == "co" ]; then
     docker-compose -f docker-compose-server.yaml -p community up -d
 elif [ $1 == "db" ]; then

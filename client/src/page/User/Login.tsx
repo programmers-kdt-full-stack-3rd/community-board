@@ -1,11 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import {
-	loginContainer,
-	joinLink,
-	loginForm,
-	joinText,
-} from "../../page/User/Login.css";
 import { REGEX } from "./constants/constants";
 import EmailForm from "../../component/User/EmailForm";
 import PasswordForm from "../../component/User/PasswordForm";
@@ -14,9 +8,10 @@ import { useUserStore } from "../../state/store";
 import { ApiCall } from "../../api/api";
 import { ClientError } from "../../api/errors";
 import { sendPostLoginRequest } from "../../api/users/crud";
-import ErrorMessageForm from "../../component/User/ErrorMessageForm";
 import OAuthLoginButtons from "../../component/User/OAuthLoginButtons";
 import { useStringWithValidation } from "../../hook/useStringWithValidation";
+import { FaComments } from "react-icons/fa6";
+import ErrorMessageForm from "../../component/User/ErrorMessageForm";
 
 const Login: React.FC = () => {
 	const email = useStringWithValidation();
@@ -95,9 +90,18 @@ const Login: React.FC = () => {
 	};
 
 	return (
-		<div className={loginContainer}>
-			<h1>로그인</h1>
-			<div className={loginForm}>
+		<div className="mx-auto flex w-1/3 max-w-md flex-col items-center justify-center">
+			<div className="mb-4 flex flex-row items-center gap-2 text-4xl font-bold">
+				<FaComments />
+				<span>CODEPLAY</span>
+			</div>
+			<div className="my-4 flex w-full items-center">
+				<hr className="flex-grow text-gray-500" />
+				<span className="px-3 font-bold text-gray-400">로그인</span>
+				<hr className="flex-grow text-gray-500" />
+			</div>
+			<div className="flex w-full flex-col gap-2">
+				{/* 미리 정의된 컴포넌트로 수정 아직 안 함*/}
 				<EmailForm
 					email={email.value}
 					onChange={handleEmailChange}
@@ -114,29 +118,18 @@ const Login: React.FC = () => {
 				{errorMessage && (
 					<ErrorMessageForm>{errorMessage}</ErrorMessageForm>
 				)}
-				<SubmitButton onClick={handleLoginButton}>
-					로그인 버튼
-				</SubmitButton>
-				<p className={joinText}>
-					계정이 없으신가요?
+				<SubmitButton onClick={handleLoginButton}>로그인</SubmitButton>
+
+				<div className="mt-5 flex flex-row items-center justify-center gap-2">
+					<p>계정이 없으신가요?</p>
 					<a
 						href="/join"
-						className={joinLink}
+						className="text-blue-500"
 					>
 						계정생성
 					</a>
-				</p>
+				</div>
 			</div>
-			{
-				// zustand 테스트용
-				/* <div>
-        <p>zustand 테스트</p>
-        <p>nickName: {stateNickName}</p>
-        <p>loginTime: {stateLoginTime}</p>
-        <p>isLogin: {stateIsLogin ? "로그인됨" : "로그아웃됨"}</p>
-      </div> */
-			}
-
 			<OAuthLoginButtons loginType="login" />
 		</div>
 	);

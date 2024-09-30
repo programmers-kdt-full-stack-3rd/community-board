@@ -36,13 +36,7 @@ const InputField: FC<IInputFieldProps> = ({
 			>
 				{labelText}
 			</label>
-			<div
-				style={{
-					display: "flex",
-					flexDirection: "row",
-					justifyContent: "space-between",
-				}}
-			>
+			<div className="flex flex-row justify-between">
 				<input
 					className={clsx(input, {
 						[invalidInput]: !isError,

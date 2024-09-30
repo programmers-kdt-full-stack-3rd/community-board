@@ -1,23 +1,13 @@
 import clsx from "clsx";
 import React from "react";
-import {
-	errorMessageWrapper,
-	innerWrapper,
-	invalidTextInput,
-	labelErrorStyle,
-	labelOkStyle,
-	labelStyle,
-	outerWrapper,
-	textInputBase,
-} from "./TextInput.temp.css";
 
 interface ITextInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-	wrapperClassName?: string | undefined;
+	wrapperClassName?: string;
 	type?: "email" | "number" | "password" | "search" | "tel" | "text" | "url";
-	label?: string | undefined;
-	isValid?: boolean | undefined;
-	errorMessage?: string | undefined;
-	actionButton?: React.ReactElement | undefined;
+	label?: string;
+	isValid?: boolean;
+	errorMessage?: string;
+	actionButton?: React.ReactElement;
 }
 
 const TextInput: React.FC<ITextInputProps> = ({
@@ -47,29 +37,31 @@ const TextInput: React.FC<ITextInputProps> = ({
 	};
 
 	return (
-		<div className={clsx(outerWrapper, wrapperClassName)}>
+		<div
+			className={clsx("flex flex-col gap-1 text-left", wrapperClassName)}
+		>
 			{label && (
 				<label
 					htmlFor={id}
 					className={clsx(
-						labelStyle,
-						isValid === true && labelOkStyle,
-						isValid === false && labelErrorStyle
+						"ml-1 block text-sm font-bold text-blue-900",
+						isValid === true && "after:ml-1 after:content-['✔']",
+						isValid === false &&
+							"text-red-600 after:ml-1 after:content-['✘']"
 					)}
 				>
 					{label}
 				</label>
 			)}
 
-			<div className={innerWrapper}>
+			<div className="flex flex-1 gap-4">
 				<input
 					{...inputProps}
 					type={type}
 					id={id}
 					className={clsx(
-						className,
-						textInputBase,
-						isValid === false && invalidTextInput
+						"m-0 box-border h-10 flex-1 rounded-md border border-gray-600 bg-transparent p-2 text-base text-inherit",
+						isValid === false && "border-red-600 bg-red-50"
 					)}
 					onKeyDown={handleInputKeyDown}
 				/>
@@ -77,7 +69,7 @@ const TextInput: React.FC<ITextInputProps> = ({
 			</div>
 
 			{isValid === false && (
-				<div className={errorMessageWrapper}>{errorMessage}</div>
+				<div className="ml-1 text-sm text-red-600">{errorMessage}</div>
 			)}
 		</div>
 	);

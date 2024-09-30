@@ -1,11 +1,8 @@
 import { ChangeEvent, FormEvent, useCallback, useState } from "react";
 import { useUserStore } from "../../../state/store";
-import {
-	button,
-	commentFormContainer,
-	footer,
-	textArea,
-} from "./CommentForm.css";
+import { commentFormContainer, footer } from "./CommentForm.css";
+import Textarea from "../../common/Textarea";
+import Button from "../../common/Button";
 
 interface ICommentFormProps {
 	defaultContent?: string;
@@ -60,8 +57,8 @@ const CommentForm = ({
 			className={commentFormContainer}
 			onSubmit={handleFormSubmit}
 		>
-			<textarea
-				className={textArea}
+			<Textarea
+				className="text-gray-200"
 				value={
 					isLogin ? content : "댓글을 작성하려면 로그인이 필요합니다."
 				}
@@ -70,21 +67,23 @@ const CommentForm = ({
 			/>
 
 			<div className={footer}>
-				<button
+				<Button
+					className="mb-2"
 					type="submit"
-					className={button}
+					color="neutral"
 					disabled={!isLogin}
 				>
 					{isUpdateMode ? "수정" : "등록"}
-				</button>
+				</Button>
+
 				{isUpdateMode && (
-					<button
+					<Button
 						type="button"
-						className={button}
+						color="neutral"
 						onClick={handleCancelClick}
 					>
 						취소
-					</button>
+					</Button>
 				)}
 			</div>
 		</form>

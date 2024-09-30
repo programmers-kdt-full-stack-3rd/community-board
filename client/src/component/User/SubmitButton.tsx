@@ -1,5 +1,5 @@
 import { FC, ReactNode } from "react";
-import { submitButtonStyle } from "./css/SubmitButton.css";
+import Button from "../common/Button";
 
 interface ISubmitButtonProps {
 	children: ReactNode;
@@ -10,19 +10,21 @@ interface ISubmitButtonProps {
 
 const SubmitButton: FC<ISubmitButtonProps> = ({
 	children,
-	className,
 	onClick,
 	apply = true,
 }) => {
 	return (
-		<button
+		<Button
+			className="mt-5"
 			disabled={!apply}
-			className={className ? className : submitButtonStyle}
 			onClick={onClick}
 			type="submit"
+			color="neutral"
+			variant="solid"
+			size="large"
 		>
 			{children}
-		</button>
+		</Button>
 	);
 };
 
