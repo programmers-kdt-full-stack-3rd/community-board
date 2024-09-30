@@ -67,7 +67,7 @@ const ModalRoot: React.FC<IModalRootProps> = ({
 								className="absolute inset-0 -z-10 h-full w-full"
 								onClick={handleClose}
 							/>
-							<section className="bg-customDarkGray flex max-h-full w-96 flex-col gap-6 rounded-lg p-6 shadow-lg">
+							<section className="dark:bg-customDarkGray flex max-h-full w-96 flex-col gap-6 rounded-lg bg-white p-6 shadow-lg dark:border-l dark:border-t dark:border-white/5">
 								{children}
 							</section>
 						</div>
@@ -82,10 +82,10 @@ const ModalTitle: React.FC<IModalTitleProps> = ({ children }) => {
 	const { variant = "base" } = useContext(ModalContext);
 
 	const classNameByVariant = {
-		error: "text-red-300",
-		warning: "text-yellow-300",
-		info: "text-blue-300",
-		base: "text-neutral-300",
+		error: "text-red-600 dark:text-red-300",
+		warning: "text-yellow-600 dark:text-yellow-300",
+		info: "text-blue-600 dark:text-blue-300",
+		base: "text-neutral-600 dark:text-neutral-300",
 	};
 
 	const iconByVariant = {
