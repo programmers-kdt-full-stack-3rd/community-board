@@ -1,9 +1,9 @@
 import { FieldPacket, PoolConnection, ResultSetHeader } from "mysql2/promise";
 import { IKafkaMessageDTO } from "shared";
 
-import { getDBPool } from "../config/dbConfig";
+import pool from "./index";
 
-// insert message
+// 채팅 Insert
 const insertMessage = async (messageDTO: IKafkaMessageDTO): Promise<number> => {
 	let conn: PoolConnection | null = null;
 
@@ -16,8 +16,6 @@ const insertMessage = async (messageDTO: IKafkaMessageDTO): Promise<number> => {
     `;
 
 	try {
-		const pool = getDBPool();
-
 		conn = await pool.getConnection();
 
 		const [result]: [ResultSetHeader, FieldPacket[]] = await conn.query(
