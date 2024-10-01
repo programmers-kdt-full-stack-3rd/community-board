@@ -11,5 +11,5 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 INSERT IGNORE INTO users (email, nickname, password, salt, role_id) VALUES
-('admin@naver.com', "adminAccount", "UmUWDSbEoz8Iis9GFMbfouktG+lpxktssnFiZejNHpbMV18PrdQ9YLLGZ8Zc8e7sLh57JIx7uxqCEl0LFwJg+Q==", "0kVqLfh85GwLB63oyZHvDxbCHfe3k3nCJlUtoafYOkuQBVhz0qNxqA4DsYxpwb4nKN", 2);
+('admin@naver.com', "adminAccount", "UmUWDSbEoz8Iis9GFMbfouktG+lpxktssnFiZejNHpbMV18PrdQ9YLLGZ8Zc8e7sLh57JIx7uxqCEl0LFwJg+Q==", "0kVqLfh85GwLB63oyZHvDxbCHfe3k3nCJlUtoafYOkuQBVhz0qNxqA4DsYxpwb4nKN+yVBc89QaHY82s2siUxw==", 2);
 

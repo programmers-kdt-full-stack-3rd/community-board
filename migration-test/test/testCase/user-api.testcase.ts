@@ -1,3 +1,4 @@
+import { adminAccountEnv } from "../config/env.config";
 import { IApiTestCase } from "../interface/api-test-case.interface";
 
 export const UserApiTests: Record<string, IApiTestCase> = {
@@ -59,5 +60,15 @@ export const UserApiTests: Record<string, IApiTestCase> = {
 		description: "유저 정보 삭제 성공",
 		endpoint: "/api/user",
 		method: "delete",
+	},
+
+	adminLogin: {
+		description: "어드민 로그인 성공",
+		endpoint: "/api/user/login",
+		method: "post",
+		data: {
+			email: adminAccountEnv.ADMIN_ACCOUNT,
+			password: adminAccountEnv.ADMIN_PASSWORD,
+		},
 	},
 };
