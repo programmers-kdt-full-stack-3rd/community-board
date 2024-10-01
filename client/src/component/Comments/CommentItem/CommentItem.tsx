@@ -8,8 +8,7 @@ import { dateToStr } from "../../../utils/date-to-str";
 import CommentForm from "../CommentForm/CommentForm";
 import CommentLikeButton from "../CommentLikeButton/CommentLikeButton";
 import { ApiCall } from "../../../api/api";
-import { useErrorModal } from "../../../state/errorModalStore";
-import { ClientError } from "../../../api/errors";
+import { useGlobalErrorModal } from "../../../state/GlobalErrorModalStore";
 import Button from "../../common/Button";
 
 interface ICommentItemProps {
@@ -20,7 +19,7 @@ interface ICommentItemProps {
 
 const CommentItem = ({ comment, onUpdate, onDelete }: ICommentItemProps) => {
 	const [isEditMode, setIsEditMode] = useState(false);
-	const errorModal = useErrorModal();
+	const globalErrorModal = useGlobalErrorModal();
 
 	const contentNodes = useMemo(
 		() =>
@@ -44,20 +43,22 @@ const CommentItem = ({ comment, onUpdate, onDelete }: ICommentItemProps) => {
 		const trimmedContent = content.trim();
 
 		if (trimmedContent === comment.content) {
-			errorModal.setErrorMessage("error:댓글 내용이 이전과 동일합니다.");
-			errorModal.open();
+			globalErrorModal.open({
+				title: "오류",
+				message: "댓글 내용이 이전과 동일합니다.",
+			});
 			return false;
 		}
 
 		const res = await ApiCall(
 			() => sendPatchCommentRequest({ content, id: comment.id }),
-			err => {
-				errorModal.setErrorMessage(err.message);
-				errorModal.open();
-			}
+			err =>
+				globalErrorModal.openWithMessageSplit({
+					messageWithTitle: err.message,
+				})
 		);
 
-		if (res instanceof ClientError) {
+		if (res instanceof Error) {
 			return false;
 		}
 
@@ -81,13 +82,13 @@ const CommentItem = ({ comment, onUpdate, onDelete }: ICommentItemProps) => {
 
 		const res = await ApiCall(
 			() => sendDeleteCommentRequest(comment.id),
-			err => {
-				errorModal.setErrorMessage(err.message);
-				errorModal.open();
-			}
+			err =>
+				globalErrorModal.openWithMessageSplit({
+					messageWithTitle: err.message,
+				})
 		);
 
-		if (res instanceof ClientError) {
+		if (res instanceof Error) {
 			return false;
 		}
 

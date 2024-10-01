@@ -1,6 +1,5 @@
 import { forwardRef, ForwardRefRenderFunction, useLayoutEffect } from "react";
-import { NavigateFunction } from "react-router-dom";
-import UserDeleteModal from "./UserDeleteModal";
+import { useNavigate } from "react-router-dom";
 import { useUserStore } from "../../state/store";
 import { ApiCall } from "../../api/api";
 import { getUserMyself } from "../../api/users/crud";
@@ -10,25 +9,16 @@ import { IoShareSocialOutline } from "react-icons/io5";
 import { MdOutlineAttachEmail } from "react-icons/md";
 import { FaRegUserCircle } from "react-icons/fa";
 
-interface DropdownMenuProps {
-	navigate: NavigateFunction;
-	warningModal: { isOpen: boolean; open: () => void; close: () => void };
+interface IDropdownMenuProps {
+	onDeleteAccount: () => void;
 }
-
-const MODAL_CONFIGS = {
-	warning: {
-		title: "회원 탈퇴 안내",
-		message: "회원 탈퇴를 진행하시겠습니까?",
-		cancelText: "취소",
-		confirmText: "계속 진행",
-		isWarning: false,
-	},
-};
 
 const DropdownMenu: ForwardRefRenderFunction<
 	HTMLDivElement,
-	DropdownMenuProps
-> = ({ navigate, warningModal }, ref) => {
+	IDropdownMenuProps
+> = ({ onDeleteAccount }, ref) => {
+	const navigate = useNavigate();
+
 	const isEmailRegistered = useUserStore.use.isEmailRegistered();
 	const { setIsEmailRegistered } = useUserStore.use.actions();
 
@@ -60,11 +50,6 @@ const DropdownMenu: ForwardRefRenderFunction<
 
 	const handleOAuthManageClick = () => {
 		navigate(`/oauth`);
-	};
-
-	const handleWarningCorfirm = () => {
-		warningModal.close();
-		navigate(`/checkPassword?next=accountDelete`);
 	};
 
 	const handleAdminPageClick = () => {
@@ -105,7 +90,7 @@ const DropdownMenu: ForwardRefRenderFunction<
 
 				<div
 					className="flex flex-row items-center gap-2 py-2 hover:opacity-70"
-					onClick={warningModal.open}
+					onClick={onDeleteAccount}
 				>
 					<AiOutlineUserDelete />
 					회원 탈퇴
@@ -119,13 +104,6 @@ const DropdownMenu: ForwardRefRenderFunction<
 					<MdOutlineAdminPanelSettings />
 					관리자 페이지
 				</div>
-
-				<UserDeleteModal
-					{...MODAL_CONFIGS.warning}
-					isOpen={warningModal.isOpen}
-					onClose={warningModal.close}
-					onConfirm={handleWarningCorfirm}
-				/>
 			</div>
 		</div>
 	);
