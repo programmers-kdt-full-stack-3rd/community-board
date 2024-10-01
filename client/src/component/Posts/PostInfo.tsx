@@ -44,12 +44,7 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 
 	const isAuthor = postInfo.is_author;
 
-	const content = postInfo.content.split("\n").map((line, index) => (
-		<span key={index}>
-			{line}
-			<br />
-		</span>
-	));
+	const content = postInfo.content;
 
 	const isLogin = useUserStore(state => state.isLogin);
 
@@ -158,7 +153,11 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 							{isAuthor ? (
 								<Button
 									size="small"
-									onClick={updateModal.open}
+									onClick={() => {
+										navigate(
+											`/post/new?postId=${postInfo.id}&title=${postInfo.title}&content=${postInfo.content}`
+										);
+									}}
 									variant="text"
 									color="neutral"
 								>
@@ -180,9 +179,10 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 				</div>
 			</div>
 			<div className="flex flex-col">
-				<div className="flex h-full w-[780px] resize-none flex-col text-start">
-					{content}
-				</div>
+				<div
+					className="flex h-full w-[780px] resize-none flex-col text-start"
+					dangerouslySetInnerHTML={{ __html: content }}
+				/>
 				<div
 					className={`mt-10 flex flex-col items-center justify-center`}
 				>
