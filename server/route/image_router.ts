@@ -6,6 +6,6 @@ import { handleUploadImage } from "../controller/image_comtroller";
 const router = express.Router();
 router.use(express.json());
 
-router.post("/", requireLogin, upload.single("image"), handleUploadImage);
+router.post("/", requireLogin, upload, handleUploadImage);
 
 export default router;
