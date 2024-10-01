@@ -1,17 +1,6 @@
-import {
-	ContentState,
-	convertFromHTML,
-	convertToRaw,
-	EditorState,
-} from "draft-js";
-import draftToHtml from "draftjs-to-html";
-import { SetStateAction, useMemo, useState } from "react";
-import { Editor } from "react-draft-wysiwyg";
-import { container } from "./CustomEditor.css";
-import { ApiCall } from "../../../api/api";
-import { useErrorModal } from "../../../state/errorModalStore";
-import { uploadImageRequest } from "../../../api/posts/crud";
-import { ClientError } from "../../../api/errors";
+import { SetStateAction } from "react";
+import { ContentTextArea } from "../Modal/PostModal.css";
+
 /*
 client
 - html tag 추가, 수정, 삭제 가능
@@ -29,80 +18,30 @@ interface Props {
 }
 
 const CustomEditor: React.FC<Props> = ({ content, setContent }) => {
-	const errorModal = useErrorModal();
+	// 이미지 업로드 -> S3에 저장 -> 저장된 이미지 url (imgUrl) 반환
+	// const upload = async (file: Blob) => {
+	// 	const res = await ApiCall(
+	// 		() => uploadImageRequest(file),
+	// 		err => {
+	// 			errorModal.setErrorMessage(err.message);
+	// 			errorModal.open();
+	// 		}
+	// 	);
 
-	const contentState = useMemo(() => {
-		const convertedContent = convertFromHTML(
-			// <ins>태그가 편집기에서 게시글 수정 상황일 때 제대로 적용이 안되서 추가함
-			content
-				.replace("<ins>", "<u>")
-				.replace("</ins>", "</u>")
-				.replace("%20", " ")
-		);
+	// 	if (res instanceof ClientError) {
+	// 		return;
+	// 	}
 
-		return ContentState.createFromBlockArray(
-			convertedContent.contentBlocks,
-			convertedContent.entityMap
-		);
-	}, [content]);
-
-	const [editorState, setEditorState] = useState(
-		EditorState.createWithContent(contentState)
-	);
-
-	const handleEditorStateChange = (editorState: EditorState) => {
-		setEditorState(editorState);
-		setContent(draftToHtml(convertToRaw(editorState.getCurrentContent())));
-	};
-
-	// const [images, setImages] = useState<string[]>([]);
-	const uploadCallback = async (file: Blob) => {
-		const res = await ApiCall(
-			() => uploadImageRequest(file),
-			err => {
-				errorModal.setErrorMessage(err.message);
-				errorModal.open();
-			}
-		);
-
-		if (res instanceof ClientError) {
-			return;
-		}
-
-		return { data: { link: res.imgUrl } };
-	};
+	// 	return res.imgUrl;
+	// };
 
 	return (
-		<div
-			className={container}
-			onClick={() => {}}
-		>
-			<Editor
-				editorState={editorState}
-				onEditorStateChange={handleEditorStateChange}
-				placeholder={"내용을 작성해주세요."}
-				localization={{
-					locale: "ko",
-				}}
-				editorStyle={{
-					height: "400px",
-					width: "100%",
-					border: "3px solid lightgray",
-					paddingLeft: "10px",
-					paddingRight: "10px",
-					backgroundColor: "white",
-				}}
-				toolbar={{
-					image: {
-						uploadCallback: uploadCallback,
-						previewImage: true,
-						alt: { present: true, mandatory: false },
-						inputAccept:
-							"image/gif,image/jpeg,image/jpg,image/png,image/svg",
-					},
-				}}
-			/>
-		</div>
+		<textarea
+			className={ContentTextArea}
+			value={content}
+			onChange={e => setContent(e.target.value)}
+			placeholder="내용을 입력해주세요"
+		></textarea>
 	);
 };
 
