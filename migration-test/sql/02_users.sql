@@ -9,3 +9,7 @@ CREATE TABLE IF NOT EXISTS users (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
 );
+
+INSERT IGNORE INTO users (email, nickname, password, salt, role_id) VALUES
+('admin@naver.com', "adminAccount", "UmUWDSbEoz8Iis9GFMbfouktG+lpxktssnFiZejNHpbMV18PrdQ9YLLGZ8Zc8e7sLh57JIx7uxqCEl0LFwJg+Q==", "0kVqLfh85GwLB63oyZHvDxbCHfe3k3nCJlUtoafYOkuQBVhz0qNxqA4DsYxpwb4nKN", 2);
+

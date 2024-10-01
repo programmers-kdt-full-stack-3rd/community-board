@@ -23,6 +23,7 @@
 		"wait-on": "^8.0.1"
 	},
 	"dependencies": {
+		"dotenv": "^16.4.5",
 		"mysql2": "^3.11.3"
 	}
 }
