@@ -10,6 +10,7 @@ export const ModalContainer = style({
 	height: "630px",
 	background: vars.color.task,
 	borderRadius: "5px",
+	border: "1px solid #ccc",
 	textAlign: "center",
 	zIndex: 1000,
 });
@@ -95,6 +96,7 @@ export const TitleInput = style({
 });
 
 export const ContentTextArea = style({
+	border: `1px solid ${vars.color.secondaryDarkText}`,
 	backgroundColor: vars.color.brightText,
 	color: vars.color.darkText,
 	height: "350px",

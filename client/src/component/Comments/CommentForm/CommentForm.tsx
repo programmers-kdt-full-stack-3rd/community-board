@@ -58,7 +58,6 @@ const CommentForm = ({
 			onSubmit={handleFormSubmit}
 		>
 			<Textarea
-				className="text-gray-200"
 				value={
 					isLogin ? content : "댓글을 작성하려면 로그인이 필요합니다."
 				}

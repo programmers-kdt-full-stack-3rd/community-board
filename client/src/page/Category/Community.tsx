@@ -109,7 +109,7 @@ const Community = () => {
 					<div className={mainPageStyle}>
 						{isModalOpen && <PostModal close={setIsModalOpen} />}
 
-						<div className="bg-customGray relative mt-4 flex flex-col justify-between rounded-lg text-left">
+						<div className="dark:bg-customGray relative mt-4 flex flex-col justify-between rounded-lg bg-blue-900 text-left">
 							<span className="ml-5 mt-5 text-lg font-bold text-white">
 								자유게시판
 							</span>
@@ -128,7 +128,7 @@ const Community = () => {
 								{isLogin && (
 									<div className={createPostButtonWrapper}>
 										<button
-											className="bg-customGray"
+											className="dark:bg-customGray bg-blue-900 text-white"
 											onClick={handleCreatePostClick}
 										>
 											글쓰기
@@ -138,13 +138,13 @@ const Community = () => {
 							</div>
 						</div>
 						<hr className="bg-customGray h-0.5 border-none" />
-						<div className="bg-customGray m-2 flex h-10 items-center gap-2 rounded-md">
+						<div className="dark:bg-customGray m-2 flex h-10 items-center gap-2 rounded-md bg-blue-100">
 							<div className="border-b-customDarkGray border-spacing-2 items-center bg-none">
-								<div className="bg-customDarkGray m-2 rounded-md">
+								<div className="dark:bg-customDarkGray m-2 rounded-md bg-white">
 									<span className="m-2">공지</span>
 								</div>
 							</div>
-							<span className="text-sm font-bold text-white">
+							<span className="text-sm font-bold text-black dark:text-white">
 								관리자 공지사항입니다. 확인해주세요
 							</span>
 						</div>

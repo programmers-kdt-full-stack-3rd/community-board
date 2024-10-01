@@ -10,7 +10,7 @@ import CommentForm from "./CommentForm/CommentForm";
 import CommentItem from "./CommentItem/CommentItem";
 import { ApiCall } from "../../api/api";
 import { ClientError } from "../../api/errors";
-import { useErrorModal } from "../../state/errorModalStore";
+import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
 import { useNavigate, useParams } from "react-router-dom";
 
 interface ICommentsProps {
@@ -21,7 +21,7 @@ const Comments = ({ postId }: ICommentsProps) => {
 	const [comments, setComments] = useState<IComment[]>([]);
 	const [total, setTotal] = useState(0);
 
-	const errorModal = useErrorModal();
+	const globalErrorModal = useGlobalErrorModal();
 	const navigate = useNavigate();
 	const { id } = useParams();
 	const [searchParams, setSearchParams] = useSearchParams();
@@ -43,11 +43,12 @@ const Comments = ({ postId }: ICommentsProps) => {
 
 		const res = await ApiCall(
 			() => sendGetCommentsRequest(queryString),
-			() => {
-				errorModal.setErrorMessage("error:댓글을 불러오지 못했습니다.");
-				errorModal.setOnError(window.location.reload);
-				errorModal.open();
-			}
+			() =>
+				globalErrorModal.open({
+					title: "오류",
+					message: "댓글을 불러오지 못했습니다.",
+					callback: window.location.reload,
+				})
 		);
 
 		if (res instanceof ClientError) {
@@ -79,16 +80,14 @@ const Comments = ({ postId }: ICommentsProps) => {
 	const handleCommentCreate = async (content: string): Promise<boolean> => {
 		const res = await ApiCall(
 			() => sendPostCommentRequest({ content, post_id: postId }),
-			() => {
-				errorModal.setOnError(() =>
-					navigate(`/login?redirect=/post/${id}`)
-				);
-			}
+			err =>
+				globalErrorModal.openWithMessageSplit({
+					messageWithTitle: err.message,
+					callback: () => navigate(`/login?redirect=/post/${id}`),
+				})
 		);
 
-		if (res instanceof ClientError) {
-			errorModal.setErrorMessage(res.message);
-			errorModal.open();
+		if (res instanceof Error) {
 			return false;
 		}
 
@@ -127,11 +126,11 @@ const Comments = ({ postId }: ICommentsProps) => {
 		<div className="my-5 box-border flex w-[800px] flex-col items-stretch justify-start gap-5 text-left">
 			<div>
 				<span className="text-xl font-bold">댓글 {total}</span>
-				<hr className="bg-customGray mt-3 h-0.5 border-none"></hr>
+				<hr className="dark:bg-customGray mt-3 h-0.5 border-none bg-gray-300"></hr>
 			</div>
 
 			<div className="flex flex-col items-start gap-2">
-				<span className="text-sm text-gray-200">
+				<span className="text-sm text-gray-700 dark:text-gray-200">
 					새로운 댓글을 남겨보세요
 				</span>
 				<CommentForm onSubmit={handleCommentCreate} />

@@ -12,8 +12,8 @@ import {
 	sendCreatePostRequest,
 	sendUpdatePostRequest,
 } from "../../api/posts/crud";
-import { useErrorModal } from "../../state/errorModalStore";
 import { ClientError } from "../../api/errors";
+import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
 
 const UpsertPostPage: React.FC = () => {
 	const navigate = useNavigate();
@@ -23,7 +23,7 @@ const UpsertPostPage: React.FC = () => {
 	const title = queryParams.get("title") || "";
 	const content = queryParams.get("content") || "";
 
-	const errorModal = useErrorModal();
+	const errorModal = useGlobalErrorModal();
 
 	const [postTitle, setPostTitle] = useState<string>(title);
 	const [postContent, setPostContent] = useState<string>(content);
@@ -38,8 +38,9 @@ const UpsertPostPage: React.FC = () => {
 		const res = await ApiCall(
 			() => sendCreatePostRequest(body),
 			err => {
-				errorModal.setErrorMessage(err.message);
-				errorModal.open();
+				errorModal.openWithMessageSplit({
+					messageWithTitle: err.message,
+				});
 			}
 		);
 
@@ -64,8 +65,9 @@ const UpsertPostPage: React.FC = () => {
 		const res = await ApiCall(
 			() => sendUpdatePostRequest(parseInt(postId), body),
 			err => {
-				errorModal.setErrorMessage(err.message);
-				errorModal.open();
+				errorModal.openWithMessageSplit({
+					messageWithTitle: err.message,
+				});
 			}
 		);
 

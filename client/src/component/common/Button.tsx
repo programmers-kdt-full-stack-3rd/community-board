@@ -1,10 +1,14 @@
 import clsx from "clsx";
 import React from "react";
 
+export type TButtonColor = "primary" | "action" | "neutral" | "danger";
+export type TButtonVariant = "solid" | "outline" | "text";
+export type TButtonSize = "small" | "medium" | "large";
+
 interface IButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-	color?: "primary" | "action" | "neutral" | "danger";
-	variant?: "solid" | "outline" | "text";
-	size?: "small" | "medium" | "large";
+	color?: TButtonColor;
+	variant?: TButtonVariant;
+	size?: TButtonSize;
 }
 
 const Button: React.FC<IButtonProps> = ({
@@ -16,7 +20,7 @@ const Button: React.FC<IButtonProps> = ({
 	...buttonProps
 }) => {
 	const baseClass =
-		"box-border m-0 border-0 rounded-md cursor-pointer transition duration-200";
+		"box-border m-0 border-0 rounded-md cursor-pointer transition duration-200 whitespace-nowrap";
 
 	// 색은 나중에 수정
 	const colorClass = {
@@ -27,7 +31,7 @@ const Button: React.FC<IButtonProps> = ({
 			text: "text-blue-800 hover:bg-blue-100",
 		},
 		neutral: {
-			solid: "bg-customGray text-white hover:bg-gray-600",
+			solid: "bg-blue-900 dark:bg-customGray text-white hover:bg-blue-800 dark:hover:bg-gray-600",
 			outline:
 				"border border-gray-600 text-gray-600 hover:bg-gray-600 hover:text-white",
 			text: "text-gray-600 hover:bg-gray-100",

@@ -21,6 +21,7 @@ import { OAuthModule } from "./oauth/oauth.module";
 import { PostModule } from "./post/post.module";
 import { RbacModule } from "./rbac/rbac.module";
 import { UserModule } from "./user/user.module";
+import { ChatModule } from './chat/chat.module';
 
 @Module({
 	imports: [
@@ -33,7 +34,7 @@ import { UserModule } from "./user/user.module";
 			imports: [ConfigModule],
 			useFactory: (configService: ConfigService) => ({
 				...configService.get("typeorm"),
-				logging: false,
+				logging: true,
 			}),
 
 			dataSourceFactory: async options => {
@@ -53,7 +54,7 @@ import { UserModule } from "./user/user.module";
 		RbacModule,
 		OAuthModule,
 		CommentModule,
-		AdminModule,
+		ChatModule,
 	],
 	controllers: [AppController],
 	providers: [

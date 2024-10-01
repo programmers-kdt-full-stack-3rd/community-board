@@ -19,6 +19,9 @@ import { useChatRoom } from "../../state/ChatRoomStore";
 import { useChatAside } from "../../state/ChatAsideStore";
 import { isDevMode } from "../../utils/detectMode"; // TODO: UI 리팩터링 완료 후 테스트 import 제거
 import { MdDarkMode } from "react-icons/md";
+import useThemeStore from "../../state/ThemeStore";
+import { MdLightMode } from "react-icons/md";
+import ConfirmModal from "../common/Modal/ConfirmModal";
 
 const Header: React.FC = () => {
 	const navigate = useNavigate();
@@ -29,11 +32,11 @@ const Header: React.FC = () => {
 	const { initializeChatState } = useChatRoom();
 	const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 	const dropdownMenuRef = useRef<HTMLDivElement>(null);
-
 	const { isOpen, open, close } = useChatAside();
+	const { isDarkMode, toggleDarkMode } = useThemeStore();
 
 	// Modal hooks
-	const warningModal = useModal();
+	const accountDeleteModal = useModal();
 
 	// 드랍다운 메뉴 이외 클릭시 드랍다운 메뉴 닫기
 	useEffect(() => {
@@ -51,6 +54,14 @@ const Header: React.FC = () => {
 			document.removeEventListener("mousedown", handleClickOutside);
 		};
 	}, []);
+
+	useEffect(() => {
+		if (isDarkMode) {
+			document.body.classList.add("dark");
+		} else {
+			document.body.classList.remove("dark");
+		}
+	}, [isDarkMode]);
 
 	const handleLogin = () => {
 		const currentPath = window.location.pathname;
@@ -93,9 +104,32 @@ const Header: React.FC = () => {
 		}
 	};
 
+	const handleAccountDeleteTry = () => {
+		accountDeleteModal.open();
+	};
+
+	const handleAccountDeleteAccept = () => {
+		accountDeleteModal.close();
+		navigate(`/checkPassword?next=accountDelete`);
+	};
+
 	return (
 		<div>
-			<div className="bg-customGray sticky top-16 z-20 flex h-16 items-center py-5 text-sm sm:top-0">
+			<ConfirmModal
+				variant="warning"
+				isOpen={accountDeleteModal.isOpen}
+				okButtonColor="danger"
+				okButtonLabel="계속 진행"
+				onAccept={handleAccountDeleteAccept}
+				onClose={accountDeleteModal.close}
+			>
+				<ConfirmModal.Title>회원 탈퇴 확인</ConfirmModal.Title>
+				<ConfirmModal.Body>
+					회원 탈퇴 절차를 진행할까요?
+				</ConfirmModal.Body>
+			</ConfirmModal>
+
+			<div className="dark:bg-customGray sticky top-16 z-20 flex h-16 items-center bg-blue-900 py-5 text-sm sm:top-0">
 				<nav className="mx-auto flex w-full max-w-7xl gap-x-10 px-4 lg:px-0">
 					<div className="ml-2 flex items-center">
 						<Link
@@ -139,8 +173,15 @@ const Header: React.FC = () => {
 								<Link to="/test/ui">UI 컴포넌트 테스트</Link>
 							)}
 
-							<div className="bg-customDarkGray flex h-10 w-10 items-center justify-center rounded-full">
-								<MdDarkMode className="text-white" />
+							<div
+								className="dark:bg-customDarkGray flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white"
+								onClick={toggleDarkMode}
+							>
+								{isDarkMode ? (
+									<MdDarkMode className="text-white" />
+								) : (
+									<MdLightMode className="text-blue-900" />
+								)}
 							</div>
 
 							{isLogin && (
@@ -152,6 +193,7 @@ const Header: React.FC = () => {
 							<div onClick={() => handleChatAside()}>
 								<FiMessageSquare className="text-3xl text-white" />
 							</div>
+
 							<div
 								className="text-lg text-white"
 								onClick={isLogin ? handleLogout : handleLogin}
@@ -191,8 +233,7 @@ const Header: React.FC = () => {
 								{isUserMenuOpen && isLogin && (
 									<DropdownMenu
 										ref={dropdownMenuRef}
-										navigate={navigate}
-										warningModal={warningModal}
+										onDeleteAccount={handleAccountDeleteTry}
 									/>
 								)}
 							</div>

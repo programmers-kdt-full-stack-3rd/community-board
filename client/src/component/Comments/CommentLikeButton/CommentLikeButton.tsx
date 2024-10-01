@@ -1,14 +1,12 @@
 import { useState } from "react";
 import { AiFillLike } from "react-icons/ai";
-
 import {
 	sendCreateCommentLikeRequest,
 	sendDeleteCommentLikeRequest,
 } from "../../../api/likes/crud";
 import { useUserStore } from "../../../state/store";
 import { ApiCall } from "../../../api/api";
-import { ClientError } from "../../../api/errors";
-import { useErrorModal } from "../../../state/errorModalStore";
+import { useGlobalErrorModal } from "../../../state/GlobalErrorModalStore";
 import Button from "../../common/Button";
 
 interface ICommentLikeButtonProps {
@@ -23,7 +21,7 @@ const CommentLikeButton = ({
 	userLiked,
 }: ICommentLikeButtonProps) => {
 	const isLogin = useUserStore(state => state.isLogin);
-	const errorModal = useErrorModal();
+	const globalErrorModal = useGlobalErrorModal();
 
 	const [toggled, setToggled] = useState(false);
 
@@ -40,13 +38,13 @@ const CommentLikeButton = ({
 			actualUserLiked
 				? () => sendDeleteCommentLikeRequest(commentId)
 				: () => sendCreateCommentLikeRequest(commentId),
-			err => {
-				errorModal.setErrorMessage(err.message);
-				errorModal.open();
-			}
+			err =>
+				globalErrorModal.openWithMessageSplit({
+					messageWithTitle: err.message,
+				})
 		);
 
-		if (response instanceof ClientError) {
+		if (response instanceof Error) {
 			return;
 		}
 
@@ -60,10 +58,10 @@ const CommentLikeButton = ({
 			onClick={handleLikeClick}
 		>
 			<AiFillLike
-				className={` ${actualUserLiked ? "text-green-500" : "text-gray-200"}`}
+				className={` ${actualUserLiked ? "text-green-500" : "text-gray-500 dark:text-gray-200"}`}
 			/>
 			<div
-				className={` ${actualUserLiked ? "text-green-500" : "text-gray-200"}`}
+				className={` ${actualUserLiked ? "text-green-500" : "text-gray-500 dark:text-gray-200"}`}
 			>
 				{likes + diff}
 			</div>
