@@ -1,4 +1,3 @@
-import { useLayoutEffect } from "react";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import "./root.css";
 import Login from "./page/User/Login";
@@ -11,6 +10,7 @@ import CheckPassword from "./page/User/CheckPassword";
 import ProfileUpdate from "./page/User/ProfileUpdate";
 import clsx from "clsx";
 import { useGlobalErrorModal } from "./state/GlobalErrorModalStore";
+import { useLayoutEffect } from "react";
 import GlobalErrorModal from "./component/common/Modal/GlobalErrorModal";
 import OAuthRedirectHandler from "./page/OAuth/OAuthRedirectHandler";
 import ChatTestPage from "./page/Chat/ChatPage";
