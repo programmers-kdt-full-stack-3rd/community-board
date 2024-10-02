@@ -4,6 +4,7 @@ import request from "supertest";
 import waitOn from "wait-on";
 import initializeDatabase from "./init/db-init-setup";
 import { IApiTestCase } from "./interface/api-test-case.interface";
+import { ChatApiTests } from "./testCase/chat-api.testcase";
 import { CommentApiTests } from "./testCase/comment-api.testcase";
 import { LikeApiTests } from "./testCase/like-api.testcase";
 import { PostApiTests } from "./testCase/post-api.testcase";
@@ -296,6 +297,32 @@ describe("API Migration Tests", () => {
 		it("DELETE /api/like/comment/1", async () => {
 			const testCase = LikeApiTests.deleteLikeByCommentId;
 
+			await runner.testApi(testCase);
+		});
+	});
+
+	describe("chat API 테스트", () => {
+		it("POST /api/chat/room", async () => {
+			const testCase = ChatApiTests.roomCreate;
+			await runner.testApi(testCase);
+		});
+
+		it("GET /api/chat/room", async () => {
+			const testCase = ChatApiTests.roomRead;
+			await runner.testApi(testCase);
+		});
+		it("POST /api/chat/enter", async () => {
+			const testCase = ChatApiTests.roomEnter;
+			await runner.testApi(testCase);
+		});
+
+		it("GET /api/chat/room/1", async () => {
+			const testCase = ChatApiTests.messageLog;
+			await runner.testApi(testCase);
+		});
+
+		it("POST /api/chat/leave", async () => {
+			const testCase = ChatApiTests.roomLeave;
 			await runner.testApi(testCase);
 		});
 	});
