@@ -180,7 +180,7 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 			</div>
 			<div className="flex flex-col">
 				<div
-					className="flex h-full w-[780px] resize-none flex-col text-start"
+					className="post-body h-full w-[780px] resize-none text-start text-base"
 					dangerouslySetInnerHTML={{ __html: content }}
 				/>
 				<div
