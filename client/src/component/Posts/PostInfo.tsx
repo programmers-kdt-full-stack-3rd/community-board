@@ -155,7 +155,7 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 									size="small"
 									onClick={() => {
 										navigate(
-											`/post/new?postId=${postInfo.id}&title=${postInfo.title}&content=${postInfo.content}`
+											`/post/new?postId=${postInfo.id}&title=${encodeURIComponent(postInfo.title)}&content=${encodeURIComponent(postInfo.content)}`
 										);
 									}}
 									variant="text"
