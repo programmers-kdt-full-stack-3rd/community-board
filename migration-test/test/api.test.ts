@@ -148,6 +148,26 @@ describe("API Migration Tests", () => {
 	const adminLoginTestCase = UserApiTests.adminLogin;
 	const checkPasswordTestCase = UserApiTests.checkPassword;
 
+	const changePassword = "ASDasD123123";
+
+	const updateUserLoginTestCase = {
+		...loginTestCase,
+		data: {
+			...loginTestCase.data,
+			password: changePassword,
+		},
+	};
+
+	const updateUserCheckPasswordTestCase = {
+		...checkPasswordTestCase,
+		data: {
+			...checkPasswordTestCase.data,
+			password: changePassword,
+		},
+	};
+
+	let runner: ApiTestRunner;
+
 	beforeAll(async () => {
 		exec("npm run start:test", { cwd: EXPRESS_APP_PATH });
 		exec("npm run start:test", { cwd: NEST_APP_PATH });
@@ -164,6 +184,8 @@ describe("API Migration Tests", () => {
 				interval: 500,
 			}),
 		]);
+
+		runner = new ApiTestRunner(EXPRESS_URL, NEST_URL);
 	}, 60000);
 
 	afterAll(async () => {
@@ -174,29 +196,6 @@ describe("API Migration Tests", () => {
 	});
 
 	describe("User API tests", () => {
-		let runner: ApiTestRunner;
-
-		const changePassword = "ASDasD123123";
-
-		const updateUserLoginTestCase = {
-			...loginTestCase,
-			data: {
-				...loginTestCase.data,
-				password: changePassword,
-			},
-		};
-
-		const updateUserCheckPasswordTestCase = {
-			...checkPasswordTestCase,
-			data: {
-				password: changePassword,
-			},
-		};
-
-		beforeAll(() => {
-			runner = new ApiTestRunner(EXPRESS_URL, NEST_URL);
-		});
-
 		it("POST /api/user/join", async () => {
 			const testCase = UserApiTests.join;
 			await runner.testApi(testCase);
@@ -227,37 +226,15 @@ describe("API Migration Tests", () => {
 		it("POST /api/user/logout", async () => {
 			const testCase = UserApiTests.logout;
 			await runner.testApi(testCase);
-		});
-
-		it("DELETE /api/user", async () => {
-			const testCase = UserApiTests.deleteUser;
-			const deleteUserTestCase: IApiTestCase = {
-				...loginTestCase,
-				data: {
-					...loginTestCase.data,
-					password: changePassword,
-				},
-				statusCode: 400,
-			};
 
 			await runner.runUrl(updateUserLoginTestCase);
-			await runner.runUrl(updateUserCheckPasswordTestCase);
-			await runner.testApi(testCase);
-			await runner.testApi(deleteUserTestCase);
 		});
 	});
 
 	describe("Post API tests", () => {
-		let runner: ApiTestRunner;
-
-		beforeAll(() => {
-			runner = new ApiTestRunner(EXPRESS_URL, NEST_URL);
-		});
-
 		it("POST /api/post", async () => {
 			const testCase = PostApiTests.createPost;
 
-			await runner.runUrl(adminLoginTestCase);
 			await runner.testApi(testCase);
 		});
 
@@ -279,16 +256,8 @@ describe("API Migration Tests", () => {
 	});
 
 	describe("Comment API tests", () => {
-		let runner: ApiTestRunner;
-
-		beforeAll(() => {
-			runner = new ApiTestRunner(EXPRESS_URL, NEST_URL);
-		});
-
 		it("POST /api/comment", async () => {
 			const testCase = CommentApiTests.createComment;
-
-			await runner.runUrl(adminLoginTestCase);
 			await runner.testApi(testCase);
 		});
 
@@ -305,17 +274,10 @@ describe("API Migration Tests", () => {
 	});
 
 	describe("like API tests", () => {
-		let runner: ApiTestRunner;
-
-		beforeAll(() => {
-			runner = new ApiTestRunner(EXPRESS_URL, NEST_URL);
-		});
 		// TODO: 좋아요 삭제시에 실제로 삭제 성공했는지 확인하는 기능 필요시에 추가
 
 		it("POST /api/like/post/1", async () => {
 			const testCase = LikeApiTests.createLikeByPostId;
-
-			await runner.runUrl(adminLoginTestCase);
 			await runner.testApi(testCase);
 		});
 
@@ -328,7 +290,6 @@ describe("API Migration Tests", () => {
 		it("POST /api/like/comment/1", async () => {
 			const testCase = LikeApiTests.createLikeByCommentId;
 
-			await runner.runUrl(adminLoginTestCase);
 			await runner.testApi(testCase);
 		});
 
@@ -340,22 +301,34 @@ describe("API Migration Tests", () => {
 	});
 
 	describe("DELETE API 테스트", () => {
-		let runner: ApiTestRunner;
-
-		beforeAll(() => {
-			runner = new ApiTestRunner(EXPRESS_URL, NEST_URL);
-		});
+		// TODO: 각각 삭제시에 실제로 삭제 성공했는지 확인하는 기능 필요시에 추가
 
 		it("DELETE /api/post/1", async () => {
 			const testCase = PostApiTests.deletePost;
 
-			await runner.runUrl(adminLoginTestCase);
 			await runner.testApi(testCase);
 		});
 
 		it("DELETE /api/comment/1", async () => {
 			const testCase = CommentApiTests.deleteComment;
+
 			await runner.testApi(testCase);
+		});
+
+		it("DELETE /api/user", async () => {
+			const testCase = UserApiTests.deleteUser;
+			const deleteUserTestCase: IApiTestCase = {
+				...loginTestCase,
+				data: {
+					...loginTestCase.data,
+					password: changePassword,
+				},
+				statusCode: 400,
+			};
+
+			await runner.runUrl(updateUserCheckPasswordTestCase);
+			await runner.testApi(testCase);
+			await runner.testApi(deleteUserTestCase);
 		});
 	});
 });
