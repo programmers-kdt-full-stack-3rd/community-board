@@ -1,40 +1,8 @@
+@import "./style/quill-post.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@layer components {
-	.quill {
-		@apply text-start;
-	}
-
-	:is(.post-body, .ql-editor) {
-		@apply font-sans text-base;
-	}
-
-	:is(.post-body, .ql-editor) :is(b, strong) {
-		@apply font-bold;
-	}
-	:is(.post-body, .ql-editor) u {
-		@apply underline;
-	}
-
-	:is(.post-body, .ql-editor) .ql-font-serif {
-		@apply font-serif;
-	}
-	:is(.post-body, .ql-editor) .ql-font-monospace {
-		@apply font-mono;
-	}
-
-	:is(.post-body, .ql-editor) .ql-size-small {
-		@apply text-sm;
-	}
-	:is(.post-body, .ql-editor) .ql-size-large {
-		@apply text-xl;
-	}
-	:is(.post-body, .ql-editor) .ql-size-huge {
-		@apply text-2xl;
-	}
-}
 
 :root {
 	font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;

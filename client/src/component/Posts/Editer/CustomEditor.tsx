@@ -1,9 +1,10 @@
 import React, { SetStateAction, useCallback, useMemo } from "react";
-import ReactQuill from "react-quill";
+import ReactQuill, { Quill } from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { ApiCall } from "../../../api/api";
 import { uploadImageRequest } from "../../../api/posts/crud";
 import { useGlobalErrorModal } from "../../../state/GlobalErrorModalStore";
+import { toolbarColors } from "./toolbarColors";
 
 /*
 client
@@ -21,6 +22,10 @@ interface IProps {
 	content: string;
 	setContent: React.Dispatch<SetStateAction<string>>;
 }
+
+// 다크모드 호환을 위해 인라인 스타일 대신 클래스로 컬러 적용
+const ColorClass = Quill.import("attributors/class/color");
+Quill.register(ColorClass, true);
 
 const CustomEditorBase: React.FC<IProps> = ({
 	quillRef,
@@ -83,7 +88,7 @@ const CustomEditorBase: React.FC<IProps> = ({
 				container: [
 					[{ font: [] }],
 					[{ size: ["small", false, "large", "huge"] }],
-					["bold", "underline", { color: [] }],
+					["bold", "underline", { color: toolbarColors }],
 					["image"],
 					["clean"],
 				],

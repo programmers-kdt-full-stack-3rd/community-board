@@ -1,0 +1,173 @@
+/* Quill에 적용할 색상 정의 */
+@layer components {
+	/* Quill 내부에서 강제로 적용하는, 툴바 글자색 버튼의 밑줄 색 인라인 스타일 되돌리기 */
+	.ql-snow.ql-toolbar .ql-picker-label.ql-active .ql-stroke {
+		@apply stroke-current !important;
+	}
+
+	/* 글자 색상 커스텀 클래스 (다크모드 호환) */
+	:is(.post-body, .ql-editor) .ql-color-gray1 {
+		@apply text-neutral-300 dark:text-neutral-600;
+	}
+	:is(.post-body, .ql-editor) .ql-color-gray2 {
+		@apply text-neutral-400 dark:text-neutral-500;
+	}
+	:is(.post-body, .ql-editor) .ql-color-gray3 {
+		@apply text-neutral-500 dark:text-neutral-400;
+	}
+	:is(.post-body, .ql-editor) .ql-color-red1 {
+		@apply text-red-200 dark:text-red-800;
+	}
+	:is(.post-body, .ql-editor) .ql-color-red2 {
+		@apply text-red-400 dark:text-red-600;
+	}
+	:is(.post-body, .ql-editor) .ql-color-red3 {
+		@apply text-red-600 dark:text-red-400;
+	}
+	:is(.post-body, .ql-editor) .ql-color-red4 {
+		@apply text-red-800 dark:text-red-200;
+	}
+	:is(.post-body, .ql-editor) .ql-color-amber1 {
+		@apply text-amber-200 dark:text-amber-800;
+	}
+	:is(.post-body, .ql-editor) .ql-color-amber2 {
+		@apply text-amber-400 dark:text-amber-600;
+	}
+	:is(.post-body, .ql-editor) .ql-color-amber3 {
+		@apply text-amber-600 dark:text-amber-400;
+	}
+	:is(.post-body, .ql-editor) .ql-color-amber4 {
+		@apply text-amber-800 dark:text-amber-200;
+	}
+	:is(.post-body, .ql-editor) .ql-color-emerald1 {
+		@apply text-emerald-200 dark:text-emerald-800;
+	}
+	:is(.post-body, .ql-editor) .ql-color-emerald2 {
+		@apply text-emerald-400 dark:text-emerald-600;
+	}
+	:is(.post-body, .ql-editor) .ql-color-emerald3 {
+		@apply text-emerald-600 dark:text-emerald-400;
+	}
+	:is(.post-body, .ql-editor) .ql-color-emerald4 {
+		@apply text-emerald-800 dark:text-emerald-200;
+	}
+	:is(.post-body, .ql-editor) .ql-color-blue1 {
+		@apply text-blue-200 dark:text-blue-800;
+	}
+	:is(.post-body, .ql-editor) .ql-color-blue2 {
+		@apply text-blue-400 dark:text-blue-600;
+	}
+	:is(.post-body, .ql-editor) .ql-color-blue3 {
+		@apply text-blue-600 dark:text-blue-400;
+	}
+	:is(.post-body, .ql-editor) .ql-color-blue4 {
+		@apply text-blue-800 dark:text-blue-200;
+	}
+	:is(.post-body, .ql-editor) .ql-color-violet1 {
+		@apply text-violet-200 dark:text-violet-800;
+	}
+	:is(.post-body, .ql-editor) .ql-color-violet2 {
+		@apply text-violet-400 dark:text-violet-600;
+	}
+	:is(.post-body, .ql-editor) .ql-color-violet3 {
+		@apply text-violet-600 dark:text-violet-400;
+	}
+	:is(.post-body, .ql-editor) .ql-color-violet4 {
+		@apply text-violet-800 dark:text-violet-200;
+	}
+	:is(.post-body, .ql-editor) .ql-color-pink1 {
+		@apply text-pink-200 dark:text-pink-800;
+	}
+	:is(.post-body, .ql-editor) .ql-color-pink2 {
+		@apply text-pink-400 dark:text-pink-600;
+	}
+	:is(.post-body, .ql-editor) .ql-color-pink3 {
+		@apply text-pink-600 dark:text-pink-400;
+	}
+	:is(.post-body, .ql-editor) .ql-color-pink4 {
+		@apply text-pink-800 dark:text-pink-200;
+	}
+
+	/* 글자색 드롭다운 항목 색상 지정 */
+	.ql-snow .ql-color-picker.ql-color .ql-picker-item[data-value="gray1"] {
+		@apply bg-neutral-300 dark:bg-neutral-600;
+	}
+	.ql-snow .ql-color-picker.ql-color .ql-picker-item[data-value="gray2"] {
+		@apply bg-neutral-400 dark:bg-neutral-500;
+	}
+	.ql-snow .ql-color-picker.ql-color .ql-picker-item[data-value="gray3"] {
+		@apply bg-neutral-500 dark:bg-neutral-400;
+	}
+	.ql-snow .ql-color-picker.ql-color .ql-picker-item[data-value="red1"] {
+		@apply bg-red-200 dark:bg-red-800;
+	}
+	.ql-snow .ql-color-picker.ql-color .ql-picker-item[data-value="red2"] {
+		@apply bg-red-400 dark:bg-red-600;
+	}
+	.ql-snow .ql-color-picker.ql-color .ql-picker-item[data-value="red3"] {
+		@apply bg-red-600 dark:bg-red-400;
+	}
+	.ql-snow .ql-color-picker.ql-color .ql-picker-item[data-value="red4"] {
+		@apply bg-red-800 dark:bg-red-200;
+	}
+	.ql-snow .ql-color-picker.ql-color .ql-picker-item[data-value="amber1"] {
+		@apply bg-amber-200 dark:bg-amber-800;
+	}
+	.ql-snow .ql-color-picker.ql-color .ql-picker-item[data-value="amber2"] {
+		@apply bg-amber-400 dark:bg-amber-600;
+	}
+	.ql-snow .ql-color-picker.ql-color .ql-picker-item[data-value="amber3"] {
+		@apply bg-amber-600 dark:bg-amber-400;
+	}
+	.ql-snow .ql-color-picker.ql-color .ql-picker-item[data-value="amber4"] {
+		@apply bg-amber-800 dark:bg-amber-200;
+	}
+	.ql-snow .ql-color-picker.ql-color .ql-picker-item[data-value="emerald1"] {
+		@apply bg-emerald-200 dark:bg-emerald-800;
+	}
+	.ql-snow .ql-color-picker.ql-color .ql-picker-item[data-value="emerald2"] {
+		@apply bg-emerald-400 dark:bg-emerald-600;
+	}
+	.ql-snow .ql-color-picker.ql-color .ql-picker-item[data-value="emerald3"] {
+		@apply bg-emerald-600 dark:bg-emerald-400;
+	}
+	.ql-snow .ql-color-picker.ql-color .ql-picker-item[data-value="emerald4"] {
+		@apply bg-emerald-800 dark:bg-emerald-200;
+	}
+	.ql-snow .ql-color-picker.ql-color .ql-picker-item[data-value="blue1"] {
+		@apply bg-blue-200 dark:bg-blue-800;
+	}
+	.ql-snow .ql-color-picker.ql-color .ql-picker-item[data-value="blue2"] {
+		@apply bg-blue-400 dark:bg-blue-600;
+	}
+	.ql-snow .ql-color-picker.ql-color .ql-picker-item[data-value="blue3"] {
+		@apply bg-blue-600 dark:bg-blue-400;
+	}
+	.ql-snow .ql-color-picker.ql-color .ql-picker-item[data-value="blue4"] {
+		@apply bg-blue-800 dark:bg-blue-200;
+	}
+	.ql-snow .ql-color-picker.ql-color .ql-picker-item[data-value="violet1"] {
+		@apply bg-violet-200 dark:bg-violet-800;
+	}
+	.ql-snow .ql-color-picker.ql-color .ql-picker-item[data-value="violet2"] {
+		@apply bg-violet-400 dark:bg-violet-600;
+	}
+	.ql-snow .ql-color-picker.ql-color .ql-picker-item[data-value="violet3"] {
+		@apply bg-violet-600 dark:bg-violet-400;
+	}
+	.ql-snow .ql-color-picker.ql-color .ql-picker-item[data-value="violet4"] {
+		@apply bg-violet-800 dark:bg-violet-200;
+	}
+	.ql-snow .ql-color-picker.ql-color .ql-picker-item[data-value="pink1"] {
+		@apply bg-pink-200 dark:bg-pink-800;
+	}
+	.ql-snow .ql-color-picker.ql-color .ql-picker-item[data-value="pink2"] {
+		@apply bg-pink-400 dark:bg-pink-600;
+	}
+	.ql-snow .ql-color-picker.ql-color .ql-picker-item[data-value="pink3"] {
+		@apply bg-pink-600 dark:bg-pink-400;
+	}
+	.ql-snow .ql-color-picker.ql-color .ql-picker-item[data-value="pink4"] {
+		@apply bg-pink-800 dark:bg-pink-200;
+	}
+}
