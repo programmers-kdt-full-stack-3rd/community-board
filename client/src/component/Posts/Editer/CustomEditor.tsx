@@ -1,5 +1,9 @@
-import { SetStateAction } from "react";
-import { ContentTextArea } from "../Modal/PostModal.css";
+import React, { SetStateAction, useCallback, useMemo } from "react";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
+import { ApiCall } from "../../../api/api";
+import { uploadImageRequest } from "../../../api/posts/crud";
+import { useGlobalErrorModal } from "../../../state/GlobalErrorModalStore";
 
 /*
 client
@@ -12,37 +16,97 @@ server
 - image는 업로드 시, 미리 서버에 저장 + 저장된 주소를 client에서 사용함
 */
 
-interface Props {
+interface IProps {
+	quillRef: React.RefObject<ReactQuill>;
 	content: string;
 	setContent: React.Dispatch<SetStateAction<string>>;
 }
 
-const CustomEditor: React.FC<Props> = ({ content, setContent }) => {
+const CustomEditorBase: React.FC<IProps> = ({
+	quillRef,
+	content,
+	setContent,
+}) => {
+	const globalErrorModal = useGlobalErrorModal();
+
 	// 이미지 업로드 -> S3에 저장 -> 저장된 이미지 url (imgUrl) 반환
-	// const upload = async (file: Blob) => {
-	// 	const res = await ApiCall(
-	// 		() => uploadImageRequest(file),
-	// 		err => {
-	// 			errorModal.setErrorMessage(err.message);
-	// 			errorModal.open();
-	// 		}
-	// 	);
+	const upload = useCallback(
+		async (file: Blob) => {
+			const res = await ApiCall(
+				() => uploadImageRequest(file),
+				err =>
+					globalErrorModal.openWithMessageSplit({
+						messageWithTitle: err.message,
+					})
+			);
 
-	// 	if (res instanceof ClientError) {
-	// 		return;
-	// 	}
+			if (res instanceof Error) {
+				return;
+			}
 
-	// 	return res.imgUrl;
-	// };
+			return res.imgUrl as string;
+		},
+		[globalErrorModal]
+	);
+
+	const handleImageUpload = useCallback(() => {
+		const inputElement = document.createElement("input");
+		inputElement.type = "file";
+		inputElement.accept = "image/*";
+		inputElement.name = "image";
+		inputElement.click();
+
+		inputElement.onchange = async () => {
+			const file = inputElement.files && inputElement.files[0];
+
+			if (!file) {
+				return;
+			}
+
+			const url = await upload(file);
+
+			const quill = quillRef.current?.getEditor();
+			const selectionIndex =
+				quill?.getSelection()?.index ?? quill?.getLength() ?? 0;
+
+			quill?.setSelection(selectionIndex, 0);
+			quill?.clipboard.dangerouslyPasteHTML(
+				selectionIndex,
+				`<img src="${url}" alt="사용자 업로드 이미지">`
+			);
+		};
+	}, [upload, quillRef]);
+
+	const quillModules = useMemo(
+		() => ({
+			toolbar: {
+				container: [
+					[{ font: [] }],
+					[{ size: ["small", false, "large", "huge"] }],
+					["bold", "underline", { color: [] }],
+					["image"],
+					["clean"],
+				],
+				handlers: {
+					image: handleImageUpload,
+				},
+			},
+		}),
+		[handleImageUpload]
+	);
 
 	return (
-		<textarea
-			className={ContentTextArea}
+		<ReactQuill
+			theme="snow"
+			ref={quillRef}
+			modules={quillModules}
 			value={content}
-			onChange={e => setContent(e.target.value)}
-			placeholder="내용을 입력해주세요"
-		></textarea>
+			onChange={setContent}
+			className="mb-16 h-96 min-h-96"
+		/>
 	);
 };
+
+const CustomEditor = React.memo(CustomEditorBase);
 
 export default CustomEditor;

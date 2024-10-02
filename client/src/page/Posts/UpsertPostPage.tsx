@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
+import ReactQuill from "react-quill";
 import TextInput from "../../component/common/TextInput";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
@@ -27,6 +28,8 @@ const UpsertPostPage: React.FC = () => {
 
 	const [postTitle, setPostTitle] = useState<string>(title);
 	const [postContent, setPostContent] = useState<string>(content);
+
+	const quillRef = useRef<ReactQuill>(null);
 
 	const createPost = async () => {
 		const body = {
@@ -135,6 +138,7 @@ const UpsertPostPage: React.FC = () => {
 				<div className={InputContainer}>
 					<div className={InputIndex}>내용</div>
 					<CustomEditor
+						quillRef={quillRef}
 						content={postContent}
 						setContent={setPostContent}
 					/>
