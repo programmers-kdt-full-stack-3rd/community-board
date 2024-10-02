@@ -4,6 +4,7 @@ import request from "supertest";
 import waitOn from "wait-on";
 import initializeDatabase from "./init/db-init-setup";
 import { IApiTestCase } from "./interface/api-test-case.interface";
+import { CommentApiTests } from "./testCase/comment-api.testcase";
 import { PostApiTests } from "./testCase/post-api.testcase";
 import { UserApiTests } from "./testCase/user-api.testcase";
 
@@ -102,31 +103,36 @@ class ApiTestRunner {
 		cookies: string[],
 		tempToken?: string
 	): Promise<request.Response> {
-		let req = request(url)[testCase.method](testCase.endpoint);
+		try {
+			let req = request(url)[testCase.method](testCase.endpoint);
 
-		if (tempToken) {
-			req = req.set("Cookie", [...cookies, tempToken]);
-		} else if (cookies.length > 0) {
-			req = req.set("Cookie", cookies);
+			if (tempToken) {
+				req = req.set("Cookie", [...cookies, tempToken]);
+			} else if (cookies.length > 0) {
+				req = req.set("Cookie", cookies);
+			}
+
+			if (testCase.data) {
+				req = req.send(testCase.data);
+			}
+
+			const result = await req;
+
+			testCase.statusCode = testCase.statusCode || 200;
+
+			if (result.status !== testCase.statusCode) {
+				throw new Error(
+					`Failed to send request to ${url}${testCase.endpoint}. Status code: ${result.status}, expected: ${testCase.statusCode} ,
+                        body: ${JSON.stringify(result.body)} 
+                        data: ${JSON.stringify(testCase.data)}`
+				);
+			}
+
+			return result;
+		} catch (error) {
+			console.log(testCase);
+			throw error;
 		}
-
-		if (testCase.data) {
-			req = req.send(testCase.data);
-		}
-
-		const result = await req;
-
-		testCase.statusCode = testCase.statusCode || 200;
-
-		if (result.status !== testCase.statusCode) {
-			throw new Error(
-				`Failed to send request to ${url}${testCase.endpoint}. Status code: ${result.status}, expected: ${testCase.statusCode} ,
-                    body: ${JSON.stringify(result.body)} 
-                    data: ${JSON.stringify(testCase.data)}`
-			);
-		}
-
-		return result;
 	}
 }
 
@@ -269,9 +275,50 @@ describe("API Migration Tests", () => {
 			const testCase = PostApiTests.updatePost;
 			await runner.testApi(testCase);
 		});
+	});
+
+	describe("Comment API tests", () => {
+		let runner: ApiTestRunner;
+
+		beforeAll(() => {
+			runner = new ApiTestRunner(EXPRESS_URL, NEST_URL);
+		});
+
+		it("POST /api/comment", async () => {
+			const testCase = CommentApiTests.createComment;
+
+			await runner.runUrl(adminLoginTestCase);
+			await runner.testApi(testCase);
+		});
+
+		it("GET /api/comment?post_id=1", async () => {
+			const testCase = CommentApiTests.readComments;
+
+			await runner.testApi(testCase);
+		});
+
+		it("PATCH /api/comment/1", async () => {
+			const testCase = CommentApiTests.updateComment;
+			await runner.testApi(testCase);
+		});
+	});
+
+	describe("DELETE API 테스트", () => {
+		let runner: ApiTestRunner;
+
+		beforeAll(() => {
+			runner = new ApiTestRunner(EXPRESS_URL, NEST_URL);
+		});
 
 		it("DELETE /api/post/1", async () => {
 			const testCase = PostApiTests.deletePost;
+
+			await runner.runUrl(adminLoginTestCase);
+			await runner.testApi(testCase);
+		});
+
+		it("DELETE /api/comment/1", async () => {
+			const testCase = CommentApiTests.deleteComment;
 			await runner.testApi(testCase);
 		});
 	});
