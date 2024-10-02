@@ -7,8 +7,8 @@ import { makeLogTitle } from "../utils/user-logs-utils";
 import { ServerError } from "../common/exceptions/server-error.exception";
 import { Comment } from "./entities/comment.entity";
 import { Log } from "../log/entities/log.entity";
-import { CommentsDto, ReadCommentQueryDto } from "./dto/read-comment.dto";
-import { DeleteCommentDto } from "./dto/delete-comment.dto";
+import { CommentsDto, ReadCommentQuery } from "./dto/read-comment.dto";
+import { DeleteCommentReq } from "./dto/delete-comment.dto";
 import {
 	COMMENT_ERROR_CODES,
 	COMMENT_ERROR_MESSAGES,
@@ -76,7 +76,7 @@ export class CommentService {
 	}
 
 	async readComments(
-		readCommentsDto: ReadCommentQueryDto
+		readCommentsDto: ReadCommentQuery
 	): Promise<CommentsDto[]> {
 		return await this.commentRepository.getComments(readCommentsDto);
 	}
@@ -99,7 +99,7 @@ export class CommentService {
 		return true;
 	}
 
-	async deleteComment(deleteCommentDto: DeleteCommentDto): Promise<boolean> {
+	async deleteComment(deleteCommentDto: DeleteCommentReq): Promise<boolean> {
 		const { id, authorId } = deleteCommentDto;
 
 		const result = await this.commentRepository.update(

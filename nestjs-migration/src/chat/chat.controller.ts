@@ -7,26 +7,24 @@ import {
 	Param,
 	Post,
 	Query,
-	Req,
 	UseGuards,
 } from "@nestjs/common";
 import { ChatService } from "./chat.service";
 import { User } from "../common/decorator/user.decorator";
 import { IUserEntity } from "../common/interface/user-entity.interface";
-import { CreateRoomBodyDto } from "./dto/create-room.dto";
-import { ReadRoomQueryDto } from "./dto/read-room-query.dto";
-import { Request } from "express";
+import { CreateRoomReq } from "./dto/create-room.dto";
+import { ReadRoomQuery } from "./dto/read-room-query.dto";
 import { LoginGuard } from "../common/guard/login.guard";
-import { JoinRoomBodyDto, JoinRoomDto } from "./dto/join-room.dto";
-import { EnterRoomBodyDto, EnterRoomDto } from "./dto/enter-room.dto";
-import { LeaveRoomBodyDto } from "./dto/leave-room.dto";
+import { JoinRoomReq } from "./dto/join-room.dto";
+import { EnterRoomReq } from "./dto/enter-room.dto";
+import { LeaveRoomReq } from "./dto/leave-room.dto";
 import { ServerError } from "../common/exceptions/server-error.exception";
 import { IMessage } from "./dto/message.dto";
 import {
-	EnterRoomResultDto,
-	GetRoomsResultDto,
-	ICreateRoomResult,
-	IJoinRoomResult,
+	EnterRoomRes,
+	GetRoomsRes,
+	CreateRoomRes,
+	JoinRoomRes,
 } from "./dto/chat-result.dto";
 import { CHAT_ERROR_MESSAGES } from "./constant/chat.constants";
 
@@ -39,12 +37,12 @@ export class ChatController {
 	@HttpCode(HttpStatus.CREATED)
 	async handleRoomCreate(
 		@User() user: IUserEntity,
-		@Body() createRoomBodyDto: CreateRoomBodyDto
-	): Promise<ICreateRoomResult> {
+		@Body() createRoomReq: CreateRoomReq
+	): Promise<CreateRoomRes> {
 		try {
 			const userId = user.userId;
 			const createRoomDto = {
-				...createRoomBodyDto,
+				...createRoomReq,
 				userId,
 			};
 
@@ -61,11 +59,11 @@ export class ChatController {
 	@Get("/rooms")
 	@HttpCode(HttpStatus.OK)
 	async handleRoomsRead(
-		@Query() readRoomQueryDto: ReadRoomQueryDto,
+		@Query() readRoomQuery: ReadRoomQuery,
 		@User() user: IUserEntity
-	): Promise<GetRoomsResultDto> {
+	): Promise<GetRoomsRes> {
 		try {
-			let { page, perPage, keyword, isSearch } = readRoomQueryDto;
+			let { page, perPage, keyword, isSearch } = readRoomQuery;
 			page = page ? page - 1 : page;
 			keyword = keyword ? decodeURIComponent(keyword) : "";
 
@@ -123,13 +121,13 @@ export class ChatController {
 	@UseGuards(LoginGuard)
 	@HttpCode(HttpStatus.OK)
 	async handleRoomJoin(
-		@Body() joinRoomBodyDto: JoinRoomBodyDto,
+		@Body() joinRoomReq: JoinRoomReq,
 		@User() user: IUserEntity
-	): Promise<IJoinRoomResult> {
+	): Promise<JoinRoomRes> {
 		try {
 			const userId = user.userId;
 			const joinRoomDto = {
-				...joinRoomBodyDto,
+				...joinRoomReq,
 				userId,
 			};
 
@@ -145,14 +143,14 @@ export class ChatController {
 	@UseGuards(LoginGuard)
 	@HttpCode(HttpStatus.OK)
 	async handleRoomEnter(
-		@Body() enterRoomBodyDto: EnterRoomBodyDto,
+		@Body() enterRoomReq: EnterRoomReq,
 		@User() user: IUserEntity
-	): Promise<EnterRoomResultDto> {
+	): Promise<EnterRoomRes> {
 		try {
 			const userId = user.userId;
 
 			const enterRoomDto = {
-				...enterRoomBodyDto,
+				...enterRoomReq,
 				userId,
 			};
 			const memberId =
@@ -168,14 +166,14 @@ export class ChatController {
 	@UseGuards(LoginGuard)
 	@HttpCode(HttpStatus.OK)
 	async handleRoomLeave(
-		@Body() leaveRoomBodyDto: LeaveRoomBodyDto,
+		@Body() leaveRoomReq: LeaveRoomReq,
 		@User() user: IUserEntity
 	): Promise<void> {
 		try {
 			const userId = user.userId;
 
 			const leaveRoomDto = {
-				...leaveRoomBodyDto,
+				...leaveRoomReq,
 				userId,
 			};
 

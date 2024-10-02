@@ -3,6 +3,8 @@ import { LikeService } from "./like.service";
 import { CommentLikeRepository, LikeRepository } from "./like.repository";
 import { ServerError } from "../common/exceptions/server-error.exception";
 import { LIKE_ERROR_MESSAGES } from "./constant/like.constants";
+import { Comment } from "../comment/entities/comment.entity";
+import { User } from "../user/entities/user.entity";
 
 describe("LikeService", () => {
 	let likeService: LikeService;
@@ -81,8 +83,12 @@ describe("LikeService", () => {
 			await likeService.deletePostLike(mockLikePostDto);
 
 			expect(likeRepository.delete).toHaveBeenCalledWith({
-				post: mockLikePostDto.postId,
-				user: mockLikePostDto.userId,
+				post: {
+					id: mockLikePostDto.postId,
+				},
+				user: {
+					id: mockLikePostDto.userId,
+				},
 			});
 		});
 		it("게시물 좋아요 delete 실패", async () => {
@@ -131,8 +137,10 @@ describe("LikeService", () => {
 			await likeService.deleteCommentLike(mockCommentDto);
 
 			expect(commentLikeRepository.delete).toHaveBeenCalledWith({
-				comment: mockCommentDto.commentId,
-				user: mockCommentDto.userId,
+				comment: Object.assign(new Comment(), {
+					id: mockCommentDto.commentId,
+				}),
+				user: Object.assign(new User(), { id: mockCommentDto.userId }),
 			});
 		});
 		it("댓글 좋아요 delete 실패", async () => {

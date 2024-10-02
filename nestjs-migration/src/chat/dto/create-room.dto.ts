@@ -1,18 +1,19 @@
-import { IsDefined, IsOptional } from "class-validator";
+import { IsBoolean, IsDefined, IsOptional, IsString } from "class-validator";
 
-export class CreateRoomBodyDto {
+export class CreateRoomReq {
+	@IsDefined()
+	@IsString()
+	title: string;
 
-    @IsDefined()
-    title: string;
+	@IsDefined()
+	@IsBoolean()
+	isPrivate: boolean;
 
-    @IsDefined()
-    isPrivate: boolean;
-
-    @IsOptional()
-    password: string;
+	@IsOptional()
+	@IsString()
+	password?: string;
 }
 
-export class CreateRoomDto extends CreateRoomBodyDto {
-    userId: number;
+export class CreateRoomDto extends CreateRoomReq {
+	userId: number;
 }
-

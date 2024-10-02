@@ -14,11 +14,11 @@ import {
 	ParseIntPipe,
 } from "@nestjs/common";
 import { PostService } from "./post.service";
-import { CreatePostBodyDto } from "./dto/create-post.dto";
-import { UpdatePostBodyDto } from "./dto/update-post.dto";
+import { ReadPostsQuery } from "./dto/read-posts-query.dto";
+import { CreatePostReq } from "./dto/create-post.dto";
+import { UpdatePostReq } from "./dto/update-post.dto";
 import { LoginGuard } from "../common/guard/login.guard";
 import { Request } from "express";
-import { ReadPostsQueryDto } from "./dto/read-posts-query.dto";
 
 @Controller("post")
 export class PostController {
@@ -28,7 +28,7 @@ export class PostController {
 	@Post("/")
 	@HttpCode(HttpStatus.CREATED)
 	async handlePostCreate(
-		@Body() createPostBodyDto: CreatePostBodyDto,
+		@Body() createPostBodyDto: CreatePostReq,
 		@Req() req: Request
 	) {
 		try {
@@ -39,7 +39,6 @@ export class PostController {
 			};
 			const postId = await this.postService.createPost(createPostDto);
 			return { postId, message: "게시글 생성 success" };
-
 		} catch (err) {
 			throw err;
 		}
@@ -48,11 +47,11 @@ export class PostController {
 	@Get("/")
 	@HttpCode(HttpStatus.OK)
 	async handlePostsRead(
-		@Query() readPostsQueryDto: ReadPostsQueryDto,
+		@Query() readPostsQueryDto: ReadPostsQuery,
 		@Req() req: Request
 	) {
 		try {
-			const userId = req.user? req.user["userId"] : 0;
+			const userId = req.user ? req.user["userId"] : 0;
 			const postHeaders = await this.postService.findPostHeaders(
 				readPostsQueryDto,
 				userId
@@ -63,9 +62,9 @@ export class PostController {
 			);
 			return { total, postHeaders };
 		} catch (err) {
-			throw err; 
-		};
-	};
+			throw err;
+		}
+	}
 
 	@Get("/:postId")
 	@HttpCode(HttpStatus.OK)
@@ -73,22 +72,21 @@ export class PostController {
 		@Param("postId", ParseIntPipe) postId: number,
 		@Req() req: Request
 	) {
-		try{
-			const userId = req.user? req.user["userId"] : 0;
+		try {
+			const userId = req.user ? req.user["userId"] : 0;
 			const post = await this.postService.findPost(postId, userId);
 			return { post };
-	
-		} catch(err) {
+		} catch (err) {
 			throw err;
-		};
-	};
+		}
+	}
 
 	@UseGuards(LoginGuard)
 	@Patch("/:postId")
 	@HttpCode(HttpStatus.OK)
 	async handlePostUpdate(
 		@Param("postId", ParseIntPipe) postId: number,
-		@Body() updatePostBodyDto: UpdatePostBodyDto,
+		@Body() updatePostBodyDto: UpdatePostReq,
 		@Req() req: Request
 	) {
 		try {
@@ -98,30 +96,30 @@ export class PostController {
 				authorId,
 			};
 			await this.postService.updatePost(postId, updateBodyDto);
-			return {  "message": "게시글 수정 success" };
-		} catch(err) {
+			return { message: "게시글 수정 success" };
+		} catch (err) {
 			throw err;
-		};
-	};
+		}
+	}
 
 	//?userID: admin때문인 것 같은데..
-  	@UseGuards(LoginGuard)
+	@UseGuards(LoginGuard)
 	@Delete(":postId")
 	@HttpCode(HttpStatus.OK)
 	async handlePostDelete(
 		@Param("postId", ParseIntPipe) postId: number,
-		@Req() req: Request,
+		@Req() req: Request
 	) {
 		try {
 			const userId = req.user["userId"];
 			const deletePostDto = {
 				postId,
 				authorId: userId,
-			}
-			await this.postService.deletePost( deletePostDto );
-			return {  message: "게시글 삭제 success" };
+			};
+			await this.postService.deletePost(deletePostDto);
+			return { message: "게시글 삭제 success" };
 		} catch (err) {
 			throw err;
-		};
-	};
-};
+		}
+	}
+}

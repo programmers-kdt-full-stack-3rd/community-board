@@ -6,7 +6,7 @@ import { changeBadWords, getRegex } from "../utils/bad-word-regex/regexTask";
 import { regexs } from "../utils/bad-word-regex/regexs.json";
 import { makeLogTitle } from "../utils/user-logs-utils";
 import { Post } from "./entities/post.entity";
-import { ReadPostsQueryDto } from "./dto/read-posts-query.dto";
+import { ReadPostsQuery } from "./dto/read-posts-query.dto";
 import { PostRepository } from "./post.repository";
 import { Log } from "../log/entities/log.entity";
 import { ServerError } from "../common/exceptions/server-error.exception";
@@ -69,7 +69,7 @@ export class PostService {
 	}
 
 	async findPostHeaders(
-		readPostsQueryDto: ReadPostsQueryDto,
+		readPostsQueryDto: ReadPostsQuery,
 		userId: number
 	): Promise<getPostHeadersDto[]> {
 		const postHeaders = await this.postRepository.getPostHeaders(
@@ -81,7 +81,7 @@ export class PostService {
 	}
 
 	async findPostTotal(
-		readPostsQueryDto: ReadPostsQueryDto,
+		readPostsQueryDto: ReadPostsQuery,
 		userId: number
 	): Promise<number> {
 		const total = await this.postRepository.getPostTotal(
@@ -159,8 +159,8 @@ export class PostService {
 		}
 
 		const result = await this.postRepository.update(
-			{ id: postId, isDelete: 0, author: { id: authorId } },
-			{ isDelete: 1 }
+			{ id: postId, isDelete: false, author: { id: authorId } },
+			{ isDelete: true }
 		);
 
 		if (result.affected) {

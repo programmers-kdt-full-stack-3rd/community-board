@@ -5,7 +5,7 @@ import { Brackets, DataSource, Repository } from "typeorm";
 import { GetPostsDto } from "../admin/dto/get-posts.dto";
 import { Like } from "../like/entities/like.entity";
 import { getPostHeadersDto } from "./dto/get-post-headers.dto";
-import { ReadPostsQueryDto, SortBy } from "./dto/read-posts-query.dto";
+import { ReadPostsQuery, SortBy } from "./dto/read-posts-query.dto";
 import { Post } from "./entities/post.entity";
 
 @Injectable()
@@ -15,7 +15,7 @@ export class PostRepository extends Repository<Post> {
 	}
 
 	async getPostHeaders(
-		readPostsQueryDto: ReadPostsQueryDto,
+		readPostsQueryDto: ReadPostsQuery,
 		userId: number
 	): Promise<getPostHeadersDto[]> {
 		let { index, perPage, keyword, sortBy } = readPostsQueryDto;
@@ -78,7 +78,7 @@ export class PostRepository extends Repository<Post> {
 	}
 
 	async getPostTotal(
-		readPostsQueryDto: ReadPostsQueryDto,
+		readPostsQueryDto: ReadPostsQuery,
 		userId: number
 	): Promise<number> {
 		let { keyword } = readPostsQueryDto;

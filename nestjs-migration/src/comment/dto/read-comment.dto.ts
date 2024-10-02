@@ -1,17 +1,9 @@
-import {
-	IsDefined,
-	IsInt,
-	IsNotEmpty,
-	IsOptional,
-	IsPositive,
-	Min,
-} from "class-validator";
+import { IsDefined, IsInt, IsOptional, IsPositive } from "class-validator";
 import { COMMENT_ERROR_MESSAGES } from "../constant/comment.constants";
 import { Transform } from "class-transformer";
 
-export class ReadCommentQueryDto {
+export class ReadCommentQuery {
 	@IsDefined({ message: COMMENT_ERROR_MESSAGES.POST_ID_REQUIRED })
-	@IsNotEmpty({ message: COMMENT_ERROR_MESSAGES.POST_ID_REQUIRED })
 	@Transform(({ value }) => parseInt(value, 10), { toClassOnly: true })
 	@IsInt({ message: COMMENT_ERROR_MESSAGES.INVALID_POST_ID })
 	@IsPositive({ message: COMMENT_ERROR_MESSAGES.INVALID_POST_ID })
@@ -26,8 +18,12 @@ export class ReadCommentQueryDto {
 		({ value }) => (value === "" ? undefined : parseInt(value, 10)),
 		{ toClassOnly: true }
 	)
+	@IsOptional()
+	@IsInt()
 	perPage?: number = 50;
 
+	@IsOptional()
+	@IsInt()
 	userId?: number;
 }
 

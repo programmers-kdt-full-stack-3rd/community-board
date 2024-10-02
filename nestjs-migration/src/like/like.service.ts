@@ -29,8 +29,8 @@ export class LikeService {
 		const { postId, userId } = deletePostLikeDto;
 
 		const result = await this.likeRepository.delete({
-			post: postId,
-			user: userId,
+			post: { id: postId },
+			user: { id: userId },
 		});
 		if (!result.affected) {
 			throw ServerError.reference(
@@ -56,8 +56,8 @@ export class LikeService {
 	): Promise<void> {
 		const { commentId, userId } = deleteCommentLikeDto;
 		const result = await this.commentLikeRepository.delete({
-			comment: commentId,
-			user: userId,
+			comment: { id: commentId },
+			user: { id: userId },
 		});
 		if (!result.affected) {
 			throw ServerError.reference(

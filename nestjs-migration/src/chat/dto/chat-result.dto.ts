@@ -1,29 +1,29 @@
 import { Transform } from "class-transformer";
+import { IsDefined } from "class-validator";
 
-export class IRoomHeader {
-    @Transform(({value})=> parseInt(value))
-    totalMembersCount: number;
-    
-    roomId: number;
-    title: string;
-    isPrivate: boolean;
+export class RoomHeader {
+	@Transform(({ value }) => parseInt(value))
+	totalMembersCount: number;
+
+	roomId: number;
+	title: string;
+	isPrivate: boolean;
 }
 
-export class GetRoomsResultDto {
-    totalRoomCount: number;
-    roomHeaders: IRoomHeader[];
+export class GetRoomsRes {
+	totalRoomCount: number;
 
+	roomHeaders: RoomHeader[];
 }
 
-export class ICreateRoomResult {
-    roomId:number;
+export class CreateRoomRes {
+	roomId: number;
 }
 
-export class IJoinRoomResult{
-    roomId: number;
+export class JoinRoomRes {
+	roomId: number;
 }
 
-
-export class EnterRoomResultDto {
-    memberId: number;
+export class EnterRoomRes {
+	memberId: number;
 }

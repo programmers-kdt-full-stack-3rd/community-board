@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { plainToInstance } from "class-transformer";
 import { DataSource, Repository } from "typeorm";
 import { CommentLike } from "../like/entities/comment-like.entity";
-import { CommentsDto, ReadCommentQueryDto } from "./dto/read-comment.dto";
+import { CommentsDto, ReadCommentQuery } from "./dto/read-comment.dto";
 import { Comment } from "./entities/comment.entity";
 
 @Injectable()
@@ -24,7 +24,7 @@ export class CommentRepository extends Repository<Comment> {
 	}
 
 	async getComments(
-		readCommentsQueryDto: ReadCommentQueryDto
+		readCommentsQueryDto: ReadCommentQuery
 	): Promise<CommentsDto[]> {
 		let { post_id: postId, userId, index, perPage } = readCommentsQueryDto;
 		const authorId = userId;

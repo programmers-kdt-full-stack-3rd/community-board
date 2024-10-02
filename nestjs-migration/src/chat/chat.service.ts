@@ -12,7 +12,7 @@ import { EnterRoomDto } from "./dto/enter-room.dto";
 import { LeaveRoomDto } from "./dto/leave-room.dto";
 import { ServerError } from "../common/exceptions/server-error.exception";
 import { IMessage } from "./dto/message.dto";
-import { GetRoomsResultDto } from "./dto/chat-result.dto";
+import { GetRoomsRes } from "./dto/chat-result.dto";
 import { CHAT_ERROR_MESSAGES } from "./constant/chat.constants";
 
 @Injectable()
@@ -63,7 +63,7 @@ export class ChatService {
 
 	async getRoomsBykeyword(
 		readRoomByKeywordDto: ReadRoomByKeywordDto
-	): Promise<GetRoomsResultDto> {
+	): Promise<GetRoomsRes> {
 		const { keyword } = readRoomByKeywordDto;
 
 		try {
@@ -91,7 +91,7 @@ export class ChatService {
 
 	async getRoomsByUserId(
 		readRoomByUserIdDto: ReadRoomByUserIdDto
-	): Promise<GetRoomsResultDto> {
+	): Promise<GetRoomsRes> {
 		const { userId } = readRoomByUserIdDto;
 
 		try {

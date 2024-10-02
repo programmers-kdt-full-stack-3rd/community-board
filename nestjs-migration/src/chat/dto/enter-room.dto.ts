@@ -1,7 +1,11 @@
-export class EnterRoomBodyDto {
-    roomId: number;
+import { IsDefined, IsNumber } from "class-validator";
+
+export class EnterRoomReq {
+	@IsDefined()
+	@IsNumber()
+	roomId: number;
 }
 
-export class EnterRoomDto extends EnterRoomBodyDto {
-    userId: number;
+export class EnterRoomDto extends EnterRoomReq {
+	userId: number;
 }

@@ -263,8 +263,8 @@ describe("PostService", () => {
 				where: { id: mockPostId },
 			});
 			expect(postRepository.update).toHaveBeenCalledWith(
-				{ id: mockPostId, isDelete: 0, author: { id: mockUserId } },
-				{ isDelete: 1 }
+				{ id: mockPostId, isDelete: false, author: { id: mockUserId } },
+				{ isDelete: true }
 			);
 			expect(result).toEqual(true);
 		});

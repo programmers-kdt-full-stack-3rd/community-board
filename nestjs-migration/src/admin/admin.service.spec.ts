@@ -293,8 +293,8 @@ describe("AdminService", () => {
 			await adminService.deletePost(postId);
 
 			expect(postRepository.update).toHaveBeenCalledWith(
-				{ id: postId, isDelete: 0 },
-				{ isDelete: 1 }
+				{ id: postId, isDelete: false },
+				{ isDelete: true }
 			);
 			expect(postRepository.update).toHaveBeenCalledTimes(1);
 		});
@@ -324,8 +324,8 @@ describe("AdminService", () => {
 			await adminService.restorePost(postId);
 
 			expect(postRepository.update).toHaveBeenCalledWith(
-				{ id: postId, isDelete: 1 },
-				{ isDelete: 0 }
+				{ id: postId, isDelete: true },
+				{ isDelete: false }
 			);
 			expect(postRepository.update).toHaveBeenCalledTimes(1);
 		});
@@ -355,8 +355,8 @@ describe("AdminService", () => {
 			await adminService.publicPost(postId);
 
 			expect(postRepository.update).toHaveBeenCalledWith(
-				{ id: postId, isPrivate: 1 },
-				{ isPrivate: 0 }
+				{ id: postId, isPrivate: true },
+				{ isPrivate: false }
 			);
 			expect(postRepository.update).toHaveBeenCalledTimes(1);
 		});
@@ -386,8 +386,8 @@ describe("AdminService", () => {
 			await adminService.privatePost(postId);
 
 			expect(postRepository.update).toHaveBeenCalledWith(
-				{ id: postId, isPrivate: 0 },
-				{ isPrivate: 1 }
+				{ id: postId, isPrivate: false },
+				{ isPrivate: true }
 			);
 			expect(postRepository.update).toHaveBeenCalledTimes(1);
 		});

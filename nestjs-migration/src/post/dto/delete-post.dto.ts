@@ -1,6 +1,11 @@
-import { User } from "src/user/entities/user.entity";
+import { IsNotEmpty, IsOptional, IsPositive } from "class-validator";
+import { POST_ERROR_MESSAGES } from "../constant/post.constants";
 
 export class DeletePostDto {
-    postId: number;
-    authorId: number;
+	@IsOptional()
+	authorId?: number;
+
+	@IsNotEmpty()
+	@IsPositive({ message: POST_ERROR_MESSAGES.INVALID_POST_ID })
+	postId: number;
 }

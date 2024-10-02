@@ -6,7 +6,5 @@ import { DataSource, Repository } from "typeorm";
 export class MessageRepository extends Repository<Message> {
 	constructor(private dataSource: DataSource) {
 		super(Message, dataSource.createEntityManager());
-	};
-
-
+	}
 }
