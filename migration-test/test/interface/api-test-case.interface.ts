@@ -1,4 +1,4 @@
-type HttpMethod = "get" | "post" | "put" | "delete";
+type HttpMethod = "get" | "post" | "put" | "delete" | "patch";
 
 export interface IApiTestCase {
 	description: string;

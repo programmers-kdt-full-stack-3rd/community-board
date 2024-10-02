@@ -4,6 +4,7 @@ import request from "supertest";
 import waitOn from "wait-on";
 import initializeDatabase from "./init/db-init-setup";
 import { IApiTestCase } from "./interface/api-test-case.interface";
+import { PostApiTests } from "./testCase/post-api.testcase";
 import { UserApiTests } from "./testCase/user-api.testcase";
 
 // 테스트 실행기 클래스
@@ -56,70 +57,43 @@ class ApiTestRunner {
 		return { expressRes, nestRes };
 	}
 
-	async runTest(testCase: IApiTestCase) {
+	async testApi(testCase: IApiTestCase) {
 		const { expressRes, nestRes } = await this.runUrl(testCase);
-		const result = await this.compareResponses(
-			expressRes,
-			nestRes,
-			testCase.ignoreFields
-		);
+		const ignoreFields = testCase.ignoreFields;
 
-		return {
-			result,
-			expressRes: expressRes,
-			nestRes: nestRes,
-		};
-	}
+		let expressBody = expressRes.body;
+		let nestBody = nestRes.body;
 
-	async compareResponses(
-		expressRes: request.Response,
-		nestRes: request.Response,
-		ignoreFields?: string[]
-	) {
-		if (expressRes.status !== nestRes.status) {
-			return false;
-		}
+		expect(expressRes.status).toBe(nestRes.status);
 
 		if (
 			ignoreFields?.length === 0 ||
 			ignoreFields === undefined ||
 			expressRes.status >= 300
 		) {
-			if (
-				JSON.stringify(expressRes.body) === JSON.stringify(nestRes.body)
-			) {
-				return true;
+			expect(expressBody).toEqual(nestBody);
+			return;
+		}
+
+		const removeIgnoredFields = (obj: any): any => {
+			if (Array.isArray(obj)) {
+				return obj.map(removeIgnoredFields);
 			}
+			if (typeof obj === "object" && obj !== null) {
+				const result: any = {};
+				for (const [key, value] of Object.entries(obj)) {
+					if (ignoreFields?.includes(key)) continue;
+					result[key] = removeIgnoredFields(value);
+				}
+				return result;
+			}
+			return obj;
+		};
 
-			console.log("expressRes.body", expressRes.body);
-			console.log("nestRes.body", nestRes.body);
-			return false;
-		}
+		expressBody = removeIgnoredFields(expressRes.body);
+		nestBody = removeIgnoredFields(nestRes.body);
 
-		const cleanedExpressBody = this.removeIgnoredFields(
-			expressRes.body,
-			ignoreFields
-		);
-		const cleanedNestBody = this.removeIgnoredFields(
-			nestRes.body,
-			ignoreFields
-		);
-
-		if (
-			JSON.stringify(cleanedExpressBody) !==
-			JSON.stringify(cleanedNestBody)
-		) {
-			console.log("expressRes.body", expressRes.body);
-			console.log("nestRes.body", nestRes.body);
-			return false;
-		}
-
-		return true;
-	}
-
-	async testApi(testCase: IApiTestCase) {
-		const { result } = await this.runTest(testCase);
-		expect(result).toBe(true);
+		expect(expressBody).toEqual(nestBody);
 	}
 
 	private async sendRequest(
@@ -146,22 +120,13 @@ class ApiTestRunner {
 
 		if (result.status !== testCase.statusCode) {
 			throw new Error(
-				`Failed to send request to ${url}${testCase.endpoint}. Status code: ${result.status}, expected: ${testCase.statusCode}`
+				`Failed to send request to ${url}${testCase.endpoint}. Status code: ${result.status}, expected: ${testCase.statusCode} ,
+                    body: ${JSON.stringify(result.body)} 
+                    data: ${JSON.stringify(testCase.data)}`
 			);
 		}
 
 		return result;
-	}
-
-	private removeIgnoredFields(obj: any, ignoreFields?: string[]): any {
-		if (!obj) return obj;
-		if (!ignoreFields || !Array.isArray(ignoreFields)) return obj;
-
-		const cleaned = { ...obj };
-		for (const field of ignoreFields) {
-			delete cleaned.result[field];
-		}
-		return cleaned;
 	}
 }
 
@@ -173,6 +138,7 @@ describe("API Migration Tests", () => {
 	const NEST_URL = "http://localhost:6555";
 
 	const loginTestCase = UserApiTests.login;
+	const adminLoginTestCase = UserApiTests.adminLogin;
 	const checkPasswordTestCase = UserApiTests.checkPassword;
 
 	beforeAll(async () => {
@@ -271,6 +237,42 @@ describe("API Migration Tests", () => {
 			await runner.runUrl(updateUserCheckPasswordTestCase);
 			await runner.testApi(testCase);
 			await runner.testApi(deleteUserTestCase);
+		});
+	});
+
+	describe("Post API tests", () => {
+		let runner: ApiTestRunner;
+
+		beforeAll(() => {
+			runner = new ApiTestRunner(EXPRESS_URL, NEST_URL);
+		});
+
+		it("POST /api/post", async () => {
+			const testCase = PostApiTests.createPost;
+
+			await runner.runUrl(adminLoginTestCase);
+			await runner.testApi(testCase);
+		});
+
+		it("GET /api/post", async () => {
+			const testCase = PostApiTests.readPost;
+
+			await runner.testApi(testCase);
+		});
+
+		it("GET /api/post/1", async () => {
+			const testCase = PostApiTests.readPostById;
+			await runner.testApi(testCase);
+		});
+
+		it("PATCH /api/post/1", async () => {
+			const testCase = PostApiTests.updatePost;
+			await runner.testApi(testCase);
+		});
+
+		it("DELETE /api/post/1", async () => {
+			const testCase = PostApiTests.deletePost;
+			await runner.testApi(testCase);
 		});
 	});
 });
