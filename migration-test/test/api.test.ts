@@ -4,6 +4,7 @@ import request from "supertest";
 import waitOn from "wait-on";
 import initializeDatabase from "./init/db-init-setup";
 import { IApiTestCase } from "./interface/api-test-case.interface";
+import { AdminApiTests } from "./testCase/admin-api.testcase";
 import { ChatApiTests } from "./testCase/chat-api.testcase";
 import { CommentApiTests } from "./testCase/comment-api.testcase";
 import { LikeApiTests } from "./testCase/like-api.testcase";
@@ -327,8 +328,83 @@ describe("API Migration Tests", () => {
 		});
 	});
 
+	describe("admin API 테스트", () => {
+		beforeAll(async () => {
+			await runner.runUrl(adminLoginTestCase);
+		});
+		it("GET /api/admin/user", async () => {
+			const testCase = AdminApiTests.getUserList;
+
+			await runner.testApi(testCase);
+		});
+
+		it("DELETE /api/admin/user/1", async () => {
+			const testCase = AdminApiTests.deleteUser;
+
+			await runner.testApi(testCase);
+		});
+
+		it("PATCH /api/admin/user/1/restore", async () => {
+			const testCase = AdminApiTests.restoreUser;
+
+			await runner.testApi(testCase);
+		});
+
+		it("GET /api/admin/log/1", async () => {
+			const testCase = AdminApiTests.getUserLog;
+
+			await runner.testApi(testCase);
+		});
+
+		it("GET /api/admin/post", async () => {
+			const testCase = AdminApiTests.getPostList;
+
+			await runner.testApi(testCase);
+		});
+
+		it("DELETE /api/admin/post/1", async () => {
+			const testCase = AdminApiTests.deletePost;
+
+			await runner.testApi(testCase);
+		});
+
+		it("PATCH /api/admin/post/1/restore", async () => {
+			const testCase = AdminApiTests.restorePost;
+
+			await runner.testApi(testCase);
+		});
+
+		it("PATCH /api/admin/post/1/private", async () => {
+			const testCase = AdminApiTests.privatePost;
+
+			await runner.testApi(testCase);
+		});
+
+		it("PATCH /api/admin/post/1/public", async () => {
+			const testCase = AdminApiTests.publicPost;
+
+			await runner.testApi(testCase);
+		});
+
+		it("GET /api/admin/stat", async () => {
+			const testCase = AdminApiTests.totalStat;
+
+			await runner.testApi(testCase);
+		});
+
+		it("GET /api/admin/stat/1", async () => {
+			const testCase = AdminApiTests.getUserStat;
+
+			await runner.testApi(testCase);
+		});
+	});
+
 	describe("DELETE API 테스트", () => {
 		// TODO: 각각 삭제시에 실제로 삭제 성공했는지 확인하는 기능 필요시에 추가
+
+		beforeAll(async () => {
+			await runner.runUrl(updateUserLoginTestCase);
+		});
 
 		it("DELETE /api/post/1", async () => {
 			const testCase = PostApiTests.deletePost;
