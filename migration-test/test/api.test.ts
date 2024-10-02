@@ -5,6 +5,7 @@ import waitOn from "wait-on";
 import initializeDatabase from "./init/db-init-setup";
 import { IApiTestCase } from "./interface/api-test-case.interface";
 import { CommentApiTests } from "./testCase/comment-api.testcase";
+import { LikeApiTests } from "./testCase/like-api.testcase";
 import { PostApiTests } from "./testCase/post-api.testcase";
 import { UserApiTests } from "./testCase/user-api.testcase";
 
@@ -299,6 +300,41 @@ describe("API Migration Tests", () => {
 
 		it("PATCH /api/comment/1", async () => {
 			const testCase = CommentApiTests.updateComment;
+			await runner.testApi(testCase);
+		});
+	});
+
+	describe("like API tests", () => {
+		let runner: ApiTestRunner;
+
+		beforeAll(() => {
+			runner = new ApiTestRunner(EXPRESS_URL, NEST_URL);
+		});
+		// TODO: 좋아요 삭제시에 실제로 삭제 성공했는지 확인하는 기능 필요시에 추가
+
+		it("POST /api/like/post/1", async () => {
+			const testCase = LikeApiTests.createLikeByPostId;
+
+			await runner.runUrl(adminLoginTestCase);
+			await runner.testApi(testCase);
+		});
+
+		it("DELETE /api/like/post/1", async () => {
+			const testCase = LikeApiTests.deleteLikeByPostId;
+
+			await runner.testApi(testCase);
+		});
+
+		it("POST /api/like/comment/1", async () => {
+			const testCase = LikeApiTests.createLikeByCommentId;
+
+			await runner.runUrl(adminLoginTestCase);
+			await runner.testApi(testCase);
+		});
+
+		it("DELETE /api/like/comment/1", async () => {
+			const testCase = LikeApiTests.deleteLikeByCommentId;
+
 			await runner.testApi(testCase);
 		});
 	});
