@@ -15,6 +15,7 @@ import {
 } from "../../api/posts/crud";
 import { ClientError } from "../../api/errors";
 import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
+import ImageManager from "../../component/Posts/Editer/ImageManager";
 
 const UpsertPostPage: React.FC = () => {
 	const navigate = useNavigate();
@@ -135,6 +136,7 @@ const UpsertPostPage: React.FC = () => {
 						onChange={e => setPostTitle(e.target.value)}
 					/>
 				</div>
+
 				<div className={InputContainer}>
 					<div className={InputIndex}>내용</div>
 					<CustomEditor
@@ -143,6 +145,12 @@ const UpsertPostPage: React.FC = () => {
 						setContent={setPostContent}
 					/>
 				</div>
+
+				<ImageManager
+					quillRef={quillRef}
+					editorContents={quillRef.current?.editor?.getText() ?? ""}
+				/>
+
 				<div>
 					<Button
 						onClick={() => {
