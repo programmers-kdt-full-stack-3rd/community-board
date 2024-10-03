@@ -55,6 +55,7 @@ import { ChatModule } from "./chat/chat.module";
 		OAuthModule,
 		CommentModule,
 		ChatModule,
+		AdminModule,
 	],
 	controllers: [AppController],
 	providers: [
