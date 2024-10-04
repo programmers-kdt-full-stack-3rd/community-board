@@ -170,7 +170,7 @@ export class ChatController {
 	async handleRoomLeave(
 		@Body() leaveRoomReq: LeaveRoomReq,
 		@User() user: IUserEntity
-	): Promise<undefined> {
+	): Promise<void> {
 		try {
 			const userId = user.userId;
 
@@ -180,8 +180,6 @@ export class ChatController {
 			};
 
 			await this.chatService.leaveRoom(leaveRoomDto);
-
-			return;
 		} catch (err) {
 			throw ServerError.reference(CHAT_ERROR_MESSAGES.LEAVE_ROOM_ERROR);
 		}

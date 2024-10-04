@@ -1,5 +1,4 @@
 import { Transform } from "class-transformer";
-import { IsDefined } from "class-validator";
 import { IMessage } from "./message.dto";
 
 export class RoomHeader {

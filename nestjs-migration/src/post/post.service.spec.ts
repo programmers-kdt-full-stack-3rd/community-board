@@ -22,7 +22,7 @@ describe("PostService", () => {
 	const mockPostRepository = {
 		getPostHeaders: jest.fn(),
 		getPostTotal: jest.fn(),
-		getPostHeader: jest.fn(),
+		getPost: jest.fn(),
 		updatePost: jest.fn(),
 		delete: jest.fn(),
 		save: jest.fn(),
@@ -182,10 +182,10 @@ describe("PostService", () => {
 	describe("findPost", () => {
 		it("게시물 상세 조회 성공 시 게시물을 반환한다.", async () => {
 			const mockPost = { id: 1, title: "title", content: "content" };
-			mockPostRepository.getPostHeader.mockResolvedValue(mockPost);
+			mockPostRepository.getPost.mockResolvedValue(mockPost);
 			const result = await postService.findPost(mockPostId, mockUserId);
 
-			expect(mockPostRepository.getPostHeader).toHaveBeenCalledWith(
+			expect(mockPostRepository.getPost).toHaveBeenCalledWith(
 				mockPostId,
 				mockUserId
 			);
@@ -193,7 +193,7 @@ describe("PostService", () => {
 		});
 		it("게시물 상세 조회 중 에러 발생 시 에러를 반환한다", async () => {
 			const mockError = new Error("게시물 상세 조회 중 오류 발생");
-			mockPostRepository.getPostHeader.mockRejectedValue(mockError);
+			mockPostRepository.getPost.mockRejectedValue(mockError);
 
 			await expect(
 				postService.findPost(mockPostId, mockUserId)

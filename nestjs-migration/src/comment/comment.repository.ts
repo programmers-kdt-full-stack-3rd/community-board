@@ -16,8 +16,8 @@ export class CommentRepository extends Repository<Comment> {
 			.innerJoin("comment.post", "post")
 			.andWhere("post_id = :postId ", { postId })
 			.innerJoin("comment.author", "author")
-			.andWhere("comment.is_delete = :isDelete", { isDelete: 0 })
-			.andWhere("author.is_delete = :isDelete", { isDelete: 0 });
+			.andWhere("comment.is_delete = :isDelete", { isDelete: false })
+			.andWhere("author.is_delete = :isDelete", { isDelete: false });
 
 		const total = await queryBuilder.getCount();
 		return total;
@@ -56,8 +56,8 @@ export class CommentRepository extends Repository<Comment> {
 			.innerJoin("comment.post", "post")
 			.andWhere("comment.post_id = :postId", { postId })
 			.innerJoin("comment.author", "author")
-			.andWhere("comment.is_delete = :isDelete", { isDelete: 0 })
-			.andWhere("author.is_delete = :isDelete", { isDelete: 0 })
+			.andWhere("comment.is_delete = :isDelete", { isDelete: false })
+			.andWhere("author.is_delete = :isDelete", { isDelete: false })
 			.orderBy("comment.created_at")
 			.addOrderBy("comment.id")
 			.limit(perPage)

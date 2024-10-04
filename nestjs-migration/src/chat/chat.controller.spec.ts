@@ -199,7 +199,7 @@ describe("ChatController", () => {
 				await chatController.handleMessageLogsRead(mockRoomId);
 
 			expect(chatService.getMessageLogs).toHaveBeenCalledWith(mockRoomId);
-			expect(result).toEqual([]);
+			expect(result).toEqual({ messageLogs: [] });
 		});
 
 		it("메세지 로그 불러오기 실패", async () => {
