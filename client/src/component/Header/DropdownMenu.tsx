@@ -68,7 +68,7 @@ const DropdownMenu: ForwardRefRenderFunction<
 	};
 
 	const handleAdminPageClick = () => {
-		navigate(`/admin/userMgmt`);
+		navigate(`/admin`);
 	};
 
 	return (

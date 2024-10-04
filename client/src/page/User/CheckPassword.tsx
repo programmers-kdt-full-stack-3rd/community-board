@@ -6,10 +6,7 @@ import {
 } from "../../api/users/crud";
 import PasswordForm from "../../component/User/PasswordForm";
 import SubmitButton from "../../component/User/SubmitButton";
-import {
-	checkPasswordWrapper,
-	labelWithoutPassword,
-} from "./CheckPassword.css";
+
 import { REGEX } from "./constants/constants";
 import { useModal } from "../../hook/useModal";
 import UserDeleteModal from "../../component/Header/UserDeleteModal";
@@ -123,7 +120,7 @@ const CheckPassword: FC = () => {
 
 	return (
 		<>
-			<div className={checkPasswordWrapper}>
+			<div className="dark:bg-customGray mx-auto w-full max-w-[350px] rounded-lg bg-gray-200 p-5 shadow-md">
 				{isEmailRegistered ? (
 					<>
 						<PasswordForm
@@ -135,7 +132,7 @@ const CheckPassword: FC = () => {
 					</>
 				) : (
 					<>
-						<p className={labelWithoutPassword}>
+						<p className="m-0 text-left text-[15px] font-bold">
 							소셜 로그인으로 계정 소유 확인
 						</p>
 						<OAuthLoginButtons loginType="reconfirm" />
