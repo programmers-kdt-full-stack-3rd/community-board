@@ -119,7 +119,7 @@ const UpsertPostPage: React.FC = () => {
 
 			<ImageManager
 				quillRef={quillRef}
-				editorContents={quillRef.current?.editor?.getText() ?? ""}
+				editorContents={postContent}
 			/>
 
 			<div className="flex w-full items-end justify-end gap-4">
