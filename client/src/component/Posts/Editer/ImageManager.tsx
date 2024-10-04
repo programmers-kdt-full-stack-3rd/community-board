@@ -8,6 +8,13 @@ interface IProps {
 	editorContents: string;
 }
 
+const s3ImageUrlPattern =
+	/^https:\/\/codeplay-bucket\.s3\.([a-z0-9_-]+)\.amazonaws\.com\/(.+)$/gi;
+
+const isS3Image = (url: string): boolean => {
+	return s3ImageUrlPattern.test(url);
+};
+
 const ImageManager: React.FC<IProps> = ({ quillRef, editorContents }) => {
 	const [imageUrlSet, setImageUrlSet] = useState(new Set<string>());
 
@@ -15,14 +22,15 @@ const ImageManager: React.FC<IProps> = ({ quillRef, editorContents }) => {
 	// Quill 초기화 타이밍과 엇나가면서 이미지 목록을 못 만들 때가 있어서
 	// 일부러 useEffect + state로 한 타이밍 늦게 이미지 목록 생성
 	useEffect(() => {
-		// TODO: 정렬: 업로드순, 타임스탬프를 제외한 파일명순 (현재는 본문 순서대로 표시)
+		// TODO: 정렬 방법 추가: 업로드순 (현재는 본문 순서대로 표시)
 		const delta = quillRef.current?.editor?.getContents();
 		const nextImageUrlSet = new Set<string>();
 
 		for (const op of delta?.ops ?? []) {
-			if (op.insert?.image) {
-				// TODO: S3 URL인지 검사하여 필터
-				nextImageUrlSet.add(op.insert.image);
+			const url = String(op.insert?.image ?? "");
+
+			if (isS3Image(url)) {
+				nextImageUrlSet.add(url);
 			}
 		}
 
