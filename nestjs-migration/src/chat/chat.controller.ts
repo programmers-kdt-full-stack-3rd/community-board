@@ -5,6 +5,7 @@ import {
 	HttpCode,
 	HttpStatus,
 	Param,
+	ParseIntPipe,
 	Post,
 	Query,
 	UseGuards,
@@ -104,7 +105,7 @@ export class ChatController {
 	@UseGuards(LoginGuard)
 	@HttpCode(HttpStatus.OK)
 	async handleMessageLogsRead(
-		@Param("room_id") roomId: number
+		@Param("room_id", ParseIntPipe) roomId: number
 	): Promise<IMessage[]> {
 		try {
 			const result = await this.chatService.getMessageLogs(roomId);
