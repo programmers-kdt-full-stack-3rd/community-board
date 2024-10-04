@@ -110,7 +110,7 @@ const CheckPassword: FC = () => {
 	};
 
 	return (
-		<div className={checkPasswordWrapper}>
+		<div className="dark:bg-customGray mx-auto w-full max-w-[350px] rounded-lg bg-gray-200 p-5 shadow-md">
 			<ConfirmModal
 				variant="warning"
 				isOpen={accountDeleteModal.isOpen}
@@ -149,13 +149,6 @@ const CheckPassword: FC = () => {
 					</>
 				)}
 			</div>
-
-			<UserDeleteModal
-				{...MODAL_CONFIGS.final}
-				isOpen={finalModal.isOpen}
-				onClose={finalModal.close}
-				onConfirm={handleFinalConfirm}
-			/>
 		</div>
 	);
 };
