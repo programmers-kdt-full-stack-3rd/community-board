@@ -1,3 +1,5 @@
+@import "./style/quill-post.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -10,7 +12,7 @@
 	color-scheme: light dark;
 	color: rgba(255, 255, 255, 0.87);
 	background-color: #ffffff;
-	color: black; 
+	color: black;
 
 	font-synthesis: none;
 	text-rendering: optimizeLegibility;
@@ -19,10 +21,9 @@
 }
 
 .dark {
-	background-color: #242424; 
-	color: #ffffff; 
+	background-color: #242424;
+	color: #ffffff;
 }
-
 
 a {
 	font-weight: 500;
@@ -56,8 +57,6 @@ button {
 }
 
 button:focus,
-
 button:focus-visible {
 	outline: 4px auto -webkit-focus-ring-color;
 }
-
