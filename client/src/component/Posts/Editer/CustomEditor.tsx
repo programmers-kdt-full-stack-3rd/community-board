@@ -70,6 +70,10 @@ const CustomEditorBase: React.FC<IProps> = ({
 
 			const url = await upload(file);
 
+			if (!url) {
+				return;
+			}
+
 			const quill = quillRef.current?.getEditor();
 			const selectionIndex =
 				quill?.getSelection()?.index ?? quill?.getLength() ?? 0;
