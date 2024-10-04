@@ -7,7 +7,6 @@ import {
 	Param,
 	Delete,
 	UseGuards,
-	Req,
 	Query,
 	ParseIntPipe,
 	HttpCode,
@@ -17,8 +16,9 @@ import { CommentService } from "./comment.service";
 import { CreateCommentReq } from "./dto/create-comment.dto";
 import { UpdateCommentReq } from "./dto/update-comment.dto";
 import { LoginGuard } from "../common/guard/login.guard";
-import { Request } from "express";
 import { CommentsResultDto, ReadCommentQuery } from "./dto/read-comment.dto";
+import { User } from "src/common/decorator/user.decorator";
+import { IUserEntity } from "src/common/interface/user-entity.interface";
 
 @Controller("comment")
 export class CommentController {
@@ -29,10 +29,10 @@ export class CommentController {
 	@HttpCode(HttpStatus.CREATED)
 	async handleCommentCreate(
 		@Body() createCommentBodyDto: CreateCommentReq,
-		@Req() req: Request
+		@User() user: IUserEntity
 	): Promise<void> {
 		try {
-			const authorId = req.user["userId"];
+			const authorId = user.userId;
 			const createCommentDto = {
 				...createCommentBodyDto,
 				authorId,
@@ -48,11 +48,11 @@ export class CommentController {
 	@HttpCode(HttpStatus.OK)
 	async handleCommentsRead(
 		@Query() readCommentQueryDto: ReadCommentQuery,
-		@Req() req: Request
+		@User() user: IUserEntity
 	): Promise<CommentsResultDto> {
 		try {
 			let { post_id: postId, index, perPage } = readCommentQueryDto;
-			const userId = req.user ? req.user["userId"] : 0;
+			const userId = user ? user.userId : 0;
 			const total = await this.commentService.getTotal(postId);
 
 			perPage = Math.max(1, perPage || 50);
@@ -79,10 +79,10 @@ export class CommentController {
 	@HttpCode(HttpStatus.OK)
 	async handleCommentUpdate(
 		@Body() updateCommentBodyDto: UpdateCommentReq,
-		@Req() req: Request
+		@User() user: IUserEntity
 	): Promise<void> {
 		try {
-			const authorId = req.user["userId"];
+			const authorId = user.userId;
 			const { id: commentId, content } = updateCommentBodyDto;
 
 			const updateCommentDto = {
@@ -102,10 +102,10 @@ export class CommentController {
 	@HttpCode(HttpStatus.OK)
 	async handleCommentDelete(
 		@Param("comment_id", ParseIntPipe) commentId: number,
-		@Req() req: Request
+		@User() user: IUserEntity
 	): Promise<void> {
 		try {
-			const authorId = req.user["userId"];
+			const authorId = user.userId;
 			const deleteCommentDto = {
 				id: commentId,
 				authorId,

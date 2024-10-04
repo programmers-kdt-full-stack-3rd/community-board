@@ -18,9 +18,10 @@ describe("CommentController", () => {
 	const mockPostId = 1;
 	const mockUserId = 1;
 	const mockCommentId = 1;
-	const mockReq = {
-		user: { userId: mockUserId },
-	} as any;
+	const mockUser = {
+		userId: 1,
+		roleId: 1,
+	};
 
 	beforeEach(async () => {
 		const module: TestingModule = await Test.createTestingModule({
@@ -51,7 +52,7 @@ describe("CommentController", () => {
 
 			await commentController.handleCommentCreate(
 				mockCreateCmtBodyDto,
-				mockReq
+				mockUser
 			);
 
 			expect(commentService.createComment).toHaveBeenCalledWith(
@@ -77,7 +78,7 @@ describe("CommentController", () => {
 			await expect(
 				commentController.handleCommentCreate(
 					mockCreateCmtBodyDto,
-					mockReq
+					mockUser
 				)
 			).rejects.toThrow(mockError);
 		});
@@ -110,7 +111,7 @@ describe("CommentController", () => {
 
 			const result = await commentController.handleCommentsRead(
 				mockReadCmtQueryDto,
-				mockReq
+				mockUser
 			);
 			expect(result).toEqual({
 				total: mockTotal,
@@ -128,7 +129,7 @@ describe("CommentController", () => {
 			await expect(
 				commentController.handleCommentsRead(
 					mockReadCmtQueryDto,
-					mockReq
+					mockUser
 				)
 			).rejects.toThrow(mockError);
 		});
@@ -149,7 +150,7 @@ describe("CommentController", () => {
 
 			await commentController.handleCommentUpdate(
 				mockUpdateCmtBodyDto,
-				mockReq
+				mockUser
 			);
 
 			expect(commentService.updateComment).toHaveBeenCalledWith(
@@ -166,7 +167,7 @@ describe("CommentController", () => {
 			await expect(
 				commentController.handleCommentUpdate(
 					mockUpdateCmtBodyDto,
-					mockReq
+					mockUser
 				)
 			).rejects.toThrow(mockError);
 		});
@@ -180,7 +181,10 @@ describe("CommentController", () => {
 		it("댓글 삭제 성공", async () => {
 			mockCommentService.deleteComment.mockResolvedValue(true);
 
-			await commentController.handleCommentDelete(mockCommentId, mockReq);
+			await commentController.handleCommentDelete(
+				mockCommentId,
+				mockUser
+			);
 
 			expect(commentService.deleteComment).toHaveBeenCalledWith(
 				mockDeleteCmtDto
@@ -194,7 +198,7 @@ describe("CommentController", () => {
 			mockCommentService.deleteComment.mockRejectedValue(mockError);
 
 			await expect(
-				commentController.handleCommentDelete(mockCommentId, mockReq)
+				commentController.handleCommentDelete(mockCommentId, mockUser)
 			).rejects.toThrow(mockError);
 		});
 	});

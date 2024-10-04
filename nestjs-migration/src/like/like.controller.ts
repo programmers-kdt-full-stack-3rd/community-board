@@ -6,11 +6,9 @@ import {
 	Param,
 	ParseIntPipe,
 	Post,
-	Req,
 	UseGuards,
 } from "@nestjs/common";
 import { LikeService } from "./like.service";
-import { Request } from "express";
 import { LoginGuard } from "../common/guard/login.guard";
 import { ServerError } from "../common/exceptions/server-error.exception";
 import { HandleLikeDto } from "./dto/handle-like-dto";
@@ -19,6 +17,8 @@ import {
 	LIKE_ERROR_CODES,
 	LIKE_ERROR_MESSAGES,
 } from "./constant/like.constants";
+import { User } from "src/common/decorator/user.decorator";
+import { IUserEntity } from "src/common/interface/user-entity.interface";
 
 @Controller("like")
 export class LikeController {
@@ -29,10 +29,10 @@ export class LikeController {
 	@HttpCode(HttpStatus.CREATED)
 	async handleAddLike(
 		@Param("post_id", ParseIntPipe) postId: number,
-		@Req() req: Request
+		@User() user: IUserEntity
 	): Promise<void> {
 		try {
-			const userId = req.user["userId"];
+			const userId = user.userId;
 			const createPostLikeDto: HandleLikeDto = {
 				postId,
 				userId,
@@ -55,10 +55,10 @@ export class LikeController {
 	@HttpCode(HttpStatus.OK)
 	async handleDeleteLike(
 		@Param("post_id", ParseIntPipe) postId: number,
-		@Req() req: Request
+		@User() user: IUserEntity
 	): Promise<void> {
 		try {
-			const userId = req.user["userId"];
+			const userId = user.userId;
 			const deletePostDto: HandleLikeDto = {
 				postId,
 				userId,
@@ -74,10 +74,10 @@ export class LikeController {
 	@HttpCode(HttpStatus.CREATED)
 	async handleAddCommentLike(
 		@Param("comment_id", ParseIntPipe) commentId: number,
-		@Req() req: Request
+		@User() user: IUserEntity
 	): Promise<void> {
 		try {
-			const userId = req.user["userId"];
+			const userId = user.userId;
 			const createCommentLikeDto: HandleCommentLikeDto = {
 				commentId,
 				userId,
@@ -101,10 +101,10 @@ export class LikeController {
 	@HttpCode(HttpStatus.OK)
 	async handleDeleteCommentLike(
 		@Param("comment_id", ParseIntPipe) commentId: number,
-		@Req() req: Request
+		@User() user: IUserEntity
 	): Promise<void> {
 		try {
-			const userId = req.user["userId"];
+			const userId = user.userId;
 			const deleteCommentLikeDto: HandleCommentLikeDto = {
 				commentId,
 				userId,

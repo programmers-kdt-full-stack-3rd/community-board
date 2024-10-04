@@ -18,15 +18,12 @@ describe("PostController", () => {
 		updatePost: jest.fn(),
 		deletePost: jest.fn(),
 	};
-
-	let mockReq: any;
-	let mockUserId: number;
-	let mockPostId: number;
-	mockUserId = 1;
-	mockPostId = 9;
-	mockReq = {
-		user: { userId: mockUserId },
-	} as any;
+	const mockUserId = 1;
+	const mockPostId = 9;
+	const mockUser = {
+		userId: 1,
+		roleId: 1,
+	};
 
 	beforeEach(async () => {
 		const module: TestingModule = await Test.createTestingModule({
@@ -56,7 +53,7 @@ describe("PostController", () => {
 
 			const result = await postController.handlePostCreate(
 				mockCreatePostDto,
-				mockReq
+				mockUser
 			);
 
 			expect(postService.createPost).toHaveBeenCalledWith({
@@ -82,7 +79,7 @@ describe("PostController", () => {
 			mockPostService.createPost.mockRejectedValue(error);
 
 			await expect(
-				postController.handlePostCreate(invalidPostDto, mockReq)
+				postController.handlePostCreate(invalidPostDto, mockUser)
 			).rejects.toThrow(error);
 		});
 	});
@@ -109,7 +106,7 @@ describe("PostController", () => {
 			expect(
 				await postController.handlePostsRead(
 					mockReadPostsQueryDto,
-					mockReq
+					mockUser
 				)
 			).toEqual({
 				total: mockTotalPosts,
@@ -124,7 +121,7 @@ describe("PostController", () => {
 			mockPostService.findPostTotal.mockRejectedValue(error);
 
 			await expect(
-				postController.handlePostsRead(mockReadPostsQueryDto, mockReq)
+				postController.handlePostsRead(mockReadPostsQueryDto, mockUser)
 			).rejects.toThrow(error);
 		});
 	});
@@ -148,7 +145,7 @@ describe("PostController", () => {
 			mockPostService.findPost.mockResolvedValue(mockEachPost);
 
 			expect(
-				await postController.handlePostRead(mockPostId, mockReq)
+				await postController.handlePostRead(mockPostId, mockUser)
 			).toEqual({
 				post: mockEachPost,
 			});
@@ -159,7 +156,7 @@ describe("PostController", () => {
 			mockPostService.findPost.mockRejectedValue(error);
 
 			await expect(
-				postController.handlePostRead(mockPostId, mockReq)
+				postController.handlePostRead(mockPostId, mockUser)
 			).rejects.toThrow(error);
 		});
 	});
@@ -176,7 +173,7 @@ describe("PostController", () => {
 			const result = await postController.handlePostUpdate(
 				mockPostId,
 				updateBodyDto,
-				mockReq
+				mockUser
 			);
 
 			expect(postService.updatePost).toHaveBeenCalledWith(mockPostId, {
@@ -195,7 +192,7 @@ describe("PostController", () => {
 				postController.handlePostUpdate(
 					mockPostId,
 					updateBodyDto,
-					mockReq
+					mockUser
 				)
 			).rejects.toThrow(error);
 		});
@@ -210,7 +207,7 @@ describe("PostController", () => {
 			mockPostService.deletePost.mockResolvedValue(undefined);
 			const result = await postController.handlePostDelete(
 				mockPostId,
-				mockReq
+				mockUser
 			);
 
 			expect(postService.deletePost).toHaveBeenCalledWith(deletePostDto);
@@ -224,7 +221,7 @@ describe("PostController", () => {
 			mockPostService.deletePost.mockRejectedValue(error);
 
 			await expect(
-				postController.handlePostDelete(mockPostId, mockReq)
+				postController.handlePostDelete(mockPostId, mockUser)
 			).rejects.toThrow(error);
 		});
 	});

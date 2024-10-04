@@ -6,7 +6,6 @@ import {
 	Patch,
 	Param,
 	Delete,
-	Req,
 	UseGuards,
 	HttpCode,
 	HttpStatus,
@@ -18,7 +17,8 @@ import { ReadPostsQuery } from "./dto/read-posts-query.dto";
 import { CreatePostReq } from "./dto/create-post.dto";
 import { UpdatePostReq } from "./dto/update-post.dto";
 import { LoginGuard } from "../common/guard/login.guard";
-import { Request } from "express";
+import { User } from "src/common/decorator/user.decorator";
+import { IUserEntity } from "src/common/interface/user-entity.interface";
 
 @Controller("post")
 export class PostController {
@@ -29,10 +29,10 @@ export class PostController {
 	@HttpCode(HttpStatus.CREATED)
 	async handlePostCreate(
 		@Body() createPostBodyDto: CreatePostReq,
-		@Req() req: Request
+		@User() user: IUserEntity
 	) {
 		try {
-			const authorId = req.user["userId"];
+			const authorId = user.userId;
 			const createPostDto = {
 				...createPostBodyDto,
 				authorId,
@@ -48,10 +48,10 @@ export class PostController {
 	@HttpCode(HttpStatus.OK)
 	async handlePostsRead(
 		@Query() readPostsQueryDto: ReadPostsQuery,
-		@Req() req: Request
+		@User() user: IUserEntity
 	) {
 		try {
-			const userId = req.user ? req.user["userId"] : 0;
+			const userId = user ? user.userId : 0;
 			const postHeaders = await this.postService.findPostHeaders(
 				readPostsQueryDto,
 				userId
@@ -70,10 +70,10 @@ export class PostController {
 	@HttpCode(HttpStatus.OK)
 	async handlePostRead(
 		@Param("postId", ParseIntPipe) postId: number,
-		@Req() req: Request
+		@User() user: IUserEntity
 	) {
 		try {
-			const userId = req.user ? req.user["userId"] : 0;
+			const userId = user ? user.userId : 0;
 			const post = await this.postService.findPost(postId, userId);
 			return { post };
 		} catch (err) {
@@ -87,10 +87,10 @@ export class PostController {
 	async handlePostUpdate(
 		@Param("postId", ParseIntPipe) postId: number,
 		@Body() updatePostBodyDto: UpdatePostReq,
-		@Req() req: Request
+		@User() user: IUserEntity
 	) {
 		try {
-			const authorId = req.user["userId"];
+			const authorId = user.userId;
 			const updateBodyDto = {
 				...updatePostBodyDto,
 				authorId,
@@ -108,10 +108,10 @@ export class PostController {
 	@HttpCode(HttpStatus.OK)
 	async handlePostDelete(
 		@Param("postId", ParseIntPipe) postId: number,
-		@Req() req: Request
+		@User() user: IUserEntity
 	) {
 		try {
-			const userId = req.user["userId"];
+			const userId = user.userId;
 			const deletePostDto = {
 				postId,
 				authorId: userId,

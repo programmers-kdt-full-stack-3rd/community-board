@@ -14,9 +14,10 @@ describe("LikeController", () => {
 	const mockPostId = 1;
 	const mockUserId = 1;
 	const mockCommentId = 1;
-	const mockReq = {
-		user: { userId: mockUserId },
-	} as any;
+	const mockUser = {
+		userId: 1,
+		roleId: 1,
+	};
 
 	const mockPostLikeDto = {
 		postId: mockPostId,
@@ -54,7 +55,7 @@ describe("LikeController", () => {
 		it("게시물 좋아요 추가 성공", async () => {
 			mockLikeService.createPostLike.mockResolvedValue(undefined);
 
-			await likeController.handleAddLike(mockPostId, mockReq);
+			await likeController.handleAddLike(mockPostId, mockUser);
 
 			expect(likeService.createPostLike).toHaveBeenCalledWith(
 				mockPostLikeDto
@@ -69,7 +70,7 @@ describe("LikeController", () => {
 			mockLikeService.createPostLike.mockRejectedValue(mockError);
 
 			await expect(
-				likeController.handleAddLike(mockCommentId, mockReq)
+				likeController.handleAddLike(mockCommentId, mockUser)
 			).rejects.toThrow(mockError);
 		});
 		it("없는 게시물이면 에러 반환", async () => {
@@ -80,7 +81,7 @@ describe("LikeController", () => {
 			mockLikeService.createPostLike.mockRejectedValue(mockError);
 
 			await expect(
-				likeController.handleAddLike(mockCommentId, mockReq)
+				likeController.handleAddLike(mockCommentId, mockUser)
 			).rejects.toThrow(mockError);
 		});
 	});
@@ -89,7 +90,7 @@ describe("LikeController", () => {
 		it("게시물 좋아요 삭제 성공", async () => {
 			mockLikeService.deletePostLike.mockResolvedValue(undefined);
 
-			await likeController.handleDeleteLike(mockPostId, mockReq);
+			await likeController.handleDeleteLike(mockPostId, mockUser);
 
 			expect(likeService.deletePostLike).toHaveBeenCalledWith(
 				mockPostLikeDto
@@ -100,7 +101,7 @@ describe("LikeController", () => {
 			mockLikeService.deletePostLike.mockRejectedValue(mockError);
 
 			await expect(
-				likeController.handleDeleteLike(mockCommentId, mockReq)
+				likeController.handleDeleteLike(mockCommentId, mockUser)
 			).rejects.toThrow(mockError);
 		});
 	});
@@ -109,7 +110,7 @@ describe("LikeController", () => {
 		it("댓글 좋아요 추가 성공", async () => {
 			mockLikeService.createCommentLike.mockResolvedValue(undefined);
 
-			await likeController.handleAddCommentLike(mockCommentId, mockReq);
+			await likeController.handleAddCommentLike(mockCommentId, mockUser);
 
 			expect(likeService.createCommentLike).toHaveBeenCalledWith(
 				mockCommentLikeDto
@@ -124,7 +125,7 @@ describe("LikeController", () => {
 			mockLikeService.createCommentLike.mockRejectedValue(mockError);
 
 			await expect(
-				likeController.handleAddCommentLike(mockCommentId, mockReq)
+				likeController.handleAddCommentLike(mockCommentId, mockUser)
 			).rejects.toThrow(mockError);
 		});
 		it("없는 댓글이면 에러 반환", async () => {
@@ -136,7 +137,7 @@ describe("LikeController", () => {
 			mockLikeService.createCommentLike.mockRejectedValue(mockError);
 
 			await expect(
-				likeController.handleAddCommentLike(mockCommentId, mockReq)
+				likeController.handleAddCommentLike(mockCommentId, mockUser)
 			).rejects.toThrow(mockError);
 		});
 	});
@@ -147,7 +148,7 @@ describe("LikeController", () => {
 
 			await likeController.handleDeleteCommentLike(
 				mockCommentId,
-				mockReq
+				mockUser
 			);
 
 			expect(likeService.deleteCommentLike).toHaveBeenCalledWith(
@@ -159,7 +160,7 @@ describe("LikeController", () => {
 			mockLikeService.deleteCommentLike.mockRejectedValue(mockError);
 
 			await expect(
-				likeController.handleDeleteCommentLike(mockCommentId, mockReq)
+				likeController.handleDeleteCommentLike(mockCommentId, mockUser)
 			).rejects.toThrow(mockError);
 		});
 	});
