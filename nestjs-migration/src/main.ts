@@ -23,7 +23,7 @@ async function bootstrap() {
 
 	app.useGlobalFilters(new GlobalExceptionFilter());
 	app.use(cookieParser());
-	app.setGlobalPrefix("api");
+	app.setGlobalPrefix("api", { exclude: ["health"] });
 
 	const configService = app.get(ConfigService);
 	const port = configService.get("app.port");

@@ -4,7 +4,7 @@ import { TypeOrmModuleOptions } from "@nestjs/typeorm";
 // 공통 데이터베이스 설정
 const dbCommonConfig = () => ({
 	host: process.env.DB_HOST,
-	port: parseInt(process.env.DATABASE_PORT, 10) || 3306,
+	port: parseInt(process.env.DB_PORT, 10) || 3306,
 	username: process.env.DB_USER,
 	password: process.env.DB_PSWORD,
 	database: process.env.DB_NAME,
