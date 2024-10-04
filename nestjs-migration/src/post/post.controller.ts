@@ -19,6 +19,13 @@ import { UpdatePostReq } from "./dto/update-post.dto";
 import { LoginGuard } from "../common/guard/login.guard";
 import { User } from "src/common/decorator/user.decorator";
 import { IUserEntity } from "src/common/interface/user-entity.interface";
+import {
+	createPostRes,
+	deletePostRes,
+	getPostRes,
+	getPostsHeaderRes,
+	updatePostRes,
+} from "./dto/post-results.dto";
 
 @Controller("post")
 export class PostController {
@@ -30,7 +37,7 @@ export class PostController {
 	async handlePostCreate(
 		@Body() createPostBodyDto: CreatePostReq,
 		@User() user: IUserEntity
-	) {
+	): Promise<createPostRes> {
 		try {
 			const authorId = user.userId;
 			const createPostDto = {
@@ -49,7 +56,7 @@ export class PostController {
 	async handlePostsRead(
 		@Query() readPostsQueryDto: ReadPostsQuery,
 		@User() user: IUserEntity
-	) {
+	): Promise<getPostsHeaderRes> {
 		try {
 			const userId = user ? user.userId : 0;
 			const postHeaders = await this.postService.findPostHeaders(
@@ -71,7 +78,7 @@ export class PostController {
 	async handlePostRead(
 		@Param("postId", ParseIntPipe) postId: number,
 		@User() user: IUserEntity
-	) {
+	): Promise<getPostRes> {
 		try {
 			const userId = user ? user.userId : 0;
 			const post = await this.postService.findPost(postId, userId);
@@ -88,7 +95,7 @@ export class PostController {
 		@Param("postId", ParseIntPipe) postId: number,
 		@Body() updatePostBodyDto: UpdatePostReq,
 		@User() user: IUserEntity
-	) {
+	): Promise<updatePostRes> {
 		try {
 			const authorId = user.userId;
 			const updateBodyDto = {
@@ -109,7 +116,7 @@ export class PostController {
 	async handlePostDelete(
 		@Param("postId", ParseIntPipe) postId: number,
 		@User() user: IUserEntity
-	) {
+	): Promise<deletePostRes> {
 		try {
 			const userId = user.userId;
 			const deletePostDto = {

@@ -7,6 +7,7 @@ import { Like } from "../like/entities/like.entity";
 import { getPostHeadersDto } from "./dto/get-post-headers.dto";
 import { ReadPostsQuery, SortBy } from "./dto/read-posts-query.dto";
 import { Post } from "./entities/post.entity";
+import { getPostDto } from "./dto/get-post.dto";
 
 @Injectable()
 export class PostRepository extends Repository<Post> {
@@ -109,7 +110,7 @@ export class PostRepository extends Repository<Post> {
 		return await queryBuilder.getCount();
 	}
 
-	async getPostHeader(postId: number, userId: number): Promise<Post> {
+	async getPost(postId: number, userId: number): Promise<getPostDto> {
 		const authorId = userId;
 		const queryBuilder = this.createQueryBuilder("post")
 			.select([
@@ -141,7 +142,10 @@ export class PostRepository extends Repository<Post> {
 			.andWhere("post.id = :postId", { postId: postId })
 			.setParameters({ authorId, userId });
 
-		return await queryBuilder.getRawOne();
+		const result = await queryBuilder.getRawOne();
+		const post = plainToInstance(getPostDto, result);
+
+		return post;
 	}
 
 	async getAdminPosts(getPostsDto: GetPostsDto): Promise<IAdminPostResponse> {

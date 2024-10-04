@@ -34,7 +34,7 @@ import { UserModule } from "./user/user.module";
 			imports: [ConfigModule],
 			useFactory: (configService: ConfigService) => ({
 				...configService.get("typeorm"),
-				logging: true,
+				logging: false,
 			}),
 
 			dataSourceFactory: async options => {

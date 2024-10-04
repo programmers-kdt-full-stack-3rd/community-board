@@ -13,6 +13,7 @@ import { ServerError } from "../common/exceptions/server-error.exception";
 import { getPostHeadersDto } from "./dto/get-post-headers.dto";
 import { DeletePostDto } from "./dto/delete-post.dto";
 import { POST_ERROR_MESSAGES } from "./constant/post.constants";
+import { getPostDto } from "./dto/get-post.dto";
 
 @Injectable()
 export class PostService {
@@ -92,10 +93,10 @@ export class PostService {
 		return total;
 	}
 
-	async findPost(postId: number, userId: number): Promise<Post> {
-		const post = await this.postRepository.getPostHeader(postId, userId);
+	async findPost(postId: number, userId: number): Promise<getPostDto> {
+		const post = await this.postRepository.getPost(postId, userId);
 
-		if (!post || Object.keys(post).length == 0) {
+		if (!post) {
 			throw ServerError.notFound(POST_ERROR_MESSAGES.NOT_FOUND_POST);
 		} else {
 			return post;
