@@ -350,7 +350,7 @@ describe("API Migration Tests", () => {
 			await runner.testApi(testCase);
 		});
 
-		it("GET /api/admin/log/1", async () => {
+		it("GET /api/admin/log/2", async () => {
 			const testCase = AdminApiTests.getUserLog;
 
 			await runner.testApi(testCase);

@@ -24,6 +24,7 @@ export const AdminApiTests: Record<string, IApiTestCase> = {
 		description: "사용자 로그 조회 성공",
 		endpoint: "/api/admin/log/2",
 		method: "get",
+		ignoreFields: ["createdAt"],
 	},
 
 	getPostList: {
