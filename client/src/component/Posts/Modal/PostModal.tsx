@@ -18,8 +18,7 @@ import {
 	sendUpdatePostRequest,
 } from "../../../api/posts/crud";
 import { ApiCall } from "../../../api/api";
-import { ClientError } from "../../../api/errors";
-import { useErrorModal } from "../../../state/errorModalStore";
+import { useGlobalErrorModal } from "../../../state/GlobalErrorModalStore";
 import { useNavigate } from "react-router-dom";
 
 interface IPostData {
@@ -38,7 +37,7 @@ const PostModal: React.FC<IPostModalProps> = ({ close, originalPostData }) => {
 	const isUpdateMode = originalPostData !== undefined;
 
 	const modalMode = isUpdateMode ? "수정" : "생성";
-	const errorModal = useErrorModal();
+	const globalErrorModal = useGlobalErrorModal();
 
 	const [title, setTitle] = useState(
 		isUpdateMode ? originalPostData.title : ""
@@ -53,13 +52,13 @@ const PostModal: React.FC<IPostModalProps> = ({ close, originalPostData }) => {
 
 		const res = await ApiCall(
 			() => sendCreatePostRequest(body),
-			err => {
-				errorModal.setErrorMessage(err.message);
-				errorModal.open();
-			}
+			err =>
+				globalErrorModal.openWithMessageSplit({
+					messageWithTitle: err.message,
+				})
 		);
 
-		if (res instanceof ClientError) {
+		if (res instanceof Error) {
 			return;
 		}
 
@@ -81,13 +80,13 @@ const PostModal: React.FC<IPostModalProps> = ({ close, originalPostData }) => {
 
 		const res = await ApiCall(
 			() => sendUpdatePostRequest(postId, body),
-			err => {
-				errorModal.setErrorMessage(err.message);
-				errorModal.open();
-			}
+			err =>
+				globalErrorModal.openWithMessageSplit({
+					messageWithTitle: err.message,
+				})
 		);
 
-		if (res instanceof ClientError) {
+		if (res instanceof Error) {
 			return;
 		}
 

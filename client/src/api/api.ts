@@ -20,7 +20,8 @@ export const convertToBody = (body: object) => {
 export const httpRequest = async (
 	address: string,
 	method: HttpMethod,
-	body?: string
+	body?: string | FormData,
+	isMultipart?: boolean
 ) => {
 	let requestAddress = `${
 		import.meta.env.VITE_SERVER_ADDRESS
@@ -28,14 +29,19 @@ export const httpRequest = async (
 
 	requestAddress = requestAddress.replace(/([^:]\/)\/+/g, "$1");
 
-	const response = await fetch(requestAddress, {
+	const requestInit: RequestInit = {
 		method: method,
 		credentials: "include",
-		headers: {
-			"Content-Type": "application/json",
-		},
 		body,
-	});
+	};
+
+	if (!isMultipart) {
+		requestInit.headers = {
+			"Content-Type": "application/json",
+		};
+	}
+
+	const response = await fetch(requestAddress, requestInit);
 
 	let responseJson;
 

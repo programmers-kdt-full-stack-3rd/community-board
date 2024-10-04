@@ -6,12 +6,12 @@ import { sendGetPostRequest } from "../../api/posts/crud";
 import Comments from "../../component/Comments/Comments";
 import { ApiCall } from "../../api/api";
 import { ClientError } from "../../api/errors";
-import { useErrorModal } from "../../state/errorModalStore";
+import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
 
 const PostInfoPage = () => {
 	const { id } = useParams();
 	const navigate = useNavigate();
-	const errorModal = useErrorModal();
+	const globalErrorModal = useGlobalErrorModal();
 
 	const [postInfo, setPostInfo] = useState<IPostInfo>({
 		id: 0,
@@ -38,9 +38,10 @@ const PostInfoPage = () => {
 		ApiCall(
 			() => sendGetPostRequest(id),
 			err => {
-				errorModal.setErrorMessage(err.message);
-				errorModal.setOnError(() => navigate("/"));
-				errorModal.open();
+				globalErrorModal.openWithMessageSplit({
+					messageWithTitle: err.message,
+					callback: () => navigate("/category/community"),
+				});
 			}
 		).then(res => {
 			if (res instanceof ClientError) {

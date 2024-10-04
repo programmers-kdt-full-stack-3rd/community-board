@@ -8,6 +8,7 @@ import { AdminModule } from "./admin/admin.module";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { AuthModule } from "./auth/auth.module";
+import { ChatModule } from "./chat/chat.module";
 import { CommentModule } from "./comment/comment.module";
 import { RbacGuard } from "./common/guard/rbac.guard";
 import { TokenGuard } from "./common/guard/token.guard";
@@ -21,7 +22,6 @@ import { OAuthModule } from "./oauth/oauth.module";
 import { PostModule } from "./post/post.module";
 import { RbacModule } from "./rbac/rbac.module";
 import { UserModule } from "./user/user.module";
-import { ChatModule } from "./chat/chat.module";
 
 @Module({
 	imports: [

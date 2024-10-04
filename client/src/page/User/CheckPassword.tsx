@@ -12,21 +12,12 @@ import {
 } from "./CheckPassword.css";
 import { REGEX } from "./constants/constants";
 import { useModal } from "../../hook/useModal";
-import UserDeleteModal from "../../component/Header/UserDeleteModal";
 import { useUserStore } from "../../state/store";
 import { ClientError } from "../../api/errors";
 import { ApiCall } from "../../api/api";
 import OAuthLoginButtons from "../../component/User/OAuthLoginButtons";
+import ConfirmModal from "../../component/common/Modal/ConfirmModal";
 
-const MODAL_CONFIGS = {
-	final: {
-		title: "회원 탈퇴 최종 확인",
-		message: "정말로 탈퇴하시겠습니까?",
-		cancelText: "취소",
-		confirmText: "탈퇴 확정",
-		isWarning: true,
-	},
-};
 const CheckPassword: FC = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -40,11 +31,11 @@ const CheckPassword: FC = () => {
 	const { setLogoutUser } = useUserStore.use.actions();
 	const isEmailRegistered = useUserStore.use.isEmailRegistered();
 
-	const finalModal = useModal();
+	const accountDeleteModal = useModal();
 
 	useLayoutEffect(() => {
 		if (next === "accountDelete" && oAuthConfirmed === "true") {
-			finalModal.open();
+			accountDeleteModal.open();
 		}
 	}, [next, oAuthConfirmed]);
 
@@ -82,7 +73,7 @@ const CheckPassword: FC = () => {
 			errorHandle
 		);
 
-		if (result instanceof ClientError) {
+		if (result instanceof Error) {
 			return;
 		}
 
@@ -91,14 +82,14 @@ const CheckPassword: FC = () => {
 			navigate("/");
 			return;
 		} else if (next === "accountDelete") {
-			finalModal.open();
+			accountDeleteModal.open();
 			return;
 		}
 
 		navigate(`/${next}?final=${final}`);
 	};
 
-	const handleFinalConfirm = async () => {
+	const handleAccountDeleteAccept = async () => {
 		const errorHandle = () => {
 			alert("회원 탈퇴에 실패했습니다.");
 			navigate(`/`);
@@ -110,11 +101,11 @@ const CheckPassword: FC = () => {
 			errorHandle
 		);
 
-		if (result instanceof ClientError) {
+		if (result instanceof Error) {
 			return;
 		}
 
-		finalModal.close();
+		accountDeleteModal.close();
 		alert("회원 탈퇴가 완료되었습니다.");
 
 		setLogoutUser();
@@ -122,34 +113,44 @@ const CheckPassword: FC = () => {
 	};
 
 	return (
-		<>
-			<div className={checkPasswordWrapper}>
-				{isEmailRegistered ? (
-					<>
-						<PasswordForm
-							labelText="비밀번호 재확인"
-							password={password}
-							onChange={handlePasswordChange}
-						/>
-						<SubmitButton onClick={handleSubmit}>확인</SubmitButton>
-					</>
-				) : (
-					<>
-						<p className={labelWithoutPassword}>
-							소셜 로그인으로 계정 소유 확인
-						</p>
-						<OAuthLoginButtons loginType="reconfirm" />
-					</>
-				)}
-			</div>
+		<div className={checkPasswordWrapper}>
+			<ConfirmModal
+				variant="warning"
+				isOpen={accountDeleteModal.isOpen}
+				okButtonColor="danger"
+				okButtonLabel="탈퇴 확정"
+				onAccept={handleAccountDeleteAccept}
+				onClose={accountDeleteModal.close}
+			>
+				<ConfirmModal.Title>회원 탈퇴 최종 확인</ConfirmModal.Title>
 
-			<UserDeleteModal
-				{...MODAL_CONFIGS.final}
-				isOpen={finalModal.isOpen}
-				onClose={finalModal.close}
-				onConfirm={handleFinalConfirm}
-			/>
-		</>
+				<ConfirmModal.Body>
+					<p>
+						회원 탈퇴 이후에는 같은 이메일이나 소셜 계정으로
+						재가입할 수 없습니다.
+					</p>
+					<p>회원 탈퇴를 확정할까요?</p>
+				</ConfirmModal.Body>
+			</ConfirmModal>
+
+			{isEmailRegistered ? (
+				<>
+					<PasswordForm
+						labelText="비밀번호 재확인"
+						password={password}
+						onChange={handlePasswordChange}
+					/>
+					<SubmitButton onClick={handleSubmit}>확인</SubmitButton>
+				</>
+			) : (
+				<>
+					<p className={labelWithoutPassword}>
+						소셜 로그인으로 계정 소유 확인
+					</p>
+					<OAuthLoginButtons loginType="reconfirm" />
+				</>
+			)}
+		</div>
 	);
 };
 

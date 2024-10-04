@@ -4,7 +4,7 @@ import { IReadRoomRequest, IReadRoomResponse } from "shared";
 import { ClientError } from "../../../api/errors";
 import { ApiCall } from "../../../api/api";
 import { sendGetRoomHeadersRequest } from "../../../api/chats/crud";
-import { useErrorModal } from "../../../state/errorModalStore";
+import { useGlobalErrorModal } from "../../../state/GlobalErrorModalStore";
 import {
 	chatRoomsContainer,
 	searchButton,
@@ -32,7 +32,7 @@ const SearchedChatRooms: React.FC<Props> = ({ setSelectedRoom }) => {
 	});
 	const [keyword, setKeyword] = useState("");
 	const [curKeyword, setCurKeyword] = useState("");
-	const errorModal = useErrorModal();
+	const globalErrorModal = useGlobalErrorModal();
 	const [isSearched, setIsSearched] = useState(false);
 
 	const GetRooms = async (body: IReadRoomRequest) => {
@@ -40,10 +40,10 @@ const SearchedChatRooms: React.FC<Props> = ({ setSelectedRoom }) => {
 
 		const res: IReadRoomResponse | ClientError = await ApiCall(
 			() => sendGetRoomHeadersRequest(queryString),
-			err => {
-				errorModal.setErrorMessage(err.message);
-				errorModal.open();
-			}
+			err =>
+				globalErrorModal.openWithMessageSplit({
+					messageWithTitle: err.message,
+				})
 		);
 
 		if (res instanceof ClientError) {
