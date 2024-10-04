@@ -1,0 +1,14 @@
+{
+	"compilerOptions": {
+		"target": "ESNext",
+		"module": "CommonJS",
+		"strict": true,
+		"esModuleInterop": true,
+		"outDir": "./dist",
+		"rootDir": "./src",
+		"typeRoots": ["./types", "../node_modules/@types"],
+		"moduleResolution": "node"
+	},
+	"include": ["./src/**/*.ts", "./types/**/*.d.ts"],
+	"exclude": ["node_modules", "dist"]
+}

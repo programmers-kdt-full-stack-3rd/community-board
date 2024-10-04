@@ -1,12 +1,17 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { Response } from "express";
+import { Request, Response } from "express";
+import { AuthService } from "../auth/auth.service";
 import { ServerError } from "../common/exceptions/server-error.exception";
 import { LoginGuard } from "../common/guard/login.guard";
+import { PasswordGuard } from "../common/guard/password.guard";
 import { IUserEntity } from "../common/interface/user-entity.interface";
+import { OAuthConnection } from "../oauth/entities/oauth-connection.entity";
 import { RbacService } from "../rbac/rbac.service";
 import * as dateUtil from "../utils/date.util";
 import { COOKIE_MAX_AGE, USER_ERROR_MESSAGES } from "./constant/user.constants";
 import { CreateUserDto } from "./dto/create-user.dto";
+import { UpdateUserDto } from "./dto/update-user.dto";
+import { User } from "./entities/user.entity";
 import { UserController } from "./user.controller";
 import { UserService } from "./user.service";
 
@@ -21,6 +26,9 @@ describe("UserController", () => {
 		createUser: jest.fn(),
 		logout: jest.fn(),
 		checkPassword: jest.fn(),
+		readUser: jest.fn(),
+		updateUser: jest.fn(),
+		deleteUser: jest.fn(),
 	};
 
 	const mockRbacService = {
@@ -38,11 +46,18 @@ describe("UserController", () => {
 		const module: TestingModule = await Test.createTestingModule({
 			controllers: [UserController],
 			providers: [
+				LoginGuard,
+				PasswordGuard,
+
+				{
+					provide: AuthService,
+					useValue: {},
+				},
+
 				{
 					provide: UserService,
 					useValue: mockUserService,
 				},
-				LoginGuard,
 				{
 					provide: RbacService,
 					useValue: mockRbacService,
@@ -73,6 +88,8 @@ describe("UserController", () => {
 		};
 
 		checkGuardApplied("logout");
+		checkGuardApplied("readUser");
+		checkGuardApplied("updateUser");
 	});
 
 	describe("POST /user/join", () => {
@@ -170,6 +187,12 @@ describe("UserController", () => {
 
 	describe("POST /user/logout", () => {
 		it("로그아웃 성공 시 200 상태 코드와 성공 메시지를 반환한다", async () => {
+			const mockRequest = {
+				cookies: {
+					refreshToken: "mock-refresh-token",
+				},
+			} as unknown as Request;
+
 			const mockResponse = {
 				clearCookie: jest.fn(),
 			} as unknown as Response;
@@ -178,11 +201,15 @@ describe("UserController", () => {
 			jest.spyOn(userService, "logout").mockResolvedValue(undefined);
 
 			const result = await userController.logout(
+				mockRequest,
 				mockUserEntity,
 				mockResponse
 			);
 
-			expect(userService.logout).toHaveBeenCalledWith(1);
+			expect(userService.logout).toHaveBeenCalledWith(
+				1,
+				"mock-refresh-token"
+			);
 			expect(mockResponse.clearCookie).toHaveBeenCalledTimes(2);
 			expect(mockResponse.clearCookie).toHaveBeenCalledWith(
 				"accessToken"
@@ -294,6 +321,90 @@ describe("UserController", () => {
 			expect(rbacService.isAdmin).toHaveBeenCalledWith(2);
 			expect(rbacService.isAdmin).toHaveBeenCalledTimes(1);
 			expect(result).toEqual({ isAdmin: false });
+		});
+	});
+
+	describe("Get /user", () => {
+		it("사용자 정보 조회 성공 시 200 상태 코드와 사용자 정보를 반환한다", async () => {
+			const mockUser = {
+				email: "test@test.com",
+				nickname: "testuser",
+			} as User;
+
+			const mockOAuthConnections = [
+				{
+					oAuthProvider: {
+						name: "google",
+					},
+				},
+			] as OAuthConnection[];
+
+			const mockResult = {
+				user: mockUser,
+				oAuthConnections: mockOAuthConnections,
+			};
+
+			jest.spyOn(loginGuard, "canActivate").mockReturnValue(true);
+			jest.spyOn(userService, "readUser").mockResolvedValue(mockResult);
+
+			const result = await userController.readUser(mockUserEntity);
+
+			expect(userService.readUser).toHaveBeenCalledWith(1);
+			expect(result).toEqual({
+				email: mockUser.email,
+				nickname: mockUser.nickname,
+				connected_oauth: ["google"],
+			});
+		});
+	});
+
+	describe("PUT /user", () => {
+		it("사용자 정보 수정 성공 시 200 상태 코드와 성공 메시지를 반환한다", async () => {
+			const updateUserDto: UpdateUserDto = {
+				password: "password123",
+				nickname: "testuser",
+			};
+
+			jest.spyOn(loginGuard, "canActivate").mockReturnValue(true);
+			jest.spyOn(userService, "updateUser").mockResolvedValue(true);
+
+			const result = await userController.updateUser(
+				mockUserEntity,
+				updateUserDto
+			);
+
+			expect(userService.updateUser).toHaveBeenCalledWith(
+				1,
+				updateUserDto
+			);
+
+			expect(result).toEqual({ message: "회원정보 수정 성공" });
+		});
+	});
+
+	describe("DELETE /user", () => {
+		it("사용자 탈퇴 성공 시 200 상태 코드와 성공 메시지를 반환한다", async () => {
+			const mockResponse = {
+				clearCookie: jest.fn(),
+			} as unknown as Response;
+
+			jest.spyOn(loginGuard, "canActivate").mockReturnValue(true);
+			jest.spyOn(userService, "deleteUser").mockResolvedValue(undefined);
+
+			const result = await userController.deleteUser(
+				mockUserEntity,
+				mockResponse
+			);
+
+			expect(userService.deleteUser).toHaveBeenCalledWith(1);
+			expect(mockResponse.clearCookie).toHaveBeenCalledTimes(2);
+			expect(mockResponse.clearCookie).toHaveBeenCalledWith(
+				"accessToken"
+			);
+			expect(mockResponse.clearCookie).toHaveBeenCalledWith(
+				"refreshToken"
+			);
+			expect(result).toEqual({ message: "회원탈퇴 성공" });
 		});
 	});
 });

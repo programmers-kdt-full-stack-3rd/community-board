@@ -2,10 +2,9 @@
 	"scripts": {
 		"start": "node dist/app.js",
 		"build": "tsc -p .",
-		"dev": "nodemon --watch \"src\" --ext \"ts,js\" --exec \"ts-node\" ./src/index.ts"
+		"dev": "nodemon --watch \"src\" --watch \"types\" --ext \"ts,js\" --exec \"ts-node\" ./src/index.ts"
 	},
 	"dependencies": {
-		"dotenv": "^16.4.5",
 		"kafkajs": "^2.2.4",
 		"mysql2": "^3.2.0"
 	},

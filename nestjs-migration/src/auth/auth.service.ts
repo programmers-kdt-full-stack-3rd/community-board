@@ -61,6 +61,12 @@ export class AuthService {
 		return verifiedToken;
 	}
 
+	verifyTempToken(tempToken: string) {
+		return this.jwtService.verify(tempToken, {
+			secret: this.configService.get("jwt.temp_token_key"),
+		});
+	}
+
 	private async getRefreshToken(userId: number, token: string) {
 		const refreshToken = await this.refreshTokenRepository.findOne({
 			where: { userId, token },

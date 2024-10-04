@@ -9,9 +9,9 @@ import { justifyCenter, mainContainer } from "./App.css";
 import CheckPassword from "./page/User/CheckPassword";
 import ProfileUpdate from "./page/User/ProfileUpdate";
 import clsx from "clsx";
-import { useErrorModal } from "./state/errorModalStore";
+import { useGlobalErrorModal } from "./state/GlobalErrorModalStore";
 import { useLayoutEffect } from "react";
-import ErrorModal from "./component/utils/ErrorModal";
+import GlobalErrorModal from "./component/common/Modal/GlobalErrorModal";
 import OAuthRedirectHandler from "./page/OAuth/OAuthRedirectHandler";
 import ChatTestPage from "./page/Chat/ChatPage";
 import { AdminUserMgmtPage } from "./page/Admin/AdminUserMgmtPage";
@@ -29,6 +29,7 @@ import ChatBtn from "./component/Chats/ChatBtn/ChatBtn";
 import UITest from "./page/UITest"; // TODO: UI 리팩터링 완료 후 테스트 import 제거
 import Community from "./page/Category/Community";
 import { AdminPage } from "./page/Admin/AdminPage";
+import UpsertPostPage from "./page/Posts/UpsertPostPage";
 
 function MainContainer({ children }: { children: React.ReactNode }) {
 	const location = useLocation();
@@ -61,7 +62,7 @@ function MainContainer({ children }: { children: React.ReactNode }) {
 }
 
 function App() {
-	const errorModal = useErrorModal();
+	const globalErrorModal = useGlobalErrorModal();
 
 	const isLogin = useUserStore.use.isLogin();
 	const socket = useUserStore.use.socket();
@@ -70,8 +71,6 @@ function App() {
 	const { setSocket } = useUserStore.use.actions();
 
 	useLayoutEffect(() => {
-		errorModal.clear();
-
 		// 로그인은 되어 있으나 소켓이 없는 경우
 		if (isLogin && !socket) {
 			setSocket(
@@ -92,17 +91,27 @@ function App() {
 	}, []);
 
 	return (
-		<div>
+		<div className="min-h-full">
 			<BrowserRouter>
 				<Header />
+
 				<MainContainer>
-					{errorModal.isOpen && (
-						<ErrorModal
-							message={errorModal.errorMessage}
-							onError={errorModal.onError}
-							close={errorModal.close}
-						/>
-					)}
+					<GlobalErrorModal
+						isOpen={globalErrorModal.isOpen}
+						callback={globalErrorModal.callback}
+						onClose={globalErrorModal.close}
+					>
+						{globalErrorModal.title && (
+							<GlobalErrorModal.Title>
+								{globalErrorModal.title}
+							</GlobalErrorModal.Title>
+						)}
+
+						<GlobalErrorModal.Body>
+							{globalErrorModal.message}
+						</GlobalErrorModal.Body>
+					</GlobalErrorModal>
+
 					<Routes>
 						<Route
 							path="/"
@@ -177,8 +186,13 @@ function App() {
 							path="/category/community"
 							element={<Community />}
 						/>
+						<Route
+							path="/post/new"
+							element={<UpsertPostPage />}
+						/>
 					</Routes>
 				</MainContainer>
+
 				{isOpen && <ChatAside />}
 				<ChatBtn />
 			</BrowserRouter>

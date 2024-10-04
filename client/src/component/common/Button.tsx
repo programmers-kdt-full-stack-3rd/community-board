@@ -1,10 +1,14 @@
 import clsx from "clsx";
 import React from "react";
 
+export type TButtonColor = "primary" | "action" | "neutral" | "danger";
+export type TButtonVariant = "solid" | "outline" | "text";
+export type TButtonSize = "small" | "medium" | "large";
+
 interface IButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-	color?: "primary" | "action" | "neutral" | "danger";
-	variant?: "solid" | "outline" | "text";
-	size?: "small" | "medium" | "large";
+	color?: TButtonColor;
+	variant?: TButtonVariant;
+	size?: TButtonSize;
 }
 
 const Button: React.FC<IButtonProps> = ({

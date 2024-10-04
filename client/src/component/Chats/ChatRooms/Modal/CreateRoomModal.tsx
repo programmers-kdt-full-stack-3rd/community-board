@@ -16,7 +16,7 @@ import {
 import { ICreateRoomRequest, ICreateRoomResponse } from "shared";
 import { ApiCall } from "../../../../api/api";
 import { sendCreateRoomRequest } from "../../../../api/chats/crud";
-import { useErrorModal } from "../../../../state/errorModalStore";
+import { useGlobalErrorModal } from "../../../../state/GlobalErrorModalStore";
 import { ClientError } from "../../../../api/errors";
 
 interface Props {
@@ -24,21 +24,22 @@ interface Props {
 	setSelectedRoom: (room: { title: string; roomId: number }) => void;
 }
 
+// TODO: 로컬 모달로 띄울 수 있도록, 공통 모달 확장 필요
 const CreateRoomModal: React.FC<Props> = ({ close, setSelectedRoom }) => {
 	const [roomInfo, setRoomInfo] = useState<ICreateRoomRequest>({
 		title: "",
 		password: "",
 		isPrivate: false,
 	});
-	const errorModal = useErrorModal();
+	const globalErrorModal = useGlobalErrorModal();
 
 	const createRoom = async () => {
 		const res: ICreateRoomResponse | ClientError = await ApiCall(
 			() => sendCreateRoomRequest(roomInfo),
-			err => {
-				errorModal.setErrorMessage(err.message);
-				errorModal.open();
-			}
+			err =>
+				globalErrorModal.openWithMessageSplit({
+					messageWithTitle: err.message,
+				})
 		);
 
 		if (res instanceof ClientError) {

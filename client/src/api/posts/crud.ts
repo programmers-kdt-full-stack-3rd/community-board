@@ -26,3 +26,13 @@ export const sendDeletePostRequest = async (param: string) => {
 	const url = `post/${param}`;
 	return await httpRequest(url, HttpMethod.DELETE);
 };
+
+export const uploadImageRequest = async (file: File | Blob) => {
+	const url = `image`;
+
+	const form = new FormData();
+
+	form.append("image", file, "image");
+
+	return await httpRequest(url, HttpMethod.POST, form, true);
+};

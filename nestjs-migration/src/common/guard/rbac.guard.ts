@@ -15,14 +15,14 @@ export class RbacGuard implements CanActivate {
 		const request = context.switchToHttp().getRequest();
 		const user: IUserEntity = request.user;
 
-		const permissions = this.reflector.get<string[]>(
+		const permissions = this.reflector.getAllAndOverride<string[]>(
 			"permissions",
-			context.getHandler()
+			[context.getHandler(), context.getClass()]
 		);
 
-		const adminOnly = this.reflector.get<boolean>(
+		const adminOnly = this.reflector.getAllAndOverride<boolean>(
 			"adminOnly",
-			context.getHandler()
+			[context.getHandler(), context.getClass()]
 		);
 
 		if (adminOnly) {

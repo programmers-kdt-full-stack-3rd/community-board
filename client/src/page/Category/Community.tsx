@@ -15,8 +15,10 @@ import {
 import { ApiCall } from "../../api/api";
 import { ClientError } from "../../api/errors";
 import { UserRank } from "../../component/Posts/Rank/UserRank";
+import { useNavigate } from "react-router-dom";
 
 const Community = () => {
+	const navigate = useNavigate();
 	const isLogin = useUserStore(state => state.isLogin);
 
 	const [isModalOpen, setIsModalOpen] = useState(false);
@@ -81,7 +83,8 @@ const Community = () => {
 	};
 
 	const handleCreatePostClick = () => {
-		setIsModalOpen(true);
+		//setIsModalOpen(true);
+		navigate('/post/new');
 	};
 
 	const handleSearchSubmit = (keyword: string) => {
