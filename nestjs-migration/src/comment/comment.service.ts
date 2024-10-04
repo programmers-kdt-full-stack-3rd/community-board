@@ -84,19 +84,18 @@ export class CommentService {
 	async updateComment(updateCommentDto: UpdateCommentDto): Promise<boolean> {
 		const { id, authorId, content } = updateCommentDto;
 
-		const comment = await this.commentRepository.findOne({ where: { id } });
-
-		if (!(comment && !comment.isDelete)) {
-			throw ServerError.notFound(
-				COMMENT_ERROR_MESSAGES.NOT_FOUND_COMMENT_ID
-			);
-		}
-
-		await this.commentRepository.update(
+		const result = await this.commentRepository.update(
 			{ id, author: authorId, isDelete: false },
 			{ content }
 		);
-		return true;
+
+		if (result.affected) {
+			return true;
+		} else {
+			throw ServerError.reference(
+				COMMENT_ERROR_MESSAGES.UPDATE_COMMENT_ERROR
+			);
+		}
 	}
 
 	async deleteComment(deleteCommentDto: DeleteCommentReq): Promise<boolean> {

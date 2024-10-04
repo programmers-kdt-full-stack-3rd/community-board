@@ -34,7 +34,7 @@ import { ChatModule } from "./chat/chat.module";
 			imports: [ConfigModule],
 			useFactory: (configService: ConfigService) => ({
 				...configService.get("typeorm"),
-				logging: false,
+				logging: true,
 			}),
 
 			dataSourceFactory: async options => {

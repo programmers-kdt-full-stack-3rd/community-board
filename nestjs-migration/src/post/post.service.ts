@@ -108,14 +108,6 @@ export class PostService {
 	): Promise<boolean> {
 		let { doFilter, content, title, authorId } = updatePostDto;
 
-		const post = await this.postRepository.findOne({
-			where: { id: postId },
-		});
-
-		if (!(post && !post.isDelete)) {
-			throw ServerError.notFound(POST_ERROR_MESSAGES.NOT_FOUND_POST);
-		}
-
 		if (content && doFilter) {
 			const regex = getRegex(regexs);
 			content = changeBadWords(content, regex);
@@ -150,13 +142,6 @@ export class PostService {
 
 	async deletePost(deletePostDto: DeletePostDto): Promise<boolean> {
 		const { postId, authorId } = deletePostDto;
-		const post = await this.postRepository.findOne({
-			where: { id: postId },
-		});
-
-		if (!(post && !post.isDelete)) {
-			throw ServerError.notFound(POST_ERROR_MESSAGES.NOT_FOUND_POST);
-		}
 
 		const result = await this.postRepository.update(
 			{ id: postId, isDelete: false, author: { id: authorId } },

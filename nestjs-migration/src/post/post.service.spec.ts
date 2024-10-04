@@ -213,7 +213,6 @@ describe("PostService", () => {
 			};
 		});
 		it("게시물 업데이트 성공", async () => {
-			mockPostRepository.findOne.mockResolvedValue(mockPostId);
 			mockPostRepository.update.mockResolvedValue({
 				affected: 1,
 			});
@@ -223,9 +222,6 @@ describe("PostService", () => {
 				mockUpdateDto
 			);
 
-			expect(postRepository.findOne).toHaveBeenCalledWith({
-				where: { id: mockPostId },
-			});
 			expect(postRepository.update).toHaveBeenCalledWith(
 				{ id: mockPostId, author: { id: mockUserId } },
 				{ title: "New Title", content: "New Content" }
@@ -234,14 +230,15 @@ describe("PostService", () => {
 		});
 
 		it("존재하지 않는 post 시 에러를 반환한다", async () => {
-			mockPostRepository.findOne.mockResolvedValue(null);
+			mockPostRepository.update.mockResolvedValue({
+				affected: 0,
+			});
+
 			await expect(
 				postService.updatePost(mockPostId, mockUpdateDto)
 			).rejects.toThrow(
-				ServerError.notFound(POST_ERROR_MESSAGES.NOT_FOUND_POST)
+				ServerError.reference(POST_ERROR_MESSAGES.UPDATE_POST_ERROR)
 			);
-
-			expect(postRepository.update).not.toHaveBeenCalled();
 		});
 	});
 	describe("deletePost", () => {
@@ -249,8 +246,7 @@ describe("PostService", () => {
 			jest.clearAllMocks();
 		});
 		it("게시물 삭제 성공", async () => {
-			mockPostRepository.findOne.mockResolvedValue(mockPostId);
-			mockPostRepository.delete.mockResolvedValue({
+			mockPostRepository.update.mockResolvedValue({
 				affected: 1,
 			});
 
@@ -259,9 +255,6 @@ describe("PostService", () => {
 				postId: mockPostId,
 			});
 
-			expect(postRepository.findOne).toHaveBeenCalledWith({
-				where: { id: mockPostId },
-			});
 			expect(postRepository.update).toHaveBeenCalledWith(
 				{ id: mockPostId, isDelete: false, author: { id: mockUserId } },
 				{ isDelete: true }
@@ -275,9 +268,9 @@ describe("PostService", () => {
 				author: { id: mockUserId },
 			};
 
-			jest.spyOn(mockPostRepository, "findOne").mockResolvedValue(
-				mockDeletedPost
-			);
+			mockPostRepository.update.mockResolvedValue({
+				affected: 0,
+			});
 
 			await expect(
 				postService.deletePost({
@@ -285,10 +278,8 @@ describe("PostService", () => {
 					postId: mockPostId,
 				})
 			).rejects.toThrow(
-				ServerError.notFound(POST_ERROR_MESSAGES.NOT_FOUND_POST)
+				ServerError.reference(POST_ERROR_MESSAGES.DELETE_POST_ERROR)
 			);
-
-			expect(postRepository.update).not.toHaveBeenCalled();
 		});
 	});
 });

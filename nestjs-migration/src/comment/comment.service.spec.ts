@@ -177,14 +177,12 @@ describe("CommentService", () => {
 			content: "mock",
 		};
 		it("댓글 수정 성공", async () => {
-			mockCommentRepository.findOne.mockResolvedValue(mockComment);
-			mockCommentRepository.update.mockResolvedValue(true);
+			mockCommentRepository.update.mockResolvedValue({
+				affected: 1,
+			});
 
 			const result = await commentService.updateComment(mockUpdateCmtDto);
 
-			expect(commentRepository.findOne).toHaveBeenCalledWith({
-				where: { id: mockUpdateCmtDto.id },
-			});
 			expect(commentRepository.update).toHaveBeenCalledWith(
 				{
 					id: mockUpdateCmtDto.id,
@@ -196,21 +194,17 @@ describe("CommentService", () => {
 			expect(result).toBe(true);
 		});
 		it("댓글 수정 중 오류 발생 시 에러를 반환한다", async () => {
-			jest.clearAllMocks();
-			mockCommentRepository.findOne.mockResolvedValue(null);
+			mockCommentRepository.update.mockResolvedValue({
+				affected: 0,
+			});
 
 			await expect(
 				commentService.updateComment(mockUpdateCmtDto)
 			).rejects.toThrow(
-				ServerError.notFound(
-					COMMENT_ERROR_MESSAGES.NOT_FOUND_COMMENT_ID
+				ServerError.reference(
+					COMMENT_ERROR_MESSAGES.UPDATE_COMMENT_ERROR
 				)
 			);
-
-			expect(commentRepository.findOne).toHaveBeenCalledWith({
-				where: { id: mockUpdateCmtDto.id },
-			});
-			expect(commentRepository.update).not.toHaveBeenCalled();
 		});
 	});
 
@@ -221,8 +215,6 @@ describe("CommentService", () => {
 		};
 		it("댓글 삭제 성공", async () => {
 			mockCommentRepository.update.mockResolvedValue({
-				raw: {},
-				generatedMaps: [],
 				affected: true,
 			});
 
