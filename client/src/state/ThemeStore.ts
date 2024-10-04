@@ -11,7 +11,7 @@ const useThemeStore = create<IThemeState>()(
 		set => ({
 			isDarkMode: false,
 			toggleDarkMode: () =>
-				set(state => ({ isDarkMode: !state.isDarkMode })), // 상태를 반전하는 함수
+				set(state => ({ isDarkMode: !state.isDarkMode })),
 		}),
 		{
 			name: "themeStorage",

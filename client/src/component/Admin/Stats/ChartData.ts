@@ -1,202 +1,205 @@
 import { IntervalStat } from "shared";
 import { addDays, getKoreanDate } from "../../../utils/date-to-str";
 
-export const getChartData = (interval: string, startDate: string, endDate: string, intervalStats: IntervalStat[]) => {
-    const labels: string[] = [];
-    const data = {
-        comments: [] as number[],
-        views: [] as number[],
-        users: [] as number[],
-        posts: [] as number[]
-    };
+const accumulateStats = (
+	intervalStats: IntervalStat[],
+	dateKey: string,
+	formattedDate: string
+) => {
+	let accumulatedData = {
+		comments: 0,
+		views: 0,
+		users: 0,
+		posts: 0,
+	};
 
-    if (interval === 'daily') { 
-        let currentDate = new Date(startDate);
-        const endDateLimit = new Date(endDate);
+	intervalStats.forEach(
+		(stat: {
+			date: string;
+			comments: number;
+			views: number;
+			users: number;
+			posts: number;
+		}) => {
+			const statDate = stat.date.slice(0, dateKey.length);
+			if (statDate === formattedDate) {
+				accumulatedData.comments += stat.comments;
+				accumulatedData.views += stat.views;
+				accumulatedData.users += stat.users;
+				accumulatedData.posts += stat.posts;
+			}
+		}
+	);
 
-        let accumulatedData = {
-            comments: 0,
-            views: 0,
-            users: 0,
-            posts: 0
-        };
+	return accumulatedData;
+};
 
-        while (currentDate <= endDateLimit) {
-            const formattedDate = getKoreanDate(currentDate);
-            labels.push(formattedDate);
+export const getChartData = (
+	interval: string,
+	startDate: string,
+	endDate: string,
+	intervalStats: IntervalStat[]
+) => {
+	const labels: string[] = [];
+	const data = {
+		comments: [] as number[],
+		views: [] as number[],
+		users: [] as number[],
+		posts: [] as number[],
+	};
 
-            let dailyData = {
-                comments: 0,
-                views: 0,
-                users: 0,
-                posts: 0
-            };
+	// 일별 데이터를 처리하는 함수
+	const processDailyData = () => {
+		let currentDate = new Date(startDate);
+		const endDateLimit = new Date(endDate);
 
-            intervalStats.forEach((stat: { date: string; comments: any; views: any; users: any; posts: any; }) => {
-                if (stat.date === formattedDate) {
-                    dailyData.comments += Number(stat.comments);
-                    dailyData.views += Number(stat.views);  
-                    dailyData.users += Number(stat.users);
-                    dailyData.posts += Number(stat.posts);
-                }
-            });
+		while (currentDate <= endDateLimit) {
+			const formattedDate = getKoreanDate(currentDate);
+			labels.push(formattedDate);
 
-            accumulatedData.comments += dailyData.comments;
-            accumulatedData.views += dailyData.views;
-            accumulatedData.users += dailyData.users;
-            accumulatedData.posts += dailyData.posts;
+			const dailyData = accumulateStats(
+				intervalStats,
+				"YYYY-MM-DD",
+				formattedDate
+			);
 
-            data.comments.push(accumulatedData.comments);
-            data.views.push(accumulatedData.views);
-            data.users.push(accumulatedData.users);
-            data.posts.push(accumulatedData.posts);
-            currentDate = addDays(currentDate, 1);
-        }
+			data.comments.push(dailyData.comments);
+			data.views.push(dailyData.views);
+			data.users.push(dailyData.users);
+			data.posts.push(dailyData.posts);
 
-    } else if (interval === 'monthly') { // monthly 데이터
-        let currentMonth = new Date(startDate);
-        const endDateLimit = new Date(endDate);
+			currentDate = addDays(currentDate, 1);
+		}
+	};
 
-        while (
-            currentMonth.getFullYear() < endDateLimit.getFullYear() ||
-            (currentMonth.getFullYear() === endDateLimit.getFullYear() && currentMonth.getMonth() <= endDateLimit.getMonth())
-        ) {
-            const formattedDate = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}`; // 'YYYY-MM' 형식
-            labels.push(formattedDate);
+	// 월별 데이터를 처리하는 함수
+	const processMonthlyData = () => {
+		let currentMonth = new Date(startDate);
+		const endDateLimit = new Date(endDate);
 
-            let accumulatedData = {
-                comments: 0,
-                views: 0,
-                users: 0,
-                posts: 0
-            };
+		while (
+			currentMonth.getFullYear() < endDateLimit.getFullYear() ||
+			(currentMonth.getFullYear() === endDateLimit.getFullYear() &&
+				currentMonth.getMonth() <= endDateLimit.getMonth())
+		) {
+			const formattedDate = `${currentMonth.getFullYear()}-${String(
+				currentMonth.getMonth() + 1
+			).padStart(2, "0")}`;
+			labels.push(formattedDate);
 
-            intervalStats.forEach((stat: { date: string; comments: any; views: any; users: any; posts: any; }) => {
-                const statMonth = stat.date.slice(0, 7);
-                if (statMonth === formattedDate) {
-                    accumulatedData.comments += Number(stat.comments);
-                    accumulatedData.views += Number(stat.views);  
-                    accumulatedData.users += Number(stat.users);
-                    accumulatedData.posts += Number(stat.posts);
-                }
-            });
+			const monthlyData = accumulateStats(
+				intervalStats,
+				"YYYY-MM",
+				formattedDate
+			);
 
-            data.comments.push(accumulatedData.comments);
-            data.views.push(accumulatedData.views);
-            data.users.push(accumulatedData.users);
-            data.posts.push(accumulatedData.posts);
+			data.comments.push(monthlyData.comments);
+			data.views.push(monthlyData.views);
+			data.users.push(monthlyData.users);
+			data.posts.push(monthlyData.posts);
 
-            currentMonth.setMonth(currentMonth.getMonth() + 1);
-        }
+			currentMonth.setMonth(currentMonth.getMonth() + 1);
+		}
+	};
 
-    } else if (interval === 'yearly') { // yearly 데이터
-        let currentYear = new Date(startDate);
-        const endDateLimit = new Date(endDate);
+	// 연별 데이터를 처리하는 함수
+	const processYearlyData = () => {
+		let currentYear = new Date(startDate);
+		const endDateLimit = new Date(endDate);
 
-        while (currentYear.getFullYear() <= endDateLimit.getFullYear()) {
-            const formattedDate = `${currentYear.getFullYear()}`;
-            labels.push(formattedDate);
+		while (currentYear.getFullYear() <= endDateLimit.getFullYear()) {
+			const formattedDate = `${currentYear.getFullYear()}`;
+			labels.push(formattedDate);
 
-            let accumulatedData = {
-                comments: 0,
-                views: 0,
-                users: 0,
-                posts: 0
-            };
+			const yearlyData = accumulateStats(
+				intervalStats,
+				"YYYY",
+				formattedDate
+			);
 
-            intervalStats.forEach((stat: { date: string; comments: any; views: any; users: any; posts: any; }) => {
-                const statYear = stat.date.slice(0, 4);
-                if (statYear === formattedDate) {
-                    accumulatedData.comments += Number(stat.comments);
-                    accumulatedData.views += Number(stat.views);  // Ensure views are converted to number
-                    accumulatedData.users += Number(stat.users);
-                    accumulatedData.posts += Number(stat.posts);
-                }
-            });
+			data.comments.push(yearlyData.comments);
+			data.views.push(yearlyData.views);
+			data.users.push(yearlyData.users);
+			data.posts.push(yearlyData.posts);
 
-            data.comments.push(accumulatedData.comments);
-            data.views.push(accumulatedData.views);
-            data.users.push(accumulatedData.users);
-            data.posts.push(accumulatedData.posts);
+			currentYear.setFullYear(currentYear.getFullYear() + 1);
+		}
+	};
 
-            currentYear.setFullYear(currentYear.getFullYear() + 1);
-        }
-    }
+	if (interval === "daily") {
+		processDailyData();
+	} else if (interval === "monthly") {
+		processMonthlyData();
+	} else if (interval === "yearly") {
+		processYearlyData();
+	}
 
-    return {
-        labels,
-        // 데이터 통계
-        lineData: {
-            datasets: [
-                {
-                    label: 'Posts',
-                    data: data.posts,
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                    fill: false
-                },
-                {
-                    label: 'Views',
-                    data: data.views,
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    fill: false
-                },
-                {
-                    label: 'Comments',
-                    data: data.comments,
-                    backgroundColor: 'rgba(255, 159, 64, 0.5)',
-                    borderColor: 'rgba(255, 159, 64, 1)',
-                    fill: false
-                }
-            ]
-        },
-        // 전체 통계
-        barData: {
-            labels,
-            datasets: [
-                {
-                    label: 'Posts',
-                    data: data.posts,
-                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    stack: 'stack1'
-                },
-                {
-                    label: 'Views',
-                    data: data.views,
-                    backgroundColor: 'rgba(75, 192, 192, 0.5)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    stack: 'stack1'
-                },
-                {
-                    label: 'Comments',
-                    data: data.comments,
-                    backgroundColor: 'rgba(255, 159, 64, 0.5)',
-                    borderColor: 'rgba(255, 159, 64, 1)',
-                    stack: 'stack1'
-                },
-                {
-                    label: 'Users',
-                    data: data.users,
-                    backgroundColor: 'rgba(153, 102, 255, 0.5)',
-                    borderColor: 'rgba(153, 102, 255, 1)',
-                    stack: 'stack1'
-                }
-            ]
-        },
-        // 유저 통계
-        barData2: {
-            labels,
-            datasets: [
-                {
-                    label: 'Users',
-                    data: data.users,
-                    backgroundColor: 'rgba(0, 0, 0, 0)', 
-                    borderColor: 'rgba(153, 102, 255, 1)',
-                    borderWidth: 2 
-                }
-            ]
-        }
-    };
+	return {
+		labels,
+		lineData: {
+			datasets: [
+				{
+					label: "Posts",
+					data: data.posts,
+					borderColor: "rgba(255, 99, 132, 1)",
+					backgroundColor: "rgba(255, 99, 132, 0.2)",
+					fill: false,
+				},
+				// {
+				// 	label: "Views",
+				// 	data: data.views,
+				// 	borderColor: "rgba(75, 192, 192, 1)",
+				// 	backgroundColor: "rgba(75, 192, 192, 0.2)",
+				// 	fill: false,
+				// },
+				{
+					label: "Users",
+					data: data.users,
+					backgroundColor: "rgba(0, 0, 0, 0)",
+					borderColor: "rgba(153, 102, 255, 1)",
+					fill: false,
+				},
+				{
+					label: "Comments",
+					data: data.comments,
+					backgroundColor: "rgba(255, 159, 64, 0.5)",
+					borderColor: "rgba(255, 159, 64, 1)",
+					fill: false,
+				},
+			],
+		},
+		barData: {
+			labels,
+			datasets: [
+				{
+					label: "Posts",
+					data: data.posts,
+					backgroundColor: "rgba(255, 99, 132, 0.5)",
+					borderColor: "rgba(255, 99, 132, 1)",
+					stack: "stack1",
+				},
+				// {
+				// 	label: "Views",
+				// 	data: data.views,
+				// 	backgroundColor: "rgba(75, 192, 192, 0.5)",
+				// 	borderColor: "rgba(75, 192, 192, 1)",
+				// 	stack: "stack1",
+				// },
+				{
+					label: "Comments",
+					data: data.comments,
+					backgroundColor: "rgba(255, 159, 64, 0.5)",
+					borderColor: "rgba(255, 159, 64, 1)",
+					stack: "stack1",
+				},
+				{
+					label: "Users",
+					data: data.users,
+					backgroundColor: "rgba(153, 102, 255, 0.5)",
+					borderColor: "rgba(153, 102, 255, 1)",
+					stack: "stack1",
+				},
+			],
+		},
+	};
 };

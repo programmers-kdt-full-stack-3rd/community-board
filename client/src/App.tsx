@@ -28,6 +28,7 @@ import EmailRegistration from "./page/User/EmailRegistration";
 import ChatBtn from "./component/Chats/ChatBtn/ChatBtn";
 import UITest from "./page/UITest"; // TODO: UI 리팩터링 완료 후 테스트 import 제거
 import Community from "./page/Category/Community";
+import { AdminPage } from "./page/Admin/AdminPage";
 import UpsertPostPage from "./page/Posts/UpsertPostPage";
 
 function MainContainer({ children }: { children: React.ReactNode }) {
@@ -143,6 +144,10 @@ function App() {
 						<Route
 							path="/chat"
 							element={<ChatTestPage />}
+						/>
+						<Route
+							path="/admin"
+							element={<AdminPage />}
 						/>
 						<Route
 							path="/admin/userMgmt"
