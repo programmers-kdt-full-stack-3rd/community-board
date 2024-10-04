@@ -102,12 +102,12 @@ const CustomEditorBase: React.FC<IProps> = ({
 
 	return (
 		<ReactQuill
-			theme="snow"
 			ref={quillRef}
 			modules={quillModules}
 			value={content}
 			onChange={setContent}
-			className="mb-16 h-96 min-h-96"
+			theme="snow"
+			className="mb-11 h-[calc(100vh-320px)]"
 		/>
 	);
 };

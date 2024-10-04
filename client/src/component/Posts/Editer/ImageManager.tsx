@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { FiImage, FiTrash2 } from "react-icons/fi";
 import ReactQuill from "react-quill";
 import Button from "../../common/Button";
 
@@ -28,17 +29,46 @@ const ImageManager: React.FC<IProps> = ({ quillRef, editorContents }) => {
 		setImageUrlSet(nextImageUrlSet);
 	}, [quillRef.current, editorContents]);
 
-	return (
-		<div className="text-start">
-			<div>첨부한 이미지</div>
+	// TODO: 이미지 삭제 API 호출
+	const handleDeleteWith = (url: string) => () => {
+		alert(`이미지 삭제: ${url}`);
+	};
 
-			<div>
-				{Array.from(imageUrlSet, url => (
-					<div key={url}>
-						<img src={url} />
-						<Button>삭제</Button>
+	return (
+		<div className="flex w-full flex-col gap-2 text-start">
+			<div className="ml-1 text-sm font-bold text-blue-900">
+				첨부한 이미지
+			</div>
+
+			<div className="grid grid-cols-6 gap-4 rounded-md border border-gray-600 p-4">
+				{imageUrlSet.size === 0 ? (
+					<div className="col-span-full flex items-center justify-center gap-2 p-8 text-center text-xl font-medium opacity-30">
+						<FiImage />
+						<div>첨부한 이미지가 없습니다.</div>
 					</div>
-				))}
+				) : (
+					Array.from(imageUrlSet, url => (
+						<div
+							key={url}
+							className="relative overflow-hidden rounded-md"
+						>
+							<img
+								src={url}
+								className="aspect-square w-auto object-cover"
+							/>
+							<Button
+								size="small"
+								variant="text"
+								onClick={handleDeleteWith(url)}
+								className="absolute right-2 top-2 bg-white/65 p-2 shadow backdrop-blur-sm"
+								// TODO: className 충돌로 인하여 Tailwind Merge 도입 필요
+								style={{ padding: "8px" }}
+							>
+								<FiTrash2 />
+							</Button>
+						</div>
+					))
+				)}
 			</div>
 		</div>
 	);
