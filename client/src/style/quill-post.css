@@ -38,4 +38,9 @@
 	:is(.post-body, .ql-editor) .ql-size-huge {
 		@apply text-2xl;
 	}
+
+	/* 코드 블록 클래스 */
+	:is(.post-body, .ql-editor) pre.ql-syntax.ql-syntax {
+		@apply mx-0 my-2 rounded-md bg-gray-100 px-3 py-2 font-mono text-sm text-gray-700;
+	}
 }

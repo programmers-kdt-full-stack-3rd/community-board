@@ -89,6 +89,7 @@ const CustomEditorBase: React.FC<IProps> = ({
 					[{ font: [] }],
 					[{ size: ["small", false, "large", "huge"] }],
 					["bold", "underline", { color: toolbarColors }],
+					["code-block"],
 					["image"],
 					["clean"],
 				],
