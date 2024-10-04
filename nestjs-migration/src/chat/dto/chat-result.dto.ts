@@ -1,5 +1,6 @@
 import { Transform } from "class-transformer";
 import { IsDefined } from "class-validator";
+import { IMessage } from "./message.dto";
 
 export class RoomHeader {
 	@Transform(({ value }) => parseInt(value))
@@ -14,6 +15,10 @@ export class GetRoomsRes {
 	totalRoomCount: number;
 
 	roomHeaders: RoomHeader[];
+}
+
+export class GetMsgLogsRes {
+	messageLogs: IMessage[];
 }
 
 export class CreateRoomRes {

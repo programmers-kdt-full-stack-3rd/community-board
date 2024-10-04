@@ -10,10 +10,10 @@ import { ReadPostsQuery } from "./dto/read-posts-query.dto";
 import { PostRepository } from "./post.repository";
 import { Log } from "../log/entities/log.entity";
 import { ServerError } from "../common/exceptions/server-error.exception";
-import { getPostHeadersDto } from "./dto/get-post-headers.dto";
+import { GetPostHeadersDto } from "./dto/get-post-headers.dto";
 import { DeletePostDto } from "./dto/delete-post.dto";
 import { POST_ERROR_MESSAGES } from "./constant/post.constants";
-import { getPostDto } from "./dto/get-post.dto";
+import { GetPostDto } from "./dto/get-post.dto";
 
 @Injectable()
 export class PostService {
@@ -72,7 +72,7 @@ export class PostService {
 	async findPostHeaders(
 		readPostsQueryDto: ReadPostsQuery,
 		userId: number
-	): Promise<getPostHeadersDto[]> {
+	): Promise<GetPostHeadersDto[]> {
 		const postHeaders = await this.postRepository.getPostHeaders(
 			readPostsQueryDto,
 			userId
@@ -93,7 +93,7 @@ export class PostService {
 		return total;
 	}
 
-	async findPost(postId: number, userId: number): Promise<getPostDto> {
+	async findPost(postId: number, userId: number): Promise<GetPostDto> {
 		const post = await this.postRepository.getPost(postId, userId);
 
 		if (!post) {

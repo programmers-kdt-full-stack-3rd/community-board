@@ -26,6 +26,7 @@ import {
 	GetRoomsRes,
 	CreateRoomRes,
 	JoinRoomRes,
+	GetMsgLogsRes,
 } from "./dto/chat-result.dto";
 import { CHAT_ERROR_MESSAGES } from "./constant/chat.constants";
 
@@ -106,11 +107,11 @@ export class ChatController {
 	@HttpCode(HttpStatus.OK)
 	async handleMessageLogsRead(
 		@Param("room_id", ParseIntPipe) roomId: number
-	): Promise<IMessage[]> {
+	): Promise<GetMsgLogsRes> {
 		try {
 			const result = await this.chatService.getMessageLogs(roomId);
 
-			return result;
+			return { messageLogs: result };
 		} catch (err) {
 			throw ServerError.reference(
 				CHAT_ERROR_MESSAGES.READ_MESSAGELOG_ERROR
@@ -169,7 +170,7 @@ export class ChatController {
 	async handleRoomLeave(
 		@Body() leaveRoomReq: LeaveRoomReq,
 		@User() user: IUserEntity
-	): Promise<void> {
+	): Promise<undefined> {
 		try {
 			const userId = user.userId;
 

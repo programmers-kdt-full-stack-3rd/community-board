@@ -1,6 +1,6 @@
 import { Transform } from "class-transformer";
 
-export class getPostHeadersDto {
+export class GetPostHeadersDto {
 	id: number;
 	title: string;
 	nickname: string;

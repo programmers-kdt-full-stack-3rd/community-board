@@ -1,6 +1,6 @@
 import { Exclude, Transform } from "class-transformer";
 
-export class getPostDto {
+export class GetPostDto {
 	authour_id: number;
 	author_nickname: string;
 	content: string;

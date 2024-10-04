@@ -1,24 +1,24 @@
-import { getPostHeadersDto } from "./get-post-headers.dto";
-import { getPostDto } from "./get-post.dto";
+import { GetPostHeadersDto } from "./get-post-headers.dto";
+import { GetPostDto } from "./get-post.dto";
 
-export class createPostRes {
+export class CreatePostRes {
 	postId: number;
 	message: string;
 }
 
-export class getPostsHeaderRes {
+export class GetPostsHeaderRes {
 	total: number;
-	postHeaders: getPostHeadersDto[];
+	postHeaders: GetPostHeadersDto[];
 }
 
-export class getPostRes {
-	post: getPostDto;
+export class GetPostRes {
+	post: GetPostDto;
 }
 
-export class updatePostRes {
+export class UpdatePostRes {
 	message: string;
 }
 
-export class deletePostRes {
+export class DeletePostRes {
 	message: string;
 }
