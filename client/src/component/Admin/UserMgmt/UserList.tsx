@@ -90,7 +90,7 @@ const UserList = () => {
 
 			<div>
 				<div>
-					<div className="mb-2 grid grid-cols-[minmax(100px,1fr)_minmax(200px,4fr)_minmax(150px,3fr)_minmax(100px,2fr)_minmax(100px,2fr)_minmax(100px,2fr)] items-center">
+					<div className="mb-2 grid w-full grid-cols-[3fr_4fr_2fr_1fr_1fr_1fr] items-center">
 						<span>닉네임</span>
 						<span>이메일</span>
 						<span>가입일</span>
@@ -105,7 +105,7 @@ const UserList = () => {
 				) : (
 					users.userInfo.map(user => (
 						<div key={user.id}>
-							<div className="my-2 grid grid-cols-[minmax(100px,1fr)_minmax(200px,4fr)_minmax(150px,3fr)_minmax(100px,2fr)_minmax(100px,2fr)_minmax(100px,2fr)] items-center">
+							<div className="mb-2 grid w-full grid-cols-[3fr_4fr_2fr_1fr_1fr_1fr] items-center">
 								<Link to={`/admin/userLog/${user.id}`}>
 									{user.nickname}
 								</Link>
