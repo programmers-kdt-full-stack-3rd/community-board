@@ -130,7 +130,7 @@ const CheckPassword: FC = () => {
 				</ConfirmModal.Body>
 			</ConfirmModal>
 
-			<div className="dark:bg-customGray mx-auto w-full max-w-[350px] rounded-lg bg-gray-200 p-5 shadow-md">
+			<div>
 				{isEmailRegistered ? (
 					<>
 						<PasswordForm
