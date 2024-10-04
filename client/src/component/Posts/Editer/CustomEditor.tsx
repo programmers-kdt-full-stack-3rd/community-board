@@ -51,7 +51,7 @@ const CustomEditorBase: React.FC<IProps> = ({
 
 			return res.imgUrl as string;
 		},
-		[globalErrorModal]
+		[globalErrorModal.openWithMessageSplit]
 	);
 
 	const handleImageUpload = useCallback(() => {
