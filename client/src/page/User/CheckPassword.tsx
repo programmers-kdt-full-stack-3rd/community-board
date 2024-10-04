@@ -6,10 +6,7 @@ import {
 } from "../../api/users/crud";
 import PasswordForm from "../../component/User/PasswordForm";
 import SubmitButton from "../../component/User/SubmitButton";
-import {
-	checkPasswordWrapper,
-	labelWithoutPassword,
-} from "./CheckPassword.css";
+
 import { REGEX } from "./constants/constants";
 import { useModal } from "../../hook/useModal";
 import { useUserStore } from "../../state/store";
@@ -113,7 +110,7 @@ const CheckPassword: FC = () => {
 	};
 
 	return (
-		<div className={checkPasswordWrapper}>
+		<div className="dark:bg-customGray mx-auto w-full max-w-[350px] rounded-lg bg-gray-200 p-5 shadow-md">
 			<ConfirmModal
 				variant="warning"
 				isOpen={accountDeleteModal.isOpen}
@@ -133,23 +130,25 @@ const CheckPassword: FC = () => {
 				</ConfirmModal.Body>
 			</ConfirmModal>
 
-			{isEmailRegistered ? (
-				<>
-					<PasswordForm
-						labelText="비밀번호 재확인"
-						password={password}
-						onChange={handlePasswordChange}
-					/>
-					<SubmitButton onClick={handleSubmit}>확인</SubmitButton>
-				</>
-			) : (
-				<>
-					<p className={labelWithoutPassword}>
-						소셜 로그인으로 계정 소유 확인
-					</p>
-					<OAuthLoginButtons loginType="reconfirm" />
-				</>
-			)}
+			<div>
+				{isEmailRegistered ? (
+					<>
+						<PasswordForm
+							labelText="비밀번호 재확인"
+							password={password}
+							onChange={handlePasswordChange}
+						/>
+						<SubmitButton onClick={handleSubmit}>확인</SubmitButton>
+					</>
+				) : (
+					<>
+						<p className="m-0 text-left text-[15px] font-bold">
+							소셜 로그인으로 계정 소유 확인
+						</p>
+						<OAuthLoginButtons loginType="reconfirm" />
+					</>
+				)}
+			</div>
 		</div>
 	);
 };
