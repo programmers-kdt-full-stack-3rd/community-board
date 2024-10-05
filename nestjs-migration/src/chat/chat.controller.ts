@@ -20,7 +20,6 @@ import { JoinRoomReq } from "./dto/join-room.dto";
 import { EnterRoomReq } from "./dto/enter-room.dto";
 import { LeaveRoomReq } from "./dto/leave-room.dto";
 import { ServerError } from "../common/exceptions/server-error.exception";
-import { IMessage } from "./dto/message.dto";
 import {
 	EnterRoomRes,
 	GetRoomsRes,
@@ -36,7 +35,7 @@ export class ChatController {
 
 	@Post("/room")
 	@UseGuards(LoginGuard)
-	@HttpCode(HttpStatus.CREATED)
+	@HttpCode(HttpStatus.OK)
 	async handleRoomCreate(
 		@User() user: IUserEntity,
 		@Body() createRoomReq: CreateRoomReq

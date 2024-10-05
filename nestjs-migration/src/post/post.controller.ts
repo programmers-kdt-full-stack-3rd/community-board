@@ -33,7 +33,7 @@ export class PostController {
 
 	@UseGuards(LoginGuard)
 	@Post("/")
-	@HttpCode(HttpStatus.CREATED)
+	@HttpCode(HttpStatus.OK)
 	async handlePostCreate(
 		@Body() createPostBodyDto: CreatePostReq,
 		@User() user: IUserEntity
