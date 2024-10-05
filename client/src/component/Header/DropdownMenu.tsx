@@ -41,7 +41,8 @@ const DropdownMenu: ForwardRefRenderFunction<
 	}, []);
 
 	const handleProfileUpdateClick = () => {
-		navigate(`/checkPassword?next=profileUpdate&final=${currentPath}`);
+		// navigate(`/checkPassword?next=profileUpdate&final=${currentPath}`);
+		navigate("/profile");
 	};
 
 	const handleEmailRegistrationClick = () => {
