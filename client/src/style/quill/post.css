@@ -1,5 +1,3 @@
-@import "./quill-post-color.css";
-
 /* Quill 에디터 및 게시글 내용에 적용하는 스타일 */
 @layer components {
 	/* Quill 에디터 툴바를 포함하는 루트 */
