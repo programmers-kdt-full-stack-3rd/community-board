@@ -39,7 +39,7 @@ import { UserModule } from "./user/user.module";
 			imports: [ConfigModule],
 			useFactory: (configService: ConfigService) => ({
 				...configService.get("typeorm"),
-				logging: true,
+				logging: false,
 				retryAttempts: 40,
 				retryDelay: 3000,
 				connectTimeout: 120000,

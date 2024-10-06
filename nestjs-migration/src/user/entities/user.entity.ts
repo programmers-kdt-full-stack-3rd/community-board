@@ -54,10 +54,10 @@ export class User {
 	comments: Comment[];
 
 	@OneToMany(type => CommentLike, commentLikes => commentLikes.user)
-	@JoinColumn({name: "comment_likes"})
+	@JoinColumn({ name: "comment_likes" })
 	commentLikes: CommentLike[];
 
 	//chat
-	@OneToMany(type => Member, member =>  member.user)
+	@OneToMany(type => Member, member => member.user)
 	members: Member[];
 }

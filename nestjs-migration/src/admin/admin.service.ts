@@ -65,8 +65,8 @@ export class AdminService {
 
 	async deletePost(postId: number) {
 		const result = await this.postRepository.update(
-			{ id: postId, isDelete: 0 },
-			{ isDelete: 1 }
+			{ id: postId, isDelete: false },
+			{ isDelete: true }
 		);
 
 		if (result.affected === 0) {
@@ -76,8 +76,8 @@ export class AdminService {
 
 	async restorePost(postId: number) {
 		const result = await this.postRepository.update(
-			{ id: postId, isDelete: 1 },
-			{ isDelete: 0 }
+			{ id: postId, isDelete: true },
+			{ isDelete: false }
 		);
 
 		if (result.affected === 0) {
@@ -87,8 +87,8 @@ export class AdminService {
 
 	async publicPost(postId: number) {
 		const result = await this.postRepository.update(
-			{ id: postId, isPrivate: 1 },
-			{ isPrivate: 0 }
+			{ id: postId, isPrivate: true },
+			{ isPrivate: false }
 		);
 
 		if (result.affected === 0) {
@@ -98,8 +98,8 @@ export class AdminService {
 
 	async privatePost(postId: number) {
 		const result = await this.postRepository.update(
-			{ id: postId, isPrivate: 0 },
-			{ isPrivate: 1 }
+			{ id: postId, isPrivate: false },
+			{ isPrivate: true }
 		);
 
 		if (result.affected === 0) {

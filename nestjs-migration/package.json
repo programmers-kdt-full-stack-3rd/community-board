@@ -8,6 +8,7 @@
 	"scripts": {
 		"build": "nest build",
 		"format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+		"prettier": "prettier --write --config ./.prettierrc.json \"./**/*\"",
 		"start": "nest start",
 		"start:dev": "NODE_ENV=development nest start --watch",
 		"start:debug": "nest start --debug --watch",
@@ -80,6 +81,9 @@
 			"**/*.(t|j)s"
 		],
 		"coverageDirectory": "../coverage",
-		"testEnvironment": "node"
+		"testEnvironment": "node",
+		"moduleNameMapper": {
+			"^src/(.*)$": "<rootDir>/$1"
+		}
 	}
 }

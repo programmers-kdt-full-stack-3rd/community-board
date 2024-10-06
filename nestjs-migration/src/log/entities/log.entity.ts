@@ -16,7 +16,7 @@ export class Log {
 	@Column({ name: "user_id" })
 	userId: number;
 
-	@Column()
+	@Column({ length: 255 })
 	title: string;
 
 	@Column({ name: "category_id" })

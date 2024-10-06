@@ -1,26 +1,27 @@
-import { IsOptional } from "class-validator";
+import { IsBoolean, IsNumber, IsOptional, IsString } from "class-validator";
 
-export class ReadRoomQueryDto {
+export class ReadRoomQuery {
+	@IsOptional()
+	@IsNumber()
+	page?: number = 0;
 
-    @IsOptional()
-    page: number = 0;
+	@IsOptional()
+	@IsNumber()
+	perPage?: number = 2;
 
-    @IsOptional()
-    perPage: number = 2;
+	@IsOptional()
+	@IsBoolean()
+	isSearch?: boolean;
 
-    @IsOptional()
-    isSearch: boolean; //string??
-
-    @IsOptional()
-    keyword: string;
+	@IsOptional()
+	@IsString()
+	keyword?: string;
 }
 
-export class ReadRoomByKeywordDto extends ReadRoomQueryDto {}
+export class ReadRoomByKeywordDto extends ReadRoomQuery {}
 
 export class ReadRoomByUserIdDto {
-    userId: number;
-    page: number;
-    perPage: number;
+	userId: number;
+	page: number;
+	perPage: number;
 }
-
-

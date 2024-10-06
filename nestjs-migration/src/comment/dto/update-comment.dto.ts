@@ -1,28 +1,30 @@
-import { IsDefined, IsInt, IsNotEmpty, IsPositive, IsString } from "class-validator"
-import { ERROR_MESSAGES } from "../constant/comment-constants"
+import {
+	IsDefined,
+	IsInt,
+	IsNotEmpty,
+	IsPositive,
+	IsString,
+} from "class-validator";
+import { COMMENT_ERROR_MESSAGES } from "../constant/comment.constants";
 
-export class UpdateCommentBodyDto {
+export class UpdateCommentReq {
+	@IsNotEmpty({ message: COMMENT_ERROR_MESSAGES.COMMENT_ID_REQUIRED })
+	@IsInt()
+	@IsPositive({ message: COMMENT_ERROR_MESSAGES.INVALID_COMMENT_ID })
+	id: number;
 
-    @IsDefined({message: ERROR_MESSAGES.COMMENT_ID_REQUIRED})
-    @IsNotEmpty({message: ERROR_MESSAGES.COMMENT_ID_REQUIRED})
-    @IsInt()
-    @IsPositive({message: ERROR_MESSAGES.INVALID_COMMENT_ID})
-    id: number
-
-    @IsDefined({message: ERROR_MESSAGES.CONTENT_REQUIRED})
-    @IsNotEmpty({message: ERROR_MESSAGES.CONTENT_REQUIRED})
-    @IsString({message: ERROR_MESSAGES.INVALID_CONTENT})
-    content: string
+	@IsNotEmpty({ message: COMMENT_ERROR_MESSAGES.CONTENT_REQUIRED })
+	@IsString({ message: COMMENT_ERROR_MESSAGES.INVALID_CONTENT })
+	content: string;
 }
 
 export class UpdateCommentDto {
+	@IsDefined()
+	id: number;
 
-    @IsNotEmpty()
-    id: number;
+	@IsDefined()
+	authorId: number;
 
-    @IsNotEmpty()
-    authorId: number;
-
-    @IsNotEmpty()
-    content: string;
+	@IsDefined()
+	content: string;
 }

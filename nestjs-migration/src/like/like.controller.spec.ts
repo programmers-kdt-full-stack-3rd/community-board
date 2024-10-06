@@ -1,132 +1,167 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { LikeController } from './like.controller';
-import { LikeService } from './like.service';
-import { ServerError } from '../common/exceptions/server-error.exception';
+import { Test, TestingModule } from "@nestjs/testing";
+import { LikeController } from "./like.controller";
+import { LikeService } from "./like.service";
+import { ServerError } from "../common/exceptions/server-error.exception";
+import {
+	LIKE_ERROR_CODES,
+	LIKE_ERROR_MESSAGES,
+} from "./constant/like.constants";
 
-describe('LikeController', () => {
-  let likeController: LikeController;
-  let likeService: LikeService;
+describe("LikeController", () => {
+	let likeController: LikeController;
+	let likeService: LikeService;
 
-  const mockPostId = 1;
-  const mockUserId = 1;
-  const mockCommentId = 1;
-  const mockReq = {
-		user: { userId: mockUserId },
-	} as any;
+	const mockPostId = 1;
+	const mockUserId = 1;
+	const mockCommentId = 1;
+	const mockUser = {
+		userId: 1,
+		roleId: 1,
+	};
 
-  const mockPostLikeDto = {
-    postId: mockPostId,
-    userId: mockUserId,
-  }
+	const mockPostLikeDto = {
+		postId: mockPostId,
+		userId: mockUserId,
+	};
 
-  const mockCommentLikeDto = {
-      commentId: mockCommentId,
-      userId: mockUserId,
-  }
+	const mockCommentLikeDto = {
+		commentId: mockCommentId,
+		userId: mockUserId,
+	};
 
-  const mockLikeService = {
-    createPostLike: jest.fn(),
-    deletePostLike: jest.fn(),
-    createCommentLike: jest.fn(),
-    deleteCommentLike: jest.fn(),
-  }
+	const mockLikeService = {
+		createPostLike: jest.fn(),
+		deletePostLike: jest.fn(),
+		createCommentLike: jest.fn(),
+		deleteCommentLike: jest.fn(),
+	};
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [LikeController],
-      providers: [
-        {
-          provide: LikeService,
-          useValue: mockLikeService,
-        }],
-    }).compile();
+	beforeEach(async () => {
+		const module: TestingModule = await Test.createTestingModule({
+			controllers: [LikeController],
+			providers: [
+				{
+					provide: LikeService,
+					useValue: mockLikeService,
+				},
+			],
+		}).compile();
 
-    likeController = module.get<LikeController>(LikeController);
-    likeService = module.get<LikeService>(LikeService);
-  });
+		likeController = module.get<LikeController>(LikeController);
+		likeService = module.get<LikeService>(LikeService);
+	});
 
-  describe("POST like/post/:post_id", () => {
-    it("게시물 좋아요 추가 성공", async() => {
+	describe("POST like/post/:post_id", () => {
+		it("게시물 좋아요 추가 성공", async () => {
+			mockLikeService.createPostLike.mockResolvedValue(undefined);
 
-      mockLikeService.createPostLike.mockResolvedValue(undefined);
+			await likeController.handleAddLike(mockPostId, mockUser);
 
-      await likeController.handleAddLike(mockPostId, mockReq);
+			expect(likeService.createPostLike).toHaveBeenCalledWith(
+				mockPostLikeDto
+			);
+		});
+		it("이미 좋아요한 게시물이면 에러 반환", async () => {
+			const mockError = ServerError.badRequest(
+				LIKE_ERROR_MESSAGES.DUPLICATED_POSTS
+			);
+			mockError["code"] = LIKE_ERROR_CODES.DUPLICATED;
 
-      expect(likeService.createPostLike).toHaveBeenCalledWith(mockPostLikeDto);
-    });
-    it("이미 좋아요한 게시물이면 에러 반환", async () => {
-      const mockError = ServerError.badRequest("이미 좋아요 표시한 게시물입니다.");
-      mockError["code"] = "ER_DUP_ENTRY"
+			mockLikeService.createPostLike.mockRejectedValue(mockError);
 
-      mockLikeService.createPostLike.mockRejectedValue(mockError);
+			await expect(
+				likeController.handleAddLike(mockCommentId, mockUser)
+			).rejects.toThrow(mockError);
+		});
+		it("없는 게시물이면 에러 반환", async () => {
+			const mockError = ServerError.notFound(
+				LIKE_ERROR_MESSAGES.NOT_FOUND_POST
+			);
+			mockError["code"] = LIKE_ERROR_CODES.NO_REFRERENCED;
+			mockLikeService.createPostLike.mockRejectedValue(mockError);
 
-      await expect(likeController.handleAddLike(mockCommentId, mockReq)).rejects.toThrow(mockError)
-    })
-    it("없는 게시물이면 에러 반환", async() => {
-      const mockError = ServerError.notFound("게시물이 존재하지 않습니다.");
-      mockError["code"] = "ER_NO_REFERENCED_ROW_2"
-      mockLikeService.createPostLike.mockRejectedValue(mockError);
+			await expect(
+				likeController.handleAddLike(mockCommentId, mockUser)
+			).rejects.toThrow(mockError);
+		});
+	});
 
-      await expect(likeController.handleAddLike(mockCommentId,mockReq)).rejects.toThrow(mockError);
-    });
-  });
+	describe("DELETE like/post/:post_id", () => {
+		it("게시물 좋아요 삭제 성공", async () => {
+			mockLikeService.deletePostLike.mockResolvedValue(undefined);
 
-  describe("DELETE like/post/:post_id", () => {
-    it("게시물 좋아요 삭제 성공", async() => {
-      mockLikeService.deletePostLike.mockResolvedValue(undefined);
+			await likeController.handleDeleteLike(mockPostId, mockUser);
 
-      await likeController.handleDeleteLike(mockPostId, mockReq);
+			expect(likeService.deletePostLike).toHaveBeenCalledWith(
+				mockPostLikeDto
+			);
+		});
+		it("게시물 좋아요 삭제 실패", async () => {
+			const mockError = ServerError.reference("mock error");
+			mockLikeService.deletePostLike.mockRejectedValue(mockError);
 
-      expect(likeService.deletePostLike).toHaveBeenCalledWith(mockPostLikeDto);
-    });
-    it("게시물 좋아요 삭제 실패", async() => {
-      const mockError = ServerError.reference("mock error");
-      mockLikeService.deletePostLike.mockRejectedValue(mockError);
+			await expect(
+				likeController.handleDeleteLike(mockCommentId, mockUser)
+			).rejects.toThrow(mockError);
+		});
+	});
 
-      await expect(likeController.handleDeleteLike(mockCommentId,mockReq)).rejects.toThrow(mockError);
-    });
-  });
+	describe("POST like/comment/:comment_id", () => {
+		it("댓글 좋아요 추가 성공", async () => {
+			mockLikeService.createCommentLike.mockResolvedValue(undefined);
 
-  describe("POST like/comment/:comment_id", () => {
-    it("댓글 좋아요 추가 성공", async() => {
-      mockLikeService.createCommentLike.mockResolvedValue(undefined);
+			await likeController.handleAddCommentLike(mockCommentId, mockUser);
 
-      await likeController.handleAddCommentLike(mockCommentId, mockReq);
+			expect(likeService.createCommentLike).toHaveBeenCalledWith(
+				mockCommentLikeDto
+			);
+		});
+		it("이미 좋아요한 댓글이면 에러 반환", async () => {
+			const mockError = ServerError.badRequest(
+				LIKE_ERROR_MESSAGES.DUPLICATED_COMMENTS
+			);
+			mockError["code"] = LIKE_ERROR_CODES.DUPLICATED;
 
-      expect(likeService.createCommentLike).toHaveBeenCalledWith(mockCommentLikeDto);
-    });
-    it("이미 좋아요한 댓글이면 에러 반환", async () => {
-      const mockError = ServerError.badRequest("이미 좋아요 표시한 댓글입니다.");
-      mockError["code"] = "ER_DUP_ENTRY";
+			mockLikeService.createCommentLike.mockRejectedValue(mockError);
 
-      mockLikeService.createCommentLike.mockRejectedValue(mockError);
+			await expect(
+				likeController.handleAddCommentLike(mockCommentId, mockUser)
+			).rejects.toThrow(mockError);
+		});
+		it("없는 댓글이면 에러 반환", async () => {
+			const mockError = ServerError.notFound(
+				LIKE_ERROR_MESSAGES.NOT_FOUND_COMMENT
+			);
+			mockError["code"] = LIKE_ERROR_CODES.NO_REFRERENCED;
 
-      await expect(likeController.handleAddCommentLike(mockCommentId, mockReq)).rejects.toThrow(mockError);
-      
-    })
-    it("없는 댓글이면 에러 반환", async() => {
-      const mockError = ServerError.notFound("댓글이 존재하지 않습니다.");
-      mockError["code"] = "ER_NO_REFERENCED_ROW_2";
+			mockLikeService.createCommentLike.mockRejectedValue(mockError);
 
-      mockLikeService.createCommentLike.mockRejectedValue(mockError);
+			await expect(
+				likeController.handleAddCommentLike(mockCommentId, mockUser)
+			).rejects.toThrow(mockError);
+		});
+	});
 
-      await expect(likeController.handleAddCommentLike(mockCommentId, mockReq)).rejects.toThrow(mockError);
-    });
-  });
+	describe("POST like/comment/:comment_id", () => {
+		it("댓글 좋아요 삭제 성공", async () => {
+			mockLikeService.deleteCommentLike.mockResolvedValue(undefined);
 
-  describe("POST like/comment/:comment_id", () => {
-    it("댓글 좋아요 삭제 성공", async() => {
-      mockLikeService.deleteCommentLike.mockResolvedValue(undefined);
+			await likeController.handleDeleteCommentLike(
+				mockCommentId,
+				mockUser
+			);
 
-      await likeController.handleDeleteCommentLike(mockCommentId, mockReq);
+			expect(likeService.deleteCommentLike).toHaveBeenCalledWith(
+				mockCommentLikeDto
+			);
+		});
+		it("댓글 좋아요 삭제 실패", async () => {
+			const mockError = ServerError.reference("mock error");
+			mockLikeService.deleteCommentLike.mockRejectedValue(mockError);
 
-      expect(likeService.deleteCommentLike).toHaveBeenCalledWith(mockCommentLikeDto);
-    });
-    it("댓글 좋아요 삭제 실패", async() => {
-      const mockError = ServerError.reference("mock error");
-      mockLikeService.deleteCommentLike.mockRejectedValue(mockError);
-
-      await expect(likeController.handleDeleteCommentLike(mockCommentId,mockReq)).rejects.toThrow(mockError);
-    });
-  });
+			await expect(
+				likeController.handleDeleteCommentLike(mockCommentId, mockUser)
+			).rejects.toThrow(mockError);
+		});
+	});
 });

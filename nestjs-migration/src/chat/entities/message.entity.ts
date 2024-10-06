@@ -1,20 +1,25 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import {
+	Column,
+	CreateDateColumn,
+	Entity,
+	PrimaryGeneratedColumn,
+	UpdateDateColumn,
+} from "typeorm";
 
 @Entity("messages")
-export class Message{
+export class Message {
+	@PrimaryGeneratedColumn()
+	id: number;
 
-    @PrimaryGeneratedColumn()
-    id: number;
+	@Column()
+	memberId: number;
 
-    @Column()
-    memberId: number;
+	@Column()
+	message: string;
 
-    @Column()
-    message: string;
+	@CreateDateColumn({ name: "created_at" })
+	createdAt: Date;
 
-    @CreateDateColumn({name: "created_at"})
-    createdAt: Date;
-
-    @UpdateDateColumn({name: "is_system" ,default: 0})
-    isSystem: boolean;
+	@UpdateDateColumn({ name: "is_system", default: false })
+	isSystem: boolean;
 }

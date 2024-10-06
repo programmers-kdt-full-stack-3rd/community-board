@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { plainToInstance } from "class-transformer";
 import { DataSource, Repository } from "typeorm";
 import { CommentLike } from "../like/entities/comment-like.entity";
-import { CommentsDto, ReadCommentQueryDto } from "./dto/read-comment.dto";
+import { CommentsDto, ReadCommentQuery } from "./dto/read-comment.dto";
 import { Comment } from "./entities/comment.entity";
 
 @Injectable()
@@ -16,15 +16,15 @@ export class CommentRepository extends Repository<Comment> {
 			.innerJoin("comment.post", "post")
 			.andWhere("post_id = :postId ", { postId })
 			.innerJoin("comment.author", "author")
-			.andWhere("comment.is_delete = :isDelete", { isDelete: 0 })
-			.andWhere("author.is_delete = :isDelete", { isDelete: 0 });
+			.andWhere("comment.is_delete = :isDelete", { isDelete: false })
+			.andWhere("author.is_delete = :isDelete", { isDelete: false });
 
 		const total = await queryBuilder.getCount();
 		return total;
 	}
 
 	async getComments(
-		readCommentsQueryDto: ReadCommentQueryDto
+		readCommentsQueryDto: ReadCommentQuery
 	): Promise<CommentsDto[]> {
 		let { post_id: postId, userId, index, perPage } = readCommentsQueryDto;
 		const authorId = userId;
@@ -56,8 +56,8 @@ export class CommentRepository extends Repository<Comment> {
 			.innerJoin("comment.post", "post")
 			.andWhere("comment.post_id = :postId", { postId })
 			.innerJoin("comment.author", "author")
-			.andWhere("comment.is_delete = :isDelete", { isDelete: 0 })
-			.andWhere("author.is_delete = :isDelete", { isDelete: 0 })
+			.andWhere("comment.is_delete = :isDelete", { isDelete: false })
+			.andWhere("author.is_delete = :isDelete", { isDelete: false })
 			.orderBy("comment.created_at")
 			.addOrderBy("comment.id")
 			.limit(perPage)

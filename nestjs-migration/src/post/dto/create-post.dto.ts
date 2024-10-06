@@ -1,18 +1,17 @@
-import { IsNotEmpty } from "class-validator"
-import { POST_ERROR_MESSAGES } from "../constant/post.constants"
+import { IsNotEmpty } from "class-validator";
+import { POST_ERROR_MESSAGES } from "../constant/post.constants";
 
-export class CreatePostBodyDto {
-    @IsNotEmpty({ message : POST_ERROR_MESSAGES.REQUIRE_TITLE })
-    title: string
+export class CreatePostReq {
+	@IsNotEmpty({ message: POST_ERROR_MESSAGES.TITLE_REQUIRED })
+	title: string;
 
-    @IsNotEmpty({ message: POST_ERROR_MESSAGES.REQUIRE_CONTENT})
-    content: string
+	@IsNotEmpty({ message: POST_ERROR_MESSAGES.CONTENT_REQUIRED })
+	content: string;
 
-    doFilter: boolean
+	doFilter: boolean;
 }
 
-export class CreatePostDto extends CreatePostBodyDto {
-    
-    @IsNotEmpty()
-    authorId: number
+export class CreatePostDto extends CreatePostReq {
+	@IsNotEmpty()
+	authorId: number;
 }

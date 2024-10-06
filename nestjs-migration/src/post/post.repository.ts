@@ -4,9 +4,10 @@ import { IAdminPostResponse } from "shared";
 import { Brackets, DataSource, Repository } from "typeorm";
 import { GetPostsDto } from "../admin/dto/get-posts.dto";
 import { Like } from "../like/entities/like.entity";
-import { getPostHeadersDto } from "./dto/get-post-headers.dto";
-import { ReadPostsQueryDto, SortBy } from "./dto/read-posts-query.dto";
+import { GetPostHeadersDto } from "./dto/get-post-headers.dto";
+import { ReadPostsQuery, SortBy } from "./dto/read-posts-query.dto";
 import { Post } from "./entities/post.entity";
+import { GetPostDto } from "./dto/get-post.dto";
 
 @Injectable()
 export class PostRepository extends Repository<Post> {
@@ -15,9 +16,9 @@ export class PostRepository extends Repository<Post> {
 	}
 
 	async getPostHeaders(
-		readPostsQueryDto: ReadPostsQueryDto,
+		readPostsQueryDto: ReadPostsQuery,
 		userId: number
-	): Promise<getPostHeadersDto[]> {
+	): Promise<GetPostHeadersDto[]> {
 		let { index, perPage, keyword, sortBy } = readPostsQueryDto;
 		index = index > 0 ? index - 1 : 0;
 
@@ -74,11 +75,11 @@ export class PostRepository extends Repository<Post> {
 
 		const results = await queryBuilder.getRawMany();
 
-		return plainToInstance(getPostHeadersDto, results);
+		return plainToInstance(GetPostHeadersDto, results);
 	}
 
 	async getPostTotal(
-		readPostsQueryDto: ReadPostsQueryDto,
+		readPostsQueryDto: ReadPostsQuery,
 		userId: number
 	): Promise<number> {
 		let { keyword } = readPostsQueryDto;
@@ -109,7 +110,7 @@ export class PostRepository extends Repository<Post> {
 		return await queryBuilder.getCount();
 	}
 
-	async getPostHeader(postId: number, userId: number): Promise<Post> {
+	async getPost(postId: number, userId: number): Promise<GetPostDto> {
 		const authorId = userId;
 		const queryBuilder = this.createQueryBuilder("post")
 			.select([
@@ -141,7 +142,10 @@ export class PostRepository extends Repository<Post> {
 			.andWhere("post.id = :postId", { postId: postId })
 			.setParameters({ authorId, userId });
 
-		return await queryBuilder.getRawOne();
+		const result = await queryBuilder.getRawOne();
+		const post = plainToInstance(GetPostDto, result);
+
+		return post;
 	}
 
 	async getAdminPosts(getPostsDto: GetPostsDto): Promise<IAdminPostResponse> {

@@ -1,13 +1,20 @@
+import { IsOptional } from "class-validator";
 
-export class ReadPostsQueryDto {
-    index?: number = 0
-    perPage?: number = 10
-    keyword?: string
-    sortBy?: SortBy
+export class ReadPostsQuery {
+	@IsOptional()
+	index?: number = 0;
+
+	@IsOptional()
+	perPage?: number = 10;
+
+	@IsOptional()
+	keyword?: string;
+
+	@IsOptional()
+	sortBy?: SortBy;
 }
 
 export enum SortBy {
 	VIEWS = 1,
 	LIKES = 2,
 }
-

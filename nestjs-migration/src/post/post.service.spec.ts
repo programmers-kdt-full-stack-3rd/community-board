@@ -7,9 +7,9 @@ import { User } from "../user/entities/user.entity";
 import { ServerError } from "../common/exceptions/server-error.exception";
 import { PostRepository } from "./post.repository";
 import { LogRepository } from "../log/log.repository";
+import { POST_ERROR_MESSAGES } from "./constant/post.constants";
 
 describe("PostService", () => {
-
 	let postService: PostService;
 	let postRepository: PostRepository;
 	let logRepository: LogRepository;
@@ -22,7 +22,7 @@ describe("PostService", () => {
 	const mockPostRepository = {
 		getPostHeaders: jest.fn(),
 		getPostTotal: jest.fn(),
-		getPostHeader: jest.fn(),
+		getPost: jest.fn(),
 		updatePost: jest.fn(),
 		delete: jest.fn(),
 		save: jest.fn(),
@@ -64,7 +64,7 @@ describe("PostService", () => {
 			id: 1,
 			nickname: "Author",
 		};
-		mockUserId = mockUser.id
+		mockUserId = mockUser.id;
 		mockPostId = 2;
 	});
 
@@ -79,7 +79,7 @@ describe("PostService", () => {
 				save: jest.fn(),
 				getRepository: jest.fn().mockReturnValue({
 					save: jest.fn(),
-				  }),
+				}),
 			},
 		};
 		mockDataSource.createQueryRunner.mockReturnValue(mockQueryRunner);
@@ -105,13 +105,15 @@ describe("PostService", () => {
 
 			expect(result).toBe(mockPostId);
 		});
-		
+
 		it("게시물 생성 중 오류 발생 시 롤백된다.", async () => {
 			const mockError = new Error("트랜잭션 중 에러 발생");
 			jest.spyOn(mockQueryRunner.manager, "save").mockResolvedValue({
 				id: mockPostId,
 			});
-			mockQueryRunner.manager.getRepository().save.mockRejectedValue(mockError);
+			mockQueryRunner.manager
+				.getRepository()
+				.save.mockRejectedValue(mockError);
 
 			await expect(
 				postService.createPost(mockCreatePostDto)
@@ -126,9 +128,7 @@ describe("PostService", () => {
 	describe("findPostHeaders", () => {
 		const mockReadPostsQueryDto = {};
 		it("게시물 전체 조회 성공 시 게시물들을 반환한다.", async () => {
-			mockPostRepository.getPostHeaders.mockResolvedValue(
-				{}
-			);
+			mockPostRepository.getPostHeaders.mockResolvedValue({});
 			const result = await postService.findPostHeaders(
 				mockReadPostsQueryDto,
 				mockUserId
@@ -181,11 +181,11 @@ describe("PostService", () => {
 
 	describe("findPost", () => {
 		it("게시물 상세 조회 성공 시 게시물을 반환한다.", async () => {
-			const mockPost = {id:1, title: "title", content: "content"}
-			mockPostRepository.getPostHeader.mockResolvedValue(mockPost);
+			const mockPost = { id: 1, title: "title", content: "content" };
+			mockPostRepository.getPost.mockResolvedValue(mockPost);
 			const result = await postService.findPost(mockPostId, mockUserId);
 
-			expect(mockPostRepository.getPostHeader).toHaveBeenCalledWith(
+			expect(mockPostRepository.getPost).toHaveBeenCalledWith(
 				mockPostId,
 				mockUserId
 			);
@@ -193,9 +193,7 @@ describe("PostService", () => {
 		});
 		it("게시물 상세 조회 중 에러 발생 시 에러를 반환한다", async () => {
 			const mockError = new Error("게시물 상세 조회 중 오류 발생");
-			mockPostRepository.getPostHeader.mockRejectedValue(
-				mockError
-			);
+			mockPostRepository.getPost.mockRejectedValue(mockError);
 
 			await expect(
 				postService.findPost(mockPostId, mockUserId)
@@ -215,8 +213,6 @@ describe("PostService", () => {
 			};
 		});
 		it("게시물 업데이트 성공", async () => {
-
-			mockPostRepository.findOne.mockResolvedValue(mockPostId);
 			mockPostRepository.update.mockResolvedValue({
 				affected: 1,
 			});
@@ -226,23 +222,23 @@ describe("PostService", () => {
 				mockUpdateDto
 			);
 
-			expect(postRepository.findOne).toHaveBeenCalledWith({
-				where: { id: mockPostId },
-			});
 			expect(postRepository.update).toHaveBeenCalledWith(
-				{ id: mockPostId, author: {id: mockUserId} },
+				{ id: mockPostId, author: { id: mockUserId } },
 				{ title: "New Title", content: "New Content" }
 			);
 			expect(result).toEqual(true);
 		});
 
 		it("존재하지 않는 post 시 에러를 반환한다", async () => {
-			mockPostRepository.findOne.mockResolvedValue(null);
+			mockPostRepository.update.mockResolvedValue({
+				affected: 0,
+			});
+
 			await expect(
 				postService.updatePost(mockPostId, mockUpdateDto)
-			).rejects.toThrow(ServerError.notFound("게시물 수정 실패: 존재하지 않는 게시물입니다."));
-
-			expect(postRepository.update).not.toHaveBeenCalled();
+			).rejects.toThrow(
+				ServerError.reference(POST_ERROR_MESSAGES.UPDATE_POST_ERROR)
+			);
 		});
 	});
 	describe("deletePost", () => {
@@ -250,21 +246,18 @@ describe("PostService", () => {
 			jest.clearAllMocks();
 		});
 		it("게시물 삭제 성공", async () => {
-			mockPostRepository.findOne.mockResolvedValue(
-				mockPostId
-			);
-			mockPostRepository.delete.mockResolvedValue({
+			mockPostRepository.update.mockResolvedValue({
 				affected: 1,
 			});
 
-			const result = await postService.deletePost({authorId: mockUserId, postId: mockPostId});
-
-			expect(postRepository.findOne).toHaveBeenCalledWith({
-				where: { id: mockPostId },
+			const result = await postService.deletePost({
+				authorId: mockUserId,
+				postId: mockPostId,
 			});
+
 			expect(postRepository.update).toHaveBeenCalledWith(
-				{ id: mockPostId, isDelete: 0, author: {id : mockUserId} },
-				{ isDelete: 1 }
+				{ id: mockPostId, isDelete: false, author: { id: mockUserId } },
+				{ isDelete: true }
 			);
 			expect(result).toEqual(true);
 		});
@@ -275,15 +268,18 @@ describe("PostService", () => {
 				author: { id: mockUserId },
 			};
 
-			jest.spyOn(mockPostRepository, "findOne").mockResolvedValue(
-				mockDeletedPost
-			);
+			mockPostRepository.update.mockResolvedValue({
+				affected: 0,
+			});
 
 			await expect(
-				postService.deletePost({authorId: mockUserId, postId: mockPostId})
-			).rejects.toThrow(ServerError.notFound("게시글 삭제 실패: 존재하지 않는 게시물입니다."));
-
-			expect(postRepository.update).not.toHaveBeenCalled();
+				postService.deletePost({
+					authorId: mockUserId,
+					postId: mockPostId,
+				})
+			).rejects.toThrow(
+				ServerError.reference(POST_ERROR_MESSAGES.DELETE_POST_ERROR)
+			);
 		});
 	});
 });
