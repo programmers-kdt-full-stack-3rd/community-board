@@ -1,10 +1,7 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
+import ReactQuill from "react-quill";
 import TextInput from "../../component/common/TextInput";
 import { useLocation, useNavigate } from "react-router-dom";
-import {
-	InputContainer,
-	InputIndex,
-} from "../../component/Posts/Modal/PostModal.css";
 import CustomEditor from "../../component/Posts/Editer/CustomEditor";
 import Button from "../../component/common/Button";
 import { ApiCall } from "../../api/api";
@@ -14,6 +11,7 @@ import {
 } from "../../api/posts/crud";
 import { ClientError } from "../../api/errors";
 import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
+import ImageManager from "../../component/Posts/Editer/ImageManager";
 
 const UpsertPostPage: React.FC = () => {
 	const navigate = useNavigate();
@@ -27,6 +25,8 @@ const UpsertPostPage: React.FC = () => {
 
 	const [postTitle, setPostTitle] = useState<string>(title);
 	const [postContent, setPostContent] = useState<string>(content);
+
+	const quillRef = useRef<ReactQuill>(null);
 
 	const createPost = async () => {
 		const body = {
@@ -96,59 +96,48 @@ const UpsertPostPage: React.FC = () => {
 	// };
 
 	return (
-		<div
-			style={{
-				display: "flex",
-				flexDirection: "column",
-				justifyContent: "center",
-				alignItems: "center",
-				width: "100%",
-				paddingLeft: "50px",
-				paddingRight: "50px",
-				paddingTop: "10px",
-				paddingBottom: "10px",
-			}}
-		>
-			<div
-				style={{
-					display: "flex",
-					flexDirection: "column",
-					justifyContent: "center",
-					alignItems: "center",
-					width: "100%",
-					paddingLeft: "50px",
-					paddingRight: "50px",
-					paddingTop: "30px",
-					paddingBottom: "30px",
-					border: "1px solid #ccc",
-					gap: "20px",
-				}}
-			>
-				<div className={InputContainer}>
-					<div className={InputIndex}>제목</div>
-					<TextInput
-						placeholder="제목을 입력해주세요"
-						value={postTitle}
-						onChange={e => setPostTitle(e.target.value)}
-					/>
-				</div>
-				<div className={InputContainer}>
-					<div className={InputIndex}>내용</div>
-					<CustomEditor
-						content={postContent}
-						setContent={setPostContent}
-					/>
-				</div>
-				<div>
-					<Button
-						onClick={() => {
-							navigate(-1);
-						}}
-					>
-						취소
-					</Button>
-					<Button onClick={handleUpsertPost}>쓰기</Button>
-				</div>
+		<div className="flex w-[860px] flex-col items-center justify-center gap-6 px-6 py-6 text-start">
+			<TextInput
+				wrapperClassName="w-full"
+				label="제목"
+				errorMessage="제목이 비었습니다."
+				type="text"
+				id="post-title"
+				placeholder="제목을 입력하세요."
+				value={postTitle}
+				onChange={e => setPostTitle(e.target.value)}
+			/>
+
+			<div className="flex w-full flex-col gap-1">
+				<div className="ml-1 text-sm font-bold text-blue-900">내용</div>
+				<CustomEditor
+					quillRef={quillRef}
+					content={postContent}
+					setContent={setPostContent}
+				/>
+			</div>
+
+			<ImageManager
+				quillRef={quillRef}
+				editorContents={postContent}
+				setEditorContents={setPostContent}
+			/>
+
+			<div className="flex w-full items-end justify-end gap-4">
+				<Button
+					color="neutral"
+					variant="outline"
+					onClick={() => navigate(-1)}
+				>
+					취소
+				</Button>
+
+				<Button
+					color="primary"
+					onClick={handleUpsertPost}
+				>
+					작성 완료
+				</Button>
 			</div>
 		</div>
 	);

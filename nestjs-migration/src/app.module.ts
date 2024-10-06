@@ -3,7 +3,10 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { APP_GUARD } from "@nestjs/core";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { DataSource } from "typeorm";
-import { addTransactionalDataSource } from "typeorm-transactional";
+import {
+	addTransactionalDataSource,
+	getDataSourceByName,
+} from "typeorm-transactional";
 import { AdminModule } from "./admin/admin.module";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
@@ -16,6 +19,7 @@ import appConfig from "./config/app.config";
 import { typeOrmConfig } from "./config/db.config";
 import jwtConfig from "./config/jwt.config";
 import oauthConfig from "./config/oauth.config";
+import { HealthModule } from "./health-check/health.module";
 import { LikeModule } from "./like/like.module";
 import { LogModule } from "./log/log.module";
 import { OAuthModule } from "./oauth/oauth.module";
@@ -28,6 +32,7 @@ import { UserModule } from "./user/user.module";
 		ConfigModule.forRoot({
 			cache: true,
 			isGlobal: true,
+			envFilePath: process.env.NODE_ENV === "test" ? ".env.test" : ".env",
 			load: [appConfig, typeOrmConfig, jwtConfig, oauthConfig],
 		}),
 		TypeOrmModule.forRootAsync({
@@ -35,6 +40,9 @@ import { UserModule } from "./user/user.module";
 			useFactory: (configService: ConfigService) => ({
 				...configService.get("typeorm"),
 				logging: false,
+				retryAttempts: 40,
+				retryDelay: 3000,
+				connectTimeout: 120000,
 			}),
 
 			dataSourceFactory: async options => {
@@ -42,7 +50,10 @@ import { UserModule } from "./user/user.module";
 					throw new Error("Invalid options");
 				}
 
-				return addTransactionalDataSource(new DataSource(options));
+				return (
+					getDataSourceByName("default") ||
+					addTransactionalDataSource(new DataSource(options))
+				);
 			},
 			inject: [ConfigService],
 		}),
@@ -56,6 +67,7 @@ import { UserModule } from "./user/user.module";
 		CommentModule,
 		ChatModule,
 		AdminModule,
+		HealthModule,
 	],
 	controllers: [AppController],
 	providers: [

@@ -39,11 +39,8 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 	const time = postInfo.updated_at
 		? new Date(postInfo.updated_at)
 		: new Date(postInfo.created_at);
-
 	const updateTxt = postInfo.updated_at ? " (수정됨)" : "";
-
 	const isAuthor = postInfo.is_author;
-
 	const content = postInfo.content;
 
 	const isLogin = useUserStore(state => state.isLogin);
@@ -75,6 +72,12 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 			setLikes(likes + 1);
 			setUserLiked(true);
 		}
+	};
+
+	const handleUpdate = () => {
+		const url = `/post/new?postId=${postInfo.id}&title=${encodeURIComponent(postInfo.title)}&content=${encodeURIComponent(postInfo.content)}`;
+
+		navigate(url);
 	};
 
 	const handlePostDelete = useCallback(async () => {
@@ -109,6 +112,7 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 		<div>
 			{/* 모달 부분 css 수정 x*/}
 			{updateModal.isOpen ? (
+				// TODO: 편집기 작업 완료 후, 도달할 수 없는 분기 제거
 				<PostModal
 					close={() => updateModal.close()}
 					originalPostData={postInfo}
@@ -140,64 +144,58 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 					<div className="text-left text-2xl font-bold">
 						<div className="mb-2 mt-4">{postInfo.title}</div>
 					</div>
+
 					<div className="mb-4 flex items-center justify-between">
 						<div className="flex items-center gap-2 text-lg">
 							<div>{postInfo.author_nickname}</div>
 							<div>{dateToStr(time) + updateTxt}</div>
 						</div>
+
 						<div className="flex items-center gap-2 text-base">
 							<IoEyeOutline />
 							<div>{postInfo.views}</div>
+
 							<FaRegThumbsUp />
 							<div>{postInfo.likes}</div>
+
 							{isAuthor ? (
-								<Button
-									size="small"
-									onClick={() => {
-										navigate(
-											`/post/new?postId=${postInfo.id}&title=${postInfo.title}&content=${postInfo.content}`
-										);
-									}}
-									variant="text"
-									color="neutral"
-								>
-									수정
-								</Button>
-							) : null}
-							{isAuthor ? (
-								<Button
-									size="small"
-									onClick={deleteModal.open}
-									variant="text"
-									color="danger"
-								>
-									삭제
-								</Button>
+								<>
+									<Button
+										size="small"
+										onClick={handleUpdate}
+										variant="text"
+										color="neutral"
+									>
+										수정
+									</Button>
+									<Button
+										size="small"
+										onClick={deleteModal.open}
+										variant="text"
+										color="danger"
+									>
+										삭제
+									</Button>
+								</>
 							) : null}
 						</div>
 					</div>
 				</div>
 			</div>
+
 			<div className="flex flex-col">
 				<div
-					className="flex h-full w-[780px] resize-none flex-col text-start"
+					className="post-body h-full w-[780px] resize-none text-start text-base"
 					dangerouslySetInnerHTML={{ __html: content }}
 				/>
-				<div
-					className={`mt-10 flex flex-col items-center justify-center`}
-				>
+
+				<div className="mt-10 flex flex-col items-center justify-center">
 					<div
-						className="flex flex-col items-center"
+						className={`flex flex-col items-center ${userLiked ? "text-green-500" : "text-gray-600 dark:text-gray-200"}`}
 						onClick={handleLike}
 					>
-						<FaRegThumbsUp
-							className={`text-3xl ${userLiked ? "text-green-500" : "text-gray-600 dark:text-gray-200"}`}
-						/>
-						<div
-							className={`text-1xl ${userLiked ? "text-green-500" : "text-gray-600 dark:text-gray-200"}`}
-						>
-							{likes}
-						</div>
+						<FaRegThumbsUp className="text-3xl" />
+						<div className="text-xl">{likes}</div>
 					</div>
 				</div>
 			</div>
