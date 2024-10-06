@@ -113,6 +113,7 @@ export class PostRepository extends Repository<Post> {
 	async getPost(postId: number, userId: number): Promise<GetPostDto> {
 		const authorId = userId;
 		const queryBuilder = this.createQueryBuilder("post")
+			.leftJoin("post.author", "user")
 			.select([
 				"post.id as id",
 				"title",
@@ -131,15 +132,30 @@ export class PostRepository extends Repository<Post> {
 			])
 			.addSelect(
 				subQuery =>
-					subQuery.select("COUNT(*)").from(Like, "post_likes"),
+					subQuery
+						.select("COUNT(*)")
+						.from(Like, "likes")
+						.where("likes.post_id = post.id"),
 				"likes"
 			)
-			.leftJoin("post.author", "user")
-			.where("post.is_delete = :isPostDeleted", { isPostDeleted: false })
+			.where("post.is_delete = :isDelete", { isDelete: false })
 			.andWhere("user.is_delete = :isUserDeleted", {
 				isUserDeleted: false,
 			})
 			.andWhere("post.id = :postId", { postId: postId })
+			.andWhere(
+				new Brackets(qb => {
+					qb.where("post.is_private = :isPrivateFalse", {
+						isPrivateFalse: false,
+					}).orWhere(
+						"post.is_private = :isPrivateTrue AND post.author_id = :authorId",
+						{
+							isPrivateTrue: true,
+							authorId: userId,
+						}
+					);
+				})
+			)
 			.setParameters({ authorId, userId });
 
 		const result = await queryBuilder.getRawOne();
