@@ -27,7 +27,8 @@ export class PostService {
 		let isTransactionStarted = false;
 
 		try {
-			let { doFilter, content, title, authorId } = createPostDto;
+			let { doFilter, content, category_id, title, authorId } =
+				createPostDto;
 
 			if (doFilter) {
 				const regex = getRegex(regexs);
@@ -38,6 +39,7 @@ export class PostService {
 			const newPost = Object.assign(new Post(), {
 				title,
 				content,
+				category: category_id,
 				author: authorId,
 			});
 			const logTitle = makeLogTitle(title);
@@ -70,11 +72,11 @@ export class PostService {
 	}
 
 	async findPostHeaders(
-		readPostsQueryDto: ReadPostsQuery,
+		readPostsQuery: ReadPostsQuery,
 		userId: number
 	): Promise<GetPostHeadersDto[]> {
 		const postHeaders = await this.postRepository.getPostHeaders(
-			readPostsQueryDto,
+			readPostsQuery,
 			userId
 		);
 

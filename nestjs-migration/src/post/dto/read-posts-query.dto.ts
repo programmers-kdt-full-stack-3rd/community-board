@@ -11,6 +11,9 @@ export class ReadPostsQuery {
 	keyword?: string;
 
 	@IsOptional()
+	category_id?: string;
+
+	@IsOptional()
 	sortBy?: SortBy;
 }
 

@@ -19,14 +19,17 @@ export class PostRepository extends Repository<Post> {
 		readPostsQueryDto: ReadPostsQuery,
 		userId: number
 	): Promise<GetPostHeadersDto[]> {
-		let { index, perPage, keyword, sortBy } = readPostsQueryDto;
+		let { index, perPage, category_id, keyword, sortBy } =
+			readPostsQueryDto;
 		index = index > 0 ? index - 1 : 0;
 
 		const queryBuilder = this.createQueryBuilder("post")
 			.leftJoinAndSelect("post.author", "user")
+			.leftJoinAndSelect("post.category", "pc")
 			.select([
 				"post.id as id",
 				"title",
+				"pc.name as category",
 				"user.nickname as author_nickname",
 				"post.created_at as created_at",
 				"views",
@@ -57,6 +60,12 @@ export class PostRepository extends Repository<Post> {
 		if (keyword) {
 			queryBuilder.andWhere("post.title LIKE :keyword", {
 				keyword: `%${keyword.trim()}%`,
+			});
+		}
+
+		if (category_id) {
+			queryBuilder.andWhere("post.category_id = :categoryId", {
+				categoryId: category_id,
 			});
 		}
 
@@ -117,6 +126,7 @@ export class PostRepository extends Repository<Post> {
 				"post.id as id",
 				"title",
 				"content",
+				"pc.name as category",
 				"author_id",
 				"user.nickname as author_nickname",
 				"(post.author_id = :authorId) AS is_author",
@@ -135,6 +145,7 @@ export class PostRepository extends Repository<Post> {
 				"likes"
 			)
 			.leftJoin("post.author", "user")
+			.leftJoin("post.category", "pc")
 			.where("post.is_delete = :isPostDeleted", { isPostDeleted: false })
 			.andWhere("user.is_delete = :isUserDeleted", {
 				isUserDeleted: false,

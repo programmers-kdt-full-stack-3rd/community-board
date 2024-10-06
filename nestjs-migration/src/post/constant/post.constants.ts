@@ -5,6 +5,8 @@ export const POST_ERROR_MESSAGES = {
 	DELETE_POST_ERROR: "게시글 삭제 실패",
 	TITLE_REQUIRED: "게시글 제목을 입력해주세요",
 	CONTENT_REQUIRED: "게시글 내용을 입력해주세요",
-	UPDATE_DATA_REQUIRED: "수정 사항이 없습니다.",
-	INVALID_POST_ID: "유효하지 않은 게시글 아이디 입니다.",
+	CATEGORY_ID_REQUIRED: "카테고리 아이디를 입력해주세요",
+	INVALID_CATEGORY_ID: "잘못된 카테고리 아이디 입니다",
+	UPDATE_DATA_REQUIRED: "수정 사항이 없습니다",
+	INVALID_POST_ID: "유효하지 않은 게시글 아이디 입니다",
 };
