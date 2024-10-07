@@ -13,6 +13,7 @@ import {
 import { ClientError } from "../../api/errors";
 import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
 import ImageManager from "../../component/Posts/Editer/ImageManager";
+import { sanitizePostContent } from "../../utils/sanitizePostContent";
 
 const UpsertPostPage: React.FC = () => {
 	const navigate = useNavigate();
@@ -61,7 +62,7 @@ const UpsertPostPage: React.FC = () => {
 	const createPost = async () => {
 		const body = {
 			title: postTitle,
-			content: postContent,
+			content: sanitizePostContent(postContent),
 			doFilter: false,
 		};
 
@@ -88,7 +89,7 @@ const UpsertPostPage: React.FC = () => {
 
 		const body = {
 			title: postTitle,
-			content: postContent,
+			content: sanitizePostContent(postContent),
 			doFilter: false,
 		};
 
