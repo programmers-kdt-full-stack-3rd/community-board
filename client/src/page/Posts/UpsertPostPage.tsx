@@ -10,7 +10,6 @@ import {
 	sendCreatePostRequest,
 	sendUpdatePostRequest,
 } from "../../api/posts/crud";
-import { ClientError } from "../../api/errors";
 import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
 import ImageManager from "../../component/Posts/Editer/ImageManager";
 import { sanitizePostContent } from "../../utils/sanitizePostContent";
@@ -20,24 +19,24 @@ const UpsertPostPage: React.FC = () => {
 	const location = useLocation();
 	const queryParams = new URLSearchParams(location.search);
 	const postId = queryParams.get("postId") || "";
-	const title = queryParams.get("title") || "";
-	const content = queryParams.get("content") || "";
+	const originalTitle = queryParams.get("title") || "";
+	const originalContent = queryParams.get("content") || "";
 
 	const errorModal = useGlobalErrorModal();
 
-	const [postTitle, setPostTitle] = useState<string>(title);
-	const [postContent, setPostContent] = useState<string>(content);
+	const [title, setTitle] = useState<string>(originalTitle);
+	const [content, setContent] = useState<string>(originalContent);
 
 	const quillRef = useRef<ReactQuill>(null);
 
-	const [isPostTitleValid, setIsPostTitleValid] = useState<
-		boolean | undefined
-	>(undefined);
+	const [isTitleValid, setIsTitleValid] = useState<boolean | undefined>(
+		originalTitle === "" ? undefined : true
+	);
 
-	const isPostContentValid = useMemo(() => {
+	const isContentValid = useMemo(() => {
 		const delta = quillRef.current?.getEditor()?.getContents();
 
-		if (!postContent || !delta?.ops?.length) {
+		if (!content || !delta?.ops?.length) {
 			return undefined;
 		}
 
@@ -50,19 +49,19 @@ const UpsertPostPage: React.FC = () => {
 		}
 
 		return false;
-	}, [quillRef.current, postContent]);
+	}, [quillRef.current, content]);
 
 	const handleTitleChange = (event: ChangeEvent<HTMLInputElement>) => {
 		const { value } = event.target;
 
-		setIsPostTitleValid(!!value);
-		setPostTitle(value);
+		setIsTitleValid(!!value);
+		setTitle(value);
 	};
 
 	const createPost = async () => {
 		const body = {
-			title: postTitle,
-			content: sanitizePostContent(postContent),
+			title,
+			content: sanitizePostContent(content),
 			doFilter: false,
 		};
 
@@ -75,7 +74,7 @@ const UpsertPostPage: React.FC = () => {
 			}
 		);
 
-		if (res instanceof ClientError) {
+		if (res instanceof Error) {
 			return;
 		}
 
@@ -88,8 +87,8 @@ const UpsertPostPage: React.FC = () => {
 		}
 
 		const body = {
-			title: postTitle,
-			content: sanitizePostContent(postContent),
+			title,
+			content: sanitizePostContent(content),
 			doFilter: false,
 		};
 
@@ -102,7 +101,7 @@ const UpsertPostPage: React.FC = () => {
 			}
 		);
 
-		if (res instanceof ClientError) {
+		if (res instanceof Error) {
 			return;
 		}
 
@@ -111,14 +110,14 @@ const UpsertPostPage: React.FC = () => {
 
 	// Upsert : update + insert
 	const handleUpsertPost = () => {
-		if (!postTitle.trim()) {
-			setIsPostTitleValid(false);
+		if (!title.trim()) {
+			setIsTitleValid(false);
 			return;
 		}
 
-		if (!isPostContentValid) {
+		if (!isContentValid) {
 			// 내용을 비웠을 때와 동일한 내용을 입력하여 유효성 검사 재발동, 메시지 출력
-			setPostContent("<p><br><p>");
+			setContent("<p><br><p>");
 			return;
 		}
 
@@ -134,12 +133,12 @@ const UpsertPostPage: React.FC = () => {
 			<TextInput
 				wrapperClassName="w-full"
 				label="제목"
-				isValid={isPostTitleValid}
+				isValid={isTitleValid}
 				errorMessage="제목이 비었습니다."
 				type="text"
 				id="post-title"
 				placeholder="제목을 입력하세요."
-				value={postTitle}
+				value={title}
 				onChange={handleTitleChange}
 			/>
 
@@ -148,10 +147,10 @@ const UpsertPostPage: React.FC = () => {
 					<div
 						className={clsx(
 							"font-bold",
-							isPostContentValid === undefined && "text-blue-900",
-							isPostContentValid === true &&
+							isContentValid === undefined && "text-blue-900",
+							isContentValid === true &&
 								"text-blue-900 after:ml-1 after:content-['✔']",
-							isPostContentValid === false &&
+							isContentValid === false &&
 								"text-red-600 after:ml-1 after:content-['✘']"
 						)}
 					>
@@ -160,7 +159,7 @@ const UpsertPostPage: React.FC = () => {
 					<div
 						className={clsx(
 							"text-red-600",
-							isPostContentValid !== false && "hidden"
+							isContentValid !== false && "hidden"
 						)}
 					>
 						내용을 입력하세요.
@@ -169,15 +168,15 @@ const UpsertPostPage: React.FC = () => {
 
 				<CustomEditor
 					quillRef={quillRef}
-					content={postContent}
-					setContent={setPostContent}
+					content={content}
+					setContent={setContent}
 				/>
 			</div>
 
 			<ImageManager
 				quillRef={quillRef}
-				editorContents={postContent}
-				setEditorContents={setPostContent}
+				editorContents={content}
+				setEditorContents={setContent}
 			/>
 
 			<div className="flex w-full items-end justify-end gap-4">
