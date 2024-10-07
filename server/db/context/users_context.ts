@@ -303,6 +303,28 @@ export const updateProfile = async (
 	}
 };
 
+export const updatePassword = async (newPassword: string, userId: number) => {
+	let conn: PoolConnection | null = null;
+	try {
+		const sql = `UPDATE users SET password=? WHERE id=? AND is_delete=FALSE `;
+		const value = [newPassword, userId];
+
+		conn = await pool.getConnection();
+		const [rows]: [ResultSetHeader, FieldPacket[]] = await conn.query(
+			sql,
+			value
+		);
+
+		if (rows.affectedRows === 0) {
+			throw ServerError.badRequest("회원정보 수정 실패");
+		}
+	} catch (err: any) {
+		throw err;
+	} finally {
+		if (conn) conn.release();
+	}
+};
+
 export const registerUserEmail = async (userData: IUpdateUserInfo) => {
 	if (!userData.email) {
 		throw ServerError.etcError(

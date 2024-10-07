@@ -9,6 +9,7 @@ import {
 	deleteUser,
 	getUserById,
 	registerUserEmail,
+	updatePassword,
 	updateProfile,
 	updateUser,
 } from "../db/context/users_context";
@@ -18,7 +19,7 @@ import { makeTempToken } from "../utils/token";
 import { makeHashedPassword } from "../utils/crypto";
 import { getKstNow } from "../utils/getKstNow";
 import { refreshOAuthAccessToken, revokeOAuth } from "../utils/oauth/oauth";
-import { IUpdateProfileRequest } from "shared";
+import { IUpdatePasswordRequest, IUpdateProfileRequest } from "shared";
 
 export const handleJoinUser = async (
 	req: Request,
@@ -174,6 +175,40 @@ export const handleUpdateProfile = async (
 		const success = await updateProfile(info, userId);
 
 		res.status(200).json({ success });
+	} catch (err: any) {
+		next(err);
+	}
+};
+
+export const handleUpdatePassword = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		const passwords: IUpdatePasswordRequest = req.body;
+		const userId = req.userId;
+
+		// 기존 비밀번호가 일치하는 지 확인
+		const user = await getUserById(userId);
+
+		const hashedPassword = await makeHashedPassword(
+			passwords.originPassword,
+			user.salt
+		);
+
+		if (user.password !== hashedPassword) {
+			throw ServerError.badRequest("기존 비밀번호가 일치하지 않습니다.");
+		}
+		// 일치하면 새 패스워드 암호화 -> 비밀번호 업데이트
+		const newHashedPassword = await makeHashedPassword(
+			passwords.newPassword,
+			user.salt
+		);
+
+		await updatePassword(newHashedPassword, userId);
+
+		res.status(200).json({ message: "비밀번호 변경 성공" });
 	} catch (err: any) {
 		next(err);
 	}
