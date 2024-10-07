@@ -5,6 +5,7 @@ import "react-quill/dist/quill.snow.css";
 import { ApiCall } from "../../../api/api";
 import { uploadImageRequest } from "../../../api/posts/crud";
 import { useGlobalErrorModal } from "../../../state/GlobalErrorModalStore";
+import { getImageDimensionsFromBlob } from "../../../utils/getImageDimensions";
 import { toolbarColors } from "./toolbarColors";
 
 /*
@@ -78,6 +79,8 @@ const CustomEditorBase: React.FC<IProps> = ({
 				return;
 			}
 
+			const { width, height } = await getImageDimensionsFromBlob(file);
+
 			const quill = quillRef.current?.getEditor();
 			const selectionIndex =
 				quill?.getSelection()?.index ?? quill?.getLength() ?? 0;
@@ -85,7 +88,7 @@ const CustomEditorBase: React.FC<IProps> = ({
 			quill?.setSelection(selectionIndex, 0);
 			quill?.clipboard.dangerouslyPasteHTML(
 				selectionIndex,
-				`<img src="${url}" alt="사용자 업로드 이미지">`
+				`<img src="${url}" width="${width}" height="${height}">`
 			);
 		};
 	}, [upload, quillRef]);
