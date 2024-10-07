@@ -1,7 +1,7 @@
 import { IKafkaMessageDTO, IMessage, ISocketMessageDTO } from "shared";
 import { Socket } from "socket.io";
 
-import { sendMessage } from "../services/kafka_service";
+import { processMessage } from "../services/chat_service";
 
 // 메세지 이벤트
 export const handleMessageEvents = (socket: Socket) => {
@@ -14,7 +14,7 @@ export const handleMessageEvents = (socket: Socket) => {
 		};
 
 		try {
-			await sendMessage(msg);
+			await processMessage(msg);
 			callback(true);
 
 			// TODO : 캐시 저장

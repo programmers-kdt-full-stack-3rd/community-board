@@ -15,7 +15,7 @@ import {
 	getMyRoomsToApi,
 	joinRoomToApi,
 } from "../utils/api";
-import { sendMessage } from "../services/kafka_service";
+import { processMessage } from "../services/chat_service";
 
 // 채팅방 이벤트
 export const handleRoomEvents = (socket: Socket) => {
@@ -84,7 +84,7 @@ export const handleRoomEvents = (socket: Socket) => {
 				};
 
 				// kafka 시스템 메세지 저장
-				await sendMessage(message);
+				await processMessage(message);
 
 				// join room
 				socket.join(`${roomId}`);
