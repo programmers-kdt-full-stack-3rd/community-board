@@ -1,4 +1,4 @@
-import { IUpdateProfileRequest } from "shared";
+import { IUpdatePasswordRequest, IUpdateProfileRequest } from "shared";
 import { HttpMethod, convertToBody, httpRequest } from "../api";
 
 export const getUserMyself = async () => {
@@ -45,6 +45,16 @@ export const sendPutUpdateUserRequest = async (body: object) => {
 export const sendPatchProfileRequest = async (body: IUpdateProfileRequest) => {
 	return await httpRequest(
 		"user/profile",
+		HttpMethod.PATCH,
+		convertToBody(body)
+	);
+};
+
+export const sendPatchPasswordRequest = async (
+	body: IUpdatePasswordRequest
+) => {
+	return await httpRequest(
+		"user/password",
 		HttpMethod.PATCH,
 		convertToBody(body)
 	);
