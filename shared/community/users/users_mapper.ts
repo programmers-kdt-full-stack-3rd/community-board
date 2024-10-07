@@ -1,5 +1,5 @@
 import { TOAuthProvider } from "../oauth/oauths";
-import { INonSensitiveUser, IUser, IUserProfile } from "./users";
+import { INonSensitiveUser, IUserProfile } from "./users";
 
 export const mapResponseToNonSensitiveUser = (
 	response: any
@@ -20,6 +20,5 @@ export const mapDBToUserProfile = (data: any): IUserProfile => {
 		email: data.email,
 		nickname: data.nickname,
 		imgSrc: data.imgSrc,
-		introduction: data.introduction,
 	};
 };

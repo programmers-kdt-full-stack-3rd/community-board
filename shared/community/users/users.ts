@@ -31,7 +31,6 @@ export interface IUserProfile {
 	email: string;
 	nickname: string;
 	imgSrc: string;
-	introduction: string;
 }
 
 export interface IPagenation {

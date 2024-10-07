@@ -7,7 +7,6 @@ CREATE TABLE IF NOT EXISTS users (
     salt TEXT,
     role_id INTEGER NOT NULL DEFAULT 2,
     img_src TEXT,
-    introduction TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
 );
