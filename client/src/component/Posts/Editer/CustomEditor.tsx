@@ -1,3 +1,4 @@
+import { ImageActions } from "@xeger/quill-image-actions";
 import React, { SetStateAction, useCallback, useMemo } from "react";
 import ReactQuill, { Quill } from "react-quill";
 import "react-quill/dist/quill.snow.css";
@@ -26,6 +27,9 @@ interface IProps {
 // 다크모드 호환을 위해 인라인 스타일 대신 클래스로 컬러 적용
 const ColorClass = Quill.import("attributors/class/color");
 Quill.register(ColorClass, true);
+
+// 이미지 리사이징 확장 등록
+Quill.register("modules/imageActions", ImageActions);
 
 const CustomEditorBase: React.FC<IProps> = ({
 	quillRef,
@@ -86,6 +90,21 @@ const CustomEditorBase: React.FC<IProps> = ({
 		};
 	}, [upload, quillRef]);
 
+	const quillFormats = useMemo(
+		() => [
+			"font",
+			"size",
+			"bold",
+			"underline",
+			"color",
+			"code-block",
+			"image",
+			"width",
+			"height",
+		],
+		[]
+	);
+
 	const quillModules = useMemo(
 		() => ({
 			toolbar: {
@@ -101,6 +120,8 @@ const CustomEditorBase: React.FC<IProps> = ({
 					image: handleImageUpload,
 				},
 			},
+
+			imageActions: {},
 		}),
 		[handleImageUpload]
 	);
@@ -108,6 +129,7 @@ const CustomEditorBase: React.FC<IProps> = ({
 	return (
 		<ReactQuill
 			ref={quillRef}
+			formats={quillFormats}
 			modules={quillModules}
 			value={content}
 			onChange={setContent}
