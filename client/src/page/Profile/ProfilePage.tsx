@@ -1,50 +1,50 @@
-import {
-	ChangeEvent,
-	useEffect,
-	useLayoutEffect,
-	useRef,
-	useState,
-} from "react";
+import { ChangeEvent, useRef, useState } from "react";
 
-import { IUserProfile } from "shared";
 import Button from "../../component/common/Button";
 
 import { LiaPenSolid } from "react-icons/lia";
 import ProfileItem from "../../component/Profile/ProfileItem";
 
-import profileIcon from "../../assets/icons/profile-icon.svg";
+import TextInput from "../../component/common/TextInput";
+import { useUserStore } from "../../state/store";
+import { ApiCall } from "../../api/api";
+import { uploadImageRequest } from "../../api/posts/crud";
+import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
+import { ClientError } from "../../api/errors";
 
 const ProfilePage = () => {
-	const [userInfo, setUserInfo] = useState<IUserProfile>();
+	const globalErrorModal = useGlobalErrorModal();
+	const { nickname, email, imgUrl } = useUserStore();
+	// const { setImgUrl, setNickName } = useUserStore.use.actions();
 	const imageInputRef = useRef<HTMLInputElement>(null);
+
+	const [newNickname, setNewNickname] = useState<string>(nickname);
+	const [newImgUrl, setNewImgUrl] = useState<string>(imgUrl);
+
 	const [profileEdit, setProfileEdit] = useState<boolean>(false);
 
-	const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
+	const handleFileUpload = async (e: ChangeEvent<HTMLInputElement>) => {
 		const files = e.target.files;
 		if (files) {
-			// TODO : 서버로 업로드하고 url 받기
-			console.log("선택한 파일:", files[0]);
-			setUserInfo({ ...userInfo! });
+			const res = await ApiCall(
+				() => uploadImageRequest(files[0]),
+				err =>
+					globalErrorModal.openWithMessageSplit({
+						messageWithTitle: err.message,
+					})
+			);
+
+			if (res instanceof ClientError) {
+				return;
+			}
+
+			setNewImgUrl(res.imgUrl);
 		}
 	};
 
-	useLayoutEffect(() => {
-		// TODO : 프로필 가져오는 API 만들기
-		setUserInfo({
-			id: 1,
-			email: "gkgk01420@naver.com",
-			nickname: "헝컹이",
-			imgSrc: "",
-		});
-
-		// TODO : 사용자 블로그, 사용자 기술 스택 정보 api (나중에)
-	}, []);
-
-	useEffect(() => {}, [imageInputRef.current?.files![0]]);
+	// useEffect(() => {}, [imageInputRef.current?.files![0]]);
 
 	const renderProfileImage = () => {
-		const src = userInfo?.imgSrc ? userInfo?.imgSrc : profileIcon;
-
 		if (profileEdit) {
 			return (
 				<button
@@ -53,7 +53,7 @@ const ProfilePage = () => {
 						width: "100%",
 						height: "100%",
 						borderRadius: "50%",
-						backgroundImage: `url(${src})`,
+						backgroundImage: `url(${newImgUrl})`,
 						backgroundSize: "cover", // 이미지 크기 조정
 						backgroundPosition: "center", // 이미지 중앙 정렬
 					}}
@@ -61,19 +61,7 @@ const ProfilePage = () => {
 						imageInputRef.current?.click();
 					}}
 				>
-					<LiaPenSolid
-						style={{
-							position: "absolute",
-							bottom: "0px",
-							right: "0px",
-							width: "35px",
-							height: "35px",
-							borderRadius: "50%",
-							backgroundColor: "white",
-							color: "black",
-							padding: "5px",
-						}}
-					/>
+					<LiaPenSolid className="absolute bottom-0 right-0 h-[35px] w-[35px] rounded-full border border-black bg-white p-[5px] text-black dark:border-none" />
 					<input
 						ref={imageInputRef}
 						type="file"
@@ -86,7 +74,7 @@ const ProfilePage = () => {
 		} else {
 			return (
 				<img
-					src={src}
+					src={imgUrl}
 					style={{
 						width: "100%",
 						height: "100%",
@@ -97,6 +85,16 @@ const ProfilePage = () => {
 			);
 		}
 	};
+
+	// const checkNickname = async () => {
+	// 	const res = await ApiCall(
+	// 		() => sendPostCheckNicknameRequest({}),
+	// 		err =>
+	// 			globalErrorModal.openWithMessageSplit({
+	// 				messageWithTitle: err.message,
+	// 			})
+	// 	);
+	// };
 
 	return (
 		<div
@@ -127,71 +125,115 @@ const ProfilePage = () => {
 				>
 					{renderProfileImage()}
 				</div>
-				<div
-					style={{
-						display: "flex",
-						width: "350px",
-						flexDirection: "column",
-						justifyContent: "center",
-					}}
-				>
+				{profileEdit ? (
 					<div
 						style={{
 							display: "flex",
-							flexDirection: "row",
+							width: "350px",
+							flexDirection: "column",
+							justifyContent: "center",
+							gap: "10px",
+						}}
+					>
+						<TextInput
+							label={"닉네임"}
+							value={newNickname}
+							onChange={e => {
+								setNewNickname(e.target.value);
+							}}
+							placeholder="닉네임 입력하기"
+							actionButton={
+								<Button
+									className="bg-customGray"
+									size="medium"
+									color="neutral"
+									onClick={() => {
+										// 닉네임 중복 확인 API 추가하기
+									}}
+								>
+									중복 확인
+								</Button>
+							}
+						/>
+						<Button
+							className="width-100% bg-blue-900"
+							size="medium"
+							color="action"
+							onClick={() => {
+								// 닉네임 중복인지 check
+								// userInfo 수정 요청
+							}}
+						>
+							수정하기
+						</Button>
+					</div>
+				) : (
+					<div
+						style={{
+							display: "flex",
+							width: "350px",
+							flexDirection: "column",
+							justifyContent: "center",
 						}}
 					>
 						<div
 							style={{
 								display: "flex",
-								justifyContent: "flex-start",
-								alignContent: "center",
-								padding: "10px",
-								fontWeight: "bold",
+								flexDirection: "row",
 							}}
 						>
-							name
+							<div
+								style={{
+									display: "flex",
+									justifyContent: "flex-start",
+									alignContent: "center",
+									padding: "10px",
+									fontWeight: "bold",
+								}}
+							>
+								닉네임
+							</div>
+							<div
+								style={{
+									display: "flex",
+									justifyContent: "flex-start",
+									alignContent: "center",
+									padding: "10px",
+								}}
+							>
+								{nickname}
+							</div>
 						</div>
 						<div
 							style={{
 								display: "flex",
-								justifyContent: "flex-start",
-								alignContent: "center",
-								padding: "10px",
+								flexDirection: "row",
 							}}
 						>
-							{userInfo?.nickname}
+							<div
+								style={{
+									display: "flex",
+									justifyContent: "flex-start",
+									alignContent: "center",
+									padding: "10px",
+									fontWeight: "bold",
+								}}
+							>
+								이메일
+							</div>
+							<div
+								style={{
+									display: "flex",
+									justifyContent: "flex-start",
+									alignContent: "center",
+									padding: "10px",
+								}}
+							>
+								{email}
+							</div>
 						</div>
 					</div>
-					<div
-						style={{
-							display: "flex",
-							flexDirection: "row",
-						}}
-					>
-						<div
-							style={{
-								display: "flex",
-								justifyContent: "flex-start",
-								alignContent: "center",
-								padding: "10px",
-								fontWeight: "bold",
-							}}
-						>
-							email
-						</div>
-						<div
-							style={{
-								display: "flex",
-								justifyContent: "flex-start",
-								alignContent: "center",
-								padding: "10px",
-							}}
-						>
-							{userInfo?.email}
-						</div>
-					</div>
-				</div>
+				)}
 			</ProfileItem>
 			<ProfileItem
 				title="비밀번호"
@@ -208,7 +250,13 @@ const ProfilePage = () => {
 				>
 					비밀번호 수정하기
 				</div>
-				<Button>수정하기</Button>
+				<Button
+					className="bg-blue-900"
+					size="medium"
+					color="action"
+				>
+					수정하기
+				</Button>
 			</ProfileItem>
 			<ProfileItem
 				title="회원탈퇴"

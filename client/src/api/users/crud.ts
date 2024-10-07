@@ -24,6 +24,15 @@ export const sendPOSTCheckPasswordRequest = async (body: object) => {
 	);
 };
 
+// 닉네임 중복 확인
+export const sendPostCheckNicknameRequest = async (body: object) => {
+	return await httpRequest(
+		"user/check-nickname",
+		HttpMethod.POST,
+		convertToBody(body)
+	);
+};
+
 export const sendPostLogoutRequest = async () => {
 	return await httpRequest("user/logout", HttpMethod.POST);
 };
