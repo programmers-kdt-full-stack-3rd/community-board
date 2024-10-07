@@ -19,6 +19,6 @@ export const mapDBToUserProfile = (data: any): IUserProfile => {
 		id: data.id,
 		email: data.email,
 		nickname: data.nickname,
-		imgSrc: data.imgSrc,
+		imgUrl: data.imgUrl,
 	};
 };

@@ -30,7 +30,7 @@ export interface IUserProfile {
 	id: number;
 	email: string;
 	nickname: string;
-	imgSrc: string;
+	imgUrl: string;
 }
 
 export interface IPagenation {

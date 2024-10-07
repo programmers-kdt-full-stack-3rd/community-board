@@ -79,9 +79,9 @@ const Login: React.FC = () => {
 		// TODO: isEmailRegistered를 로그인 시 받아서 저장하도록 수정 필요.
 		//       수정 후 DropdownMenu 컴포넌트의 유저 정보 조회 API 호출 제거.
 		if (result.result) {
-			const { nickname, loginTime } = result.result;
+			const { nickname, email, imgUrl, loginTime } = result.result;
 
-			setLoginUser(nickname, loginTime);
+			setLoginUser(nickname, loginTime, email, imgUrl);
 
 			const redirect =
 				new URLSearchParams(location.search).get("redirect") || "/";
