@@ -4,19 +4,18 @@ import { useUserStore } from "../../state/store";
 import { ApiCall } from "../../api/api";
 import { getUserMyself } from "../../api/users/crud";
 import { MdOutlineAdminPanelSettings } from "react-icons/md";
-import { AiOutlineUserDelete } from "react-icons/ai";
 import { IoShareSocialOutline } from "react-icons/io5";
 import { MdOutlineAttachEmail } from "react-icons/md";
 import { FaRegUserCircle } from "react-icons/fa";
 
 interface IDropdownMenuProps {
-	onDeleteAccount: () => void;
+	ref: React.RefObject<HTMLDivElement>;
 }
 
 const DropdownMenu: ForwardRefRenderFunction<
 	HTMLDivElement,
 	IDropdownMenuProps
-> = ({ onDeleteAccount }, ref) => {
+> = ({ ref }) => {
 	const navigate = useNavigate();
 
 	const isEmailRegistered = useUserStore.use.isEmailRegistered();
@@ -87,14 +86,6 @@ const DropdownMenu: ForwardRefRenderFunction<
 				>
 					<IoShareSocialOutline />
 					로그인 연동
-				</div>
-
-				<div
-					className="flex flex-row items-center gap-2 py-2 hover:opacity-70"
-					onClick={onDeleteAccount}
-				>
-					<AiOutlineUserDelete />
-					회원 탈퇴
 				</div>
 
 				{/* 권한 확인 과정 구현 필요 */}

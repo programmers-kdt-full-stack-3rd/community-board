@@ -12,7 +12,6 @@ import { sendPostLogoutRequest } from "../../api/users/crud";
 import { useUserStore } from "../../state/store";
 import { useEffect, useRef, useState } from "react";
 import DropdownMenu from "./DropdownMenu";
-import { useModal } from "../../hook/useModal";
 import { ApiCall } from "../../api/api";
 import { ClientError } from "../../api/errors";
 import { useChatRoom } from "../../state/ChatRoomStore";
@@ -21,7 +20,6 @@ import { isDevMode } from "../../utils/detectMode"; // TODO: UI 리팩터링 완
 import { MdDarkMode } from "react-icons/md";
 import useThemeStore from "../../state/ThemeStore";
 import { MdLightMode } from "react-icons/md";
-import ConfirmModal from "../common/Modal/ConfirmModal";
 
 const Header: React.FC = () => {
 	const navigate = useNavigate();
@@ -34,9 +32,6 @@ const Header: React.FC = () => {
 	const dropdownMenuRef = useRef<HTMLDivElement>(null);
 	const { isOpen, open, close } = useChatAside();
 	const { isDarkMode, toggleDarkMode } = useThemeStore();
-
-	// Modal hooks
-	const accountDeleteModal = useModal();
 
 	// 드랍다운 메뉴 이외 클릭시 드랍다운 메뉴 닫기
 	useEffect(() => {
@@ -104,31 +99,8 @@ const Header: React.FC = () => {
 		}
 	};
 
-	const handleAccountDeleteTry = () => {
-		accountDeleteModal.open();
-	};
-
-	const handleAccountDeleteAccept = () => {
-		accountDeleteModal.close();
-		navigate(`/checkPassword?next=accountDelete`);
-	};
-
 	return (
 		<div>
-			<ConfirmModal
-				variant="warning"
-				isOpen={accountDeleteModal.isOpen}
-				okButtonColor="danger"
-				okButtonLabel="계속 진행"
-				onAccept={handleAccountDeleteAccept}
-				onClose={accountDeleteModal.close}
-			>
-				<ConfirmModal.Title>회원 탈퇴 확인</ConfirmModal.Title>
-				<ConfirmModal.Body>
-					회원 탈퇴 절차를 진행할까요?
-				</ConfirmModal.Body>
-			</ConfirmModal>
-
 			<div className="dark:bg-customGray sticky top-16 z-20 flex h-16 items-center bg-blue-900 py-5 text-sm sm:top-0">
 				<nav className="mx-auto flex w-full max-w-7xl gap-x-10 px-4 lg:px-0">
 					<div className="ml-2 flex items-center">
@@ -231,10 +203,7 @@ const Header: React.FC = () => {
 								)}
 
 								{isUserMenuOpen && isLogin && (
-									<DropdownMenu
-										ref={dropdownMenuRef}
-										onDeleteAccount={handleAccountDeleteTry}
-									/>
+									<DropdownMenu ref={dropdownMenuRef} />
 								)}
 							</div>
 						</div>

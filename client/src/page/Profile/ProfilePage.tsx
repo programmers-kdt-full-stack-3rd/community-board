@@ -16,8 +16,13 @@ import {
 	sendPostCheckNicknameRequest,
 } from "../../api/users/crud";
 import { IUpdateProfileRequest } from "shared";
+import ConfirmModal from "../../component/common/Modal/ConfirmModal";
+import { useModal } from "../../hook/useModal";
+import { useNavigate } from "react-router-dom";
 
 const ProfilePage = () => {
+	const navigate = useNavigate();
+	const accountDeleteModal = useModal();
 	const globalErrorModal = useGlobalErrorModal();
 	const { nickname, email, imgUrl } = useUserStore();
 	const { setImgUrl, setNickName } = useUserStore.use.actions();
@@ -28,6 +33,15 @@ const ProfilePage = () => {
 	const [isValid, setIsValid] = useState<boolean>(false);
 
 	const [profileEdit, setProfileEdit] = useState<boolean>(false);
+
+	const handleAccountDeleteTry = () => {
+		accountDeleteModal.open();
+	};
+
+	const handleAccountDeleteAccept = () => {
+		accountDeleteModal.close();
+		navigate(`/checkPassword?next=accountDelete`);
+	};
 
 	const handleFileUpload = async (e: ChangeEvent<HTMLInputElement>) => {
 		const files = e.target.files;
@@ -159,6 +173,20 @@ const ProfilePage = () => {
 				boxSizing: "border-box",
 			}}
 		>
+			<ConfirmModal
+				variant="warning"
+				isOpen={accountDeleteModal.isOpen}
+				okButtonColor="danger"
+				okButtonLabel="계속 진행"
+				onAccept={handleAccountDeleteAccept}
+				onClose={accountDeleteModal.close}
+			>
+				<ConfirmModal.Title>회원 탈퇴 확인</ConfirmModal.Title>
+				<ConfirmModal.Body>
+					회원 탈퇴 절차를 진행할까요?
+				</ConfirmModal.Body>
+			</ConfirmModal>
+
 			<ProfileItem
 				title="프로필"
 				showEditIcon={true}
@@ -335,6 +363,7 @@ const ProfilePage = () => {
 						color: "white",
 						fontWeight: "bolder",
 					}}
+					onClick={handleAccountDeleteTry}
 				>
 					탈퇴하기
 				</Button>
