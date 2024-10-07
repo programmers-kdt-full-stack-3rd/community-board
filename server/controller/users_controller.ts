@@ -65,6 +65,8 @@ export const handleLoginUser = async (
 			result: {
 				nickname: result.user.nickname,
 				loginTime: getKstNow(),
+				email: result.user.email,
+				imgUrl: result.user.imgUrl,
 			},
 		});
 	} catch (err: any) {
