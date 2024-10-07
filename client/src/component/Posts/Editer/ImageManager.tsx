@@ -5,6 +5,7 @@ import { useModal } from "../../../hook/useModal";
 import { useGlobalErrorModal } from "../../../state/GlobalErrorModalStore";
 import Button from "../../common/Button";
 import AlertModal from "../../common/Modal/AlertModal";
+import ConfirmModal from "../../common/Modal/ConfirmModal";
 
 interface IProps {
 	quillRef: React.RefObject<ReactQuill>;
@@ -25,9 +26,11 @@ const ImageManager: React.FC<IProps> = ({
 	setEditorContents,
 }) => {
 	const globalErrorModal = useGlobalErrorModal();
+	const removalConfirmModal = useModal();
 	const removalSuccessModal = useModal();
 
 	const [imageUrlSet, setImageUrlSet] = useState(new Set<string>());
+	const [removalTargetUrl, setRemovalTargetUrl] = useState("");
 
 	// useMemo로 첫 렌더부터 이미지 목록을 만들면
 	// Quill 초기화 타이밍과 엇나가면서 이미지 목록을 못 만들 때가 있어서
@@ -49,9 +52,16 @@ const ImageManager: React.FC<IProps> = ({
 	}, [quillRef.current, editorContents]);
 
 	const handleRemoveWith = (url: string) => () => {
+		setRemovalTargetUrl(url);
+		removalConfirmModal.open();
+	};
+
+	const handleRemovalAccept = () => {
+		removalConfirmModal.close();
+
 		const html = quillRef.current?.getEditorContents();
 
-		if (typeof html !== "string") {
+		if (!removalTargetUrl || typeof html !== "string") {
 			globalErrorModal.open({
 				title: "오류",
 				message: "이미지를 제거하지 못했습니다.",
@@ -62,7 +72,9 @@ const ImageManager: React.FC<IProps> = ({
 		const container = document.createElement("div");
 		container.innerHTML = html;
 
-		const nodes = container.querySelectorAll(`img[src="${url}"]`);
+		const nodes = container.querySelectorAll(
+			`img[src="${removalTargetUrl}"]`
+		);
 
 		if (!nodes.length) {
 			return;
@@ -73,11 +85,30 @@ const ImageManager: React.FC<IProps> = ({
 		}
 
 		setEditorContents(container.innerHTML);
+		setRemovalTargetUrl("");
 		removalSuccessModal.open();
 	};
 
 	return (
 		<div className="flex w-full flex-col gap-2 text-start">
+			<ConfirmModal
+				isOpen={removalConfirmModal.isOpen}
+				onAccept={handleRemovalAccept}
+				onClose={removalConfirmModal.close}
+				variant="warning"
+				okButtonColor="danger"
+				okButtonLabel="제거"
+			>
+				<ConfirmModal.Title>이미지 제거 확인</ConfirmModal.Title>
+				<ConfirmModal.Body>
+					<p>첨부한 이미지를 본문에서 제거할까요?</p>
+					<img
+						src={removalTargetUrl}
+						className="mt-2 max-h-96 w-full object-contain"
+					/>
+				</ConfirmModal.Body>
+			</ConfirmModal>
+
 			<AlertModal
 				isOpen={removalSuccessModal.isOpen}
 				onClose={removalSuccessModal.close}
