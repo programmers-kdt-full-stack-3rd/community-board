@@ -5,6 +5,7 @@ import {
 	handleJoinUser,
 	handleUpdateUser,
 	handleCheckPassword,
+	handleCheckNickname,
 	handleDeleteUser,
 	handleReadUser,
 } from "../controller/users_controller";
@@ -36,6 +37,7 @@ router.post(
 	checkPasswordValidation,
 	handleCheckPassword
 );
+router.post("/check-nickname", requireLogin, handleCheckNickname);
 router.delete("/", requireLogin, requirePassword, handleDeleteUser);
 
 export default router;

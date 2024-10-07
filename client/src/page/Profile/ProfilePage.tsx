@@ -11,6 +11,7 @@ import { ApiCall } from "../../api/api";
 import { uploadImageRequest } from "../../api/posts/crud";
 import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
 import { ClientError } from "../../api/errors";
+import { sendPostCheckNicknameRequest } from "../../api/users/crud";
 
 const ProfilePage = () => {
 	const globalErrorModal = useGlobalErrorModal();
@@ -20,6 +21,7 @@ const ProfilePage = () => {
 
 	const [newNickname, setNewNickname] = useState<string>(nickname);
 	const [newImgUrl, setNewImgUrl] = useState<string>(imgUrl);
+	const [isValid, setIsValid] = useState<boolean>(false);
 
 	const [profileEdit, setProfileEdit] = useState<boolean>(false);
 
@@ -86,14 +88,36 @@ const ProfilePage = () => {
 		}
 	};
 
-	// const checkNickname = async () => {
-	// 	const res = await ApiCall(
-	// 		() => sendPostCheckNicknameRequest({}),
-	// 		err =>
-	// 			globalErrorModal.openWithMessageSplit({
-	// 				messageWithTitle: err.message,
-	// 			})
-	// 	);
+	const checkNickname = async () => {
+		if (nickname === newNickname) {
+			globalErrorModal.openWithMessageSplit({
+				messageWithTitle: "닉네임 중복!",
+			});
+		}
+
+		const res = await ApiCall(
+			() => sendPostCheckNicknameRequest({ nickname: newNickname }),
+			err =>
+				globalErrorModal.openWithMessageSplit({
+					messageWithTitle: err.message,
+				})
+		);
+
+		if (res instanceof ClientError) {
+			return;
+		}
+
+		if (res.isDuplicated) {
+			globalErrorModal.openWithMessageSplit({
+				messageWithTitle: "닉네임 중복!",
+			});
+		}
+
+		setIsValid(!res.isDuplicated);
+	};
+
+	// const updateProfile = async () => {
+
 	// };
 
 	return (
@@ -140,6 +164,7 @@ const ProfilePage = () => {
 							value={newNickname}
 							onChange={e => {
 								setNewNickname(e.target.value);
+								setIsValid(false);
 							}}
 							placeholder="닉네임 입력하기"
 							actionButton={
@@ -148,8 +173,9 @@ const ProfilePage = () => {
 									size="medium"
 									color="neutral"
 									onClick={() => {
-										// 닉네임 중복 확인 API 추가하기
+										checkNickname();
 									}}
+									disabled={isValid}
 								>
 									중복 확인
 								</Button>

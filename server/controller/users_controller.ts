@@ -185,6 +185,22 @@ export const handleCheckPassword = async (
 	}
 };
 
+export const handleCheckNickname = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		const newNickname = req.body.nickname;
+		const userId = req.userId;
+		const user = await getUserById(userId);
+
+		res.status(200).json({ isDuplicated: user.nickname === newNickname });
+	} catch (err: any) {
+		next(err);
+	}
+};
+
 export const handleDeleteUser = async (
 	req: Request,
 	res: Response,
