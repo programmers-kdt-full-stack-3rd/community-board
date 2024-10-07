@@ -1,3 +1,4 @@
+import { IUpdateProfileRequest } from "shared";
 import { HttpMethod, convertToBody, httpRequest } from "../api";
 
 export const getUserMyself = async () => {
@@ -39,6 +40,14 @@ export const sendPostLogoutRequest = async () => {
 
 export const sendPutUpdateUserRequest = async (body: object) => {
 	return await httpRequest("user", HttpMethod.PUT, convertToBody(body));
+};
+
+export const sendPatchProfileRequest = async (body: IUpdateProfileRequest) => {
+	return await httpRequest(
+		"user/profile",
+		HttpMethod.PATCH,
+		convertToBody(body)
+	);
 };
 
 export const sendDeleteUserRequest = async () => {

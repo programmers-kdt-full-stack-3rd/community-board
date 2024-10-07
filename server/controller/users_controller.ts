@@ -9,6 +9,7 @@ import {
 	deleteUser,
 	getUserById,
 	registerUserEmail,
+	updateProfile,
 	updateUser,
 } from "../db/context/users_context";
 import { ServerError } from "../middleware/errors";
@@ -17,6 +18,7 @@ import { makeTempToken } from "../utils/token";
 import { makeHashedPassword } from "../utils/crypto";
 import { getKstNow } from "../utils/getKstNow";
 import { refreshOAuthAccessToken, revokeOAuth } from "../utils/oauth/oauth";
+import { IUpdateProfileRequest } from "shared";
 
 export const handleJoinUser = async (
 	req: Request,
@@ -66,7 +68,7 @@ export const handleLoginUser = async (
 				nickname: result.user.nickname,
 				loginTime: getKstNow(),
 				email: result.user.email,
-				imgUrl: result.user.imgUrl,
+				imgUrl: result.user.img_url,
 			},
 		});
 	} catch (err: any) {
@@ -155,6 +157,23 @@ export const handleUpdateUser = async (
 		}
 
 		res.status(200).json({ message: "회원정보 수정 성공" });
+	} catch (err: any) {
+		next(err);
+	}
+};
+
+export const handleUpdateProfile = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		const info: IUpdateProfileRequest = req.body;
+		const userId = req.userId;
+
+		const success = await updateProfile(info, userId);
+
+		res.status(200).json({ success });
 	} catch (err: any) {
 		next(err);
 	}

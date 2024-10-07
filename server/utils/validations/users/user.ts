@@ -68,6 +68,37 @@ const requiredPasswordValidator = () =>
 const nicknameValidator = () =>
 	body("nickname").notEmpty().withMessage(ERROR_MESSAGES.NICKNAME_REQUIRED);
 
+const nicknameOptionalValidator = () =>
+	body("nickname")
+		.optional({ values: "falsy" })
+		.custom(value => {
+			if (value) {
+				// 10자 이상인지 검사
+				const charLength = value.length; // 문자 길이 체크
+				if (charLength < 10) {
+					throw new Error(ERROR_MESSAGES.IS_NOT_NICKNAME); // 최소 길이 미달 시 오류
+				}
+
+				// 한글과 영어 조합 체크
+				const isValid = /^[a-zA-Z가-힣]*$/.test(value);
+				if (!isValid) {
+					throw new Error(ERROR_MESSAGES.IS_NOT_NICKNAME); // 유효하지 않은 경우 오류
+				}
+			}
+			return true; // 유효성 검사를 통과하면 true 반환
+		})
+		.withMessage(ERROR_MESSAGES.NICKNAME_REQUIRED);
+
+/**
+ * 이미지 url 검사
+ */
+
+const imgUrlOptionalValidator = () =>
+	body("imgUrl")
+		.optional({ values: "falsy" })
+		.isURL()
+		.withMessage(ERROR_MESSAGES.IS_NOT_URL);
+
 /*
   Validation
   - 각 API 엔드포인트에 대한 유효성 검사
@@ -100,6 +131,15 @@ export const updateUserValidation = [
 	emailOptionalValidator(),
 	nicknameValidator(),
 	passwordValidator(),
+	validate,
+];
+
+/**
+ * 프로필 수정 API 유효성 검사
+ */
+export const updateProfileValidation = [
+	nicknameOptionalValidator,
+	imgUrlOptionalValidator,
 	validate,
 ];
 

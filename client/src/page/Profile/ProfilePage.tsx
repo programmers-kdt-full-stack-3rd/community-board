@@ -11,12 +11,16 @@ import { ApiCall } from "../../api/api";
 import { uploadImageRequest } from "../../api/posts/crud";
 import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
 import { ClientError } from "../../api/errors";
-import { sendPostCheckNicknameRequest } from "../../api/users/crud";
+import {
+	sendPatchProfileRequest,
+	sendPostCheckNicknameRequest,
+} from "../../api/users/crud";
+import { IUpdateProfileRequest } from "shared";
 
 const ProfilePage = () => {
 	const globalErrorModal = useGlobalErrorModal();
 	const { nickname, email, imgUrl } = useUserStore();
-	// const { setImgUrl, setNickName } = useUserStore.use.actions();
+	const { setImgUrl, setNickName } = useUserStore.use.actions();
 	const imageInputRef = useRef<HTMLInputElement>(null);
 
 	const [newNickname, setNewNickname] = useState<string>(nickname);
@@ -116,9 +120,30 @@ const ProfilePage = () => {
 		setIsValid(!res.isDuplicated);
 	};
 
-	// const updateProfile = async () => {
+	const updateProfile = async () => {
+		const body: IUpdateProfileRequest = {
+			nickname: nickname !== newNickname ? newNickname : "",
+			imgUrl: imgUrl !== newImgUrl ? newImgUrl : "",
+		};
 
-	// };
+		const res = await ApiCall(
+			() => sendPatchProfileRequest(body),
+			err =>
+				globalErrorModal.openWithMessageSplit({
+					messageWithTitle: err.message,
+				})
+		);
+
+		if (res instanceof ClientError) {
+			return;
+		}
+
+		if (res.success) {
+			setImgUrl(newImgUrl);
+			setNickName(newNickname);
+			setProfileEdit(false);
+		}
+	};
 
 	return (
 		<div
@@ -182,13 +207,17 @@ const ProfilePage = () => {
 							}
 						/>
 						<Button
-							className="width-100% bg-blue-900"
+							className="width-100% disabled:bg-customGray bg-blue-900"
 							size="medium"
 							color="action"
 							onClick={() => {
-								// 닉네임 중복인지 check
-								// userInfo 수정 요청
+								updateProfile();
 							}}
+							disabled={
+								(nickname === newNickname &&
+									imgUrl === newImgUrl) ||
+								(nickname !== newNickname && !isValid)
+							}
 						>
 							수정하기
 						</Button>

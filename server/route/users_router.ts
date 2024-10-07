@@ -8,12 +8,14 @@ import {
 	handleCheckNickname,
 	handleDeleteUser,
 	handleReadUser,
+	handleUpdateProfile,
 } from "../controller/users_controller";
 import { requireLogin, requirePassword } from "../middleware/auth";
 import {
 	checkPasswordValidation,
 	joinValidation,
 	loginValidation,
+	updateProfileValidation,
 	updateUserValidation,
 } from "../utils/validations/users/user";
 
@@ -38,6 +40,7 @@ router.post(
 	handleCheckPassword
 );
 router.post("/check-nickname", requireLogin, handleCheckNickname);
+router.patch("/profile", requireLogin, handleUpdateProfile);
 router.delete("/", requireLogin, requirePassword, handleDeleteUser);
 
 export default router;
