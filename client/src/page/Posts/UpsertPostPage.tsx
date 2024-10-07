@@ -110,15 +110,17 @@ const UpsertPostPage: React.FC = () => {
 
 	// Upsert : update + insert
 	const handleUpsertPost = () => {
+		let hasInvalid = false;
+
 		if (!title.trim()) {
 			setIsTitleValid(false);
-			return;
+			hasInvalid = true;
 		}
 
 		if (isContentValid === undefined && !content) {
 			// 내용을 비웠을 때와 동일한 내용을 입력하여 유효성 검사 재발동, 메시지 출력
 			setContent("<p><br><p>");
-			return;
+			hasInvalid = true;
 		}
 
 		if (postId && title === originalTitle && content === originalContent) {
@@ -126,6 +128,11 @@ const UpsertPostPage: React.FC = () => {
 				title: "변경 내용 없음",
 				message: "제목, 내용 중 어느 것도 변경하지 않았습니다.",
 			});
+			hasInvalid = true;
+		}
+
+		if (hasInvalid) {
+			window.scrollTo({ top: 0 });
 			return;
 		}
 
