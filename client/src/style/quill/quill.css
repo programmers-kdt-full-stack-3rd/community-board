@@ -17,6 +17,6 @@
 	/* Quill 에디터 본문 박스 */
 	.ql-container.ql-snow {
 		/* TODO: TextInput 컴포넌트 다크모드 작업 후, 다크모드 테두리 컬러 수정 */
-		@apply rounded-b-md border border-gray-600;
+		@apply overflow-hidden rounded-b-md border border-gray-600;
 	}
 }
