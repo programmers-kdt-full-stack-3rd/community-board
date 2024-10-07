@@ -3,11 +3,20 @@
 @import "./toolbar.css";
 
 @layer components {
-	.ql-toolbar.ql-snow {
-		@apply rounded-t-md border border-gray-600;
-		@apply font-sans;
+	/* Quill 에디터 루트 */
+	.quill {
+		@apply text-start;
 	}
+
+	/* Quill 에디터 툴바 박스 */
+	.ql-toolbar.ql-snow {
+		/* TODO: TextInput 컴포넌트 다크모드 작업 후, 다크모드 테두리 컬러 수정 */
+		@apply rounded-t-md border border-gray-600 font-sans;
+	}
+
+	/* Quill 에디터 본문 박스 */
 	.ql-container.ql-snow {
+		/* TODO: TextInput 컴포넌트 다크모드 작업 후, 다크모드 테두리 컬러 수정 */
 		@apply rounded-b-md border border-gray-600;
 	}
 }
