@@ -10,6 +10,11 @@
 		@apply stroke-neutral-700 dark:stroke-neutral-300;
 	}
 
+	/* SVG 아이콘 칠 */
+	.ql-snow :is(.ql-fill, .ql-stroke.ql-fill) {
+		@apply fill-neutral-700 dark:fill-neutral-300;
+	}
+
 	/* 드롭다운 토글 버튼 (펼침) */
 	.ql-toolbar.ql-snow .ql-picker.ql-expanded .ql-picker-label {
 		/* TODO: TextInput 컴포넌트 다크모드 작업 후, 다크모드 테두리 컬러 수정 */
