@@ -6,7 +6,7 @@ import { ApiCall } from "../../../api/api";
 import { uploadImageRequest } from "../../../api/posts/crud";
 import { useGlobalErrorModal } from "../../../state/GlobalErrorModalStore";
 import { getImageDimensionsFromBlob } from "../../../utils/getImageDimensions";
-import { toolbarColors } from "./toolbarColors";
+import { quillFormats, toolbarContainer } from "./constants";
 
 /*
 client
@@ -32,6 +32,8 @@ Quill.register(ColorClass, true);
 // 이미지 리사이징 확장 등록
 Quill.register("modules/imageActions", ImageActions);
 
+// `content`를 제외한 다른 prop이나 (전역/지역) 상태가 중도 변경되면
+// 에디터가 다시 초기화되어 내부 상태를 잃어버리므로 주의가 필요합니다.
 const CustomEditorBase: React.FC<IProps> = ({
 	quillRef,
 	content,
@@ -67,9 +69,10 @@ const CustomEditorBase: React.FC<IProps> = ({
 		inputElement.click();
 
 		inputElement.onchange = async () => {
+			const quill = quillRef.current?.getEditor();
 			const file = inputElement.files && inputElement.files[0];
 
-			if (!file) {
+			if (!quill || !file) {
 				return;
 			}
 
@@ -81,44 +84,21 @@ const CustomEditorBase: React.FC<IProps> = ({
 
 			const { width, height } = await getImageDimensionsFromBlob(file);
 
-			const quill = quillRef.current?.getEditor();
 			const selectionIndex =
-				quill?.getSelection()?.index ?? quill?.getLength() ?? 0;
+				quill.getSelection()?.index ?? quill.getLength() ?? 0;
+			quill.setSelection(selectionIndex, 0);
 
-			quill?.setSelection(selectionIndex, 0);
-			quill?.clipboard.dangerouslyPasteHTML(
+			quill.clipboard.dangerouslyPasteHTML(
 				selectionIndex,
 				`<img src="${url}" width="${width}" height="${height}">`
 			);
 		};
 	}, [upload, quillRef]);
 
-	const quillFormats = useMemo(
-		() => [
-			"font",
-			"size",
-			"bold",
-			"underline",
-			"color",
-			"code-block",
-			"image",
-			"width",
-			"height",
-		],
-		[]
-	);
-
 	const quillModules = useMemo(
 		() => ({
 			toolbar: {
-				container: [
-					[{ font: [] }],
-					[{ size: ["small", false, "large", "huge"] }],
-					["bold", "underline", { color: toolbarColors }],
-					["code-block"],
-					["image"],
-					["clean"],
-				],
+				container: toolbarContainer,
 				handlers: {
 					image: handleImageUpload,
 				},
