@@ -1,2 +1,13 @@
 @import "./colors.css";
 @import "./post.css";
+@import "./toolbar.css";
+
+@layer components {
+	.ql-toolbar.ql-snow {
+		@apply rounded-t-md border border-gray-600;
+		@apply font-sans;
+	}
+	.ql-container.ql-snow {
+		@apply rounded-b-md border border-gray-600;
+	}
+}
