@@ -19,6 +19,7 @@ import { IUpdateProfileRequest } from "shared";
 import ConfirmModal from "../../component/common/Modal/ConfirmModal";
 import { useModal } from "../../hook/useModal";
 import { useNavigate } from "react-router-dom";
+import PasswordUpdateModal from "../../component/Profile/Modal/PasswordUpdateModal";
 
 const ProfilePage = () => {
 	const navigate = useNavigate();
@@ -33,6 +34,7 @@ const ProfilePage = () => {
 	const [isValid, setIsValid] = useState<boolean>(false);
 
 	const [profileEdit, setProfileEdit] = useState<boolean>(false);
+	const [isOpen, setIsOpen] = useState<boolean>(false);
 
 	const handleAccountDeleteTry = () => {
 		accountDeleteModal.open();
@@ -173,6 +175,7 @@ const ProfilePage = () => {
 				boxSizing: "border-box",
 			}}
 		>
+			{isOpen ? <PasswordUpdateModal close={setIsOpen} /> : ""}
 			<ConfirmModal
 				variant="warning"
 				isOpen={accountDeleteModal.isOpen}
@@ -337,6 +340,9 @@ const ProfilePage = () => {
 					className="bg-blue-900"
 					size="medium"
 					color="action"
+					onClick={() => {
+						setIsOpen(true);
+					}}
 				>
 					수정하기
 				</Button>

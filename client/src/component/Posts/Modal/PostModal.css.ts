@@ -7,8 +7,7 @@ export const ModalContainer = style({
 	left: "50%",
 	transform: "translate(-50%, -50%)",
 	width: "600px",
-	height: "630px",
-	background: vars.color.task,
+	height: "350px",
 	borderRadius: "5px",
 	border: "1px solid #ccc",
 	textAlign: "center",
@@ -21,7 +20,8 @@ export const ModalHeader = style({
 	flexDirection: "row",
 	height: "fit-content",
 	flexWrap: "wrap",
-	margin: 15,
+	padding: 15,
+	borderBottom: "1px solid gray",
 });
 
 export const ModalBody = style({
@@ -32,15 +32,14 @@ export const ModalBody = style({
 	width: "fit",
 	height: "100%",
 	rowGap: 15,
-	margin: "0 20px 20px 20px",
+	margin: "20px 20px 20px 20px",
 });
 
 export const PostHeaderTitle = style({
 	display: "flex",
 	justifyContent: "center",
 	alignItems: "center",
-	color: vars.color.darkText,
-	fontWeight: "bold",
+	fontWeight: "bolder",
 });
 
 export const PostBtn = style({
@@ -79,7 +78,6 @@ export const InputIndex = style({
 	justifyContent: "space-between",
 	alignItems: "center",
 	fontWeight: "bolder",
-	color: vars.color.brightText,
 	marginLeft: 10,
 	marginBottom: 10,
 	"::placeholder": {},
