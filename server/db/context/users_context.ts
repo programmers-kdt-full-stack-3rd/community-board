@@ -14,6 +14,7 @@ import {
 	IPermissionRow,
 	IRoleRow,
 	mapDBToPartialUser,
+	IUpdateProfileRequest,
 } from "shared";
 import { makeAccessToken, makeRefreshToken } from "../../utils/token";
 import { addRefreshToken } from "./token_context";
@@ -242,6 +243,71 @@ export const updateUser = async (userData: IUpdateUserInfo) => {
 			salt,
 			userData.userId,
 		];
+
+		conn = await pool.getConnection();
+		const [rows]: [ResultSetHeader, FieldPacket[]] = await conn.query(
+			sql,
+			value
+		);
+
+		if (rows.affectedRows === 0) {
+			throw ServerError.badRequest("회원정보 수정 실패");
+		}
+	} catch (err: any) {
+		throw err;
+	} finally {
+		if (conn) conn.release();
+	}
+};
+
+export const updateProfile = async (
+	info: IUpdateProfileRequest,
+	userId: number
+) => {
+	let conn: PoolConnection | null = null;
+	try {
+		let sql = `UPDATE users SET`;
+		let value = [];
+
+		if (info.nickname) {
+			sql += ` nickname=?`;
+			value.push(info.nickname);
+		}
+
+		if (info.imgUrl) {
+			if (value.length) {
+				sql += `,`;
+			}
+			sql += ` img_url=?`;
+			value.push(info.imgUrl);
+		}
+
+		value.push(userId);
+		sql += ` WHERE id=? AND is_delete=FALSE`;
+
+		conn = await pool.getConnection();
+		const [rows]: [ResultSetHeader, FieldPacket[]] = await conn.query(
+			sql,
+			value
+		);
+
+		if (rows.affectedRows === 0) {
+			throw ServerError.badRequest("회원정보 수정 실패");
+		}
+
+		return true;
+	} catch (err: any) {
+		throw err;
+	} finally {
+		if (conn) conn.release();
+	}
+};
+
+export const updatePassword = async (newPassword: string, userId: number) => {
+	let conn: PoolConnection | null = null;
+	try {
+		const sql = `UPDATE users SET password=? WHERE id=? AND is_delete=FALSE `;
+		const value = [newPassword, userId];
 
 		conn = await pool.getConnection();
 		const [rows]: [ResultSetHeader, FieldPacket[]] = await conn.query(

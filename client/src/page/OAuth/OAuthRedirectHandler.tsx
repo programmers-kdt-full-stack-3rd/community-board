@@ -98,10 +98,10 @@ const OAuthRedirectHandler = () => {
 		}
 
 		if (loginType === "login") {
-			const { nickname, loginTime } = response?.result;
+			const { nickname, loginTime, email, imgUrl } = response?.result;
 
 			if (typeof nickname === "string" && typeof loginTime === "string") {
-				setLoginUser(nickname, loginTime);
+				setLoginUser(nickname, loginTime, email, imgUrl);
 				navigate(destination.ok);
 			} else {
 				navigate(destination.err);
