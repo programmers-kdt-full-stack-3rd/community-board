@@ -95,12 +95,52 @@ const CustomEditorBase: React.FC<IProps> = ({
 		};
 	}, [upload, quillRef]);
 
+	const handleCodeBlockInsert = useCallback(
+		(nextEnabled: boolean) => {
+			const quill = quillRef.current?.getEditor();
+			const selectionIndex = quill?.getSelection();
+
+			if (!quill || !selectionIndex) {
+				return;
+			}
+
+			let { index, length } = selectionIndex;
+
+			// 코드블록 적용 시 앞뒤로 빈 줄 추가 (해제 시에는 해당 없음)
+			if (nextEnabled) {
+				const [beginBlock] = quill.getLine(index);
+				const [endBlock] = quill.getLine(index + length);
+
+				const indexBegin = quill.getIndex(beginBlock);
+				const indexEnd = quill.getIndex(endBlock) + endBlock.length();
+
+				beginBlock.parent.insertAt(indexEnd, "\n");
+				quill.removeFormat(indexEnd, 0);
+
+				beginBlock.parent.insertAt(indexBegin, "\n");
+				quill.removeFormat(indexBegin, 0);
+
+				index += 1;
+				quill.setSelection(index, length);
+			}
+
+			quill.formatLine(
+				index,
+				length,
+				{ "code-block": nextEnabled },
+				"user"
+			);
+		},
+		[quillRef]
+	);
+
 	const quillModules = useMemo(
 		() => ({
 			toolbar: {
 				container: toolbarContainer,
 				handlers: {
 					image: handleImageUpload,
+					"code-block": handleCodeBlockInsert,
 				},
 			},
 
