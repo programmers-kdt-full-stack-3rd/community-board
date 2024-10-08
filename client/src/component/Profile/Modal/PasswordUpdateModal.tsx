@@ -1,10 +1,8 @@
 import { SetStateAction, useState } from "react";
 import {
 	InputContainer,
-	InputIndex,
 	ModalBody,
 	PostHeaderTitle,
-	TitleInput,
 } from "../../Posts/Modal/PostModal.css";
 import { FiX } from "react-icons/fi";
 import Button from "../../common/Button";
@@ -14,6 +12,8 @@ import { sendPatchPasswordRequest } from "../../../api/users/crud";
 import { useGlobalErrorModal } from "../../../state/GlobalErrorModalStore";
 import { useModal } from "../../../hook/useModal";
 import AlertModal from "../../common/Modal/AlertModal";
+import TextInput from "../../common/TextInput";
+import { REGEX } from "../../../page/User/constants/constants";
 // import { ApiCall } from "../../../api/api";
 // import { useGlobalErrorModal } from "../../../state/GlobalErrorModalStore";
 
@@ -77,34 +77,37 @@ const PasswordUpdateModal: React.FC<Props> = ({ close }) => {
 			</div>
 			<div className={ModalBody}>
 				<div className={InputContainer}>
-					<div className={InputIndex}>현재 비밀번호</div>
-					<input
-						type="password"
-						className={TitleInput}
+					<TextInput
+						label={"현재 비밀번호"}
 						value={origin}
 						onChange={e => setOrigin(e.target.value)}
-						placeholder="현재 비밀번호를 입력해주세요"
-					></input>
+						placeholder="현재 비밀번호 입력하기"
+						type={"password"}
+						isValid={REGEX.PASSWORD.test(origin)}
+					/>
 				</div>
 				<div className={InputContainer}>
-					<div className={InputIndex}>새 비밀번호</div>
-					<input
-						type="password"
-						className={TitleInput}
+					<TextInput
+						label={"새 비밀번호"}
 						value={newPsword}
 						onChange={e => setNewPsword(e.target.value)}
 						placeholder="10자 이상의 영문 대/소문자, 숫자를 사용"
-					></input>
+						type={"password"}
+						isValid={
+							origin !== newPsword &&
+							REGEX.PASSWORD.test(newPsword)
+						}
+					/>
 				</div>
 				<div className={InputContainer}>
-					<div className={InputIndex}>비밀번호 확인</div>
-					<input
-						type="password"
-						className={TitleInput}
+					<TextInput
+						label={"비밀번호 확인"}
 						value={checkPsword}
 						onChange={e => setCheckPsword(e.target.value)}
 						placeholder="새 비밀번호를 다시 입력해주세요"
-					></input>
+						type={"password"}
+						isValid={newPsword === checkPsword}
+					/>
 				</div>
 				<div
 					style={{
