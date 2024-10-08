@@ -1,12 +1,7 @@
-@import "./quill-post-color.css";
-
-/* Quill 에디터 및 게시글 내용에 적용하는 스타일 */
+/* Quill 에디터 및 게시글 내용에 적용하는 스타일
+ * - 색상 정의는 분량이 많고 반복적이어서 `./color.css`에 정의합니다.
+ */
 @layer components {
-	/* Quill 에디터 툴바를 포함하는 루트 */
-	.quill {
-		@apply text-start;
-	}
-
 	/* 게시글 본문 영역 및 Quill 에디터 본문 영역 */
 	:is(.post-body, .ql-editor) {
 		@apply font-sans text-base;
@@ -41,6 +36,6 @@
 
 	/* 코드 블록 클래스 */
 	:is(.post-body, .ql-editor) pre.ql-syntax.ql-syntax {
-		@apply mx-0 my-2 rounded-md bg-gray-100 px-3 py-2 font-mono text-sm text-gray-700;
+		@apply bg-customGray mx-0 my-2 rounded-md px-3 py-2 font-mono text-sm text-neutral-50 dark:bg-neutral-950 dark:text-neutral-300;
 	}
 }

@@ -1,10 +1,12 @@
+import { ImageActions } from "@xeger/quill-image-actions";
 import React, { SetStateAction, useCallback, useMemo } from "react";
 import ReactQuill, { Quill } from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { ApiCall } from "../../../api/api";
 import { uploadImageRequest } from "../../../api/posts/crud";
 import { useGlobalErrorModal } from "../../../state/GlobalErrorModalStore";
-import { toolbarColors } from "./toolbarColors";
+import { getImageDimensionsFromBlob } from "../../../utils/getImageDimensions";
+import { quillFormats, toolbarContainer } from "./constants";
 
 /*
 client
@@ -27,6 +29,11 @@ interface IProps {
 const ColorClass = Quill.import("attributors/class/color");
 Quill.register(ColorClass, true);
 
+// 이미지 리사이징 확장 등록
+Quill.register("modules/imageActions", ImageActions);
+
+// `content`를 제외한 다른 prop이나 (전역/지역) 상태가 중도 변경되면
+// 에디터가 다시 초기화되어 내부 상태를 잃어버리므로 주의가 필요합니다.
 const CustomEditorBase: React.FC<IProps> = ({
 	quillRef,
 	content,
@@ -62,9 +69,10 @@ const CustomEditorBase: React.FC<IProps> = ({
 		inputElement.click();
 
 		inputElement.onchange = async () => {
+			const quill = quillRef.current?.getEditor();
 			const file = inputElement.files && inputElement.files[0];
 
-			if (!file) {
+			if (!quill || !file) {
 				return;
 			}
 
@@ -74,33 +82,69 @@ const CustomEditorBase: React.FC<IProps> = ({
 				return;
 			}
 
-			const quill = quillRef.current?.getEditor();
-			const selectionIndex =
-				quill?.getSelection()?.index ?? quill?.getLength() ?? 0;
+			const { width, height } = await getImageDimensionsFromBlob(file);
 
-			quill?.setSelection(selectionIndex, 0);
-			quill?.clipboard.dangerouslyPasteHTML(
+			const selectionIndex =
+				quill.getSelection()?.index ?? quill.getLength() ?? 0;
+			quill.setSelection(selectionIndex, 0);
+
+			quill.clipboard.dangerouslyPasteHTML(
 				selectionIndex,
-				`<img src="${url}" alt="사용자 업로드 이미지">`
+				`<img src="${url}" width="${width}" height="${height}">`
 			);
 		};
 	}, [upload, quillRef]);
 
+	const handleCodeBlockInsert = useCallback(
+		(nextEnabled: boolean) => {
+			const quill = quillRef.current?.getEditor();
+			const selectionIndex = quill?.getSelection();
+
+			if (!quill || !selectionIndex) {
+				return;
+			}
+
+			let { index, length } = selectionIndex;
+
+			// 코드블록 적용 시 앞뒤로 빈 줄 추가 (해제 시에는 해당 없음)
+			if (nextEnabled) {
+				const [beginBlock] = quill.getLine(index);
+				const [endBlock] = quill.getLine(index + length);
+
+				const indexBegin = quill.getIndex(beginBlock);
+				const indexEnd = quill.getIndex(endBlock) + endBlock.length();
+
+				beginBlock.parent.insertAt(indexEnd, "\n");
+				quill.removeFormat(indexEnd, 0);
+
+				beginBlock.parent.insertAt(indexBegin, "\n");
+				quill.removeFormat(indexBegin, 0);
+
+				index += 1;
+				quill.setSelection(index, length);
+			}
+
+			quill.formatLine(
+				index,
+				length,
+				{ "code-block": nextEnabled },
+				"user"
+			);
+		},
+		[quillRef]
+	);
+
 	const quillModules = useMemo(
 		() => ({
 			toolbar: {
-				container: [
-					[{ font: [] }],
-					[{ size: ["small", false, "large", "huge"] }],
-					["bold", "underline", { color: toolbarColors }],
-					["code-block"],
-					["image"],
-					["clean"],
-				],
+				container: toolbarContainer,
 				handlers: {
 					image: handleImageUpload,
+					"code-block": handleCodeBlockInsert,
 				},
 			},
+
+			imageActions: {},
 		}),
 		[handleImageUpload]
 	);
@@ -108,6 +152,7 @@ const CustomEditorBase: React.FC<IProps> = ({
 	return (
 		<ReactQuill
 			ref={quillRef}
+			formats={quillFormats}
 			modules={quillModules}
 			value={content}
 			onChange={setContent}
