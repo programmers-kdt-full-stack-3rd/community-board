@@ -48,11 +48,13 @@ describe("RankService", () => {
 				title: "mock title",
 				nickname: "mock nickname",
 				likeCount: 10,
+				postId: 1,
 			},
 			{
 				title: "mock title",
 				nickname: "mock nickname",
 				likeCount: 7,
+				postId: 2,
 			},
 		];
 		it("DB에서 게시물 top5를 가져오는데 성공한다", async () => {
@@ -81,10 +83,14 @@ describe("RankService", () => {
 			{
 				nickname: "mock nickname",
 				likeCount: 10,
+				commentId: 1,
+				postId: 2,
 			},
 			{
 				nickname: "mock nickname",
 				likeCount: 7,
+				commentId: 2,
+				postId: 2,
 			},
 		];
 		it("DB에서 댓글 top5를 가져오는데 성공한다", async () => {

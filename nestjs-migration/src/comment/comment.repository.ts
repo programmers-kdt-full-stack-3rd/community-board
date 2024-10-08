@@ -136,17 +136,21 @@ export class CommentRepository extends Repository<Comment> {
 		const queryBuilder = this.createQueryBuilder("comment")
 			.leftJoin("comment.author", "user")
 			.leftJoin("comment.comment_likes", "cl")
+			.leftJoin("comment.post", "post")
 			.select([
 				"user.nickname as nickname",
 				"COUNT(*) as likeCount",
-				"comment.id",
+				"comment.id as commentId",
+				"post.id as postId",
 			])
 			.where("comment.is_delete = :isDeleted", { isDeleted: false })
+			.andWhere("post.is_delete = :isDeleted", { isDeleted: false })
 			.andWhere("user.is_delete = :isDeleted", {
 				isDeleted: false,
 			})
 			.groupBy("comment.id")
 			.orderBy("likeCount", "DESC") // 좋아요 수로 정렬
+			.addOrderBy("comment.id", "ASC")
 			.limit(5);
 
 		const results = await queryBuilder.getRawMany();

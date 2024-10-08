@@ -280,6 +280,7 @@ export class PostRepository extends Repository<Post> {
 			.leftJoin("post.likes", "pl")
 			.select([
 				"post.title as title",
+				"post.id as postId",
 				"user.nickname as nickname",
 				"COUNT(*) as likeCount",
 			])
@@ -289,7 +290,8 @@ export class PostRepository extends Repository<Post> {
 			})
 			.groupBy("post.id")
 			.orderBy("likeCount", "DESC")
-			.limit(5); //join에서 쓰지 말라던데
+			.addOrderBy("post.id", "ASC")
+			.limit(5);
 
 		const results = await queryBuilder.getRawMany();
 

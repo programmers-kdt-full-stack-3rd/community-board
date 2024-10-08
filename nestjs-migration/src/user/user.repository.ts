@@ -173,6 +173,7 @@ export class UserRepository extends Repository<User> {
 			.groupBy("user.id")
 			.orderBy("postCount", "DESC")
 			.addOrderBy("commentCount", "DESC")
+			.addOrderBy("user.id", "ASC")
 			.limit(5);
 
 		const results = await queryBuilder.getRawMany();
