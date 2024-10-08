@@ -26,6 +26,7 @@ import { OAuthModule } from "./oauth/oauth.module";
 import { PostModule } from "./post/post.module";
 import { RbacModule } from "./rbac/rbac.module";
 import { UserModule } from "./user/user.module";
+import { RankModule } from "./rank/rank.module";
 
 @Module({
 	imports: [
@@ -68,6 +69,7 @@ import { UserModule } from "./user/user.module";
 		ChatModule,
 		AdminModule,
 		HealthModule,
+		RankModule,
 	],
 	controllers: [AppController],
 	providers: [

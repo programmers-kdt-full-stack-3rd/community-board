@@ -3,6 +3,8 @@ import { IUserInfoResponse } from "shared";
 import { DataSource, Repository } from "typeorm";
 import { GetUsersDto } from "../admin/dto/get-users.dto";
 import { User } from "./entities/user.entity";
+import { plainToInstance } from "class-transformer";
+import { GetTopActivties } from "src/rank/dto/get-top-activities.dto";
 @Injectable()
 export class UserRepository extends Repository<User> {
 	constructor(private dataSource: DataSource) {
@@ -155,6 +157,29 @@ export class UserRepository extends Repository<User> {
 		}));
 	}
 
+	async getTopUserActivities() {
+		const queryBuilder = this.createQueryBuilder("user")
+			.leftJoin("user.posts", "post")
+			.leftJoin("user.comments", "comment")
+			.select(
+				`(SELECT COALESCE(COUNT(posts.id), 0) FROM posts WHERE posts.author_id = user.id AND posts.is_delete = false)`,
+				"postCount"
+			)
+			.addSelect(
+				`(SELECT COALESCE(COUNT(comments.id), 0) FROM comments WHERE comments.author_id = user.id AND comments.is_delete = false)`,
+				"commentCount"
+			)
+			.addSelect("user.nickname as nickname")
+			.groupBy("user.id")
+			.orderBy("postCount", "DESC")
+			.addOrderBy("commentCount", "DESC")
+			.addOrderBy("user.id", "ASC")
+			.limit(5);
+
+		const results = await queryBuilder.getRawMany();
+
+		return plainToInstance(GetTopActivties, results);
+	}
 	//예시 코드
 
 	// async customMethod(id: number): Promise<User> {
