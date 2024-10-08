@@ -26,6 +26,13 @@ export interface IUserInfo {
 	post_count: number;
 }
 
+export interface IUserProfile {
+	id: number;
+	email: string;
+	nickname: string;
+	imgUrl: string;
+}
+
 export interface IPagenation {
 	index: number;
 	perPage: number;

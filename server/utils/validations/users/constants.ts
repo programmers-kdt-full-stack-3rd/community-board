@@ -12,6 +12,8 @@ export const ERROR_MESSAGES = {
 	PASSWORD_REQUIRED: "비밀번호를 입력해주십시오.",
 	INVALID_PASSWORD: "올바른 형태의 비밀번호가 아닙니다.",
 	NICKNAME_REQUIRED: "닉네임을 입력해주십시오.",
+	IS_NOT_NICKNAME: "닉네임은 한,영을 조합하여 최대 10자까지 허용합니다.",
+	IS_NOT_URL: "URL 형식이 아닙니다.",
 	LOGIN_FAILED: "이메일 또는 비밀번호가 틀렸습니다.",
 	PASSWORD_CHECK_FAILED: "비밀번호가 틀렸습니다.",
 	REQUIRED_PASSWORD_MISSING: "비밀번호 확인을 입력하세요.",
