@@ -28,7 +28,7 @@ export const Rank = () => {
 	const [commentRank, setCommentRank] = useState<CommentRank[]>([]);
 	const [activitiesRank, setActivitiesRank] = useState<ActivityRank[]>([]);
 
-	const buttons = ["Activity Rank", "Post Rank", "Comment Rank"];
+	const buttons = ["Activity Ranking", "Post Ranking", "Comment Ranking"];
 
 	const posts = [
 		{ nickname: "히히", title: "1", likeCount: 30 },
@@ -214,8 +214,8 @@ export const Rank = () => {
 			<div
 				className={`flex flex-col items-center ${visible ? "animate-slide-up" : ""}`}
 			>
-				<div className="dark:bg-customGray relative flex h-16 w-[400px] items-center justify-between rounded-3xl bg-blue-800">
-					<div className="relative mx-2 flex h-12 w-full flex-row items-center justify-between gap-3 rounded-2xl">
+				<div className="dark:bg-customGray relative flex h-12 w-[700px] items-center justify-between rounded-3xl bg-blue-800">
+					<div className="relative mx-2 flex h-9 w-full flex-row items-center justify-between gap-3 rounded-2xl">
 						<div
 							className={`absolute h-full w-1/3 rounded-2xl bg-blue-200 bg-opacity-15 transition-transform duration-300`}
 							style={{

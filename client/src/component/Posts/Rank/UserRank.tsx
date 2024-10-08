@@ -74,7 +74,7 @@ export const UserRank = () => {
 							<div className="flex items-center">
 								<FaCrown className="mr-1 text-blue-900 dark:text-white"></FaCrown>
 								<div className="text-lg font-bold text-blue-900 dark:text-white">
-									Activity Rank
+									Activity
 								</div>
 							</div>
 							<div>
@@ -92,7 +92,7 @@ export const UserRank = () => {
 							<div className="flex items-center">
 								<FaCrown className="mr-1 text-blue-900 dark:text-white"></FaCrown>
 								<div className="text-lg font-bold text-blue-900 dark:text-white">
-									Post Rank
+									Post
 								</div>
 							</div>
 							<div>
@@ -110,7 +110,7 @@ export const UserRank = () => {
 							<div className="flex items-center">
 								<FaCrown className="mr-1 text-blue-900 dark:text-white"></FaCrown>
 								<div className="text-lg font-bold text-blue-900 dark:text-white">
-									Comment Rank
+									Comment
 								</div>
 							</div>
 							<div>
