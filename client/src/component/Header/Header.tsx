@@ -144,7 +144,7 @@ const Header: React.FC = () => {
 					</div>
 
 					<div className="flex-1 justify-between sm:flex">
-						<div className="hidden text-white hover:text-gray-300 sm:flex sm:items-center sm:gap-x-4 xl:gap-x-6">
+						<div className="hidden overflow-hidden whitespace-nowrap text-white hover:text-gray-300 sm:flex sm:items-center sm:gap-x-4 xl:gap-x-6">
 							<Link
 								to="/category/community"
 								className="text-white hover:text-gray-300"
