@@ -164,6 +164,7 @@ const Header: React.FC = () => {
 										}}
 									/>
 									<div
+										className="text-white"
 										style={{
 											display: "flex",
 											justifyContent: "center",
