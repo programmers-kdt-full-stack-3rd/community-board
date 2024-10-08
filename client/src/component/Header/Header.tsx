@@ -4,7 +4,6 @@ import {
 	FiUser,
 	FiUserPlus,
 	FiChevronDown,
-	FiMessageSquare,
 } from "react-icons/fi";
 import { FaComments } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
@@ -12,31 +11,25 @@ import { sendPostLogoutRequest } from "../../api/users/crud";
 import { useUserStore } from "../../state/store";
 import { useEffect, useRef, useState } from "react";
 import DropdownMenu from "./DropdownMenu";
-import { useModal } from "../../hook/useModal";
 import { ApiCall } from "../../api/api";
 import { ClientError } from "../../api/errors";
 import { useChatRoom } from "../../state/ChatRoomStore";
-import { useChatAside } from "../../state/ChatAsideStore";
 import { isDevMode } from "../../utils/detectMode"; // TODO: UI 리팩터링 완료 후 테스트 import 제거
 import { MdDarkMode } from "react-icons/md";
 import useThemeStore from "../../state/ThemeStore";
 import { MdLightMode } from "react-icons/md";
-import ConfirmModal from "../common/Modal/ConfirmModal";
 
 const Header: React.FC = () => {
 	const navigate = useNavigate();
 	const isLogin = useUserStore.use.isLogin();
 	const nickname = useUserStore.use.nickname();
+	const imgUrl = useUserStore.use.imgUrl();
 	const socket = useUserStore.use.socket();
 	const { setLogoutUser } = useUserStore.use.actions();
 	const { initializeChatState } = useChatRoom();
 	const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 	const dropdownMenuRef = useRef<HTMLDivElement>(null);
-	const { isOpen, open, close } = useChatAside();
 	const { isDarkMode, toggleDarkMode } = useThemeStore();
-
-	// Modal hooks
-	const accountDeleteModal = useModal();
 
 	// 드랍다운 메뉴 이외 클릭시 드랍다운 메뉴 닫기
 	useEffect(() => {
@@ -96,39 +89,8 @@ const Header: React.FC = () => {
 		navigate("/join");
 	};
 
-	const handleChatAside = () => {
-		if (isOpen) {
-			close();
-		} else {
-			open();
-		}
-	};
-
-	const handleAccountDeleteTry = () => {
-		accountDeleteModal.open();
-	};
-
-	const handleAccountDeleteAccept = () => {
-		accountDeleteModal.close();
-		navigate(`/checkPassword?next=accountDelete`);
-	};
-
 	return (
 		<div>
-			<ConfirmModal
-				variant="warning"
-				isOpen={accountDeleteModal.isOpen}
-				okButtonColor="danger"
-				okButtonLabel="계속 진행"
-				onAccept={handleAccountDeleteAccept}
-				onClose={accountDeleteModal.close}
-			>
-				<ConfirmModal.Title>회원 탈퇴 확인</ConfirmModal.Title>
-				<ConfirmModal.Body>
-					회원 탈퇴 절차를 진행할까요?
-				</ConfirmModal.Body>
-			</ConfirmModal>
-
 			<div className="dark:bg-customGray sticky top-16 z-20 flex h-16 items-center bg-blue-900 py-5 text-sm sm:top-0">
 				<nav className="mx-auto flex w-full max-w-7xl gap-x-10 px-4 lg:px-0">
 					<div className="ml-2 flex items-center">
@@ -185,15 +147,33 @@ const Header: React.FC = () => {
 							</div>
 
 							{isLogin && (
-								<div className="text-white">
-									{nickname}님 환영 합니다.
+								<div
+									style={{
+										display: "flex",
+										flexDirection: "row",
+										gap: "5px",
+									}}
+								>
+									<img
+										src={imgUrl}
+										style={{
+											width: "40px",
+											height: "40px",
+											borderRadius: "50%",
+											objectFit: "cover",
+										}}
+									/>
+									<div
+										style={{
+											display: "flex",
+											justifyContent: "center",
+											alignItems: "center",
+										}}
+									>
+										{nickname}님 환영 합니다.
+									</div>
 								</div>
 							)}
-
-							<div onClick={() => handleChatAside()}>
-								<FiMessageSquare className="text-3xl text-white" />
-							</div>
-
 							<div
 								className="text-lg text-white"
 								onClick={isLogin ? handleLogout : handleLogin}
@@ -231,10 +211,7 @@ const Header: React.FC = () => {
 								)}
 
 								{isUserMenuOpen && isLogin && (
-									<DropdownMenu
-										ref={dropdownMenuRef}
-										onDeleteAccount={handleAccountDeleteTry}
-									/>
+									<DropdownMenu ref={dropdownMenuRef} />
 								)}
 							</div>
 						</div>

@@ -14,11 +14,15 @@
 		"prettier": "prettier --write --config ./.prettierrc.json \"./**/*\""
 	},
 	"devDependencies": {
-		"dotenv": "^16.4.5",
-		"prettier": "^3.3.3",
 		"autoprefixer": "^10.4.20",
+		"dotenv": "^16.4.5",
 		"postcss": "^8.4.47",
+		"prettier": "^3.3.3",
 		"prettier-plugin-tailwindcss": "^0.6.6",
 		"tailwindcss": "^3.4.13"
+	},
+	"dependencies": {
+		"canvas-confetti": "^1.9.3",
+		"react-canvas-confetti": "^2.0.7"
 	}
 }

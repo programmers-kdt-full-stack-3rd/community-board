@@ -44,7 +44,7 @@ const TextInput: React.FC<ITextInputProps> = ({
 				<label
 					htmlFor={id}
 					className={clsx(
-						"ml-1 block text-sm font-bold text-blue-900",
+						"ml-1 block text-sm font-bold",
 						isValid === true && "after:ml-1 after:content-['✔']",
 						isValid === false &&
 							"text-red-600 after:ml-1 after:content-['✘']"

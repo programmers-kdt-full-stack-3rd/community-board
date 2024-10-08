@@ -11,3 +11,6 @@ datas
 [Dd]esktop.ini
 
 *.log
+
+codeplay-key.pem
+connect-ec2.sh

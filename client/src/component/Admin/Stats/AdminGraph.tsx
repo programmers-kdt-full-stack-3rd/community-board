@@ -56,6 +56,7 @@ export const AdminGraph = () => {
 			if (res instanceof ClientError) {
 				return;
 			}
+			setIntervalStats(res.intervalStats);
 		});
 	};
 

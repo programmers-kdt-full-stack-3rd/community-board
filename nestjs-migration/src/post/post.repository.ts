@@ -8,6 +8,7 @@ import { GetPostHeadersDto } from "./dto/get-post-headers.dto";
 import { ReadPostsQuery, SortBy } from "./dto/read-posts-query.dto";
 import { Post } from "./entities/post.entity";
 import { GetPostDto } from "./dto/get-post.dto";
+import { GetTopPostsRes } from "src/rank/dto/get-top-posts.dto";
 
 @Injectable()
 export class PostRepository extends Repository<Post> {
@@ -79,7 +80,7 @@ export class PostRepository extends Repository<Post> {
 
 		queryBuilder
 			.addOrderBy("user.id", "ASC")
-			.limit(perPage)
+			.limit(perPage) //TODO: .vs take, skip
 			.offset(index * perPage);
 
 		const results = await queryBuilder.getRawMany();
@@ -122,6 +123,7 @@ export class PostRepository extends Repository<Post> {
 	async getPost(postId: number, userId: number): Promise<GetPostDto> {
 		const authorId = userId;
 		const queryBuilder = this.createQueryBuilder("post")
+			.leftJoin("post.author", "user")
 			.select([
 				"post.id as id",
 				"title",
@@ -141,7 +143,10 @@ export class PostRepository extends Repository<Post> {
 			])
 			.addSelect(
 				subQuery =>
-					subQuery.select("COUNT(*)").from(Like, "post_likes"),
+					subQuery
+						.select("COUNT(*)")
+						.from(Like, "likes")
+						.where("likes.post_id = post.id"),
 				"likes"
 			)
 			.leftJoin("post.author", "user")
@@ -151,6 +156,19 @@ export class PostRepository extends Repository<Post> {
 				isUserDeleted: false,
 			})
 			.andWhere("post.id = :postId", { postId: postId })
+			.andWhere(
+				new Brackets(qb => {
+					qb.where("post.is_private = :isPrivateFalse", {
+						isPrivateFalse: false,
+					}).orWhere(
+						"post.is_private = :isPrivateTrue AND post.author_id = :authorId",
+						{
+							isPrivateTrue: true,
+							authorId: userId,
+						}
+					);
+				})
+			)
 			.setParameters({ authorId, userId });
 
 		const result = await queryBuilder.getRawOne();
@@ -266,5 +284,29 @@ export class PostRepository extends Repository<Post> {
 			count: parseInt(result.count, 10),
 			views: parseInt(result.views, 10),
 		};
+	}
+
+	async getTopPosts() {
+		const queryBuilder = this.createQueryBuilder("post")
+			.leftJoin("post.author", "user")
+			.leftJoin("post.likes", "pl")
+			.select([
+				"post.title as title",
+				"post.id as postId",
+				"user.nickname as nickname",
+				"COUNT(*) as likeCount",
+			])
+			.where("post.is_delete = :isPostDeleted", { isPostDeleted: false })
+			.andWhere("user.is_delete = :isUserDeleted", {
+				isUserDeleted: false,
+			})
+			.groupBy("post.id")
+			.orderBy("likeCount", "DESC")
+			.addOrderBy("post.id", "ASC")
+			.limit(5);
+
+		const results = await queryBuilder.getRawMany();
+
+		return plainToInstance(GetTopPostsRes, results);
 	}
 }
