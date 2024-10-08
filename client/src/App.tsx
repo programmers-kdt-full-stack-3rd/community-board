@@ -195,6 +195,7 @@ function App() {
 						<Route
 							path="/profile"
 							element={<ProfilePage />}
+						/>
 						<Route
 							path="/rank"
 							element={<Rank />}

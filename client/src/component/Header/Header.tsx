@@ -25,6 +25,7 @@ const Header: React.FC = () => {
 	const navigate = useNavigate();
 	const isLogin = useUserStore.use.isLogin();
 	const nickname = useUserStore.use.nickname();
+	const imgUrl = useUserStore.use.imgUrl();
 	const socket = useUserStore.use.socket();
 	const { setLogoutUser } = useUserStore.use.actions();
 	const { initializeChatState } = useChatRoom();
@@ -157,8 +158,31 @@ const Header: React.FC = () => {
 							</div>
 
 							{isLogin && (
-								<div className="text-white">
-									{nickname}님 환영 합니다.
+								<div
+									style={{
+										display: "flex",
+										flexDirection: "row",
+										gap: "5px",
+									}}
+								>
+									<img
+										src={imgUrl}
+										style={{
+											width: "40px",
+											height: "40px",
+											borderRadius: "50%",
+											objectFit: "cover",
+										}}
+									/>
+									<div
+										style={{
+											display: "flex",
+											justifyContent: "center",
+											alignItems: "center",
+										}}
+									>
+										{nickname}님 환영 합니다.
+									</div>
 								</div>
 							)}
 
