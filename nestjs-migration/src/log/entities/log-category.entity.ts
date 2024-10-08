@@ -4,6 +4,7 @@ import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 export class LogCategory {
 	@PrimaryGeneratedColumn()
 	id: number;
-	@Column()
+
+	@Column({ length: 50 })
 	name: string;
 }

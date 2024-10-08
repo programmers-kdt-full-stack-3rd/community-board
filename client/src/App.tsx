@@ -31,6 +31,7 @@ import Community from "./page/Category/Community";
 import { AdminPage } from "./page/Admin/AdminPage";
 import UpsertPostPage from "./page/Posts/UpsertPostPage";
 import ProfilePage from "./page/Profile/ProfilePage";
+import { Rank } from "./page/Rank/Rank";
 
 function MainContainer({ children }: { children: React.ReactNode }) {
 	const location = useLocation();
@@ -194,6 +195,9 @@ function App() {
 						<Route
 							path="/profile"
 							element={<ProfilePage />}
+						<Route
+							path="/rank"
+							element={<Rank />}
 						/>
 					</Routes>
 				</MainContainer>

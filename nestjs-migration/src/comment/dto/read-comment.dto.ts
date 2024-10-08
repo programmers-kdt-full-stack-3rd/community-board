@@ -1,53 +1,56 @@
-import { IsDefined, IsInt, IsNotEmpty, IsOptional, IsPositive, Min } from "class-validator";
-import { ERROR_MESSAGES } from "../constant/comment-constants";
+import { IsDefined, IsInt, IsOptional, IsPositive } from "class-validator";
+import { COMMENT_ERROR_MESSAGES } from "../constant/comment.constants";
 import { Transform } from "class-transformer";
 
+export class ReadCommentQuery {
+	@IsDefined({ message: COMMENT_ERROR_MESSAGES.POST_ID_REQUIRED })
+	@Transform(({ value }) => parseInt(value, 10), { toClassOnly: true })
+	@IsInt({ message: COMMENT_ERROR_MESSAGES.INVALID_POST_ID })
+	@IsPositive({ message: COMMENT_ERROR_MESSAGES.INVALID_POST_ID })
+	post_id: number;
 
-export class ReadCommentQueryDto {
+	@Transform(({ value }) => (value == "" ? undefined : parseInt(value, 10)), {
+		toClassOnly: true,
+	})
+	index?: number;
 
-    @IsDefined({ message: ERROR_MESSAGES.POST_ID_REQUIRED})
-    @IsNotEmpty({ message: ERROR_MESSAGES.POST_ID_REQUIRED})
-    @Transform(({ value }) => parseInt(value, 10), { toClassOnly: true })
-    @IsInt({ message: ERROR_MESSAGES.INVALID_POST_ID})
-    @IsPositive({ message: ERROR_MESSAGES.INVALID_POST_ID})
-    post_id: number;
+	@Transform(
+		({ value }) => (value === "" ? undefined : parseInt(value, 10)),
+		{ toClassOnly: true }
+	)
+	@IsOptional()
+	@IsInt()
+	perPage?: number = 50;
 
-    @Transform(({ value }) => (value == "" ?  undefined : parseInt(value, 10)), { toClassOnly: true })
-    index?: number;
-
-    @Transform(({ value }) => (value === "" ?  undefined : parseInt(value, 10)), { toClassOnly: true })
-    perPage?: number = 50;
-
-    userId?: number;
-
+	@IsOptional()
+	@IsInt()
+	userId?: number;
 }
 
-export class CommentsDto { 
+export class CommentsDto {
+	id: number;
 
-    id: number;
+	content: string;
 
-    content: string;
+	author_id: number;
 
-    author_id: number;
+	author_nickname: string;
 
-    author_nickname: string;
+	@Transform(({ value }) => Boolean(value))
+	is_author: boolean;
 
-    @Transform(({ value }) => Boolean(value))
-    is_author: boolean;
-    
-    created_at: Date;
+	created_at: Date;
 
-    updated_at: Date;
+	updated_at: Date;
 
-    @Transform(({ value }) => parseInt(value))
-    likes: number;
+	@Transform(({ value }) => parseInt(value))
+	likes: number;
 
-    @Transform(({ value }) => Boolean(value))
-    user_liked: boolean;
-
+	@Transform(({ value }) => Boolean(value))
+	user_liked: boolean;
 }
 
 export class CommentsResultDto {
-    total : number;
-    comments: CommentsDto[];
+	total: number;
+	comments: CommentsDto[];
 }

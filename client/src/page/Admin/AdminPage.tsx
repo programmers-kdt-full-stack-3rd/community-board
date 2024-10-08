@@ -42,12 +42,13 @@ export const AdminPage = () => {
 			if (res instanceof ClientError) {
 				return;
 			}
+			console.log(res.totalStats);
 			setTotalStats(res.totalStats);
 		});
 	};
 
 	useEffect(() => {
-		fetchStats(startDate, endDate, "yearly");
+		fetchStats(startDate, endDate, "daily");
 	}, [startDate, endDate]);
 
 	const duration = 2000;

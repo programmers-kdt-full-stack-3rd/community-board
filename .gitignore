@@ -9,3 +9,5 @@ datas
 
 .DS_Store
 [Dd]esktop.ini
+
+*.log
