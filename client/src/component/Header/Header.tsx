@@ -4,7 +4,6 @@ import {
 	FiUser,
 	FiUserPlus,
 	FiChevronDown,
-	FiMessageSquare,
 } from "react-icons/fi";
 import { FaComments } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
@@ -15,7 +14,6 @@ import DropdownMenu from "./DropdownMenu";
 import { ApiCall } from "../../api/api";
 import { ClientError } from "../../api/errors";
 import { useChatRoom } from "../../state/ChatRoomStore";
-import { useChatAside } from "../../state/ChatAsideStore";
 import { isDevMode } from "../../utils/detectMode"; // TODO: UI 리팩터링 완료 후 테스트 import 제거
 import { MdDarkMode } from "react-icons/md";
 import useThemeStore from "../../state/ThemeStore";
@@ -31,7 +29,6 @@ const Header: React.FC = () => {
 	const { initializeChatState } = useChatRoom();
 	const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 	const dropdownMenuRef = useRef<HTMLDivElement>(null);
-	const { isOpen, open, close } = useChatAside();
 	const { isDarkMode, toggleDarkMode } = useThemeStore();
 
 	// 드랍다운 메뉴 이외 클릭시 드랍다운 메뉴 닫기
@@ -90,14 +87,6 @@ const Header: React.FC = () => {
 
 	const handleJoin = () => {
 		navigate("/join");
-	};
-
-	const handleChatAside = () => {
-		if (isOpen) {
-			close();
-		} else {
-			open();
-		}
 	};
 
 	return (
@@ -185,11 +174,6 @@ const Header: React.FC = () => {
 									</div>
 								</div>
 							)}
-
-							<div onClick={() => handleChatAside()}>
-								<FiMessageSquare className="text-3xl text-white" />
-							</div>
-
 							<div
 								className="text-lg text-white"
 								onClick={isLogin ? handleLogout : handleLogin}

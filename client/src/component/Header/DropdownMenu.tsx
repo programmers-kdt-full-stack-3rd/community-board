@@ -67,7 +67,7 @@ const DropdownMenu: ForwardRefRenderFunction<
 					onClick={handleProfileUpdateClick}
 				>
 					<FaRegUserCircle />
-					회원정보 변경
+					마이페이지
 				</div>
 
 				{!isEmailRegistered && (
