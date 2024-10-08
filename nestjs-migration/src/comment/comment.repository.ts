@@ -4,6 +4,7 @@ import { DataSource, Repository } from "typeorm";
 import { CommentLike } from "../like/entities/comment-like.entity";
 import { CommentsDto, ReadCommentQuery } from "./dto/read-comment.dto";
 import { Comment } from "./entities/comment.entity";
+import { GetTopCommentsRes } from "src/rank/dto/get-top-comments.dto";
 
 @Injectable()
 export class CommentRepository extends Repository<Comment> {
@@ -129,5 +130,27 @@ export class CommentRepository extends Repository<Comment> {
 		return {
 			count: parseInt(result.count, 10),
 		};
+	}
+
+	async getTopComments() {
+		const queryBuilder = this.createQueryBuilder("comment")
+			.leftJoin("comment.author", "user")
+			.leftJoin("comment.comment_likes", "cl")
+			.select([
+				"user.nickname as nickname",
+				"COUNT(*) as likeCount",
+				"comment.id",
+			])
+			.where("comment.is_delete = :isDeleted", { isDeleted: false })
+			.andWhere("user.is_delete = :isDeleted", {
+				isDeleted: false,
+			})
+			.groupBy("comment.id")
+			.orderBy("likeCount", "DESC") // 좋아요 수로 정렬
+			.limit(5);
+
+		const results = await queryBuilder.getRawMany();
+
+		return plainToInstance(GetTopCommentsRes, results);
 	}
 }
