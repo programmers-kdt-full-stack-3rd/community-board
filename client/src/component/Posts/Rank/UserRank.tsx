@@ -25,11 +25,11 @@ export const UserRank = () => {
 	const [activitiesRank, setActivitiesRank] = useState<ActivityRank[]>([]);
 
 	const posts = [
-		{ nickname: "히히", title: "1", likeCount: 30 },
-		{ nickname: "User2", title: "2", likeCount: 20 },
-		{ nickname: "admin", title: "3", likeCount: 16 },
-		{ nickname: "User4", title: "4", likeCount: 12 },
-		{ nickname: "쿠쿠", title: "5", likeCount: 10 },
+		{ nickname: "히히", title: "집에 가고싶네", likeCount: 30 },
+		{ nickname: "User2", title: "배가 고프네", likeCount: 20 },
+		{ nickname: "admin", title: "잤으면 조켄네", likeCount: 16 },
+		{ nickname: "User4", title: "물회는 맛있어", likeCount: 12 },
+		{ nickname: "쿠쿠", title: "쿠쿸", likeCount: 10 },
 	];
 
 	const comments = [
@@ -99,7 +99,7 @@ export const UserRank = () => {
 								<ul className="mt-2 text-left text-sm font-bold text-gray-700 dark:text-gray-400">
 									{postRank.map((user, index) => (
 										<li key={index}>
-											{index + 1}. {user.nickname}
+											{index + 1}. {user.title}
 										</li>
 									))}
 								</ul>

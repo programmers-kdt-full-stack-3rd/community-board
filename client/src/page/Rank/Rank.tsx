@@ -31,11 +31,11 @@ export const Rank = () => {
 	const buttons = ["Activity Ranking", "Post Ranking", "Comment Ranking"];
 
 	const posts = [
-		{ nickname: "히히", title: "1", likeCount: 30 },
-		{ nickname: "User2", title: "2", likeCount: 20 },
-		{ nickname: "admin", title: "3", likeCount: 16 },
-		{ nickname: "User4", title: "4", likeCount: 12 },
-		{ nickname: "쿠쿠", title: "5", likeCount: 10 },
+		{ nickname: "히히", title: "집에 가고싶네", likeCount: 30 },
+		{ nickname: "User2", title: "배가 고프네", likeCount: 20 },
+		{ nickname: "admin", title: "잤으면 조켄네", likeCount: 16 },
+		{ nickname: "User4", title: "물회는 맛있어", likeCount: 12 },
+		{ nickname: "쿠쿠", title: "쿠쿸", likeCount: 10 },
 	];
 
 	const comments = [
@@ -96,7 +96,7 @@ export const Rank = () => {
 	};
 
 	const renderTopThree = () => {
-		let data;
+		let data: ActivityRank[] | PostRank[] | CommentRank[];
 		if (active === 0) {
 			data = activitiesRank;
 		} else if (active === 1) {
@@ -122,7 +122,9 @@ export const Rank = () => {
 					</span>
 					<FaUserCircle className="size-20" />
 					<span className="max-w-[5rem] truncate text-lg font-bold text-black dark:text-white">
-						{second.nickname}
+						{active === 1
+							? (second as PostRank).title
+							: (second as ActivityRank | CommentRank).nickname}
 					</span>
 					<span className="text-sm text-gray-700 dark:text-gray-300">
 						{getScore(second)} score
@@ -136,7 +138,9 @@ export const Rank = () => {
 					</span>
 					<FaUserCircle className="size-24" />
 					<span className="max-w-[5rem] truncate text-lg font-bold text-black dark:text-white">
-						{first.nickname}
+						{active === 1
+							? (first as PostRank).title
+							: (first as ActivityRank | CommentRank).nickname}
 					</span>
 					<span className="text-sm text-gray-700 dark:text-gray-300">
 						{getScore(first)} score
@@ -150,7 +154,9 @@ export const Rank = () => {
 					</span>
 					<FaUserCircle className="size-16" />
 					<span className="max-w-[5rem] truncate text-lg font-bold text-black dark:text-white">
-						{third.nickname}
+						{active === 1
+							? (third as PostRank).title
+							: (third as ActivityRank | CommentRank).nickname}
 					</span>
 					<span className="text-sm text-gray-700 dark:text-gray-300">
 						{getScore(third)} score
@@ -161,7 +167,8 @@ export const Rank = () => {
 	};
 
 	const renderRankList = () => {
-		let data;
+		let data: ActivityRank[] | PostRank[] | CommentRank[];
+
 		if (active === 0) {
 			data = activitiesRank;
 		} else if (active === 1) {
@@ -194,7 +201,9 @@ export const Rank = () => {
 						<span className="text-2xl font-bold">{index + 1}</span>
 						<FaUserCircle className="size-12" />
 						<span className="text-lg font-bold">
-							{item.nickname}
+							{active === 1
+								? (item as PostRank).title
+								: item.nickname}
 						</span>
 					</div>
 					<div>
@@ -215,7 +224,7 @@ export const Rank = () => {
 				className={`flex flex-col items-center ${visible ? "animate-slide-up" : ""}`}
 			>
 				<div className="dark:bg-customGray relative flex h-12 w-[700px] items-center justify-between rounded-3xl bg-blue-800">
-					<div className="relative mx-2 flex h-9 w-full flex-row items-center justify-between gap-3 rounded-2xl">
+					<div className="relative mx-2 flex h-10 w-full flex-row items-center justify-between gap-3 rounded-2xl">
 						<div
 							className={`absolute h-full w-1/3 rounded-2xl bg-blue-200 bg-opacity-15 transition-transform duration-300`}
 							style={{
