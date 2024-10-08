@@ -1,3 +1,4 @@
+import { Transform } from "class-transformer";
 import { IsOptional } from "class-validator";
 
 export class ReadPostsQuery {
@@ -9,6 +10,10 @@ export class ReadPostsQuery {
 
 	@IsOptional()
 	keyword?: string;
+
+	@IsOptional()
+	@Transform(({ value }) => parseInt(value))
+	category_id?: number;
 
 	@IsOptional()
 	sortBy?: SortBy;
