@@ -1,69 +1,57 @@
 import { useEffect, useState } from "react";
 import { FaCrown } from "react-icons/fa6";
 import { Link } from "react-router-dom";
+import { FaRegThumbsUp } from "react-icons/fa";
+import { FaPencilAlt } from "react-icons/fa";
 
-type PostRank = {
-	nickname: string;
-	title: string;
-	likeCount: number;
-};
-
-type CommentRank = {
-	nickname: string;
-	likeCount: number;
-};
-
-type ActivityRank = {
-	nickname: string;
-	postCount: number;
-	commentCount: number;
-};
+import {
+	fetchActivitiesRank,
+	fetchCommentRank,
+	fetchPostRank,
+} from "../../../api/Rank/rank_crud";
+import {
+	TopPostsRes,
+	TopCommentsRes,
+	TopActivitiesRes,
+} from "../../../../../nestjs-migration/dist/rank/dto/rank-results.dto";
+import { ApiCall } from "../../../api/api";
 
 export const UserRank = () => {
-	const [postRank, setPostRank] = useState<PostRank[]>([]);
-	const [commentRank, setCommentRank] = useState<CommentRank[]>([]);
-	const [activitiesRank, setActivitiesRank] = useState<ActivityRank[]>([]);
+	const [postRank, setPostRank] = useState<TopPostsRes[]>([]);
+	const [commentRank, setCommentRank] = useState<TopCommentsRes[]>([]);
+	const [activitiesRank, setActivitiesRank] = useState<TopActivitiesRes[]>(
+		[]
+	);
 
-	const posts = [
-		{ nickname: "히히", title: "집에 가고싶네", likeCount: 30 },
-		{ nickname: "User2", title: "배가 고프네", likeCount: 20 },
-		{ nickname: "admin", title: "잤으면 조켄네", likeCount: 16 },
-		{ nickname: "User4", title: "물회는 맛있어", likeCount: 12 },
-		{ nickname: "쿠쿠", title: "쿠쿸", likeCount: 10 },
-	];
+	const fetchData = async () => {
+		try {
+			const postResponse = await ApiCall(fetchPostRank, err => {
+				console.error("Post rank error:", err);
+			});
+			const commentResponse = await ApiCall(fetchCommentRank, err => {
+				console.error("Comment rank error:", err);
+			});
+			const activitiesResponse = await ApiCall(
+				fetchActivitiesRank,
+				err => {
+					console.error("Activities rank error:", err);
+				}
+			);
 
-	const comments = [
-		{ nickname: "ㅎ호", likeCount: 100 },
-		{ nickname: "룰루랄라", likeCount: 90 },
-		{ nickname: "User3", likeCount: 80 },
-		{ nickname: "핳", likeCount: 70 },
-		{ nickname: "User5", likeCount: 60 },
-	];
-
-	const activities = [
-		{ nickname: "이놔몬", postCount: 100, commentCount: 26 },
-		{ nickname: "내가1등인가", postCount: 90, commentCount: 20 },
-		{ nickname: "몰라쯧", postCount: 80, commentCount: 16 },
-		{ nickname: "User4", postCount: 70, commentCount: 12 },
-		{ nickname: "User5", postCount: 60, commentCount: 10 },
-	];
+			setPostRank(postResponse);
+			setCommentRank(commentResponse);
+			setActivitiesRank(activitiesResponse);
+		} catch (error) {
+			console.error("Error fetching ranks:", error);
+		}
+	};
 
 	useEffect(() => {
-		// const fetchData = async () => {
-		// 	try {
-		// 		setActivitiesRank(activities);
-		// 		setPostRank(posts);
-		// 		setCommentRank(comments);
-		// 	} catch (error) {
-		// 		console.error("Error fetching ranks:", error);
-		// 	}
-		// };
-
-		// fetchData();
-		setActivitiesRank(activities);
-		setPostRank(posts);
-		setCommentRank(comments);
+		fetchData();
 	}, []);
+	useEffect(() => {
+		fetchData();
+	}, [postRank, commentRank, activitiesRank]);
 
 	return (
 		<div className="hidden w-[180px] shrink-0 lg:block">
@@ -81,7 +69,16 @@ export const UserRank = () => {
 								<ul className="mt-2 text-left text-sm font-bold text-gray-700 dark:text-gray-400">
 									{activitiesRank.map((user, index) => (
 										<li key={index}>
-											{index + 1}. {user.nickname}
+											<div className="flex flex-row items-center justify-between">
+												<div className="overflow-hidden overflow-ellipsis whitespace-nowrap">
+													{index + 1}. {user.nickname}
+												</div>
+												<div className="flex flex-row items-center gap-1">
+													{user.commentCount +
+														user.postCount}
+													<FaPencilAlt />
+												</div>
+											</div>
 										</li>
 									))}
 								</ul>
@@ -99,7 +96,15 @@ export const UserRank = () => {
 								<ul className="mt-2 text-left text-sm font-bold text-gray-700 dark:text-gray-400">
 									{postRank.map((user, index) => (
 										<li key={index}>
-											{index + 1}. {user.title}
+											<div className="flex flex-row items-center justify-between">
+												<div className="overflow-hidden overflow-ellipsis whitespace-nowrap">
+													{index + 1}. {user.title}
+												</div>
+												<div className="flex flex-row items-center gap-1">
+													{user.likeCount}
+													<FaRegThumbsUp />
+												</div>
+											</div>
 										</li>
 									))}
 								</ul>
@@ -117,7 +122,15 @@ export const UserRank = () => {
 								<ul className="mt-2 text-left text-sm font-bold text-gray-700 dark:text-gray-400">
 									{commentRank.map((user, index) => (
 										<li key={index}>
-											{index + 1}. {user.nickname}
+											<div className="flex flex-row items-center justify-between">
+												<div className="overflow-hidden overflow-ellipsis whitespace-nowrap">
+													{index + 1}. {user.nickname}
+												</div>
+												<div className="flex flex-row items-center gap-1">
+													{user.likeCount}
+													<FaRegThumbsUp />
+												</div>
+											</div>
 										</li>
 									))}
 								</ul>
