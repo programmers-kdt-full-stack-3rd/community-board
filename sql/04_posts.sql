@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS posts (
     is_delete Boolean NOT NULL DEFAULT FALSE,
     is_private Boolean NOT NULL DEFAULT FALSE,
     FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (category_id) REFERENCES post_categories(id) ON DELETE SET DEFAULT
+    FOREIGN KEY (category_id) REFERENCES post_categories(id) ON DELETE SET DEFAULT,
     INDEX idx_category_id (category_id)
 );
 
