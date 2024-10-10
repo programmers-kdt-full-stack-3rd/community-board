@@ -38,11 +38,19 @@ export const UserRank = () => {
 				}
 			);
 
-			setPostRank(postResponse);
-			setCommentRank(commentResponse);
-			setActivitiesRank(activitiesResponse);
+			setPostRank(Array.isArray(postResponse) ? postResponse : []);
+			setCommentRank(
+				Array.isArray(commentResponse) ? commentResponse : []
+			);
+			setActivitiesRank(
+				Array.isArray(activitiesResponse) ? activitiesResponse : []
+			);
 		} catch (error) {
 			console.error("Error fetching ranks:", error);
+
+			setPostRank([]);
+			setCommentRank([]);
+			setActivitiesRank([]);
 		}
 	};
 
