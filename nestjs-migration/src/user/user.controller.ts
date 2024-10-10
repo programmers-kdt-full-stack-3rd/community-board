@@ -12,6 +12,7 @@ import {
 	UseGuards,
 } from "@nestjs/common";
 import { Request, Response } from "express";
+import { Permissions } from "../common/decorator/rbac.decorator";
 import { RequiredPassword } from "../common/decorator/required-password.decorator";
 import { User } from "../common/decorator/user.decorator";
 import { LoginGuard } from "../common/guard/login.guard";
@@ -86,6 +87,7 @@ export class UserController {
 
 	@UseGuards(LoginGuard)
 	@Get()
+	@Permissions("read:user")
 	@HttpCode(HttpStatus.OK)
 	async readUser(@User() userEntity: IUserEntity) {
 		const userId = userEntity.userId;
@@ -106,6 +108,7 @@ export class UserController {
 	@HttpCode(HttpStatus.OK)
 	@UseGuards(LoginGuard)
 	@RequiredPassword()
+	@Permissions("update:user")
 	async updateUser(
 		@User() userEntity: IUserEntity,
 		@Body() updateUserDto: UpdateUserDto
@@ -121,6 +124,7 @@ export class UserController {
 	@HttpCode(HttpStatus.OK)
 	@UseGuards(LoginGuard)
 	@RequiredPassword()
+	@Permissions("delete:user")
 	async deleteUser(
 		@User() userEntity: IUserEntity,
 		@Res({ passthrough: true }) res: Response

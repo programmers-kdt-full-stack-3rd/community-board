@@ -1,6 +1,4 @@
 import { FieldPacket, PoolConnection } from "mysql2/promise";
-import pool from "../connect";
-import { ServerError } from "../../middleware/errors";
 import {
 	IPostResult,
 	IPostResultInterval,
@@ -11,6 +9,8 @@ import {
 	IStatsIntervalInput,
 	IUserStat,
 } from "shared";
+import { ServerError } from "../../middleware/errors";
+import pool from "../connect";
 
 export const getTotalStats = async (): Promise<IStats> => {
 	let conn: PoolConnection | null = null;
@@ -18,7 +18,7 @@ export const getTotalStats = async (): Promise<IStats> => {
 		conn = await pool.getConnection();
 
 		const postSql = `
-            SELECT COUNT(*) AS count, COALESCE(SUM(views), 0) AS views
+            SELECT COUNT(*) AS count, CAST(COALESCE(SUM(views), 0) AS SIGNED) AS views
             FROM posts p
             JOIN users u ON p.author_id = u.id
             WHERE p.is_delete = 0 AND u.is_delete = 0
@@ -95,7 +95,7 @@ export const getIntervalStats = async ({
 		`;
 
 		let postSql = `
-        SELECT COUNT(*) AS count, COALESCE(SUM(views), 0) AS views, DATE_FORMAT(p.created_at, ?) AS date
+        SELECT COUNT(*) AS count, CAST(COALESCE(SUM(views), 0) AS SIGNED) AS views, DATE_FORMAT(p.created_at, ?) AS date
         FROM posts p
         JOIN users u ON p.author_id = u.id
         WHERE p.is_delete = 0 AND u.is_delete = 0
@@ -162,7 +162,7 @@ export const getUserStat = async (userId: number): Promise<IUserStat> => {
 		conn = await pool.getConnection();
 
 		const postSql = `
-			SELECT COUNT(*) AS count, COALESCE(SUM(views), 0) AS views
+			SELECT COUNT(*) AS count, CAST(COALESCE(SUM(views), 0) AS SIGNED) AS views
 			FROM posts
 			WHERE author_id = ? AND is_delete = 0
 		`;

@@ -21,6 +21,7 @@ export class LogRepository extends Repository<Log> {
 			.leftJoin("log.category", "category")
 			.where("log.userId = :userId", { userId })
 			.orderBy("log.createdAt", "DESC")
+			.addOrderBy("log.id", "DESC")
 			.limit(perPage)
 			.offset(index * perPage);
 

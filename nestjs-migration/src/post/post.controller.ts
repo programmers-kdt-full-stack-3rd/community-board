@@ -1,24 +1,22 @@
 import {
-	Controller,
-	Get,
-	Post,
 	Body,
-	Patch,
-	Param,
+	Controller,
 	Delete,
-	UseGuards,
+	Get,
 	HttpCode,
 	HttpStatus,
-	Query,
+	Param,
 	ParseIntPipe,
+	Patch,
+	Post,
+	Query,
+	UseGuards,
 } from "@nestjs/common";
-import { PostService } from "./post.service";
-import { ReadPostsQuery } from "./dto/read-posts-query.dto";
-import { CreatePostReq } from "./dto/create-post.dto";
-import { UpdatePostReq } from "./dto/update-post.dto";
-import { LoginGuard } from "../common/guard/login.guard";
 import { User } from "src/common/decorator/user.decorator";
 import { IUserEntity } from "src/common/interface/user-entity.interface";
+import { Permissions } from "../common/decorator/rbac.decorator";
+import { LoginGuard } from "../common/guard/login.guard";
+import { CreatePostReq } from "./dto/create-post.dto";
 import {
 	CreatePostRes,
 	DeletePostRes,
@@ -26,6 +24,9 @@ import {
 	GetPostsHeaderRes,
 	UpdatePostRes,
 } from "./dto/post-results.dto";
+import { ReadPostsQuery } from "./dto/read-posts-query.dto";
+import { UpdatePostReq } from "./dto/update-post.dto";
+import { PostService } from "./post.service";
 
 @Controller("post")
 export class PostController {
@@ -34,6 +35,7 @@ export class PostController {
 	@UseGuards(LoginGuard)
 	@Post("/")
 	@HttpCode(HttpStatus.OK)
+	@Permissions("create:post")
 	async handlePostCreate(
 		@Body() createPostReq: CreatePostReq,
 		@User() user: IUserEntity
@@ -53,6 +55,7 @@ export class PostController {
 
 	@Get("/")
 	@HttpCode(HttpStatus.OK)
+	@Permissions("read:post")
 	async handlePostsRead(
 		@Query() readPostsQuery: ReadPostsQuery,
 		@User() user: IUserEntity
@@ -75,6 +78,7 @@ export class PostController {
 
 	@Get("/:postId")
 	@HttpCode(HttpStatus.OK)
+	@Permissions("read:post")
 	async handlePostRead(
 		@Param("postId", ParseIntPipe) postId: number,
 		@User() user: IUserEntity
@@ -91,6 +95,7 @@ export class PostController {
 	@UseGuards(LoginGuard)
 	@Patch("/:postId")
 	@HttpCode(HttpStatus.OK)
+	@Permissions("update:post")
 	async handlePostUpdate(
 		@Param("postId", ParseIntPipe) postId: number,
 		@Body() updatePostReq: UpdatePostReq,
@@ -112,6 +117,7 @@ export class PostController {
 	@UseGuards(LoginGuard)
 	@Delete(":postId")
 	@HttpCode(HttpStatus.OK)
+	@Permissions("delete:post")
 	async handlePostDelete(
 		@Param("postId", ParseIntPipe) postId: number,
 		@User() user: IUserEntity
