@@ -130,6 +130,8 @@ export class AdminService {
 	private async getIntervalStats(getStatsQueryDto: GetStatsQueryDto) {
 		const { startDate, endDate, interval } = getStatsQueryDto;
 		let dateFormat: string;
+		let start: Date = null;
+		let end: Date = null;
 
 		switch (interval) {
 			case "daily":
@@ -145,10 +147,16 @@ export class AdminService {
 				throw ServerError.badRequest("잘못된 interval 값입니다.");
 		}
 
-		const start = new Date(startDate);
-		const end = new Date(endDate);
-		end.setDate(end.getDate() + 1);
-		end.setSeconds(end.getSeconds() - 1);
+		if (startDate) {
+			start = new Date(startDate);
+		}
+
+		if (endDate) {
+			end = new Date(endDate);
+			end.setDate(end.getDate() + 1);
+			end.setSeconds(end.getSeconds() - 1);
+		}
+
 		const posts = await this.postRepository.getIntervalStats(
 			dateFormat,
 			start,
