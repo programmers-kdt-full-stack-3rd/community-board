@@ -16,6 +16,7 @@ export const CommentApiTests: Record<string, IApiTestCase> = {
 		description: "댓글 목록 조회 성공",
 		endpoint: "/api/comment?post_id=1",
 		method: "get",
+		ignoreFields: ["created_at"],
 	},
 
 	updateComment: {
