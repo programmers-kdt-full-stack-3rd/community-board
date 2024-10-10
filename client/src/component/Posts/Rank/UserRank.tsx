@@ -1,7 +1,66 @@
+import { useEffect, useState } from "react";
 import { FaCrown } from "react-icons/fa6";
 import { Link } from "react-router-dom";
+import { FaRegThumbsUp } from "react-icons/fa";
+import { FaPencilAlt } from "react-icons/fa";
+
+import {
+	fetchActivitiesRank,
+	fetchCommentRank,
+	fetchPostRank,
+} from "../../../api/Rank/rank_crud";
+import {
+	TopPostsRes,
+	TopCommentsRes,
+	TopActivitiesRes,
+} from "../../../../../nestjs-migration/dist/rank/dto/rank-results.dto";
+import { ApiCall } from "../../../api/api";
 
 export const UserRank = () => {
+	const [postRank, setPostRank] = useState<TopPostsRes[]>([]);
+	const [commentRank, setCommentRank] = useState<TopCommentsRes[]>([]);
+	const [activitiesRank, setActivitiesRank] = useState<TopActivitiesRes[]>(
+		[]
+	);
+
+	const fetchData = async () => {
+		try {
+			const postResponse = await ApiCall(fetchPostRank, err => {
+				console.error("Post rank error:", err);
+			});
+			const commentResponse = await ApiCall(fetchCommentRank, err => {
+				console.error("Comment rank error:", err);
+			});
+			const activitiesResponse = await ApiCall(
+				fetchActivitiesRank,
+				err => {
+					console.error("Activities rank error:", err);
+				}
+			);
+
+			setPostRank(Array.isArray(postResponse) ? postResponse : []);
+			setCommentRank(
+				Array.isArray(commentResponse) ? commentResponse : []
+			);
+			setActivitiesRank(
+				Array.isArray(activitiesResponse) ? activitiesResponse : []
+			);
+		} catch (error) {
+			console.error("Error fetching ranks:", error);
+
+			setPostRank([]);
+			setCommentRank([]);
+			setActivitiesRank([]);
+		}
+	};
+
+	useEffect(() => {
+		fetchData();
+	}, []);
+	useEffect(() => {
+		fetchData();
+	}, [postRank, commentRank, activitiesRank]);
+
 	return (
 		<div className="hidden w-[180px] shrink-0 lg:block">
 			<div className="sticky top-20 mb-8">
@@ -11,16 +70,25 @@ export const UserRank = () => {
 							<div className="flex items-center">
 								<FaCrown className="mr-1 text-blue-900 dark:text-white"></FaCrown>
 								<div className="text-lg font-bold text-blue-900 dark:text-white">
-									Rank
+									Activity
 								</div>
 							</div>
 							<div>
-								<ul className="text-left">
-									<li>1. user1</li>
-									<li>2. user2</li>
-									<li>3. user3</li>
-									<li>4. user4</li>
-									<li>5. user5</li>
+								<ul className="mt-2 text-left text-sm font-bold text-gray-700 dark:text-gray-400">
+									{activitiesRank.map((user, index) => (
+										<li key={index}>
+											<div className="flex flex-row items-center justify-between">
+												<div className="overflow-hidden overflow-ellipsis whitespace-nowrap">
+													{index + 1}. {user.nickname}
+												</div>
+												<div className="flex flex-row items-center gap-1">
+													{user.commentCount +
+														user.postCount}
+													<FaPencilAlt />
+												</div>
+											</div>
+										</li>
+									))}
 								</ul>
 							</div>
 						</div>
@@ -29,16 +97,24 @@ export const UserRank = () => {
 							<div className="flex items-center">
 								<FaCrown className="mr-1 text-blue-900 dark:text-white"></FaCrown>
 								<div className="text-lg font-bold text-blue-900 dark:text-white">
-									Top Writers
+									Post
 								</div>
 							</div>
 							<div>
-								<ul className="text-left">
-									<li>1. user1</li>
-									<li>2. user2</li>
-									<li>3. user3</li>
-									<li>4. user4</li>
-									<li>5. user5</li>
+								<ul className="mt-2 text-left text-sm font-bold text-gray-700 dark:text-gray-400">
+									{postRank.map((user, index) => (
+										<li key={index}>
+											<div className="flex flex-row items-center justify-between">
+												<div className="overflow-hidden overflow-ellipsis whitespace-nowrap">
+													{index + 1}. {user.title}
+												</div>
+												<div className="flex flex-row items-center gap-1">
+													{user.likeCount}
+													<FaRegThumbsUp />
+												</div>
+											</div>
+										</li>
+									))}
 								</ul>
 							</div>
 						</div>
@@ -47,16 +123,24 @@ export const UserRank = () => {
 							<div className="flex items-center">
 								<FaCrown className="mr-1 text-blue-900 dark:text-white"></FaCrown>
 								<div className="text-lg font-bold text-blue-900 dark:text-white">
-									Top Visitors
+									Comment
 								</div>
 							</div>
 							<div>
-								<ul className="text-left">
-									<li>1. user1</li>
-									<li>2. user2</li>
-									<li>3. user3</li>
-									<li>4. user4</li>
-									<li>5. user5</li>
+								<ul className="mt-2 text-left text-sm font-bold text-gray-700 dark:text-gray-400">
+									{commentRank.map((user, index) => (
+										<li key={index}>
+											<div className="flex flex-row items-center justify-between">
+												<div className="overflow-hidden overflow-ellipsis whitespace-nowrap">
+													{index + 1}. {user.nickname}
+												</div>
+												<div className="flex flex-row items-center gap-1">
+													{user.likeCount}
+													<FaRegThumbsUp />
+												</div>
+											</div>
+										</li>
+									))}
 								</ul>
 							</div>
 						</div>
