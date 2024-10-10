@@ -8,13 +8,22 @@ CREATE TABLE IF NOT EXISTS permissions (
 );
 
 INSERT IGNORE INTO permissions (name) VALUES
-('view_post'),
-('create_post'),
-('delete_post'),
-('create_comment'),
-('delete_comment'),
-('add_like'),
-('remove_like'),
-('login'),
-('logout'),
-('delete_account');
+('update:user'),
+('read:user'),
+('delete:user'),
+('create:post'),
+('update:post'),
+('read:post'),
+('delete:post'),
+('create:comment'),
+('update:comment'),
+('read:comment'),
+('delete:comment'),
+('create:post-like'),
+('delete:post-like'),
+('create:comment-like'),
+('delete:comment-like'),
+('manage:user'),
+('manage:post'),
+('view:log'),
+('view:stat');

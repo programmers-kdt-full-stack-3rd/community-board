@@ -1,24 +1,25 @@
 import {
-	Controller,
-	Get,
-	Post,
 	Body,
-	Patch,
-	Param,
+	Controller,
 	Delete,
-	UseGuards,
-	Query,
-	ParseIntPipe,
+	Get,
 	HttpCode,
 	HttpStatus,
+	Param,
+	ParseIntPipe,
+	Patch,
+	Post,
+	Query,
+	UseGuards,
 } from "@nestjs/common";
-import { CommentService } from "./comment.service";
-import { CreateCommentReq } from "./dto/create-comment.dto";
-import { UpdateCommentReq } from "./dto/update-comment.dto";
-import { LoginGuard } from "../common/guard/login.guard";
-import { CommentsResultDto, ReadCommentQuery } from "./dto/read-comment.dto";
 import { User } from "src/common/decorator/user.decorator";
 import { IUserEntity } from "src/common/interface/user-entity.interface";
+import { Permissions } from "../common/decorator/rbac.decorator";
+import { LoginGuard } from "../common/guard/login.guard";
+import { CommentService } from "./comment.service";
+import { CreateCommentReq } from "./dto/create-comment.dto";
+import { CommentsResultDto, ReadCommentQuery } from "./dto/read-comment.dto";
+import { UpdateCommentReq } from "./dto/update-comment.dto";
 
 @Controller("comment")
 export class CommentController {
@@ -27,6 +28,7 @@ export class CommentController {
 	@UseGuards(LoginGuard)
 	@Post("/")
 	@HttpCode(HttpStatus.CREATED)
+	@Permissions("create:comment")
 	async handleCommentCreate(
 		@Body() createCommentBodyDto: CreateCommentReq,
 		@User() user: IUserEntity
@@ -46,6 +48,7 @@ export class CommentController {
 
 	@Get("/")
 	@HttpCode(HttpStatus.OK)
+	@Permissions("read:comment")
 	async handleCommentsRead(
 		@Query() readCommentQueryDto: ReadCommentQuery,
 		@User() user: IUserEntity

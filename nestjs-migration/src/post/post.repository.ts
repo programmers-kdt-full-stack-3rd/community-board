@@ -1,14 +1,14 @@
 import { Injectable } from "@nestjs/common";
 import { plainToInstance } from "class-transformer";
 import { IAdminPostResponse } from "shared";
+import { GetTopPostsRes } from "src/rank/dto/get-top-posts.dto";
 import { Brackets, DataSource, Repository } from "typeorm";
 import { GetPostsDto } from "../admin/dto/get-posts.dto";
 import { Like } from "../like/entities/like.entity";
 import { GetPostHeadersDto } from "./dto/get-post-headers.dto";
+import { GetPostDto } from "./dto/get-post.dto";
 import { ReadPostsQuery, SortBy } from "./dto/read-posts-query.dto";
 import { Post } from "./entities/post.entity";
-import { GetPostDto } from "./dto/get-post.dto";
-import { GetTopPostsRes } from "src/rank/dto/get-top-posts.dto";
 
 @Injectable()
 export class PostRepository extends Repository<Post> {
@@ -149,7 +149,6 @@ export class PostRepository extends Repository<Post> {
 						.where("likes.post_id = post.id"),
 				"likes"
 			)
-			.leftJoin("post.author", "user")
 			.leftJoin("post.category", "pc")
 			.where("post.is_delete = :isPostDeleted", { isPostDeleted: false })
 			.andWhere("user.is_delete = :isUserDeleted", {
