@@ -1,56 +1,28 @@
-import { IKafkaMessageDTO } from "shared";
-import { Kafka, Producer } from "kafkajs";
+import { Message } from "kafkajs";
+
+import { getKafkaProducer } from "../utils/kafka";
 
 /**
- * Kafka Producer 객체
+ * message 송신 메서드
+ * @param topic
+ * @param message
  */
-let producer: Producer | null = null;
+const sendMessage = async (topic: string, message: Message) => {
+	try {
+		const producer = getKafkaProducer();
 
-/**
- * init Kafka Producer
- */
-const initProducer = (kafka: Kafka) => {
-	// TODO: 최적화 필요
-	producer = kafka.producer();
-};
-
-/**
- * get Kafka Producer
- */
-const getProducer = (): Producer => {
-	if (producer === null) {
-		throw new Error("Kafka Producer is null");
+		await producer.send({
+			topic,
+			messages: [message],
+			acks: -1, // 리더와 모든 팔로워 파티션이 메시지를 기록했을 때 성공
+			timeout: 10000, // ack에 대한 timeout
+		});
+		console.log(
+			`메시지 전송 성공\ntopic: ${topic}\nmessage: ${message.value}`
+		);
+	} catch (error) {
+		throw new Error("kafka 메시지 전송 오류");
 	}
-
-	return producer;
 };
 
-/**
- * Kafka 송신 메서드
- */
-
-// Kafka로 message 송신
-const sendMessage = async (messageDTO: IKafkaMessageDTO) => {
-	const { memberId, message, createdAt, isSystem } = messageDTO;
-
-	const timestamp = new Date(createdAt).getTime().toString();
-
-	if (producer === null) {
-		throw new Error("Kafka Producer is null");
-	}
-
-	await producer.send({
-		topic: "chat", // 토픽 이름
-		messages: [
-			{
-				key: `${memberId}`, // member Id
-				value: JSON.stringify({ message, isSystem }), // message value (Buffer | string | null)
-				timestamp, // string 형식의 시간 데이터
-			},
-		],
-		acks: -1, // 리더와 모든 팔로워 파티션이 메시지를 기록했을 때 성공
-		timeout: 10000, // ack에 대한 timeout
-	});
-};
-
-export { initProducer, getProducer, sendMessage };
+export { sendMessage };

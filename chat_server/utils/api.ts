@@ -1,8 +1,10 @@
-import axios from "axios";
+import axios, { AxiosInstance } from "axios";
 import dotenv from "dotenv";
 import {
 	IEnterRoomRequest,
+	IEnterRoomResponse,
 	IGetRoomMessageLogsRequest,
+	IGetRoomMessageLogsResponse,
 	IJoinRoomRequest,
 	IReadRoomRequest,
 } from "shared";
@@ -44,7 +46,7 @@ export const getMyMemberId = async (
 	params: IEnterRoomRequest,
 	cookies: string
 ) => {
-	return apiClient.post(`/api/chat/enter`, params, {
+	return apiClient.post<IEnterRoomResponse>(`/api/chat/enter`, params, {
 		headers: {
 			Cookie: `${cookies}`,
 		},
@@ -55,9 +57,12 @@ export const getMessageLogs = async (
 	params: IGetRoomMessageLogsRequest,
 	cookies: string
 ) => {
-	return apiClient.get(`/api/chat/room/${params.roomId}`, {
-		headers: {
-			Cookie: `${cookies}`,
-		},
-	});
+	return apiClient.get<IGetRoomMessageLogsResponse>(
+		`/api/chat/room/${params.roomId}`,
+		{
+			headers: {
+				Cookie: `${cookies}`,
+			},
+		}
+	);
 };

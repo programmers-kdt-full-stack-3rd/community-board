@@ -1,27 +1,11 @@
 import { createClient, RedisClientType } from "redis";
 
-/**
- * Redis API 객체
- */
-let redis: RedisClientType | null = null;
+// 동적 import
+process.env.NODE_ENV !== "production" &&
+	require("dotenv").config({ path: "./../.env" });
 
-const initRedisAPI = (url: string) => {
-	if (redis === null) {
-		redis = createClient({
-			url,
-		});
-	}
-};
+const redis: RedisClientType = createClient({
+	url: `redis://${process.env.DOCKER_HOST_IP}:${process.env.REDIS_PORT}`,
+});
 
-/**
- * get Redis API
- */
-const getRedisAPI = (): RedisClientType => {
-	if (redis === null) {
-		throw new Error("Redis API is null");
-	}
-
-	return redis;
-};
-
-export { getRedisAPI, initRedisAPI };
+export default redis;
