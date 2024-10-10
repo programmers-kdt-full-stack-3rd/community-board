@@ -4,6 +4,7 @@ export class GetPostDto {
 	authour_id: number;
 	author_nickname: string;
 	content: string;
+	category: string;
 	id: number;
 
 	@Transform(({ value }) => !!value)

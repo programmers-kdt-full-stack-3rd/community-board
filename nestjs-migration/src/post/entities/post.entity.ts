@@ -11,6 +11,7 @@ import {
 	PrimaryGeneratedColumn,
 	UpdateDateColumn,
 } from "typeorm";
+import { PostCategories } from "./post_categories.entity";
 
 @Entity("posts")
 export class Post {
@@ -22,6 +23,10 @@ export class Post {
 
 	@Column()
 	content: string;
+
+	@ManyToOne(() => PostCategories, category => category.id)
+	@JoinColumn({ name: "category_id" })
+	category: PostCategories;
 
 	@CreateDateColumn({ name: "created_at" })
 	createdAt: Date;

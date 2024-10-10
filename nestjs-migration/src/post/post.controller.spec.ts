@@ -20,6 +20,7 @@ describe("PostController", () => {
 	};
 	const mockUserId = 1;
 	const mockPostId = 9;
+	const mockCategoryId = 1;
 	const mockUser = {
 		userId: 1,
 		roleId: 1,
@@ -44,6 +45,7 @@ describe("PostController", () => {
 		const mockCreatePostDto: CreatePostDto = {
 			title: "Test Title",
 			content: "Test Content",
+			category_id: mockCategoryId,
 			authorId: mockUserId,
 			doFilter: true,
 		};
@@ -70,6 +72,7 @@ describe("PostController", () => {
 			const invalidPostDto = {
 				title: "hello",
 				content: "",
+				category_id: mockCategoryId,
 				doFilter: true,
 			};
 
@@ -93,6 +96,7 @@ describe("PostController", () => {
 				{
 					id: 32,
 					title: "finally",
+					category: "자유게시판",
 					author_nickname: "moon",
 					created_at: "2024-09-18T17:46:59.000Z",
 					views: 0,
@@ -132,6 +136,7 @@ describe("PostController", () => {
 				id: 17,
 				title: "5번째 게시물",
 				content: "게시물 내용을 입력",
+				category: "자유게시판",
 				author_id: 1,
 				author_nickname: "moon",
 				is_author: 0,

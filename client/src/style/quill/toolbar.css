@@ -1,0 +1,118 @@
+/* Quill 에디터 툴바 내부에 적용하는 스타일 */
+@layer components {
+	/* 드롭다운 기본 글자 색상 */
+	.ql-snow .ql-picker {
+		@apply text-neutral-700 dark:text-neutral-300;
+	}
+
+	/* SVG 아이콘 외곽선 */
+	.ql-snow .ql-stroke {
+		@apply stroke-neutral-700 dark:stroke-neutral-300;
+	}
+
+	/* SVG 아이콘 칠 */
+	.ql-snow :is(.ql-fill, .ql-stroke.ql-fill) {
+		@apply fill-neutral-700 dark:fill-neutral-300;
+	}
+
+	/* 드롭다운 토글 버튼 (펼침) */
+	.ql-toolbar.ql-snow .ql-picker.ql-expanded .ql-picker-label {
+		/* TODO: TextInput 컴포넌트 다크모드 작업 후, 다크모드 테두리 컬러 수정 */
+		@apply rounded-t border-gray-600 text-neutral-500 dark:text-neutral-500;
+	}
+
+	/* 드롭다운 토글 버튼 SVG 아이콘 (펼침) */
+	.ql-toolbar.ql-snow .ql-picker.ql-expanded .ql-picker-label .ql-stroke {
+		@apply stroke-neutral-500 dark:stroke-neutral-500;
+	}
+
+	/* 드롭다운 선택지 목록 */
+	.ql-toolbar.ql-snow .ql-picker.ql-expanded .ql-picker-options {
+		/* TODO: TextInput 컴포넌트 다크모드 작업 후, 다크모드 테두리 컬러 수정 */
+		@apply dark:bg-customDarkGray rounded-b border-gray-600 bg-white shadow-md;
+	}
+
+	/* 폰트 드롭다운 레이블 */
+	.ql-snow .ql-picker.ql-font :is(.ql-picker-label, .ql-picker-item) {
+		@apply before:content-['기본_서체'];
+	}
+	.ql-snow
+		.ql-picker.ql-font
+		:is(.ql-picker-label, .ql-picker-item)[data-value="serif"] {
+		@apply before:content-['명조체'];
+	}
+	.ql-snow
+		.ql-picker.ql-font
+		:is(.ql-picker-label, .ql-picker-item)[data-value="monospace"] {
+		@apply before:content-['고정폭_글꼴'];
+	}
+
+	/* 글자 크기 드롭다운 레이블 */
+	.ql-snow
+		.ql-picker.ql-size
+		:is(.ql-picker-label, .ql-picker-item)[data-value="small"] {
+		@apply before:content-['작게'];
+	}
+	.ql-snow .ql-picker.ql-size :is(.ql-picker-label, .ql-picker-item) {
+		@apply before:content-['기본_크기'];
+	}
+	.ql-snow
+		.ql-picker.ql-size
+		:is(.ql-picker-label, .ql-picker-item)[data-value="large"] {
+		@apply before:content-['크게'];
+	}
+	.ql-snow
+		.ql-picker.ql-size
+		:is(.ql-picker-label, .ql-picker-item)[data-value="huge"] {
+		@apply before:content-['더_크게'];
+	}
+
+	/* 글자 크기 드롭다운 선택지 항목 */
+	.ql-snow .ql-picker.ql-size .ql-picker-item[data-value="small"] {
+		@apply before:text-sm;
+	}
+	.ql-snow .ql-picker.ql-size .ql-picker-item {
+		@apply before:text-base;
+	}
+	.ql-snow .ql-picker.ql-size .ql-picker-item[data-value="large"] {
+		@apply before:text-xl;
+	}
+	.ql-snow .ql-picker.ql-size .ql-picker-item[data-value="huge"] {
+		@apply before:text-2xl;
+	}
+
+	/* focus, hover, active, selected 상태 컬러 (text) */
+	:is(.ql-snow.ql-toolbar, .ql-snow .ql-toolbar)
+		:is(button, .ql-picker-label, .ql-picker-item):is(
+			:hover,
+			:focus,
+			.ql-active,
+			.ql-selected
+		) {
+		@apply text-blue-600 dark:text-blue-400;
+	}
+
+	/* focus, hover, active, selected 상태 컬러 (SVG stroke) */
+	:is(.ql-snow.ql-toolbar, .ql-snow .ql-toolbar)
+		:is(button, .ql-picker-label, .ql-picker-item):is(
+			:hover,
+			:focus,
+			.ql-active,
+			.ql-selected
+		)
+		:is(.ql-stroke, .ql-stroke-miter) {
+		@apply stroke-blue-600 dark:stroke-blue-400;
+	}
+
+	/* focus, hover, active, selected 상태 컬러 (SVG fill) */
+	:is(.ql-snow.ql-toolbar, .ql-snow .ql-toolbar)
+		:is(button, .ql-picker-label, .ql-picker-item):is(
+			:hover,
+			:focus,
+			.ql-active,
+			.ql-selected
+		)
+		:is(.ql-fill, .ql-stroke.ql-fill) {
+		@apply fill-blue-600 dark:fill-blue-400;
+	}
+}

@@ -1,4 +1,16 @@
-export const toolbarColors = [
+export const quillFormats = [
+	"font",
+	"size",
+	"bold",
+	"underline",
+	"color",
+	"code-block",
+	"image",
+	"width",
+	"height",
+];
+
+const toolbarColors = [
 	// 1행: Primary color row
 	false, // 기본 컬러
 	"red3",
@@ -34,4 +46,13 @@ export const toolbarColors = [
 	"blue4",
 	"violet4",
 	"pink4",
+];
+
+export const toolbarContainer = [
+	[{ font: [] }],
+	[{ size: ["small", false, "large", "huge"] }],
+	["bold", "underline", { color: toolbarColors }],
+	["code-block"],
+	["image"],
+	["clean"],
 ];

@@ -35,13 +35,13 @@ export class PostController {
 	@Post("/")
 	@HttpCode(HttpStatus.OK)
 	async handlePostCreate(
-		@Body() createPostBodyDto: CreatePostReq,
+		@Body() createPostReq: CreatePostReq,
 		@User() user: IUserEntity
 	): Promise<CreatePostRes> {
 		try {
 			const authorId = user.userId;
 			const createPostDto = {
-				...createPostBodyDto,
+				...createPostReq,
 				authorId,
 			};
 			const postId = await this.postService.createPost(createPostDto);
@@ -54,17 +54,17 @@ export class PostController {
 	@Get("/")
 	@HttpCode(HttpStatus.OK)
 	async handlePostsRead(
-		@Query() readPostsQueryDto: ReadPostsQuery,
+		@Query() readPostsQuery: ReadPostsQuery,
 		@User() user: IUserEntity
 	): Promise<GetPostsHeaderRes> {
 		try {
 			const userId = user ? user.userId : 0;
 			const postHeaders = await this.postService.findPostHeaders(
-				readPostsQueryDto,
+				readPostsQuery,
 				userId
 			);
 			const total = await this.postService.findPostTotal(
-				readPostsQueryDto,
+				readPostsQuery,
 				userId
 			);
 			return { total, postHeaders };
@@ -93,13 +93,13 @@ export class PostController {
 	@HttpCode(HttpStatus.OK)
 	async handlePostUpdate(
 		@Param("postId", ParseIntPipe) postId: number,
-		@Body() updatePostBodyDto: UpdatePostReq,
+		@Body() updatePostReq: UpdatePostReq,
 		@User() user: IUserEntity
 	): Promise<UpdatePostRes> {
 		try {
 			const authorId = user.userId;
 			const updateBodyDto = {
-				...updatePostBodyDto,
+				...updatePostReq,
 				authorId,
 			};
 			await this.postService.updatePost(postId, updateBodyDto);
@@ -109,7 +109,6 @@ export class PostController {
 		}
 	}
 
-	//?userID: admin때문인 것 같은데..
 	@UseGuards(LoginGuard)
 	@Delete(":postId")
 	@HttpCode(HttpStatus.OK)

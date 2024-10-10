@@ -18,6 +18,7 @@ describe("PostService", () => {
 	let mockUserId: number;
 	let mockUser: Partial<User>;
 	let mockPostId: number;
+	let mockCategoryId: number;
 
 	const mockPostRepository = {
 		getPostHeaders: jest.fn(),
@@ -66,6 +67,7 @@ describe("PostService", () => {
 		};
 		mockUserId = mockUser.id;
 		mockPostId = 2;
+		mockCategoryId = 1;
 	});
 
 	describe("createPost", () => {
@@ -87,6 +89,7 @@ describe("PostService", () => {
 		const mockCreatePostDto: CreatePostDto = {
 			title: "title",
 			content: "content",
+			category_id: mockCategoryId,
 			doFilter: false,
 			authorId: mockUserId,
 		};

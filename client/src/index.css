@@ -1,4 +1,4 @@
-@import "./style/quill-post.css";
+@import "./style/quill/quill.css";
 
 @tailwind base;
 @tailwind components;
