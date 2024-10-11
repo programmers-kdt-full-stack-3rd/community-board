@@ -1,11 +1,13 @@
 import {
-	TopPostsRes,
 	TopCommentsRes,
 	TopActivitiesRes,
+	TopPostsRes,
 } from "../../../../nestjs-migration/dist/rank/dto/rank-results.dto";
 
+const VITE_NEST_SERVER_ADDRESS = import.meta.env.VITE_NEST_SERVER_ADDRESS;
+
 export const fetchPostRank = async () => {
-	const response = await fetch("http://localhost:3000/api/rank/posts");
+	const response = await fetch(`${VITE_NEST_SERVER_ADDRESS}/api/rank/posts`);
 	if (!response.ok) {
 		throw new Error("Network response was not ok");
 	}
@@ -15,7 +17,9 @@ export const fetchPostRank = async () => {
 };
 
 export const fetchCommentRank = async () => {
-	const response = await fetch("http://localhost:3000/api/rank/comments");
+	const response = await fetch(
+		`${VITE_NEST_SERVER_ADDRESS}/api/rank/comments`
+	);
 	if (!response.ok) {
 		throw new Error("Network response was not ok");
 	}
@@ -25,7 +29,9 @@ export const fetchCommentRank = async () => {
 };
 
 export const fetchActivitiesRank = async () => {
-	const response = await fetch("http://localhost:3000/api/rank/activities");
+	const response = await fetch(
+		`${VITE_NEST_SERVER_ADDRESS}/api/rank/activities`
+	);
 	if (!response.ok) {
 		throw new Error("Network response was not ok");
 	}
