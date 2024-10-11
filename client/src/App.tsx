@@ -186,7 +186,11 @@ function App() {
 						/>
 						<Route
 							path="/category/community"
-							element={<Community />}
+							element={<Community categoryId={1} />}
+						/>
+						<Route
+							path="/category/qna"
+							element={<Community categoryId={3} />}
 						/>
 						<Route
 							path="/post/new"

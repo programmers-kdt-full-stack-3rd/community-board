@@ -1,48 +1,32 @@
 import { UserRank } from "../../component/Posts/Rank/UserRank";
 import { Link } from "react-router-dom";
 import { IPostHeader, mapDBToPostHeaders } from "shared";
-import { useLayoutEffect, useState } from "react";
-import useMainPageSearchParams from "../../hook/useMainPageSearchParams";
+import { useEffect, useState } from "react";
 import { ApiCall } from "../../api/api";
-import { ClientError } from "../../api/errors";
 import { sendGetPostsRequest } from "../../api/posts/crud";
 import MainPortList from "../../component/Posts/PostList/MainPostList";
 
 const Main = () => {
 	const [posts, setPosts] = useState<IPostHeader[] | null>([]);
-	const { searchParams, setSearchParams, parsed } = useMainPageSearchParams();
 
-	useLayoutEffect(() => {
-		const queryString = `?${searchParams.toString()}`;
-
+	useEffect(() => {
 		ApiCall(
-			() => sendGetPostsRequest(queryString),
-			() => {
-				setPosts(null);
-			}
+			() =>
+				sendGetPostsRequest({
+					index: 1,
+					perPage: 5,
+					// TODO: 카테고리 지정
+					// category_id?: number | undefined,
+				}),
+			() => setPosts(null)
 		).then(res => {
-			if (res instanceof ClientError) {
+			if (res instanceof Error) {
 				return;
 			}
 
-			const total = parseInt(res.total, 10);
-
-			if (isNaN(total)) {
-				// TODO: 에러 핸들링
-				return;
-			}
-
-			const pageCount = Math.ceil(total / parsed.perPage);
-
-			if (pageCount > 0 && parsed.index > pageCount) {
-				const nextSearchParams = new URLSearchParams(searchParams);
-				nextSearchParams.set("index", String(pageCount));
-				setSearchParams(nextSearchParams);
-			} else {
-				setPosts(mapDBToPostHeaders(res.postHeaders));
-			}
+			setPosts(mapDBToPostHeaders(res.postHeaders));
 		});
-	}, [parsed.index, parsed.perPage, parsed.keyword, parsed.sortBy]);
+	}, []);
 
 	return (
 		<div>
@@ -67,7 +51,7 @@ const Main = () => {
 									</div>
 									<MainPortList
 										posts={posts ? posts.slice(0, 5) : []}
-										keyword={parsed.keyword}
+										// keyword={parsed.keyword}
 									/>
 								</div>
 								<div className="w-full">
@@ -84,7 +68,7 @@ const Main = () => {
 									</div>
 									<MainPortList
 										posts={posts ? posts.slice(0, 5) : []}
-										keyword={parsed.keyword}
+										// keyword={parsed.keyword}
 									/>
 								</div>
 							</div>
@@ -104,7 +88,7 @@ const Main = () => {
 									</div>
 									<MainPortList
 										posts={posts ? posts.slice(0, 5) : []}
-										keyword={parsed.keyword}
+										// keyword={parsed.keyword}
 									/>
 								</div>
 								<div className="w-full">
@@ -121,7 +105,7 @@ const Main = () => {
 									</div>
 									<MainPortList
 										posts={posts ? posts.slice(0, 5) : []}
-										keyword={parsed.keyword}
+										// keyword={parsed.keyword}
 									/>
 								</div>
 							</div>

@@ -1,10 +1,12 @@
-import { useLayoutEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { IPostHeader, mapDBToPostHeaders, SortBy } from "shared";
-import { sendGetPostsRequest } from "../../api/posts/crud";
+import {
+	sendGetPostsRequest,
+	TPostListClientSearchParams,
+} from "../../api/posts/crud";
 import Pagination from "../../component/common/Pagination/Pagination";
 import PostList from "../../component/Posts/PostList/PostList";
 import SearchForm from "../../component/common/SearchForm/SearchForm";
-import useMainPageSearchParams from "../../hook/useMainPageSearchParams";
 import { useUserStore } from "../../state/store";
 import {
 	createPostButtonWrapper,
@@ -12,47 +14,44 @@ import {
 	postListActions,
 } from "../Main/Main.css";
 import { ApiCall } from "../../api/api";
-import { ClientError } from "../../api/errors";
 import { UserRank } from "../../component/Posts/Rank/UserRank";
 import { useNavigate } from "react-router-dom";
 import useParsedSearchParams from "../../hook/useParsedSearchParams";
 
-type TSearchParamsObject = {
-	index: number;
-	perPage: number;
-	sortBy: number;
-	keyword: string;
-};
+interface IProps {
+	categoryId?: number;
+}
 
-const Community = () => {
+const Community: React.FC<IProps> = ({ categoryId }) => {
 	const navigate = useNavigate();
 	const isLogin = useUserStore(state => state.isLogin);
 
 	const [posts, setPosts] = useState<IPostHeader[] | null>([]);
 	const [totalPosts, setTotalPosts] = useState(0);
 
-	const { searchParams } = useMainPageSearchParams();
-
 	const [
-		{ index = 1, perPage = 10, sortBy, keyword = "" },
+		{ index = 1, perPage = 10, sortBy, keyword },
 		setSearchParamsObject,
-	] = useParsedSearchParams<TSearchParamsObject>({
+	] = useParsedSearchParams<TPostListClientSearchParams>({
 		index: "number",
 		perPage: "number",
 		sortBy: "number",
 		keyword: "string",
 	});
 
-	useLayoutEffect(() => {
-		const queryString = `?${searchParams.toString()}`;
-
+	useEffect(() => {
 		ApiCall(
-			() => sendGetPostsRequest(queryString),
-			() => {
-				setPosts(null);
-			}
+			() =>
+				sendGetPostsRequest({
+					index,
+					perPage,
+					sortBy,
+					keyword,
+					category_id: categoryId,
+				}),
+			() => setPosts(null)
 		).then(res => {
-			if (res instanceof ClientError) {
+			if (res instanceof Error) {
 				return;
 			}
 
@@ -74,7 +73,7 @@ const Community = () => {
 				setTotalPosts(total ?? 0);
 			}
 		});
-	}, [index, perPage, keyword, sortBy]);
+	}, [categoryId, index, perPage, keyword, sortBy]);
 
 	const handlePostSort = (sortBy: SortBy | null) => {
 		setSearchParamsObject({
