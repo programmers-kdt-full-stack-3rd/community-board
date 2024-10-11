@@ -1,7 +1,6 @@
 import { useLayoutEffect, useState } from "react";
 import { IPostHeader, mapDBToPostHeaders, SortBy } from "shared";
 import { sendGetPostsRequest } from "../../api/posts/crud";
-import PostModal from "../../component/Posts/Modal/PostModal";
 import Pagination from "../../component/common/Pagination/Pagination";
 import PostList from "../../component/Posts/PostList/PostList";
 import SearchForm from "../../component/common/SearchForm/SearchForm";
@@ -16,17 +15,33 @@ import { ApiCall } from "../../api/api";
 import { ClientError } from "../../api/errors";
 import { UserRank } from "../../component/Posts/Rank/UserRank";
 import { useNavigate } from "react-router-dom";
+import useParsedSearchParams from "../../hook/useParsedSearchParams";
+
+type TSearchParamsObject = {
+	index: number;
+	perPage: number;
+	sortBy: number;
+	keyword: string;
+};
 
 const Community = () => {
 	const navigate = useNavigate();
 	const isLogin = useUserStore(state => state.isLogin);
 
-	const [isModalOpen, setIsModalOpen] = useState(false);
-
 	const [posts, setPosts] = useState<IPostHeader[] | null>([]);
 	const [totalPosts, setTotalPosts] = useState(0);
 
-	const { searchParams, setSearchParams, parsed } = useMainPageSearchParams();
+	const { searchParams } = useMainPageSearchParams();
+
+	const [
+		{ index = 1, perPage = 10, sortBy, keyword = "" },
+		setSearchParamsObject,
+	] = useParsedSearchParams<TSearchParamsObject>({
+		index: "number",
+		perPage: "number",
+		sortBy: "number",
+		keyword: "string",
+	});
 
 	useLayoutEffect(() => {
 		const queryString = `?${searchParams.toString()}`;
@@ -48,57 +63,40 @@ const Community = () => {
 				return;
 			}
 
-			const pageCount = Math.ceil(total / parsed.perPage);
+			const pageCount = Math.ceil(total / perPage);
 
-			if (pageCount > 0 && parsed.index > pageCount) {
-				const nextSearchParams = new URLSearchParams(searchParams);
-				nextSearchParams.set("index", String(pageCount));
-				setSearchParams(nextSearchParams);
+			if (pageCount > 0 && index > pageCount) {
+				setSearchParamsObject({
+					index: pageCount,
+				});
 			} else {
 				setPosts(mapDBToPostHeaders(res.postHeaders));
-				setTotalPosts(res.total ?? 0);
+				setTotalPosts(total ?? 0);
 			}
 		});
-	}, [parsed.index, parsed.perPage, parsed.keyword, parsed.sortBy]);
+	}, [index, perPage, keyword, sortBy]);
 
 	const handlePostSort = (sortBy: SortBy | null) => {
-		const nextSearchParams = new URLSearchParams(searchParams);
-
-		nextSearchParams.set("index", "1");
-
-		if (sortBy === null) {
-			nextSearchParams.delete("sortBy");
-		} else {
-			nextSearchParams.set("sortBy", String(sortBy));
-		}
-
-		setSearchParams(nextSearchParams);
+		setSearchParamsObject({
+			index: 1,
+			sortBy: sortBy ?? undefined,
+		});
 	};
 
-	const handlePageChange = async (page: number) => {
-		const nextSearchParams = new URLSearchParams(searchParams);
-		nextSearchParams.set("index", String(page));
-
-		setSearchParams(nextSearchParams);
+	const handlePageChange = (page: number) => {
+		setSearchParamsObject({ index: page });
 	};
 
 	const handleCreatePostClick = () => {
-		//setIsModalOpen(true);
-		navigate('/post/new');
+		// TODO: 글쓰기 페이지도 카테고리 구분해야 함
+		navigate("/post/new");
 	};
 
 	const handleSearchSubmit = (keyword: string) => {
-		const nextSearchParams = new URLSearchParams(searchParams);
-
-		nextSearchParams.set("index", "1");
-
-		if (keyword) {
-			nextSearchParams.set("keyword", keyword);
-		} else {
-			nextSearchParams.delete("keyword");
-		}
-
-		setSearchParams(nextSearchParams);
+		setSearchParamsObject({
+			index: 1,
+			keyword: keyword.trim() || undefined,
+		});
 	};
 
 	return (
@@ -107,8 +105,6 @@ const Community = () => {
 				<div className="ml-4 flex lg:space-x-10">
 					<UserRank />
 					<div className={mainPageStyle}>
-						{isModalOpen && <PostModal close={setIsModalOpen} />}
-
 						<div className="dark:bg-customGray relative mt-4 flex flex-col justify-between rounded-lg bg-blue-900 text-left">
 							<span className="ml-5 mt-5 text-lg font-bold text-white">
 								자유게시판
@@ -120,7 +116,7 @@ const Community = () => {
 
 						<div className="flex items-center justify-between gap-2">
 							<SearchForm
-								defaultKeyword={parsed.keyword}
+								defaultKeyword={keyword}
 								onSubmit={handleSearchSubmit}
 							/>
 
@@ -151,15 +147,15 @@ const Community = () => {
 
 						<PostList
 							posts={posts}
-							keyword={parsed.keyword}
-							sortBy={parsed.sortBy}
+							keyword={keyword}
+							sortBy={sortBy ?? null}
 							onSort={handlePostSort}
 						/>
 
 						<Pagination
-							currentPage={parsed.index}
+							currentPage={index}
 							totalPosts={totalPosts}
-							perPage={parsed.perPage}
+							perPage={perPage}
 							onChange={handlePageChange}
 						/>
 					</div>
