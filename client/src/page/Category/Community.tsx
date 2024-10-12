@@ -1,9 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { IPostHeader, mapDBToPostHeaders, SortBy } from "shared";
-import {
-	sendGetPostsRequest,
-	TPostListClientSearchParams,
-} from "../../api/posts/crud";
+import React, { useEffect } from "react";
+import { SortBy } from "shared";
+import { TPostListClientSearchParams } from "../../api/posts/crud";
 import Pagination from "../../component/common/Pagination/Pagination";
 import PostList from "../../component/Posts/PostList/PostList";
 import SearchForm from "../../component/common/SearchForm/SearchForm";
@@ -13,11 +10,11 @@ import {
 	mainPageStyle,
 	postListActions,
 } from "../Main/Main.css";
-import { ApiCall } from "../../api/api";
 import { UserRank } from "../../component/Posts/Rank/UserRank";
 import { useNavigate } from "react-router-dom";
 import useParsedSearchParams from "../../hook/useParsedSearchParams";
 import useCategory from "../../hook/useCategory";
+import usePostList from "../../hook/usePostList";
 import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
 
 interface IProps {
@@ -31,9 +28,6 @@ const Community: React.FC<IProps> = ({ categoryId }) => {
 
 	const { currentCategory } = useCategory(categoryId);
 
-	const [posts, setPosts] = useState<IPostHeader[] | null>([]);
-	const [totalPosts, setTotalPosts] = useState(0);
-
 	const [
 		{ index = 1, perPage = 10, sortBy, keyword },
 		setSearchParamsObject,
@@ -44,35 +38,19 @@ const Community: React.FC<IProps> = ({ categoryId }) => {
 		keyword: "string",
 	});
 
+	const { postList, totalPosts, actualIndex } = usePostList({
+		index,
+		perPage,
+		sortBy,
+		keyword,
+		categoryId,
+	});
+
 	useEffect(() => {
-		ApiCall(
-			() =>
-				sendGetPostsRequest({
-					index,
-					perPage,
-					sortBy,
-					keyword,
-					category_id: categoryId,
-				}),
-			() => setPosts(null)
-		).then(res => {
-			if (res instanceof Error) {
-				return;
-			}
-
-			const total = parseInt(res.total, 10) || 0;
-			const pageCount = Math.ceil(total / perPage);
-
-			if (pageCount > 0 && index > pageCount) {
-				setSearchParamsObject({
-					index: pageCount,
-				});
-			} else {
-				setPosts(mapDBToPostHeaders(res.postHeaders));
-				setTotalPosts(total);
-			}
-		});
-	}, [categoryId, index, perPage, keyword, sortBy]);
+		if (index !== actualIndex) {
+			setSearchParamsObject({ index: actualIndex });
+		}
+	}, [index, actualIndex]);
 
 	const handlePostSort = (sortBy: SortBy | null) => {
 		setSearchParamsObject({
@@ -158,7 +136,7 @@ const Community: React.FC<IProps> = ({ categoryId }) => {
 						</div>
 
 						<PostList
-							posts={posts}
+							posts={postList}
 							keyword={keyword}
 							sortBy={sortBy ?? null}
 							onSort={handlePostSort}

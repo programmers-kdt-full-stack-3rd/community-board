@@ -1,32 +1,38 @@
-import { UserRank } from "../../component/Posts/Rank/UserRank";
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { IPostHeader, mapDBToPostHeaders } from "shared";
-import { useEffect, useState } from "react";
-import { ApiCall } from "../../api/api";
-import { sendGetPostsRequest } from "../../api/posts/crud";
 import MainPortList from "../../component/Posts/PostList/MainPostList";
+import { UserRank } from "../../component/Posts/Rank/UserRank";
+import useCategory from "../../hook/useCategory";
+import usePostList from "../../hook/usePostList";
 
 const Main = () => {
-	const [posts, setPosts] = useState<IPostHeader[] | null>([]);
+	const { postList: communityPosts } = usePostList({
+		categoryId: 1,
+		perPage: 5,
+	});
+	const { postList: qnaPosts } = usePostList({
+		categoryId: 3,
+		perPage: 5,
+	});
+	const { postList: crewPosts } = usePostList({
+		categoryId: 4,
+		perPage: 5,
+	});
+	const { postList: achievementPosts } = usePostList({
+		categoryId: 5,
+		perPage: 5,
+	});
 
-	useEffect(() => {
-		ApiCall(
-			() =>
-				sendGetPostsRequest({
-					index: 1,
-					perPage: 5,
-					// TODO: 카테고리 지정
-					// category_id?: number | undefined,
-				}),
-			() => setPosts(null)
-		).then(res => {
-			if (res instanceof Error) {
-				return;
-			}
-
-			setPosts(mapDBToPostHeaders(res.postHeaders));
-		});
-	}, []);
+	const { getCategoryById } = useCategory();
+	const categoriesByName = useMemo(
+		() => ({
+			community: getCategoryById(1),
+			qna: getCategoryById(3),
+			crew: getCategoryById(4),
+			achievement: getCategoryById(5),
+		}),
+		[]
+	);
 
 	return (
 		<div>
@@ -40,36 +46,30 @@ const Main = () => {
 								<div className="w-full">
 									<div className="dark:bg-customGray relative mb-2 flex h-14 items-center justify-between rounded-lg bg-blue-900">
 										<span className="m-4 text-lg font-bold text-white">
-											자유게시판
+											{categoriesByName.community?.name}
 										</span>
 										<Link
 											className="m-4 justify-end text-base text-gray-300 hover:text-gray-500"
-											to="/category/community"
+											to={`/category/${categoriesByName.community?.subPath}`}
 										>
 											바로가기
 										</Link>
 									</div>
-									<MainPortList
-										posts={posts ? posts.slice(0, 5) : []}
-										// keyword={parsed.keyword}
-									/>
+									<MainPortList posts={communityPosts} />
 								</div>
 								<div className="w-full">
 									<div className="dark:bg-customGray relative mb-2 flex h-14 items-center justify-between rounded-lg bg-blue-900">
 										<span className="m-4 text-lg font-bold text-white">
-											QnA
+											{categoriesByName.qna?.name}
 										</span>
 										<Link
 											className="m-4 justify-end text-base text-gray-300 hover:text-gray-500"
-											to="/category/community"
+											to={`/category/${categoriesByName.qna?.subPath}`}
 										>
 											바로가기
 										</Link>
 									</div>
-									<MainPortList
-										posts={posts ? posts.slice(0, 5) : []}
-										// keyword={parsed.keyword}
-									/>
+									<MainPortList posts={qnaPosts} />
 								</div>
 							</div>
 
@@ -77,36 +77,30 @@ const Main = () => {
 								<div className="w-full">
 									<div className="dark:bg-customGray relative mb-2 flex h-14 items-center justify-between rounded-lg bg-blue-900">
 										<span className="m-4 text-lg font-bold text-white">
-											팀원모집
+											{categoriesByName.crew?.name}
 										</span>
 										<Link
 											className="m-4 justify-end text-base text-gray-300 hover:text-gray-500"
-											to="/category/community"
+											to={`/category/${categoriesByName.crew?.subPath}`}
 										>
 											바로가기
 										</Link>
 									</div>
-									<MainPortList
-										posts={posts ? posts.slice(0, 5) : []}
-										// keyword={parsed.keyword}
-									/>
+									<MainPortList posts={crewPosts} />
 								</div>
 								<div className="w-full">
 									<div className="dark:bg-customGray relative mb-2 flex h-14 items-center justify-between rounded-lg bg-blue-900">
 										<span className="m-4 text-lg font-bold text-white">
-											도전과제
+											{categoriesByName.achievement?.name}
 										</span>
 										<Link
 											className="m-4 justify-end text-base text-gray-300 hover:text-gray-500"
-											to="/category/community"
+											to={`/category/${categoriesByName.achievement?.subPath}`}
 										>
 											바로가기
 										</Link>
 									</div>
-									<MainPortList
-										posts={posts ? posts.slice(0, 5) : []}
-										// keyword={parsed.keyword}
-									/>
+									<MainPortList posts={achievementPosts} />
 								</div>
 							</div>
 						</div>
