@@ -15,6 +15,7 @@ import {
 	TopActivitiesRes,
 } from "../../../../../nestjs-migration/dist/rank/dto/rank-results.dto";
 import { ApiCall } from "../../../api/api";
+import { ClientError } from "../../../api/errors";
 
 export const UserRank = () => {
 	const [postRank, setPostRank] = useState<TopPostsRes[]>([]);
@@ -23,43 +24,53 @@ export const UserRank = () => {
 		[]
 	);
 
-	const fetchData = async () => {
-		try {
-			const postResponse = await ApiCall(fetchPostRank, err => {
-				console.error("Post rank error:", err);
-			});
-			const commentResponse = await ApiCall(fetchCommentRank, err => {
-				console.error("Comment rank error:", err);
-			});
-			const activitiesResponse = await ApiCall(
-				fetchActivitiesRank,
-				err => {
-					console.error("Activities rank error:", err);
-				}
-			);
-
-			setPostRank(Array.isArray(postResponse) ? postResponse : []);
-			setCommentRank(
-				Array.isArray(commentResponse) ? commentResponse : []
-			);
-			setActivitiesRank(
-				Array.isArray(activitiesResponse) ? activitiesResponse : []
-			);
-		} catch (error) {
-			console.error("Error fetching ranks:", error);
-
-			setPostRank([]);
-			setCommentRank([]);
-			setActivitiesRank([]);
-		}
-	};
-
 	useEffect(() => {
+		const fetchData = async () => {
+			try {
+				ApiCall(fetchPostRank, () => setPostRank([])).then(
+					postResponse => {
+						if (!(postResponse instanceof ClientError)) {
+							setPostRank(
+								Array.isArray(postResponse) ? postResponse : []
+							);
+						}
+					}
+				);
+
+				ApiCall(fetchCommentRank, () => setCommentRank([])).then(
+					commentResponse => {
+						if (!(commentResponse instanceof ClientError)) {
+							setCommentRank(
+								Array.isArray(commentResponse)
+									? commentResponse
+									: []
+							);
+						}
+					}
+				);
+
+				ApiCall(fetchActivitiesRank, () => setActivitiesRank([])).then(
+					activitiesResponse => {
+						if (!(activitiesResponse instanceof ClientError)) {
+							setActivitiesRank(
+								Array.isArray(activitiesResponse)
+									? activitiesResponse
+									: []
+							);
+						}
+					}
+				);
+			} catch (error) {
+				console.error("Error fetching ranks:", error);
+
+				setPostRank([]);
+				setCommentRank([]);
+				setActivitiesRank([]);
+			}
+		};
+
 		fetchData();
 	}, []);
-	useEffect(() => {
-		fetchData();
-	}, [postRank, commentRank, activitiesRank]);
 
 	return (
 		<div className="hidden w-[180px] shrink-0 lg:block">
