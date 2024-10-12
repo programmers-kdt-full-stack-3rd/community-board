@@ -14,6 +14,7 @@ import {
 } from "../../api/Rank/rank_crud";
 import { Link } from "react-router-dom";
 import { ApiCall } from "../../api/api";
+import { ClientError } from "../../api/errors";
 
 export const Rank = () => {
 	const [active, setActive] = useState(0);
@@ -26,43 +27,53 @@ export const Rank = () => {
 	);
 	const buttons = ["Activity Ranking", "Post Ranking", "Comment Ranking"];
 
-	const fetchData = async () => {
-		try {
-			const postResponse = await ApiCall(fetchPostRank, err => {
-				console.error("Post rank error:", err);
-			});
-			const commentResponse = await ApiCall(fetchCommentRank, err => {
-				console.error("Comment rank error:", err);
-			});
-			const activitiesResponse = await ApiCall(
-				fetchActivitiesRank,
-				err => {
-					console.error("Activities rank error:", err);
-				}
-			);
-
-			setPostRank(Array.isArray(postResponse) ? postResponse : []);
-			setCommentRank(
-				Array.isArray(commentResponse) ? commentResponse : []
-			);
-			setActivitiesRank(
-				Array.isArray(activitiesResponse) ? activitiesResponse : []
-			);
-		} catch (error) {
-			console.error("Error fetching ranks:", error);
-
-			setPostRank([]);
-			setCommentRank([]);
-			setActivitiesRank([]);
-		}
-	};
-
 	useEffect(() => {
+		const fetchData = async () => {
+			try {
+				ApiCall(fetchPostRank, () => setPostRank([])).then(
+					postResponse => {
+						if (!(postResponse instanceof ClientError)) {
+							setPostRank(
+								Array.isArray(postResponse) ? postResponse : []
+							);
+						}
+					}
+				);
+
+				ApiCall(fetchCommentRank, () => setCommentRank([])).then(
+					commentResponse => {
+						if (!(commentResponse instanceof ClientError)) {
+							setCommentRank(
+								Array.isArray(commentResponse)
+									? commentResponse
+									: []
+							);
+						}
+					}
+				);
+
+				ApiCall(fetchActivitiesRank, () => setActivitiesRank([])).then(
+					activitiesResponse => {
+						if (!(activitiesResponse instanceof ClientError)) {
+							setActivitiesRank(
+								Array.isArray(activitiesResponse)
+									? activitiesResponse
+									: []
+							);
+						}
+					}
+				);
+			} catch (error) {
+				console.error("Error fetching ranks:", error);
+
+				setPostRank([]);
+				setCommentRank([]);
+				setActivitiesRank([]);
+			}
+		};
+
 		fetchData();
 	}, []);
-	useEffect(() => {
-		fetchData();
-	}, [postRank, commentRank, activitiesRank]);
 
 	useEffect(() => {
 		const handleScroll = () => {
