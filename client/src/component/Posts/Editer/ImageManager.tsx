@@ -120,9 +120,7 @@ const ImageManager: React.FC<IProps> = ({
 				</AlertModal.Body>
 			</AlertModal>
 
-			<div className="ml-1 text-sm font-bold text-blue-900">
-				첨부한 이미지
-			</div>
+			<div className="ml-1 text-sm font-bold">첨부한 이미지</div>
 
 			<div className="grid grid-cols-6 gap-4 rounded-md border border-gray-600 p-4">
 				{imageUrlSet.size === 0 ? (

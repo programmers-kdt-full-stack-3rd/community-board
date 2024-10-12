@@ -7,6 +7,7 @@ export interface IPostInfo {
 	id: number;
 	title: string;
 	content: string;
+	category: string;
 	author_id: number;
 	author_nickname: string;
 	is_author: boolean;

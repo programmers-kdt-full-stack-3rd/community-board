@@ -72,12 +72,18 @@ const getCategoryByName = (name: string): TCategory | null =>
 const getCategoryBySubPath = (subpath: string): TCategory | null =>
 	categories.find(category => category.subPath === subpath) ?? null;
 
-const useCategory = (categoryId?: number) => {
-	const currentCategory: TCategory | null = useMemo(
-		() =>
-			typeof categoryId === "number" ? getCategoryById(categoryId) : null,
-		[categoryId]
-	);
+const useCategory = (categoryIdOrName?: number | string) => {
+	const currentCategory: TCategory | null = useMemo(() => {
+		if (typeof categoryIdOrName === "number") {
+			return getCategoryById(categoryIdOrName);
+		}
+
+		if (typeof categoryIdOrName === "string") {
+			return getCategoryByName(categoryIdOrName);
+		}
+
+		return null;
+	}, [categoryIdOrName]);
 
 	return {
 		currentCategory,

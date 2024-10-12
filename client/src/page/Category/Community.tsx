@@ -18,6 +18,7 @@ import { UserRank } from "../../component/Posts/Rank/UserRank";
 import { useNavigate } from "react-router-dom";
 import useParsedSearchParams from "../../hook/useParsedSearchParams";
 import useCategory from "../../hook/useCategory";
+import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
 
 interface IProps {
 	categoryId?: number;
@@ -25,6 +26,7 @@ interface IProps {
 
 const Community: React.FC<IProps> = ({ categoryId }) => {
 	const navigate = useNavigate();
+	const globalErrorModal = useGlobalErrorModal();
 	const isLogin = useUserStore(state => state.isLogin);
 
 	const { currentCategory } = useCategory(categoryId);
@@ -58,13 +60,7 @@ const Community: React.FC<IProps> = ({ categoryId }) => {
 				return;
 			}
 
-			const total = parseInt(res.total, 10);
-
-			if (isNaN(total)) {
-				// TODO: 에러 핸들링
-				return;
-			}
-
+			const total = parseInt(res.total, 10) || 0;
 			const pageCount = Math.ceil(total / perPage);
 
 			if (pageCount > 0 && index > pageCount) {
@@ -73,7 +69,7 @@ const Community: React.FC<IProps> = ({ categoryId }) => {
 				});
 			} else {
 				setPosts(mapDBToPostHeaders(res.postHeaders));
-				setTotalPosts(total ?? 0);
+				setTotalPosts(total);
 			}
 		});
 	}, [categoryId, index, perPage, keyword, sortBy]);
@@ -90,8 +86,16 @@ const Community: React.FC<IProps> = ({ categoryId }) => {
 	};
 
 	const handleCreatePostClick = () => {
-		// TODO: 글쓰기 페이지도 카테고리 구분해야 함
-		navigate("/post/new");
+		if (typeof categoryId !== "number") {
+			globalErrorModal.open({
+				title: "오류",
+				message:
+					"카테고리 정보가 없으므로 게시글을 작성할 수 없습니다. 게시글을 작성하려는 게시판에서 글쓰기 버튼을 눌러 주세요.",
+			});
+			return;
+		}
+
+		navigate(`/post/new?category_id=${categoryId}`);
 	};
 
 	const handleSearchSubmit = (keyword: string) => {
