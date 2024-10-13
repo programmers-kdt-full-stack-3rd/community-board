@@ -189,6 +189,7 @@ function App() {
 						/>
 						{categories.map(category => (
 							<Route
+								key={category.id}
 								path={`/category/${category.subPath}`}
 								element={<Community categoryId={category.id} />}
 							/>
