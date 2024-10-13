@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback } from "react";
 import { SortBy } from "shared";
 import { TPostListClientSearchParams } from "../../api/posts/crud";
 import Pagination from "../../component/common/Pagination/Pagination";
@@ -38,19 +38,17 @@ const Community: React.FC<IProps> = ({ categoryId }) => {
 		keyword: "string",
 	});
 
-	const { postList, totalPosts, actualIndex } = usePostList({
+	const { postList, totalPosts } = usePostList({
 		index,
 		perPage,
 		sortBy,
 		keyword,
 		categoryId,
+		indexCorrector: useCallback(
+			(actual: number) => setSearchParamsObject({ index: actual }),
+			[setSearchParamsObject]
+		),
 	});
-
-	useEffect(() => {
-		if (index !== actualIndex) {
-			setSearchParamsObject({ index: actualIndex });
-		}
-	}, [index, actualIndex]);
 
 	const handlePostSort = (sortBy: SortBy | null) => {
 		setSearchParamsObject({

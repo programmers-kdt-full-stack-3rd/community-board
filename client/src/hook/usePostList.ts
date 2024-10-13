@@ -9,8 +9,11 @@ import {
 type TPostListHookProps = Partial<
 	TPostListClientSearchParams & {
 		categoryId: number;
+		indexCorrector: (actual: number) => void;
 	}
 >;
+
+const noOperation = () => {};
 
 const usePostList = ({
 	index = 1,
@@ -18,10 +21,10 @@ const usePostList = ({
 	sortBy,
 	keyword,
 	categoryId,
+	indexCorrector = noOperation,
 }: TPostListHookProps) => {
 	const [postList, setPostList] = useState<IPostHeader[] | null>([]);
 	const [totalPosts, setTotalPosts] = useState(0);
-	const [actualIndex, setActualIndex] = useState(1);
 
 	const fetchPostList = useCallback(() => {
 		ApiCall(
@@ -43,22 +46,21 @@ const usePostList = ({
 			const pageCount = Math.ceil(total / perPage);
 
 			if (pageCount > 0 && index > pageCount) {
-				setActualIndex(pageCount);
+				indexCorrector(pageCount);
 			} else {
 				setPostList(mapDBToPostHeaders(res.postHeaders));
 				setTotalPosts(total);
 			}
 		});
-	}, [index, perPage, sortBy, keyword, categoryId]);
+	}, [index, perPage, sortBy, keyword, categoryId, indexCorrector]);
 
 	useEffect(() => {
 		fetchPostList();
-	}, [index, perPage, sortBy, keyword, categoryId]);
+	}, [index, perPage, sortBy, keyword, categoryId, indexCorrector]);
 
 	return {
 		postList,
 		totalPosts,
-		actualIndex,
 		fetchPostList,
 	};
 };
