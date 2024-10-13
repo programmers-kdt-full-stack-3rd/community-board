@@ -25,5 +25,11 @@ INSERT IGNORE INTO permissions (name) VALUES
 ('delete:comment-like'),
 ('manage:user'),
 ('manage:post'),
+('create:chat-room'),
+('read:chat-room'),
+('join:chat-room'),
+('enter:chat-room'),
+('leave:chat-room'),
+('read:message-log'),
 ('view:log'),
 ('view:stat');

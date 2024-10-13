@@ -33,7 +33,13 @@ AND p.name IN (
     'create:post-like',
     'delete:post-like',
     'create:comment-like',
-    'delete:comment-like'
+    'delete:comment-like',
+    'create:chat-room',
+    'read:chat-room',
+    'join:chat-room',
+    'enter:chat-room',
+    'leave:chat-room',
+    'read:message-log'
 );
 
 -- Anonymous 권한

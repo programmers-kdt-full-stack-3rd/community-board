@@ -10,24 +10,25 @@ import {
 	Query,
 	UseGuards,
 } from "@nestjs/common";
-import { ChatService } from "./chat.service";
+import { Permissions } from "../common/decorator/rbac.decorator";
 import { User } from "../common/decorator/user.decorator";
-import { IUserEntity } from "../common/interface/user-entity.interface";
-import { CreateRoomReq } from "./dto/create-room.dto";
-import { ReadRoomQuery } from "./dto/read-room-query.dto";
-import { LoginGuard } from "../common/guard/login.guard";
-import { JoinRoomReq } from "./dto/join-room.dto";
-import { EnterRoomReq } from "./dto/enter-room.dto";
-import { LeaveRoomReq } from "./dto/leave-room.dto";
 import { ServerError } from "../common/exceptions/server-error.exception";
-import {
-	EnterRoomRes,
-	GetRoomsRes,
-	CreateRoomRes,
-	JoinRoomRes,
-	GetMsgLogsRes,
-} from "./dto/chat-result.dto";
+import { LoginGuard } from "../common/guard/login.guard";
+import { IUserEntity } from "../common/interface/user-entity.interface";
+import { ChatService } from "./chat.service";
 import { CHAT_ERROR_MESSAGES } from "./constant/chat.constants";
+import {
+	CreateRoomRes,
+	EnterRoomRes,
+	GetMsgLogsRes,
+	GetRoomsRes,
+	JoinRoomRes,
+} from "./dto/chat-result.dto";
+import { CreateRoomReq } from "./dto/create-room.dto";
+import { EnterRoomReq } from "./dto/enter-room.dto";
+import { JoinRoomReq } from "./dto/join-room.dto";
+import { LeaveRoomReq } from "./dto/leave-room.dto";
+import { ReadRoomQuery } from "./dto/read-room-query.dto";
 
 @Controller("chat")
 export class ChatController {
@@ -36,6 +37,7 @@ export class ChatController {
 	@Post("/room")
 	@UseGuards(LoginGuard)
 	@HttpCode(HttpStatus.OK)
+	@Permissions("create:chat-room")
 	async handleRoomCreate(
 		@User() user: IUserEntity,
 		@Body() createRoomReq: CreateRoomReq
@@ -58,7 +60,9 @@ export class ChatController {
 	}
 
 	@Get("/rooms")
+	@UseGuards(LoginGuard)
 	@HttpCode(HttpStatus.OK)
+	@Permissions("read:chat-room")
 	async handleRoomsRead(
 		@Query() readRoomQuery: ReadRoomQuery,
 		@User() user: IUserEntity
@@ -104,6 +108,7 @@ export class ChatController {
 	@Get("/room/:room_id")
 	@UseGuards(LoginGuard)
 	@HttpCode(HttpStatus.OK)
+	@Permissions("read:message-log")
 	async handleMessageLogsRead(
 		@Param("room_id", ParseIntPipe) roomId: number
 	): Promise<GetMsgLogsRes> {
@@ -121,6 +126,7 @@ export class ChatController {
 	@Post("/join")
 	@UseGuards(LoginGuard)
 	@HttpCode(HttpStatus.OK)
+	@Permissions("join:chat-room")
 	async handleRoomJoin(
 		@Body() joinRoomReq: JoinRoomReq,
 		@User() user: IUserEntity
@@ -143,6 +149,7 @@ export class ChatController {
 	@Post("/enter")
 	@UseGuards(LoginGuard)
 	@HttpCode(HttpStatus.OK)
+	@Permissions("enter:chat-room")
 	async handleRoomEnter(
 		@Body() enterRoomReq: EnterRoomReq,
 		@User() user: IUserEntity
@@ -166,6 +173,7 @@ export class ChatController {
 	@Post("/leave")
 	@UseGuards(LoginGuard)
 	@HttpCode(HttpStatus.OK)
+	@Permissions("leave:chat-room")
 	async handleRoomLeave(
 		@Body() leaveRoomReq: LeaveRoomReq,
 		@User() user: IUserEntity
