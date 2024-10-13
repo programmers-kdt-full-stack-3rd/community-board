@@ -11,19 +11,43 @@ CREATE TABLE IF NOT EXISTS role_permission (
 INSERT IGNORE INTO role_permission (role_id, permission_id)
 SELECT r.id, p.id
 FROM roles r, permissions p
-WHERE r.name = 'admin'
-AND p.name IN ('view_post', 'create_post','delete_post', 'create_comment', 'delete_comment', 'add_like', 'remove_like', 'logout', 'delete_account');
+WHERE r.name = 'admin';
 
 -- User 권한
 INSERT IGNORE INTO role_permission (role_id, permission_id)
 SELECT r.id, p.id
 FROM roles r, permissions p
 WHERE r.name = 'user'
-AND p.name IN ('view_post', 'create_post','delete_post', 'create_comment','delete_comment', 'add_like', 'remove_like', 'logout', 'delete_account');
+AND p.name IN (
+    'read:user',
+    'update:user',
+    'delete:user',
+    'create:post',
+    'update:post',
+    'read:post',
+    'delete:post',
+    'create:comment',
+    'update:comment',
+    'read:comment',
+    'delete:comment',
+    'create:post-like',
+    'delete:post-like',
+    'create:comment-like',
+    'delete:comment-like',
+    'create:chat-room',
+    'read:chat-room',
+    'join:chat-room',
+    'enter:chat-room',
+    'leave:chat-room',
+    'read:message-log'
+);
 
 -- Anonymous 권한
 INSERT IGNORE INTO role_permission (role_id, permission_id)
 SELECT r.id, p.id
 FROM roles r, permissions p
 WHERE r.name = 'anonymous'
-AND p.name IN ('view_post', 'login');
+AND p.name IN (
+    'read:post',
+    'read:comment'
+);

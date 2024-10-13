@@ -18,6 +18,7 @@ import { isDevMode } from "../../utils/detectMode"; // TODO: UI 리팩터링 완
 import { MdDarkMode } from "react-icons/md";
 import useThemeStore from "../../state/ThemeStore";
 import { MdLightMode } from "react-icons/md";
+import useCategory from "../../hook/useCategory";
 
 const Header: React.FC = () => {
 	const navigate = useNavigate();
@@ -30,6 +31,7 @@ const Header: React.FC = () => {
 	const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 	const dropdownMenuRef = useRef<HTMLDivElement>(null);
 	const { isDarkMode, toggleDarkMode } = useThemeStore();
+	const { headerCategories } = useCategory();
 
 	// 드랍다운 메뉴 이외 클릭시 드랍다운 메뉴 닫기
 	useEffect(() => {
@@ -107,25 +109,14 @@ const Header: React.FC = () => {
 
 					<div className="flex-1 justify-between sm:flex">
 						<div className="hidden overflow-hidden whitespace-nowrap text-white hover:text-gray-300 sm:flex sm:items-center sm:gap-x-4 xl:gap-x-6">
-							<Link
-								to="/category/community"
-								className="text-white hover:text-gray-300"
-							>
-								자유게시판
-							</Link>
-
-							<a className="text-white hover:text-gray-300">
-								QnA
-							</a>
-							<a className="text-white hover:text-gray-300">
-								팀원모집
-							</a>
-							<a className="text-white hover:text-gray-300">
-								도전과제
-							</a>
-							<a className="text-white hover:text-gray-300">
-								공지
-							</a>
+							{headerCategories.map(category => (
+								<Link
+									to={`/category/${category.subPath}`}
+									className="text-white hover:text-gray-300"
+								>
+									{category.name}
+								</Link>
+							))}
 						</div>
 					</div>
 

@@ -2,7 +2,6 @@ import { dateToStr } from "../../utils/date-to-str";
 import { IPostInfo } from "shared";
 import { useCallback, useLayoutEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import PostModal from "./Modal/PostModal";
 import {
 	sendCreatePostLikeRequest,
 	sendDeletePostLikeRequest,
@@ -16,6 +15,7 @@ import { FaRegThumbsUp } from "react-icons/fa6";
 import ConfirmModal from "../common/Modal/ConfirmModal";
 import { sendDeletePostRequest } from "../../api/posts/crud";
 import { useModal } from "../../hook/useModal";
+import useCategory from "../../hook/useCategory";
 
 interface IPostInfoProps {
 	postInfo: IPostInfo;
@@ -24,7 +24,8 @@ interface IPostInfoProps {
 const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 	const navigate = useNavigate();
 
-	const updateModal = useModal();
+	const { currentCategory } = useCategory(postInfo.category);
+
 	const deleteModal = useModal();
 	const globalErrorModal = useGlobalErrorModal();
 
@@ -47,7 +48,11 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 
 	const handleLike = async () => {
 		if (!isLogin) {
-			alert("로그인이 필요합니다!");
+			globalErrorModal.open({
+				title: "오류",
+				message: "로그인이 필요합니다.",
+				callback: () => navigate("/login"),
+			});
 			return;
 		}
 
@@ -105,20 +110,11 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 
 		deleteModal.close();
 		alert("삭제에 성공했습니다.");
-		navigate("/category/community");
+		navigate(`/category/${currentCategory?.subPath}`);
 	}, [isAuthor]);
 
 	return (
 		<div>
-			{/* 모달 부분 css 수정 x*/}
-			{updateModal.isOpen ? (
-				// TODO: 편집기 작업 완료 후, 도달할 수 없는 분기 제거
-				<PostModal
-					close={() => updateModal.close()}
-					originalPostData={postInfo}
-				/>
-			) : null}
-
 			<ConfirmModal
 				variant="warning"
 				isOpen={deleteModal.isOpen}
@@ -136,7 +132,7 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 			<div className="flex w-[800px] flex-col pb-2.5 pt-2.5">
 				<div className="dark:bg-customGray relative mb-4 mt-4 flex flex-col justify-between rounded-lg bg-blue-900 text-left">
 					<span className="m-5 text-lg font-bold text-white">
-						자유게시판
+						{currentCategory?.name}
 					</span>
 				</div>
 

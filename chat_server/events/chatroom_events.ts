@@ -1,6 +1,5 @@
 import {
 	IEnterRoomResponse,
-	IGetRoomMessageLogsResponse,
 	IJoinRoomRequest,
 	IJoinRoomResponse,
 	IMessage,
@@ -15,7 +14,8 @@ import {
 	getMyRoomsToApi,
 	joinRoomToApi,
 } from "../utils/api";
-import { sendMessage } from "../services/kafka_service";
+import { processMessage } from "../services/chat_service";
+import { getMessages, setMessages } from "../services/redis_service";
 
 // 채팅방 이벤트
 export const handleRoomEvents = (socket: Socket) => {
@@ -83,8 +83,11 @@ export const handleRoomEvents = (socket: Socket) => {
 					isMine: false,
 				};
 
+				// redis 캐시 저장
+				await setMessages(roomId, [message]);
+
 				// kafka 시스템 메세지 저장
-				await sendMessage(message);
+				await processMessage(message);
 
 				// join room
 				socket.join(`${roomId}`);
@@ -105,37 +108,33 @@ export const handleRoomEvents = (socket: Socket) => {
 		async (
 			roomId: number,
 			callback: (
-				response:
-					| {
-							memberId: number;
-							messageLogs: IMessage[];
-					  }
-					| boolean
+				response: {
+					memberId: number;
+					messageLogs: IMessage[];
+				} | null
 			) => void
 		) => {
 			try {
+				// 쿠키
+				const cookie = socket.handshake.headers.cookie!;
+
 				// 멤버 ID
-				const memIdData = await getMyMemberId(
-					{
-						roomId,
-					},
-					socket.handshake.headers.cookie!
-				);
+				const memIdData = await getMyMemberId({ roomId }, cookie);
+				const { memberId } = memIdData.data;
 
-				// TODO : 캐싱 메시지 조회(redis -> http)
+				// 메시지 조회
+				// console.time("message reading time");
+				const messagesData = await getMessages(roomId); // Redis
+				const messageLogsData =
+					messagesData.length > 0
+						? { data: { messageLogs: messagesData } }
+						: await getMessageLogs({ roomId }, cookie); // Redis X
+				const { messageLogs } = messageLogsData.data;
+				// console.timeEnd("message reading time");
 
-				const { memberId } = memIdData.data as IEnterRoomResponse;
-
-				// 채팅 내역
-				const messageLogsData = await getMessageLogs(
-					{
-						roomId,
-					},
-					socket.handshake.headers.cookie!
-				);
-
-				const { messageLogs } =
-					messageLogsData.data as IGetRoomMessageLogsResponse;
+				// 메시지 저장
+				messagesData.length === 0 &&
+					(await setMessages(roomId, messageLogs));
 
 				callback({
 					memberId,
@@ -146,7 +145,7 @@ export const handleRoomEvents = (socket: Socket) => {
 				});
 			} catch (error) {
 				console.error(error);
-				callback(false);
+				callback(null);
 				socket.disconnect();
 			}
 		}
