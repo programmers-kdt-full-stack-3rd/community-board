@@ -112,7 +112,7 @@ const Header: React.FC = () => {
 							{headerCategories.map(category => (
 								<Link
 									key={category.id}
-									to={`/category/${category.subPath}`}
+									to={category.path}
 									className="text-white hover:text-gray-300"
 								>
 									{category.name}

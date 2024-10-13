@@ -50,7 +50,10 @@ const Main = () => {
 										</span>
 										<Link
 											className="m-4 justify-end text-base text-gray-300 hover:text-gray-500"
-											to={`/category/${categoriesByName.community?.subPath}`}
+											to={
+												categoriesByName.community
+													?.path ?? ""
+											}
 										>
 											바로가기
 										</Link>
@@ -64,7 +67,9 @@ const Main = () => {
 										</span>
 										<Link
 											className="m-4 justify-end text-base text-gray-300 hover:text-gray-500"
-											to={`/category/${categoriesByName.qna?.subPath}`}
+											to={
+												categoriesByName.qna?.path ?? ""
+											}
 										>
 											바로가기
 										</Link>
@@ -81,7 +86,10 @@ const Main = () => {
 										</span>
 										<Link
 											className="m-4 justify-end text-base text-gray-300 hover:text-gray-500"
-											to={`/category/${categoriesByName.crew?.subPath}`}
+											to={
+												categoriesByName.crew?.path ??
+												""
+											}
 										>
 											바로가기
 										</Link>
@@ -95,7 +103,10 @@ const Main = () => {
 										</span>
 										<Link
 											className="m-4 justify-end text-base text-gray-300 hover:text-gray-500"
-											to={`/category/${categoriesByName.achievement?.subPath}`}
+											to={
+												categoriesByName.achievement
+													?.path ?? ""
+											}
 										>
 											바로가기
 										</Link>

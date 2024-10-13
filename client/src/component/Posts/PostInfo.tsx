@@ -110,7 +110,7 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 
 		deleteModal.close();
 		alert("삭제에 성공했습니다.");
-		navigate(`/category/${currentCategory?.subPath}`);
+		navigate(currentCategory?.path ?? "/");
 	}, [isAuthor]);
 
 	return (
