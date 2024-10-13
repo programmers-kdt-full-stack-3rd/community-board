@@ -1,5 +1,11 @@
 import clsx from "clsx";
-import React, { ChangeEvent, useMemo, useRef, useState } from "react";
+import React, {
+	ChangeEvent,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
 import ReactQuill from "react-quill";
 import TextInput from "../../component/common/TextInput";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -13,16 +19,21 @@ import {
 import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
 import ImageManager from "../../component/Posts/Editer/ImageManager";
 import { sanitizePostContent } from "../../utils/sanitizePostContent";
+import useCategory from "../../hook/useCategory";
 
 const UpsertPostPage: React.FC = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const queryParams = new URLSearchParams(location.search);
+	const categoryId =
+		parseInt(queryParams.get("category_id") ?? "", 10) || undefined;
 	const postId = queryParams.get("postId") || "";
 	const originalTitle = queryParams.get("title") || "";
 	const originalContent = queryParams.get("content") || "";
+	const isModification = postId;
 
 	const errorModal = useGlobalErrorModal();
+	const { currentCategory } = useCategory(categoryId);
 
 	const [title, setTitle] = useState<string>(originalTitle);
 	const [content, setContent] = useState<string>(originalContent);
@@ -51,6 +62,16 @@ const UpsertPostPage: React.FC = () => {
 		return false;
 	}, [quillRef.current, content]);
 
+	useEffect(() => {
+		if (!isModification && categoryId === null) {
+			errorModal.open({
+				title: "오류",
+				message: "게시글을 작성할 카테고리 정보가 없습니다.",
+				callback: () => navigate("/"),
+			});
+		}
+	}, [isModification, categoryId]);
+
 	const handleTitleChange = (event: ChangeEvent<HTMLInputElement>) => {
 		const { value } = event.target;
 
@@ -59,7 +80,12 @@ const UpsertPostPage: React.FC = () => {
 	};
 
 	const createPost = async () => {
+		if (isModification) {
+			return;
+		}
+
 		const body = {
+			category_id: categoryId,
 			title,
 			content: sanitizePostContent(content),
 			doFilter: false,
@@ -82,7 +108,7 @@ const UpsertPostPage: React.FC = () => {
 	};
 
 	const updatePost = async () => {
-		if (!postId) {
+		if (!isModification) {
 			return;
 		}
 
@@ -123,7 +149,11 @@ const UpsertPostPage: React.FC = () => {
 			hasInvalid = true;
 		}
 
-		if (postId && title === originalTitle && content === originalContent) {
+		if (
+			isModification &&
+			title === originalTitle &&
+			content === originalContent
+		) {
 			errorModal.open({
 				title: "변경 내용 없음",
 				message: "제목, 내용 중 어느 것도 변경하지 않았습니다.",
@@ -136,7 +166,7 @@ const UpsertPostPage: React.FC = () => {
 			return;
 		}
 
-		if (postId) {
+		if (isModification) {
 			updatePost();
 		} else {
 			createPost();
@@ -145,6 +175,18 @@ const UpsertPostPage: React.FC = () => {
 
 	return (
 		<div className="flex w-[860px] flex-col items-center justify-center gap-6 px-6 py-6 text-start">
+			<div className="dark:bg-customGray relative flex w-full flex-col justify-between rounded-lg bg-blue-900 text-left">
+				<span className="ml-5 mt-5 text-lg font-bold text-white">
+					{isModification ? "게시글 수정" : "새 글 쓰기"}
+				</span>
+
+				<span className="mb-5 ml-5 mt-1 text-sm text-gray-200">
+					{currentCategory
+						? `“${currentCategory.name}”에 새 게시글을 작성합니다.`
+						: `“${originalTitle}” 게시글을 수정합니다.`}
+				</span>
+			</div>
+
 			<TextInput
 				wrapperClassName="w-full"
 				label="제목"
@@ -162,9 +204,8 @@ const UpsertPostPage: React.FC = () => {
 					<div
 						className={clsx(
 							"font-bold",
-							isContentValid === undefined && "text-blue-900",
 							isContentValid === true &&
-								"text-blue-900 after:ml-1 after:content-['✔']",
+								"after:ml-1 after:content-['✔']",
 							isContentValid === false &&
 								"text-red-600 after:ml-1 after:content-['✘']"
 						)}

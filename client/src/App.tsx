@@ -32,6 +32,7 @@ import { AdminPage } from "./page/Admin/AdminPage";
 import UpsertPostPage from "./page/Posts/UpsertPostPage";
 import ProfilePage from "./page/Profile/ProfilePage";
 import { Rank } from "./page/Rank/Rank";
+import useCategory from "./hook/useCategory";
 
 function MainContainer({ children }: { children: React.ReactNode }) {
 	const location = useLocation();
@@ -71,6 +72,8 @@ function App() {
 	const { isOpen } = useChatAside();
 
 	const { setSocket } = useUserStore.use.actions();
+
+	const { categories } = useCategory();
 
 	useLayoutEffect(() => {
 		// 로그인은 되어 있으나 소켓이 없는 경우
@@ -184,10 +187,12 @@ function App() {
 							path="*"
 							element={<NotFound />}
 						/>
-						<Route
-							path="/category/community"
-							element={<Community />}
-						/>
+						{categories.map(category => (
+							<Route
+								path={`/category/${category.subPath}`}
+								element={<Community categoryId={category.id} />}
+							/>
+						))}
 						<Route
 							path="/post/new"
 							element={<UpsertPostPage />}

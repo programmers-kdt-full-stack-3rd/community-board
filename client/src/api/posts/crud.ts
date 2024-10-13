@@ -1,9 +1,34 @@
 import { HttpMethod, convertToBody, httpRequest } from "../api";
 
-export const sendGetPostsRequest = async (query?: string) => {
-	const url = query ? `post${query}` : `post`;
+export type TPostListClientSearchParams = {
+	index: number;
+	perPage: number;
+	sortBy: number;
+	keyword: string;
+};
 
-	return await httpRequest(url, HttpMethod.GET);
+type TPostListRequestSearchParams = TPostListClientSearchParams & {
+	category_id: number;
+};
+
+export const sendGetPostsRequest = async (
+	param: Partial<TPostListRequestSearchParams>
+) => {
+	const stringified: Record<string, string> = {
+		index: "1",
+		perPage: "10",
+	};
+
+	for (const key in param) {
+		const value = param[key as keyof TPostListRequestSearchParams];
+
+		if (value !== undefined) {
+			stringified[key] = String(value);
+		}
+	}
+
+	const searchParams = new URLSearchParams(stringified);
+	return await httpRequest(`post?${searchParams.toString()}`, HttpMethod.GET);
 };
 
 export const sendGetPostRequest = async (param: string) => {
