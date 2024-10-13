@@ -24,16 +24,17 @@ import { LikeModule } from "./like/like.module";
 import { LogModule } from "./log/log.module";
 import { OAuthModule } from "./oauth/oauth.module";
 import { PostModule } from "./post/post.module";
+import { RankModule } from "./rank/rank.module";
 import { RbacModule } from "./rbac/rbac.module";
 import { UserModule } from "./user/user.module";
-import { RankModule } from "./rank/rank.module";
 
 @Module({
 	imports: [
 		ConfigModule.forRoot({
 			cache: true,
 			isGlobal: true,
-			envFilePath: process.env.NODE_ENV === "test" ? ".env.test" : ".env",
+			envFilePath:
+				process.env.NODE_ENV === "test" ? ".env.test" : "./../.env",
 			load: [appConfig, typeOrmConfig, jwtConfig, oauthConfig],
 		}),
 		TypeOrmModule.forRootAsync({
