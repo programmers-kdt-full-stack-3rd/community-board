@@ -8,6 +8,7 @@ export const PostApiTests: Record<string, IApiTestCase> = {
 		data: {
 			title: "게시글 제목",
 			content: "게시글 내용",
+			category_id: 1,
 		},
 	},
 	readPost: {

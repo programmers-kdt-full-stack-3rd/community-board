@@ -8,17 +8,18 @@ import {
 	Post,
 	UseGuards,
 } from "@nestjs/common";
-import { LikeService } from "./like.service";
-import { LoginGuard } from "../common/guard/login.guard";
+import { User } from "src/common/decorator/user.decorator";
+import { IUserEntity } from "src/common/interface/user-entity.interface";
+import { Permissions } from "../common/decorator/rbac.decorator";
 import { ServerError } from "../common/exceptions/server-error.exception";
-import { HandleLikeDto } from "./dto/handle-like-dto";
-import { HandleCommentLikeDto } from "./dto/handle-comment-like-dto";
+import { LoginGuard } from "../common/guard/login.guard";
 import {
 	LIKE_ERROR_CODES,
 	LIKE_ERROR_MESSAGES,
 } from "./constant/like.constants";
-import { User } from "src/common/decorator/user.decorator";
-import { IUserEntity } from "src/common/interface/user-entity.interface";
+import { HandleCommentLikeDto } from "./dto/handle-comment-like-dto";
+import { HandleLikeDto } from "./dto/handle-like-dto";
+import { LikeService } from "./like.service";
 
 @Controller("like")
 export class LikeController {
@@ -27,6 +28,7 @@ export class LikeController {
 	@UseGuards(LoginGuard)
 	@Post("post/:post_id")
 	@HttpCode(HttpStatus.CREATED)
+	@Permissions("create:post-like")
 	async handleAddLike(
 		@Param("post_id", ParseIntPipe) postId: number,
 		@User() user: IUserEntity
@@ -53,6 +55,7 @@ export class LikeController {
 	@UseGuards(LoginGuard)
 	@Delete("post/:post_id")
 	@HttpCode(HttpStatus.OK)
+	@Permissions("delete:post-like")
 	async handleDeleteLike(
 		@Param("post_id", ParseIntPipe) postId: number,
 		@User() user: IUserEntity
@@ -72,6 +75,7 @@ export class LikeController {
 	@UseGuards(LoginGuard)
 	@Post("comment/:comment_id")
 	@HttpCode(HttpStatus.CREATED)
+	@Permissions("create:comment-like")
 	async handleAddCommentLike(
 		@Param("comment_id", ParseIntPipe) commentId: number,
 		@User() user: IUserEntity
@@ -99,6 +103,7 @@ export class LikeController {
 	@UseGuards(LoginGuard)
 	@Delete("comment/:comment_id")
 	@HttpCode(HttpStatus.OK)
+	@Permissions("delete:comment-like")
 	async handleDeleteCommentLike(
 		@Param("comment_id", ParseIntPipe) commentId: number,
 		@User() user: IUserEntity

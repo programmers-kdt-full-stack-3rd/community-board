@@ -10,7 +10,7 @@ import {
 	Query,
 	UseGuards,
 } from "@nestjs/common";
-import { AdminOnly } from "../common/decorator/rbac.decorator";
+import { AdminOnly, Permissions } from "../common/decorator/rbac.decorator";
 import { LoginGuard } from "../common/guard/login.guard";
 import { GetLogQueryDto } from "../log/dto/get-log-query.dto";
 import { LogService } from "../log/log.service";
@@ -30,6 +30,7 @@ export class AdminController {
 
 	@Get("/user")
 	@HttpCode(HttpStatus.OK)
+	@Permissions("manage:user")
 	async getUsers(@Query() getUsersDto: GetUsersDto) {
 		const result = await this.adminService.getUsers(getUsersDto);
 
@@ -38,6 +39,7 @@ export class AdminController {
 
 	@Delete("/user/:userId")
 	@HttpCode(HttpStatus.OK)
+	@Permissions("manage:user")
 	async deleteUser(@Param("userId", ParseIntPipe) userId: number) {
 		await this.adminService.deleteUser(userId);
 
@@ -46,6 +48,7 @@ export class AdminController {
 
 	@Patch("/user/:userId/restore")
 	@HttpCode(HttpStatus.OK)
+	@Permissions("manage:user")
 	async restoreUser(@Param("userId", ParseIntPipe) userId: number) {
 		await this.adminService.restoreUser(userId);
 
@@ -54,6 +57,7 @@ export class AdminController {
 
 	@Get("/post")
 	@HttpCode(HttpStatus.OK)
+	@Permissions("manage:post")
 	async getPosts(@Query() getPostsDto: GetPostsDto) {
 		const result = await this.adminService.getPosts(getPostsDto);
 
@@ -62,6 +66,7 @@ export class AdminController {
 
 	@Delete("/post/:postId")
 	@HttpCode(HttpStatus.OK)
+	@Permissions("manage:post")
 	async deletePost(@Param("postId", ParseIntPipe) postId: number) {
 		await this.adminService.deletePost(postId);
 
@@ -70,6 +75,7 @@ export class AdminController {
 
 	@Patch("/post/:postId/restore")
 	@HttpCode(HttpStatus.OK)
+	@Permissions("manage:post")
 	async restorePost(@Param("postId", ParseIntPipe) postId: number) {
 		await this.adminService.restorePost(postId);
 
@@ -78,6 +84,7 @@ export class AdminController {
 
 	@Patch("/post/:postId/public")
 	@HttpCode(HttpStatus.OK)
+	@Permissions("manage:post")
 	async publicPost(@Param("postId", ParseIntPipe) postId: number) {
 		await this.adminService.publicPost(postId);
 
@@ -86,6 +93,7 @@ export class AdminController {
 
 	@Patch("/post/:postId/private")
 	@HttpCode(HttpStatus.OK)
+	@Permissions("manage:post")
 	async privatePost(@Param("postId", ParseIntPipe) postId: number) {
 		await this.adminService.privatePost(postId);
 
@@ -94,6 +102,7 @@ export class AdminController {
 
 	@Get("/log/:userId")
 	@HttpCode(HttpStatus.OK)
+	@Permissions("view:log")
 	async getLogs(
 		@Query() getLogQueryDto: GetLogQueryDto,
 		@Param("userId", ParseIntPipe) userId: number
@@ -105,6 +114,7 @@ export class AdminController {
 
 	@Get("/stat")
 	@HttpCode(HttpStatus.OK)
+	@Permissions("view:stat")
 	async getStats(@Query() getStatsQueryDto: GetStatsQueryDto) {
 		const result = await this.adminService.getStats(getStatsQueryDto);
 
@@ -113,6 +123,7 @@ export class AdminController {
 
 	@Get("/stat/:userId")
 	@HttpCode(HttpStatus.OK)
+	@Permissions("view:stat")
 	async getUserStat(@Param("userId", ParseIntPipe) userId: number) {
 		const result = await this.adminService.getUserStat(userId);
 
