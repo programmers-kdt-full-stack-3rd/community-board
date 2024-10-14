@@ -5,6 +5,7 @@ import {
 	Get,
 	HttpCode,
 	HttpStatus,
+	Patch,
 	Post,
 	Put,
 	Req,
@@ -63,7 +64,12 @@ export class UserController {
 
 		return {
 			message: "로그인 성공",
-			result: { nickname: result.nickname, loginTime: getKstNow() },
+			result: {
+				nickname: result.nickname,
+				email: result.email,
+				imgUrl: result.imgUrl,
+				loginTime: getKstNow(),
+			},
 		};
 	}
 
@@ -161,11 +167,59 @@ export class UserController {
 		return { message: "비밀번호 확인 성공" };
 	}
 
+	@Post("/check-duplicate")
+	@HttpCode(HttpStatus.OK)
+	async checkUser(
+		@Body() checkNicknameDto: { nickname?: string; email?: string }
+	) {
+		const result = await this.userService.checkUser(
+			checkNicknameDto.nickname,
+			checkNicknameDto.email
+		);
+
+		return { isDuplicated: result };
+	}
+
 	@Get("/check-admin")
 	@HttpCode(HttpStatus.OK)
 	@UseGuards(LoginGuard)
 	async checkIsAdmin(@User() user: IUserEntity) {
 		const isAdmin = await this.rbacService.isAdmin(user.roleId);
 		return { isAdmin };
+	}
+
+	@Patch("/profile")
+	@HttpCode(HttpStatus.OK)
+	async updateProfile(
+		@User() userEntity: IUserEntity,
+		@Body() updateProfileDto: { nickname?: string; imgUrl?: string }
+	) {
+		const userId = userEntity.userId;
+		const success = await this.userService.updateProfile(
+			userId,
+			updateProfileDto.nickname,
+			updateProfileDto.imgUrl
+		);
+
+		return { success };
+	}
+
+	@Patch("/password")
+	@HttpCode(HttpStatus.OK)
+	async updatePassword(
+		@User() userEntity: IUserEntity,
+		@Body()
+		updatePasswordDto: { originPassword: string; newPassword: string }
+	) {
+		const userId = userEntity.userId;
+
+		// token !== undefined -> 검사 통과
+		await this.userService.updatePassword(
+			userId,
+			updatePasswordDto.originPassword,
+			updatePasswordDto.newPassword
+		);
+
+		return { message: "비밀번호 변경 성공" };
 	}
 }

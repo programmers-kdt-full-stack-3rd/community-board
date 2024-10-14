@@ -13,7 +13,7 @@ import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
 import { ClientError } from "../../api/errors";
 import {
 	sendPatchProfileRequest,
-	sendPostCheckNicknameRequest,
+	sendPostCheckUserRequest,
 } from "../../api/users/crud";
 import { IUpdateProfileRequest } from "shared";
 import ConfirmModal from "../../component/common/Modal/ConfirmModal";
@@ -116,7 +116,7 @@ const ProfilePage = () => {
 		}
 
 		const res = await ApiCall(
-			() => sendPostCheckNicknameRequest({ nickname: newNickname }),
+			() => sendPostCheckUserRequest({ nickname: newNickname }),
 			err =>
 				globalErrorModal.openWithMessageSplit({
 					messageWithTitle: err.message,

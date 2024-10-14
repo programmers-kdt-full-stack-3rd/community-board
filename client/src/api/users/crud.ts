@@ -26,9 +26,9 @@ export const sendPOSTCheckPasswordRequest = async (body: object) => {
 };
 
 // 닉네임 중복 확인
-export const sendPostCheckNicknameRequest = async (body: object) => {
+export const sendPostCheckUserRequest = async (body: object) => {
 	return await httpRequest(
-		"user/check-nickname",
+		"user/check-duplicate",
 		HttpMethod.POST,
 		convertToBody(body)
 	);
