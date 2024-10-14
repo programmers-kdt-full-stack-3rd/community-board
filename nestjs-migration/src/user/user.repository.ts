@@ -183,17 +183,19 @@ export class UserRepository extends Repository<User> {
 
 	// true : 같은 사용자 있음 (에러 상황)
 	async findSameUser(nickname?: string, email?: string): Promise<boolean> {
-		const queryBuilder = this.createQueryBuilder("user").select(`user.id`);
+		const where: any = [];
 
 		if (nickname) {
-			queryBuilder.orWhere("nickname = :nickname", { nickname });
+			where.push({ nickname });
 		}
 
 		if (email) {
-			queryBuilder.orWhere("email = :email", { email });
+			where.push({ email });
 		}
 
-		const sameUserCount = await queryBuilder.getCount();
+		const sameUserCount = await this.count({
+			where: where.length > 0 ? where : undefined,
+		});
 
 		return sameUserCount !== 0;
 	}
@@ -213,21 +215,21 @@ export class UserRepository extends Repository<User> {
 			updateData.imgUrl = imgUrl;
 		}
 
-		return this.createQueryBuilder("user")
-			.update()
-			.set(updateData)
-			.where("id = :userId", { userId })
-			.andWhere("isDelete = :isDelete", { isDelete: false })
-			.execute();
+		return this.update({ id: userId, isDelete: false }, updateData);
 	}
 
 	async updateUserPassword(userId: number, newPassword: string) {
-		return this.createQueryBuilder("user")
-			.update()
-			.set({ password: newPassword })
-			.where("id = :userId", { userId })
-			.andWhere("isDelete = :isDelete", { isDelete: false })
-			.execute();
+		return this.update(
+			{ id: userId, isDelete: false },
+			{ password: newPassword }
+		);
+
+		// return this.createQueryBuilder("user")
+		// .update()
+		// .set({ password: newPassword })
+		// .where("id = :userId", { userId })
+		// .andWhere("isDelete = :isDelete", { isDelete: false })
+		// .execute();
 	}
 	//예시 코드
 
