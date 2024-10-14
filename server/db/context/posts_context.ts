@@ -29,6 +29,12 @@ export const getPostHeaders = async (
 		dataValues.push(userId || 0);
 		countValues.push(userId || 0);
 
+		if (queryString.category_id) {
+			sharedSql += ` AND p.category_id = ?`;
+			dataValues.push(queryString.category_id);
+			countValues.push(queryString.category_id);
+		}
+
 		let dataSql = `SELECT p.id as id, 
                             p.title as title,
                             u.nickname as author_nickname,
@@ -194,15 +200,16 @@ export const addPost = async (
 	conn: PoolConnection
 ) => {
 	try {
-		const values: [string, string, number] = [
+		const values: [string, string, number, number] = [
 			reqBody.title,
 			reqBody.content,
 			reqBody.author_id,
+			reqBody.category_id,
 		];
 
 		let sql = `
-                INSERT INTO posts (title, content, author_id, created_at)
-                VALUES (?, ?, ?, now())
+                INSERT INTO posts (title, content, author_id, category_id, created_at)
+                VALUES (?, ?, ?, ?, now())
         `;
 		const [rows]: any[] = await conn.query(sql, values);
 

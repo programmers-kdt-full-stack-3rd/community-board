@@ -25,8 +25,7 @@ const UpsertPostPage: React.FC = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const queryParams = new URLSearchParams(location.search);
-	const categoryId =
-		parseInt(queryParams.get("category_id") ?? "", 10) || undefined;
+	const categoryId = parseInt(queryParams.get("category_id") ?? "", 10) || 1;
 	const postId = queryParams.get("postId") || "";
 	const originalTitle = queryParams.get("title") || "";
 	const originalContent = queryParams.get("content") || "";
@@ -226,6 +225,7 @@ const UpsertPostPage: React.FC = () => {
 					quillRef={quillRef}
 					content={content}
 					setContent={setContent}
+					categoryId={categoryId}
 				/>
 			</div>
 
