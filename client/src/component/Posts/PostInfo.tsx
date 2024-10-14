@@ -1,5 +1,4 @@
 import { dateToStr } from "../../utils/date-to-str";
-import { IPostInfo } from "shared";
 import { useCallback, useLayoutEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -16,15 +15,13 @@ import ConfirmModal from "../common/Modal/ConfirmModal";
 import { sendDeletePostRequest } from "../../api/posts/crud";
 import { useModal } from "../../hook/useModal";
 import useCategory from "../../hook/useCategory";
+import { usePostInfo } from "../../state/PostInfoStore";
 
-interface IPostInfoProps {
-	postInfo: IPostInfo;
-}
-
-const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
+const PostInfo: React.FC = () => {
 	const navigate = useNavigate();
+	const { post } = usePostInfo();
 
-	const { currentCategory } = useCategory(postInfo.category);
+	const { currentCategory } = useCategory(post.category);
 
 	const deleteModal = useModal();
 	const globalErrorModal = useGlobalErrorModal();
@@ -33,16 +30,16 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 	const [likes, setLikes] = useState(0);
 
 	useLayoutEffect(() => {
-		setUserLiked(postInfo.user_liked);
-		setLikes(postInfo.likes);
-	}, [postInfo.user_liked, postInfo.likes]);
+		setUserLiked(post.user_liked);
+		setLikes(post.likes);
+	}, [post.user_liked, post.likes]);
 
-	const time = postInfo.updated_at
-		? new Date(postInfo.updated_at)
-		: new Date(postInfo.created_at);
-	const updateTxt = postInfo.updated_at ? " (수정됨)" : "";
-	const isAuthor = postInfo.is_author;
-	const content = postInfo.content;
+	const time = post.updated_at
+		? new Date(post.updated_at)
+		: new Date(post.created_at);
+	const updateTxt = post.updated_at ? " (수정됨)" : "";
+	const isAuthor = post.is_author;
+	const content = post.content;
 
 	const isLogin = useUserStore(state => state.isLogin);
 
@@ -58,8 +55,8 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 
 		const res = await ApiCall(
 			userLiked
-				? () => sendDeletePostLikeRequest(postInfo.id)
-				: () => sendCreatePostLikeRequest(postInfo.id),
+				? () => sendDeletePostLikeRequest(post.id)
+				: () => sendCreatePostLikeRequest(post.id),
 			err =>
 				globalErrorModal.openWithMessageSplit({
 					messageWithTitle: err.message,
@@ -80,7 +77,7 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 	};
 
 	const handleUpdate = () => {
-		const url = `/post/new?postId=${postInfo.id}&title=${encodeURIComponent(postInfo.title)}&content=${encodeURIComponent(postInfo.content)}`;
+		const url = `/post/new?postId=${post.id}&title=${encodeURIComponent(post.title)}&content=${encodeURIComponent(post.content)}`;
 
 		navigate(url);
 	};
@@ -95,7 +92,7 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 		}
 
 		const res = await ApiCall(
-			() => sendDeletePostRequest(postInfo.id.toString()),
+			() => sendDeletePostRequest(post.id.toString()),
 			err => {
 				deleteModal.close();
 				globalErrorModal.openWithMessageSplit({
@@ -138,21 +135,21 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 
 				<div className="border-b-customGray border-t-customGray border-spacing-3 border-y">
 					<div className="text-left text-2xl font-bold">
-						<div className="mb-2 mt-4">{postInfo.title}</div>
+						<div className="mb-2 mt-4">{post.title}</div>
 					</div>
 
 					<div className="mb-4 flex items-center justify-between">
 						<div className="flex items-center gap-2 text-lg">
-							<div>{postInfo.author_nickname}</div>
+							<div>{post.author_nickname}</div>
 							<div>{dateToStr(time) + updateTxt}</div>
 						</div>
 
 						<div className="flex items-center gap-2 text-base">
 							<IoEyeOutline />
-							<div>{postInfo.views}</div>
+							<div>{post.views}</div>
 
 							<FaRegThumbsUp />
-							<div>{postInfo.likes}</div>
+							<div>{post.likes}</div>
 
 							{isAuthor ? (
 								<>

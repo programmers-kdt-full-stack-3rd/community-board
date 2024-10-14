@@ -1,4 +1,4 @@
-import { useCallback, useLayoutEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { IComment, mapDBToComments } from "shared";
 import {
@@ -9,15 +9,13 @@ import Pagination from "../common/Pagination/Pagination";
 import CommentForm from "./CommentForm/CommentForm";
 import CommentItem from "./CommentItem/CommentItem";
 import { ApiCall } from "../../api/api";
-import { ClientError } from "../../api/errors";
 import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
 import { useNavigate, useParams } from "react-router-dom";
+import { usePostInfo } from "../../state/PostInfoStore";
 
-interface ICommentsProps {
-	postId: number;
-}
+const Comments: React.FC = () => {
+	const { post } = usePostInfo();
 
-const Comments = ({ postId }: ICommentsProps) => {
 	const [comments, setComments] = useState<IComment[]>([]);
 	const [total, setTotal] = useState(0);
 
@@ -34,7 +32,7 @@ const Comments = ({ postId }: ICommentsProps) => {
 
 	const fetchComments = useCallback(async () => {
 		const requestSearchParams = new URLSearchParams([
-			["post_id", String(postId)],
+			["post_id", String(post.id)],
 			["index", searchParams.get("comment_index") || ""],
 			["perPage", searchParams.get("comment_perPage") || ""],
 		]);
@@ -51,21 +49,21 @@ const Comments = ({ postId }: ICommentsProps) => {
 				})
 		);
 
-		if (res instanceof ClientError) {
+		if (res instanceof Error) {
 			return;
 		}
 
 		setComments(mapDBToComments(res.comments));
 		setTotal(res.total);
-	}, [postId, searchParams]);
+	}, [post.id, searchParams]);
 
-	useLayoutEffect(() => {
-		if (postId < 1) {
+	useEffect(() => {
+		if (post.id < 1) {
 			return;
 		}
 
 		fetchComments();
-	}, [postId, searchParams]);
+	}, [post.id, searchParams]);
 
 	const goToLastPage = async () => {
 		if (searchParams.get("comment_index")) {
@@ -79,7 +77,7 @@ const Comments = ({ postId }: ICommentsProps) => {
 
 	const handleCommentCreate = async (content: string): Promise<boolean> => {
 		const res = await ApiCall(
-			() => sendPostCommentRequest({ content, post_id: postId }),
+			() => sendPostCommentRequest({ content, post_id: post.id }),
 			err =>
 				globalErrorModal.openWithMessageSplit({
 					messageWithTitle: err.message,
