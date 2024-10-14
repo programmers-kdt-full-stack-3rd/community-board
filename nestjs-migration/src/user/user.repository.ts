@@ -197,6 +197,29 @@ export class UserRepository extends Repository<User> {
 
 		return sameUserCount !== 0;
 	}
+
+	async updateUserProfile(
+		userId: number,
+		nickname?: string,
+		imgUrl?: string
+	) {
+		const updateData: Partial<{ nickname?: string; imgUrl?: string }> = {};
+
+		if (nickname) {
+			updateData.nickname = nickname;
+		}
+
+		if (imgUrl) {
+			updateData.imgUrl = imgUrl;
+		}
+
+		return this.createQueryBuilder("user")
+			.update()
+			.set(updateData)
+			.where("id = :userId", { userId })
+			.andWhere("isDelete = :isDelete", { isDelete: false })
+			.execute();
+	}
 	//예시 코드
 
 	// async customMethod(id: number): Promise<User> {

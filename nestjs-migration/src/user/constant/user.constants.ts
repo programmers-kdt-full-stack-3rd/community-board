@@ -23,7 +23,7 @@ export const USER_ERROR_MESSAGES = {
 	UPDATE_USER_ERROR: "회원정보 수정 실패",
 	DELETE_OAUTH_CONNECTION_ERROR: "소셜 로그인 전체 연동 해제 실패",
 	DELETE_USER_ERROR: "사용자 삭제 실패",
-	INVALID_USER_INFO: "이메일과 비밀번호 중 하나를 입력해야 합니다.",
+	VOID_INPUT: "전달된 정보가 없습니다.",
 };
 
 export const PASSWORD_POLICY = {

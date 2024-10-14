@@ -5,6 +5,7 @@ import {
 	Get,
 	HttpCode,
 	HttpStatus,
+	Patch,
 	Post,
 	Put,
 	Req,
@@ -63,7 +64,12 @@ export class UserController {
 
 		return {
 			message: "로그인 성공",
-			result: { nickname: result.nickname, loginTime: getKstNow() },
+			result: {
+				nickname: result.nickname,
+				email: result.email,
+				imgUrl: result.imgUrl,
+				loginTime: getKstNow(),
+			},
 		};
 	}
 
@@ -180,5 +186,21 @@ export class UserController {
 	async checkIsAdmin(@User() user: IUserEntity) {
 		const isAdmin = await this.rbacService.isAdmin(user.roleId);
 		return { isAdmin };
+	}
+
+	@Patch("/profile")
+	@HttpCode(HttpStatus.OK)
+	async updateProfile(
+		@User() userEntity: IUserEntity,
+		@Body() updateProfileDto: { nickname?: string; imgUrl?: string }
+	) {
+		const userId = userEntity.userId;
+		const success = await this.userService.updateProfile(
+			userId,
+			updateProfileDto.nickname,
+			updateProfileDto.imgUrl
+		);
+
+		return { success };
 	}
 }

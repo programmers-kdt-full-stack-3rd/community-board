@@ -72,7 +72,12 @@ export class UserService {
 			expiredAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
 		});
 
-		return { nickname: user.nickname, ...tokens };
+		return {
+			nickname: user.nickname,
+			email: user.email,
+			imgUrl: user.imgUrl,
+			...tokens,
+		};
 	}
 
 	async readUser(userId: number) {
@@ -100,7 +105,7 @@ export class UserService {
 
 	async checkUser(nickname?: string, email?: string) {
 		if (!nickname && !email) {
-			throw ServerError.badRequest(USER_ERROR_MESSAGES.INVALID_USER_INFO);
+			throw ServerError.badRequest(USER_ERROR_MESSAGES.VOID_INPUT);
 		}
 
 		const existSameUser = await this.userRepository.findSameUser(
@@ -109,6 +114,24 @@ export class UserService {
 		);
 
 		return existSameUser;
+	}
+
+	async updateProfile(userId: number, nickname?: string, imageUrl?: string) {
+		if (!nickname && !imageUrl) {
+			throw ServerError.badRequest(USER_ERROR_MESSAGES.VOID_INPUT);
+		}
+
+		const result = await this.userRepository.updateUserProfile(
+			userId,
+			nickname,
+			imageUrl
+		);
+
+		if (result.affected === 0) {
+			throw ServerError.badRequest(USER_ERROR_MESSAGES.UPDATE_USER_ERROR);
+		}
+
+		return true;
 	}
 
 	async logout(userId: number, refreshToken: string) {
