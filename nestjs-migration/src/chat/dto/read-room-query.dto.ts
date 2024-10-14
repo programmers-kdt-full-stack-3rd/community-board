@@ -1,15 +1,27 @@
-import { IsBoolean, IsNumber, IsOptional, IsString } from "class-validator";
+import { Type } from "class-transformer";
+import {
+	IsBoolean,
+	IsNumber,
+	IsOptional,
+	IsString,
+	Min,
+} from "class-validator";
 
 export class ReadRoomQuery {
 	@IsOptional()
+	@Type(() => Number) // 쿼리 파라미터를 숫자로 변환
 	@IsNumber()
-	page?: number = 0;
+	@Min(0)
+	page: number = 0;
 
 	@IsOptional()
+	@Type(() => Number)
 	@IsNumber()
-	perPage?: number = 2;
+	@Min(1)
+	perPage: number = 2;
 
 	@IsOptional()
+	@Type(() => Boolean)
 	@IsBoolean()
 	isSearch?: boolean;
 

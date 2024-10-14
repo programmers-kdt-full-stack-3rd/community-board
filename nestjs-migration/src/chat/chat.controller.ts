@@ -68,8 +68,11 @@ export class ChatController {
 		@User() user: IUserEntity
 	): Promise<GetRoomsRes> {
 		try {
-			let { page, perPage, keyword, isSearch } = readRoomQuery;
-			page = page ? page - 1 : page;
+			let { page, perPage, keyword } = readRoomQuery;
+			const { isSearch } = readRoomQuery;
+
+			page = page ? page - 1 : 0;
+			perPage = perPage ? perPage : 2;
 			keyword = keyword ? decodeURIComponent(keyword) : "";
 
 			let results;
