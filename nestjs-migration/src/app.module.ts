@@ -13,7 +13,7 @@ import { AppService } from "./app.service";
 import { AuthModule } from "./auth/auth.module";
 import { ChatModule } from "./chat/chat.module";
 import { CommentModule } from "./comment/comment.module";
-// import { RbacGuard } from "./common/guard/rbac.guard";
+import { RbacGuard } from "./common/guard/rbac.guard";
 import { TokenGuard } from "./common/guard/token.guard";
 import appConfig from "./config/app.config";
 import { typeOrmConfig } from "./config/db.config";
@@ -81,10 +81,10 @@ import { ImageModule } from "./image/image.module";
 			provide: APP_GUARD,
 			useClass: TokenGuard,
 		},
-		// {
-		// 	provide: APP_GUARD,
-		// 	useClass: RbacGuard,
-		// },
+		{
+			provide: APP_GUARD,
+			useClass: RbacGuard,
+		},
 	],
 })
 export class AppModule {}
