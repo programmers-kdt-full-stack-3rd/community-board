@@ -180,6 +180,17 @@ export class UserRepository extends Repository<User> {
 
 		return plainToInstance(GetTopActivties, results);
 	}
+
+	// true : 같은 사용자 있음 (에러 상황)
+	async findSameNickname(nickname: string): Promise<boolean> {
+		const queryBuilder = this.createQueryBuilder("user")
+			.select(`user.id`)
+			.where("nickname = :nickname", { nickname });
+
+		const sameUserCount = await queryBuilder.getCount();
+
+		return sameUserCount !== 0;
+	}
 	//예시 코드
 
 	// async customMethod(id: number): Promise<User> {

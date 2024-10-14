@@ -98,6 +98,13 @@ export class UserService {
 		return { tempToken };
 	}
 
+	async checkNickname(nickname: string) {
+		const existSameUser =
+			await this.userRepository.findSameNickname(nickname);
+
+		return existSameUser;
+	}
+
 	async logout(userId: number, refreshToken: string) {
 		await this.deleteRefreshToken(userId, refreshToken);
 	}

@@ -161,6 +161,16 @@ export class UserController {
 		return { message: "비밀번호 확인 성공" };
 	}
 
+	@Post("/check-nickname")
+	@HttpCode(HttpStatus.OK)
+	async checkNickname(@Body() checkNicknameDto: { nickname: string }) {
+		const result = await this.userService.checkNickname(
+			checkNicknameDto.nickname
+		);
+
+		return { isDuplicated: result };
+	}
+
 	@Get("/check-admin")
 	@HttpCode(HttpStatus.OK)
 	@UseGuards(LoginGuard)
