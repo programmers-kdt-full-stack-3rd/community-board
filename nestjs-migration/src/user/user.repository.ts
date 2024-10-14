@@ -220,6 +220,15 @@ export class UserRepository extends Repository<User> {
 			.andWhere("isDelete = :isDelete", { isDelete: false })
 			.execute();
 	}
+
+	async updateUserPassword(userId: number, newPassword: string) {
+		return this.createQueryBuilder("user")
+			.update()
+			.set({ password: newPassword })
+			.where("id = :userId", { userId })
+			.andWhere("isDelete = :isDelete", { isDelete: false })
+			.execute();
+	}
 	//예시 코드
 
 	// async customMethod(id: number): Promise<User> {

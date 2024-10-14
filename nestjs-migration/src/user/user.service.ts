@@ -134,6 +134,43 @@ export class UserService {
 		return true;
 	}
 
+	async updatePassword(
+		userId: number,
+		originPassword?: string,
+		newPassword?: string
+	) {
+		if (!originPassword && !newPassword) {
+			throw ServerError.badRequest(USER_ERROR_MESSAGES.VOID_INPUT);
+		}
+
+		const user = await this.findAndValidateUserById(userId);
+
+		const hashedPassword = await makeHashedPassword(
+			originPassword,
+			user.salt
+		);
+
+		if (user.password !== hashedPassword) {
+			throw ServerError.badRequest("기존 비밀번호가 일치하지 않습니다.");
+		}
+
+		const newHashedPassword = await makeHashedPassword(
+			newPassword,
+			user.salt
+		);
+
+		const result = await this.userRepository.updateUserPassword(
+			userId,
+			newHashedPassword
+		);
+
+		if (result.affected === 0) {
+			throw ServerError.badRequest(USER_ERROR_MESSAGES.UPDATE_USER_ERROR);
+		}
+
+		return true;
+	}
+
 	async logout(userId: number, refreshToken: string) {
 		await this.deleteRefreshToken(userId, refreshToken);
 	}

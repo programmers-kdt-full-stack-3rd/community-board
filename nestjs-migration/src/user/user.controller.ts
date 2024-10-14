@@ -203,4 +203,23 @@ export class UserController {
 
 		return { success };
 	}
+
+	@Patch("/password")
+	@HttpCode(HttpStatus.OK)
+	async updatePassword(
+		@User() userEntity: IUserEntity,
+		@Body()
+		updatePasswordDto: { originPassword: string; newPassword: string }
+	) {
+		const userId = userEntity.userId;
+
+		// token !== undefined -> 검사 통과
+		await this.userService.updatePassword(
+			userId,
+			updatePasswordDto.originPassword,
+			updatePasswordDto.newPassword
+		);
+
+		return { message: "비밀번호 변경 성공" };
+	}
 }
