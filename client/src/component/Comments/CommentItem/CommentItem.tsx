@@ -12,6 +12,8 @@ import { useGlobalErrorModal } from "../../../state/GlobalErrorModalStore";
 import Button from "../../common/Button";
 import { FaCheckCircle } from "react-icons/fa";
 import { usePostInfo } from "../../../state/PostInfoStore";
+import ConfirmModal from "../../common/Modal/ConfirmModal";
+import { useModal } from "../../../hook/useModal";
 
 interface ICommentItemProps {
 	comment: IComment;
@@ -29,6 +31,8 @@ const CommentItem: React.FC<ICommentItemProps> = ({
 	const [isEditMode, setIsEditMode] = useState(false);
 
 	const globalErrorModal = useGlobalErrorModal();
+	const deleteConfirmModal = useModal();
+
 	const { isQnaCategory, acceptedCommentId } = usePostInfo();
 
 	const isAccepted = isQnaCategory && acceptedCommentId === comment.id;
@@ -87,12 +91,8 @@ const CommentItem: React.FC<ICommentItemProps> = ({
 		return true;
 	};
 
-	const handleDeleteClick = async () => {
-		const accepted = confirm("댓글을 정말로 삭제할까요?");
-
-		if (!accepted) {
-			return;
-		}
+	const handleDelete = async () => {
+		deleteConfirmModal.close();
 
 		const res = await ApiCall(
 			() => sendDeleteCommentRequest(comment.id),
@@ -106,7 +106,7 @@ const CommentItem: React.FC<ICommentItemProps> = ({
 			return false;
 		}
 
-		if (onDelete) {
+		if (typeof onDelete === "function") {
 			await onDelete();
 		}
 
@@ -117,6 +117,17 @@ const CommentItem: React.FC<ICommentItemProps> = ({
 
 	return (
 		<div className="border-b-customGray flex w-full border-spacing-3 flex-row items-center justify-between border-b">
+			<ConfirmModal
+				isOpen={deleteConfirmModal.isOpen}
+				okButtonColor="danger"
+				okButtonLabel="댓글 삭제"
+				onAccept={handleDelete}
+				onClose={deleteConfirmModal.close}
+			>
+				<ConfirmModal.Title>댓글 삭제 확인</ConfirmModal.Title>
+				<ConfirmModal.Body>댓글을 정말로 삭제할까요?</ConfirmModal.Body>
+			</ConfirmModal>
+
 			<div className="max-w-[750px] flex-grow">
 				<div className="mb-2 flex flex-row items-center justify-between">
 					<div className="flex flex-row items-center gap-2">
@@ -168,7 +179,7 @@ const CommentItem: React.FC<ICommentItemProps> = ({
 									size="small"
 									variant="text"
 									color="danger"
-									onClick={handleDeleteClick}
+									onClick={deleteConfirmModal.open}
 								>
 									삭제
 								</Button>
