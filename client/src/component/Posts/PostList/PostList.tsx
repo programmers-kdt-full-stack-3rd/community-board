@@ -134,7 +134,7 @@ const PostList: React.FC<IPostListProps> = ({
 								)}
 								to={`/post/${postHeader.id}`}
 							>
-								<div className="postListHeaderRow:text-center flex-1 text-left">
+								<div className="postListHeaderRow:text-center flex-1 break-words break-all text-left">
 									{postHeader.title}
 									{isQnaCategory &&
 										acceptedCommentIds &&

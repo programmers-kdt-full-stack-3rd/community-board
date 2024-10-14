@@ -138,12 +138,14 @@ const PostInfo: React.FC = () => {
 				<div className="border-b-customGray border-t-customGray border-spacing-3 border-y">
 					<div className="mb-2 mt-4 flex items-center gap-3 text-left">
 						{isAcceptedQna && (
-							<div className="flex items-center gap-1 rounded-md bg-green-600/20 px-2 py-1 text-sm font-bold text-green-800 dark:text-green-400">
+							<div className="flex shrink-0 items-center gap-1 rounded-md bg-green-600/20 px-2 py-1 text-sm font-bold text-green-800 dark:text-green-400">
 								<FaCheck size="0.875em" />
 								<span>채택 완료</span>
 							</div>
 						)}
-						<div className="text-2xl font-bold">{post.title}</div>
+						<div className="break-words break-all text-2xl font-bold">
+							{post.title}
+						</div>
 					</div>
 
 					<div className="mb-4 flex items-center justify-between">
