@@ -98,9 +98,15 @@ export class UserService {
 		return { tempToken };
 	}
 
-	async checkNickname(nickname: string) {
-		const existSameUser =
-			await this.userRepository.findSameNickname(nickname);
+	async checkUser(nickname?: string, email?: string) {
+		if (!nickname && !email) {
+			throw ServerError.badRequest(USER_ERROR_MESSAGES.INVALID_USER_INFO);
+		}
+
+		const existSameUser = await this.userRepository.findSameUser(
+			nickname,
+			email
+		);
 
 		return existSameUser;
 	}

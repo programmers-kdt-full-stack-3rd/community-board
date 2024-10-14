@@ -7,7 +7,10 @@ import { ERROR_MESSAGE, REGEX } from "./constants/constants";
 
 import { ClientError } from "../../api/errors";
 import { ApiCall } from "../../api/api";
-import { sendPostJoinRequest } from "../../api/users/crud";
+import {
+	sendPostCheckUserRequest,
+	sendPostJoinRequest,
+} from "../../api/users/crud";
 import { useNavigate } from "react-router-dom";
 import { useStringWithValidation } from "../../hook/useStringWithValidation";
 import { FaComments } from "react-icons/fa6";
@@ -72,26 +75,60 @@ const Join: FC = () => {
 	);
 
 	const checkEmailDuplication = () => {
-		email.setValidation((value, pass, fail) => {
+		email.setValidation(async (value, pass, fail) => {
 			if (!REGEX.EMAIL.test(value)) {
 				fail(ERROR_MESSAGE.EMAIL_REGEX);
 				return;
 			}
 
 			// TODO : api 호출해서 중복 확인
+			const res = await ApiCall(
+				() => sendPostCheckUserRequest({ email: value }),
+				err => {
+					console.log(err);
+					fail("잠시 후 다시 시도해주세요!");
+					return;
+				}
+			);
+
+			if (res instanceof ClientError) {
+				return;
+			}
+
+			if (res.isDuplicated) {
+				fail("중복된 이메일입니다.");
+				return;
+			}
 
 			pass();
 		});
 	};
 
 	const checkNicknameDuplication = () => {
-		nickname.setValidation((value, pass, fail) => {
+		nickname.setValidation(async (value, pass, fail) => {
 			if (!REGEX.NICKNAME.test(value)) {
 				fail(ERROR_MESSAGE.NICKNAME_REGEX);
 				return;
 			}
 
 			// TODO : api 호출해서 중복 확인
+			const res = await ApiCall(
+				() => sendPostCheckUserRequest({ nickname: value }),
+				err => {
+					console.log(err);
+					fail("잠시 후 다시 시도해주세요!");
+					return;
+				}
+			);
+
+			if (res instanceof ClientError) {
+				return;
+			}
+
+			if (res.isDuplicated) {
+				fail("중복된 닉네임입니다.");
+				return;
+			}
 
 			pass();
 		});

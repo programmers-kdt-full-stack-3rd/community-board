@@ -182,10 +182,16 @@ export class UserRepository extends Repository<User> {
 	}
 
 	// true : 같은 사용자 있음 (에러 상황)
-	async findSameNickname(nickname: string): Promise<boolean> {
-		const queryBuilder = this.createQueryBuilder("user")
-			.select(`user.id`)
-			.where("nickname = :nickname", { nickname });
+	async findSameUser(nickname?: string, email?: string): Promise<boolean> {
+		const queryBuilder = this.createQueryBuilder("user").select(`user.id`);
+
+		if (nickname) {
+			queryBuilder.orWhere("nickname = :nickname", { nickname });
+		}
+
+		if (email) {
+			queryBuilder.orWhere("email = :email", { email });
+		}
 
 		const sameUserCount = await queryBuilder.getCount();
 

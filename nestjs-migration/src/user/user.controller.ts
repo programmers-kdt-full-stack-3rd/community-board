@@ -161,11 +161,14 @@ export class UserController {
 		return { message: "비밀번호 확인 성공" };
 	}
 
-	@Post("/check-nickname")
+	@Post("/check-duplicate")
 	@HttpCode(HttpStatus.OK)
-	async checkNickname(@Body() checkNicknameDto: { nickname: string }) {
-		const result = await this.userService.checkNickname(
-			checkNicknameDto.nickname
+	async checkUser(
+		@Body() checkNicknameDto: { nickname?: string; email?: string }
+	) {
+		const result = await this.userService.checkUser(
+			checkNicknameDto.nickname,
+			checkNicknameDto.email
 		);
 
 		return { isDuplicated: result };
