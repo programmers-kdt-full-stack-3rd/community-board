@@ -10,10 +10,10 @@ services:
 
     api-server:
         build:
-            dockerfile: ./server/Dockerfile
+            dockerfile: ./nestjs-migration/Dockerfile
         container_name: api-server
         ports:
-            - 9000:9000
+            - 8000:8000
         networks:
             - app-network
 
