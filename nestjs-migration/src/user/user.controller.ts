@@ -52,13 +52,14 @@ export class UserController {
 		const result = await this.userService.login(loginDto);
 		res.cookie("accessToken", result.accessToken, {
 			httpOnly: true,
-			secure: true,
+			// http는 secure 사용 x
+			// secure: true,
 			maxAge: COOKIE_MAX_AGE.accessToken,
 		});
 
 		res.cookie("refreshToken", result.refreshToken, {
 			httpOnly: true,
-			secure: true,
+			// secure: true,
 			maxAge: COOKIE_MAX_AGE.refreshToken,
 		});
 
