@@ -1,4 +1,4 @@
-import { ReactNode, useMemo, useState } from "react";
+import React, { ReactNode, useMemo, useState } from "react";
 import { IComment } from "shared";
 import {
 	sendDeleteCommentRequest,
@@ -10,16 +10,30 @@ import CommentLikeButton from "../CommentLikeButton/CommentLikeButton";
 import { ApiCall } from "../../../api/api";
 import { useGlobalErrorModal } from "../../../state/GlobalErrorModalStore";
 import Button from "../../common/Button";
+import { FaCheckCircle } from "react-icons/fa";
+import { usePostInfo } from "../../../state/PostInfoStore";
 
 interface ICommentItemProps {
 	comment: IComment;
+	isAcceptanceHidden?: boolean;
 	onUpdate?: () => Promise<void>;
 	onDelete?: () => Promise<void>;
 }
 
-const CommentItem = ({ comment, onUpdate, onDelete }: ICommentItemProps) => {
+const CommentItem: React.FC<ICommentItemProps> = ({
+	comment,
+	isAcceptanceHidden = false,
+	onUpdate,
+	onDelete,
+}) => {
 	const [isEditMode, setIsEditMode] = useState(false);
+
 	const globalErrorModal = useGlobalErrorModal();
+	const { isQnaCategory, acceptedCommentId } = usePostInfo();
+
+	const isAccepted = isQnaCategory && acceptedCommentId === comment.id;
+	const isAcceptable = isQnaCategory && acceptedCommentId === null;
+	const isLocked = isQnaCategory && acceptedCommentId !== null;
 
 	const contentNodes = useMemo(
 		() =>
@@ -122,27 +136,45 @@ const CommentItem = ({ comment, onUpdate, onDelete }: ICommentItemProps) => {
 								</>
 							) : null}
 						</div>
+						{isAccepted && !isAcceptanceHidden && (
+							<div className="ml-2 flex items-center gap-1 font-bold text-green-600 dark:text-green-500">
+								<FaCheckCircle size="0.875em" />
+								<span>작성자가 채택한 댓글</span>
+							</div>
+						)}
 					</div>
 
-					{comment.is_author && !isEditMode && (
-						<div className="flex gap-1">
+					<div className="flex gap-1">
+						{isAcceptable && !isEditMode && (
 							<Button
+								color="action"
 								size="small"
 								variant="text"
 								onClick={handleEditModeToggle}
 							>
-								수정
+								채택하기
 							</Button>
-							<Button
-								size="small"
-								variant="text"
-								color="danger"
-								onClick={handleDeleteClick}
-							>
-								삭제
-							</Button>
-						</div>
-					)}
+						)}
+						{comment.is_author && !isEditMode && !isLocked && (
+							<>
+								<Button
+									size="small"
+									variant="text"
+									onClick={handleEditModeToggle}
+								>
+									수정
+								</Button>
+								<Button
+									size="small"
+									variant="text"
+									color="danger"
+									onClick={handleDeleteClick}
+								>
+									삭제
+								</Button>
+							</>
+						)}
+					</div>
 				</div>
 
 				<div>

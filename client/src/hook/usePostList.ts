@@ -26,8 +26,22 @@ const usePostList = ({
 	const [postList, setPostList] = useState<IPostHeader[] | null>([]);
 	const [totalPosts, setTotalPosts] = useState(0);
 
-	const fetchPostList = useCallback(() => {
-		ApiCall(
+	const isQnaCategory = categoryId === 3;
+	const [acceptedCommentIds, setAcceptedCommentIds] = useState<
+		(number | null)[]
+	>([]);
+
+	const postRequestDeps = [
+		index,
+		perPage,
+		sortBy,
+		keyword,
+		categoryId,
+		indexCorrector,
+	];
+
+	const fetchPostList = useCallback(async () => {
+		const postRes = await ApiCall(
 			() =>
 				sendGetPostsRequest({
 					index,
@@ -36,31 +50,58 @@ const usePostList = ({
 					keyword,
 					category_id: categoryId,
 				}),
-			() => setPostList(null)
-		).then(res => {
-			if (res instanceof Error) {
-				return;
+			() => {
+				setPostList(null);
+				setAcceptedCommentIds([]);
 			}
+		);
 
-			const total = parseInt(res.total, 10) || 0;
-			const pageCount = Math.ceil(total / perPage);
+		if (postRes instanceof Error) {
+			return;
+		}
 
-			if (pageCount > 0 && index > pageCount) {
-				indexCorrector(pageCount);
-			} else {
-				setPostList(mapDBToPostHeaders(res.postHeaders));
-				setTotalPosts(total);
-			}
-		});
-	}, [index, perPage, sortBy, keyword, categoryId, indexCorrector]);
+		const total = parseInt(postRes.total, 10) || 0;
+		const pageCount = Math.ceil(total / perPage);
+
+		if (pageCount > 0 && index > pageCount) {
+			indexCorrector(pageCount);
+			return;
+		}
+
+		const fetchedPostList = mapDBToPostHeaders(postRes.postHeaders);
+		setPostList(fetchedPostList);
+		setTotalPosts(total);
+
+		if (!isQnaCategory || !fetchedPostList.length) {
+			return;
+		}
+
+		const qnaRes = await ApiCall(
+			// TODO: 주어진 게시글 ID 목록으로 채택 댓글 목록 요청
+			() =>
+				Promise.resolve({
+					commentIds: fetchedPostList.map(({ id }) =>
+						id % 2 ? 1 : null
+					),
+				}),
+			() => setAcceptedCommentIds(fetchedPostList.map(() => null))
+		);
+
+		if (qnaRes instanceof Error) {
+			return;
+		}
+
+		setAcceptedCommentIds(qnaRes?.commentIds ?? []);
+	}, postRequestDeps);
 
 	useEffect(() => {
 		fetchPostList();
-	}, [index, perPage, sortBy, keyword, categoryId, indexCorrector]);
+	}, postRequestDeps);
 
 	return {
 		postList,
 		totalPosts,
+		acceptedCommentIds,
 		fetchPostList,
 	};
 };

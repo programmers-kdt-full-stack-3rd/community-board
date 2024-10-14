@@ -1,19 +1,32 @@
 import clsx from "clsx";
-import { MouseEvent } from "react";
+import React, { MouseEvent } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { FiArrowDown } from "react-icons/fi";
-import { Link } from "react-router-dom";
+import { FaCheckCircle } from "react-icons/fa";
 import { IPostHeader, SortBy } from "shared";
+import useCategory from "../../../hook/useCategory";
 import { dateToStr } from "../../../utils/date-to-str";
 import EmptyPostListBody from "./EmptyPostListBody";
 
 interface IPostListProps {
 	posts: IPostHeader[] | null;
+	acceptedCommentIds?: (number | null)[];
 	keyword?: string;
 	sortBy: SortBy | null;
 	onSort: (sortBy: SortBy | null) => void;
 }
 
-const PostList = ({ posts, keyword, sortBy, onSort }: IPostListProps) => {
+const PostList: React.FC<IPostListProps> = ({
+	posts,
+	acceptedCommentIds,
+	keyword,
+	sortBy,
+	onSort,
+}) => {
+	const location = useLocation();
+	const { currentCategory } = useCategory(location.pathname);
+	const isQnaCategory = currentCategory?.id === 3;
+
 	const handleSortableClickWith =
 		(nextSortBy: SortBy | null) => (event: MouseEvent) => {
 			event.preventDefault();
@@ -112,7 +125,7 @@ const PostList = ({ posts, keyword, sortBy, onSort }: IPostListProps) => {
 							keyword={keyword}
 						/>
 					) : (
-						posts.map(postHeader => (
+						posts.map((postHeader, index) => (
 							<Link
 								key={postHeader.id}
 								className={clsx(
@@ -123,6 +136,14 @@ const PostList = ({ posts, keyword, sortBy, onSort }: IPostListProps) => {
 							>
 								<div className="postListHeaderRow:text-center flex-1 text-left">
 									{postHeader.title}
+									{isQnaCategory &&
+										acceptedCommentIds &&
+										acceptedCommentIds[index] !== null && (
+											<FaCheckCircle
+												className="ml-2 inline-block text-green-700 opacity-30 dark:text-green-300"
+												size="0.875em"
+											/>
+										)}
 								</div>
 								<div className="w-24 flex-none text-[0.9rem]">
 									{postHeader.author_nickname}

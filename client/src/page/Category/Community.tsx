@@ -38,7 +38,7 @@ const Community: React.FC<IProps> = ({ categoryId }) => {
 		keyword: "string",
 	});
 
-	const { postList, totalPosts } = usePostList({
+	const { postList, totalPosts, acceptedCommentIds } = usePostList({
 		index,
 		perPage,
 		sortBy,
@@ -135,6 +135,7 @@ const Community: React.FC<IProps> = ({ categoryId }) => {
 
 						<PostList
 							posts={postList}
+							acceptedCommentIds={acceptedCommentIds}
 							keyword={keyword}
 							sortBy={sortBy ?? null}
 							onSort={handlePostSort}

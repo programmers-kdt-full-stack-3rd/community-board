@@ -7,11 +7,14 @@ interface IPostInfoState {
 	post: IPostInfo;
 	postErrorMessage: string;
 	postFetchState: "loading" | "error" | "ok";
-	isQna: boolean;
+
+	isQnaCategory: boolean;
+	acceptedCommentId: number | null;
 }
 
 interface IPostInfoActions {
 	fetchPost: (postId: number) => void;
+	clear: () => void;
 }
 
 type TPostInfoStore = IPostInfoState & IPostInfoActions;
@@ -35,7 +38,9 @@ export const usePostInfo = create<TPostInfoStore>(set => ({
 	post: getEmptyPostInfo(),
 	postErrorMessage: "",
 	postFetchState: "loading",
-	isQna: false,
+
+	isQnaCategory: false,
+	acceptedCommentId: null,
 
 	fetchPost: async (postId: number) => {
 		const res = await ApiCall(
@@ -43,10 +48,13 @@ export const usePostInfo = create<TPostInfoStore>(set => ({
 			err => {
 				set(state => ({
 					...state,
+
 					post: getEmptyPostInfo(),
 					postErrorMessage: err.message,
 					postFetchState: "error",
-					isQna: false,
+
+					isQnaCategory: false,
+					acceptedCommentId: null,
 				}));
 			}
 		);
@@ -56,13 +64,33 @@ export const usePostInfo = create<TPostInfoStore>(set => ({
 		}
 
 		const fetchedPost = mapDBToPostInfo(res.post);
+		const isQnaCategory = fetchedPost.category === "QnA";
+		let acceptedCommentId = null;
+
+		if (isQnaCategory) {
+			const qnaRes = await ApiCall(
+				// TODO: 주어진 게시글 ID 목록으로 채택 댓글 목록 요청
+				() =>
+					Promise.resolve({
+						commentIds: [postId % 2 || null],
+					}),
+				() => {}
+			);
+
+			if (!(qnaRes instanceof Error)) {
+				acceptedCommentId = qnaRes.commentIds[0] ?? null;
+			}
+		}
 
 		set(state => ({
 			...state,
+
 			post: fetchedPost,
 			postErrorMessage: "",
 			postFetchState: "ok",
-			isQna: fetchedPost.category === "QnA",
+
+			isQnaCategory,
+			acceptedCommentId,
 		}));
 	},
 
@@ -71,6 +99,8 @@ export const usePostInfo = create<TPostInfoStore>(set => ({
 			post: getEmptyPostInfo(),
 			postErrorMessage: "",
 			postFetchState: "loading",
-			isQna: false,
+
+			isQnaCategory: false,
+			acceptedCommentId: null,
 		}),
 }));

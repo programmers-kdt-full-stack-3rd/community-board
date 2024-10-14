@@ -15,11 +15,13 @@ import ConfirmModal from "../common/Modal/ConfirmModal";
 import { sendDeletePostRequest } from "../../api/posts/crud";
 import { useModal } from "../../hook/useModal";
 import useCategory from "../../hook/useCategory";
+import { FaCheck } from "react-icons/fa";
 import { usePostInfo } from "../../state/PostInfoStore";
 
 const PostInfo: React.FC = () => {
 	const navigate = useNavigate();
-	const { post } = usePostInfo();
+	const { post, acceptedCommentId, isQnaCategory } = usePostInfo();
+	const isAcceptedQna = isQnaCategory && acceptedCommentId !== null;
 
 	const { currentCategory } = useCategory(post.category);
 
@@ -134,8 +136,14 @@ const PostInfo: React.FC = () => {
 				</div>
 
 				<div className="border-b-customGray border-t-customGray border-spacing-3 border-y">
-					<div className="text-left text-2xl font-bold">
-						<div className="mb-2 mt-4">{post.title}</div>
+					<div className="mb-2 mt-4 flex items-center gap-3 text-left">
+						{isAcceptedQna && (
+							<div className="flex items-center gap-1 rounded-md bg-green-600/20 px-2 py-1 text-sm font-bold text-green-800 dark:text-green-400">
+								<FaCheck size="0.875em" />
+								<span>채택 완료</span>
+							</div>
+						)}
+						<div className="text-2xl font-bold">{post.title}</div>
 					</div>
 
 					<div className="mb-4 flex items-center justify-between">
@@ -145,13 +153,20 @@ const PostInfo: React.FC = () => {
 						</div>
 
 						<div className="flex items-center gap-2 text-base">
+							{isAcceptedQna && (
+								<div className="text-xs text-gray-500 dark:text-gray-400">
+									채택을 완료한 게시글은 수정·삭제할 수
+									없습니다.
+								</div>
+							)}
+
 							<IoEyeOutline />
 							<div>{post.views}</div>
 
 							<FaRegThumbsUp />
 							<div>{post.likes}</div>
 
-							{isAuthor ? (
+							{isAuthor && !isAcceptedQna ? (
 								<>
 									<Button
 										size="small"
