@@ -79,7 +79,10 @@ const OAuthLoginButtons: React.FC<IProps> = ({ loginType }) => {
 			() => getOAuthLoginUrl(loginType, provider),
 			err => {
 				console.error(`${provider} 로그인 URL 조회 에러`, err);
-				alert(`${provider}(으)로 로그인할 수 없습니다.`);
+				globalErrorModal.open({
+					title: "오류",
+					message: `${provider}(으)로 로그인할 수 없습니다.`,
+				});
 			}
 		);
 
@@ -124,8 +127,13 @@ const OAuthLoginButtons: React.FC<IProps> = ({ loginType }) => {
 			...oAuthConnections,
 			[provider]: false,
 		});
+
 		unlinkConfirmModal.close();
-		alert(`${providerToName[provider]} 로그인 연동을 해제했습니다.`);
+		globalErrorModal.open({
+			variant: "info",
+			title: "소셜 로그인 연동 해제 성공",
+			message: `${providerToName[provider]} 로그인 연동을 해제했습니다.`,
+		});
 	};
 
 	return (

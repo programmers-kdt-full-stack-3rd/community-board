@@ -62,7 +62,11 @@ const CommentItem = ({ comment, onUpdate, onDelete }: ICommentItemProps) => {
 			return false;
 		}
 
-		alert("댓글을 수정했습니다.");
+		globalErrorModal.open({
+			variant: "info",
+			title: "댓글 수정 완료",
+			message: "댓글을 수정했습니다.",
+		});
 
 		if (onUpdate) {
 			await onUpdate();

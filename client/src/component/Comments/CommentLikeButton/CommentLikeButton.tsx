@@ -30,7 +30,10 @@ const CommentLikeButton = ({
 
 	const handleLikeClick = async () => {
 		if (!isLogin) {
-			alert("로그인이 필요합니다!");
+			globalErrorModal.open({
+				title: "오류",
+				message: "로그인이 필요합니다.",
+			});
 			return;
 		}
 

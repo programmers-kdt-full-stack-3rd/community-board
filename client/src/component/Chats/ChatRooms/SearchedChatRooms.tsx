@@ -102,7 +102,10 @@ const SearchedChatRooms: React.FC<Props> = ({ setSelectedRoom }) => {
 			};
 
 			if (!keyword) {
-				alert("검색어를 입력하세요");
+				globalErrorModal.open({
+					title: "오류",
+					message: "검색어를 입력하세요.",
+				});
 				return;
 			}
 
