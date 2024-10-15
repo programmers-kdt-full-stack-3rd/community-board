@@ -6,7 +6,7 @@ import {
 	useRef,
 	useState,
 } from "react";
-import { IMessage } from "shared";
+import { IMessage, IRoomMember } from "shared";
 
 import { chatRoomBody, chatRoomContainer } from "./ChatRoom.css";
 import ChatInput from "./ChatInput";
@@ -16,6 +16,8 @@ import SystemChat from "./SystemChat";
 import YourChat from "./YourChat";
 import { useUserStore } from "../../../state/store";
 import { ChatRoomSideBar } from "./SideBar/ChatRoomSideBar";
+import { ApiCall } from "../../../api/api";
+import { sendGetRoomMembersRequest } from "../../../api/chats/crud";
 
 interface Props {
 	title: string;
@@ -36,7 +38,16 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 	const [messageLogs, setMessageLogs] = useState<IMessage[]>([]); // TEST : 컴포넌트 상태 저장
 	const [roomLoading, setRoomLoading] = useState(true);
 	const [chatLoading, setChatLoading] = useState(false);
-	const [memberId, setMemberId] = useState<number>(0);
+	const [myMemberId, setMyMemberId] = useState<number>(0);
+
+	const [roomMembers, setRoomMembers] = useState<IRoomMember[]>([
+		{ memberId: 1, nickname: "123" },
+		{ memberId: 1, nickname: "123" },
+		{ memberId: 1, nickname: "123" },
+		{ memberId: 1, nickname: "123" },
+		{ memberId: 1, nickname: "123" },
+		{ memberId: 1, nickname: "123" },
+	]);
 
 	// chatroom aside
 	const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(false);
@@ -87,8 +98,8 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 			socket.emit(
 				"enter_room",
 				roomId,
-				(response: { memberId: number; messageLogs: IMessage[] }) => {
-					setMemberId(response.memberId);
+				(response: { myMemberId: number; messageLogs: IMessage[] }) => {
+					setMyMemberId(response.myMemberId);
 					const msgs = response.messageLogs.map(message => {
 						return strToDate(message);
 					});
@@ -105,7 +116,21 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 				socket.off("receive_message", handleReceiveMessage);
 			};
 		}
-	}, [roomId, socket, memberId]);
+
+		/* TODO : member 불러오기 by RoomId */
+		ApiCall(
+			() => sendGetRoomMembersRequest(roomId),
+			err => {
+				console.error("사용자 정보를 가져올 수 없습니다.", err);
+			}
+		).then(response => {
+			if (response instanceof Error) {
+				return;
+			}
+
+			setRoomMembers(response.roomMembers);
+		});
+	}, [roomId, socket, myMemberId]);
 
 	useEffect(() => {
 		const sorted = Array.from(messageMap.entries())
@@ -137,7 +162,7 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 		}
 
 		const msg: IMessage = {
-			memberId,
+			memberId: myMemberId,
 			roomId,
 			nickname,
 			message,
@@ -210,14 +235,7 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 					close={() => {
 						setIsSideBarOpen(false);
 					}}
-					members={[
-						{ roomId: roomId, memberId: 1 },
-						{ roomId: roomId, memberId: 1 },
-						{ roomId: roomId, memberId: 1 },
-						{ roomId: roomId, memberId: 1 },
-						{ roomId: roomId, memberId: 1 },
-						{ roomId: roomId, memberId: 1 },
-					]}
+					members={roomMembers}
 					roomId={roomId}
 				/>
 			)}

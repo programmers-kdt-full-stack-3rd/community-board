@@ -1,6 +1,7 @@
 import React from "react";
 import { IRoomMember } from "shared";
 import { LiaPenSolid } from "react-icons/lia";
+import profileIcon from "../assets/icons/profile-icon.svg";
 
 interface Props {
 	title: string;
@@ -21,8 +22,13 @@ export const ChatRoomSideBar: React.FC<Props> = ({
 				className="flex-start h-[50px] w-[310px] gap-[10px]"
 				key={member.memberId}
 			>
-				{/* TODO : imgUrl, nickname, memberId */}
-				{member.memberId}
+				<img
+					className="h-[30px] w-[30px] rounded-full object-cover"
+					src={member.imgUrl ? member.imgUrl : profileIcon}
+				/>
+				<div className="flex items-center justify-start font-extrabold">
+					{member.nickname}
+				</div>
 			</div>
 		));
 	};
