@@ -51,9 +51,11 @@ const categories: TCategory[] = [
 	},
 	{
 		id: 5,
-		name: "도전과제",
+		name: "[버그/이슈] 게시판",
 		subPath: "achievement",
 		headerOrder: 4,
+		description:
+			"발생한 버그나 이슈를 기록하고 다른 사용자와 공유해 보세요.",
 	},
 ];
 
