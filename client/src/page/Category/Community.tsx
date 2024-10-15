@@ -16,6 +16,7 @@ import useParsedSearchParams from "../../hook/useParsedSearchParams";
 import useCategory from "../../hook/useCategory";
 import usePostList from "../../hook/usePostList";
 import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
+import { Coupon } from "../../component/Coupon/coupon";
 
 interface IProps {
 	categoryId?: number;
@@ -87,7 +88,10 @@ const Community: React.FC<IProps> = ({ categoryId }) => {
 		<div>
 			<div className="mx-auto mt-2 w-full max-w-7xl px-4 lg:mt-[18px] lg:px-0">
 				<div className="ml-4 flex lg:space-x-10">
-					<UserRank />
+					<div className="flex flex-col gap-2">
+						<UserRank />
+						<Coupon />
+					</div>
 
 					<div className={mainPageStyle}>
 						<div className="dark:bg-customGray relative mt-4 flex flex-col justify-between rounded-lg bg-blue-900 text-left">
