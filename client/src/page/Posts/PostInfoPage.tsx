@@ -26,6 +26,7 @@ const PostInfoPage = () => {
 		views: 0,
 		likes: 0,
 		user_liked: false,
+		category: "",
 	});
 
 	useLayoutEffect(() => {

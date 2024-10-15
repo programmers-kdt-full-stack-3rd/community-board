@@ -19,6 +19,9 @@ import {
 import { deleteOAuthConnection, getOAuthLoginUrl } from "../../api/users/oauth";
 import { ApiCall } from "../../api/api";
 import { getUserMyself } from "../../api/users/crud";
+import { useModal } from "../../hook/useModal";
+import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
+import ConfirmModal from "../common/Modal/ConfirmModal";
 
 interface IProps {
 	loginType: TOAuthLoginType;
@@ -37,6 +40,10 @@ const providerToName: { [provider in TOAuthProvider]: string } = {
 const OAuthLoginButtons: React.FC<IProps> = ({ loginType }) => {
 	const [oAuthConnections, setOAuthConnections] =
 		useState<TOAuthLinks | null>(null);
+
+	const [unlinkTarget, setUnlinkTarget] = useState<TOAuthProvider | "">("");
+	const unlinkConfirmModal = useModal();
+	const globalErrorModal = useGlobalErrorModal();
 
 	const location = useLocation();
 
@@ -72,7 +79,10 @@ const OAuthLoginButtons: React.FC<IProps> = ({ loginType }) => {
 			() => getOAuthLoginUrl(loginType, provider),
 			err => {
 				console.error(`${provider} 로그인 URL 조회 에러`, err);
-				alert(`${provider}(으)로 로그인할 수 없습니다.`);
+				globalErrorModal.open({
+					title: "오류",
+					message: `${provider}(으)로 로그인할 수 없습니다.`,
+				});
 			}
 		);
 
@@ -86,12 +96,15 @@ const OAuthLoginButtons: React.FC<IProps> = ({ loginType }) => {
 		window.location.href = response.url;
 	};
 
-	const handleUnlinkClickWith = (provider: TOAuthProvider) => async () => {
-		const confirmed = confirm(
-			`${providerToName[provider]} 로그인 연동을 해제할까요?`
-		);
+	const handleUnlinkClickWith = (provider: TOAuthProvider) => () => {
+		setUnlinkTarget(provider);
+		unlinkConfirmModal.open();
+	};
 
-		if (!confirmed) {
+	const handleUnlinkAccept = async () => {
+		const provider = unlinkTarget;
+
+		if (provider === "") {
 			return;
 		}
 
@@ -99,7 +112,10 @@ const OAuthLoginButtons: React.FC<IProps> = ({ loginType }) => {
 			() => deleteOAuthConnection(provider),
 			err => {
 				console.error(`${provider} 로그인 연동 해제 실패`, err);
-				alert(`${providerToName[provider]} 로그인 연동 해제 실패`);
+				globalErrorModal.open({
+					title: "소셜 로그인 연동 해제 실패",
+					message: `${providerToName[provider]} 로그인 연동 해제에 실패했습니다.`,
+				});
 			}
 		);
 
@@ -111,10 +127,33 @@ const OAuthLoginButtons: React.FC<IProps> = ({ loginType }) => {
 			...oAuthConnections,
 			[provider]: false,
 		});
+
+		unlinkConfirmModal.close();
+		globalErrorModal.open({
+			variant: "info",
+			title: "소셜 로그인 연동 해제 성공",
+			message: `${providerToName[provider]} 로그인 연동을 해제했습니다.`,
+		});
 	};
 
 	return (
 		<div className={socialLoginButtons}>
+			<ConfirmModal
+				isOpen={unlinkConfirmModal.isOpen}
+				okButtonColor="danger"
+				okButtonLabel="연동 해제"
+				onAccept={handleUnlinkAccept}
+				onClose={unlinkConfirmModal.close}
+			>
+				<ConfirmModal.Title>
+					소셜 로그인 연동 해제 확인
+				</ConfirmModal.Title>
+				<ConfirmModal.Body>
+					{unlinkTarget && providerToName[unlinkTarget]} 로그인 연동을
+					해제할까요?
+				</ConfirmModal.Body>
+			</ConfirmModal>
+
 			<div className={socialLoginItem}>
 				<button
 					className={googleButton}

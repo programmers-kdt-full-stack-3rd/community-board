@@ -1,135 +1,108 @@
-import React, { SetStateAction, useState } from "react";
-import {
-	ApplyBtn,
-	CloseBtn,
-	FilterBtn,
-	InputContainer,
-	InputIndex,
-	ModalBody,
-	ModalContainer,
-	ModalHeader,
-	PasswordInput,
-	PostBtn,
-	PostHeaderTitle,
-	TitleInput,
-} from "./CreateRoomModal.css";
-import { ICreateRoomRequest, ICreateRoomResponse } from "shared";
+import React, { useState } from "react";
+import { ICreateRoomResponse } from "shared";
 import { ApiCall } from "../../../../api/api";
 import { sendCreateRoomRequest } from "../../../../api/chats/crud";
 import { useGlobalErrorModal } from "../../../../state/GlobalErrorModalStore";
-import { ClientError } from "../../../../api/errors";
+import Modal from "../../../common/Modal/Modal";
+import Button from "../../../common/Button";
+import TextInput from "../../../common/TextInput";
+import { useChatAside } from "../../../../state/ChatAsideStore";
 
 interface Props {
-	close: React.Dispatch<SetStateAction<boolean>>;
-	setSelectedRoom: (room: { title: string; roomId: number }) => void;
+	onAccept: (room: { title: string; roomId: number }) => void;
+	onClose: () => void;
 }
 
-// TODO: 로컬 모달로 띄울 수 있도록, 공통 모달 확장 필요
-const CreateRoomModal: React.FC<Props> = ({ close, setSelectedRoom }) => {
-	const [roomInfo, setRoomInfo] = useState<ICreateRoomRequest>({
-		title: "",
-		password: "",
-		isPrivate: false,
-	});
+const CreateRoomModal: React.FC<Props> = ({ onAccept, onClose }) => {
+	const [roomTitle, setRoomTitle] = useState("");
+	const [roomPassword, setRoomPassword] = useState("");
+	const [isRoomPrivate, setIsRoomPrivate] = useState(false);
+
+	const { chatModalContainer } = useChatAside();
 	const globalErrorModal = useGlobalErrorModal();
 
 	const createRoom = async () => {
-		const res: ICreateRoomResponse | ClientError = await ApiCall(
-			() => sendCreateRoomRequest(roomInfo),
+		const res: ICreateRoomResponse | Error = await ApiCall(
+			() =>
+				sendCreateRoomRequest({
+					title: roomTitle,
+					password: isRoomPrivate ? roomPassword : "",
+					isPrivate: isRoomPrivate,
+				}),
 			err =>
 				globalErrorModal.openWithMessageSplit({
 					messageWithTitle: err.message,
 				})
 		);
 
-		if (res instanceof ClientError) {
+		if (res instanceof Error) {
 			return;
 		}
 
-		setSelectedRoom({
-			roomId: parseInt(res.roomId),
-			title: roomInfo.title,
+		onAccept({
+			roomId: parseInt(res.roomId, 10),
+			title: roomTitle,
 		});
 	};
 
 	return (
-		<div className={ModalContainer}>
-			<div className={ModalHeader}>
-				<button
-					className={PostBtn}
-					onClick={() => {
-						createRoom();
-						close(false);
-					}}
-				>
-					생성
-				</button>
-				<div className={PostHeaderTitle}>채팅방 생성</div>
-				<button
-					className={CloseBtn}
-					onClick={() => close(false)}
-				>
-					취소
-				</button>
-			</div>
-			<div className={ModalBody}>
-				<div className={InputContainer}>
-					<div className={InputIndex}>채팅방 이름</div>
-					<input
-						className={TitleInput}
-						value={roomInfo.title}
-						onChange={e =>
-							setRoomInfo({ ...roomInfo, title: e.target.value })
-						}
-						placeholder="채팅방 이름을 입력해주세요"
+		<Modal
+			container={chatModalContainer ?? undefined}
+			isOpen={true}
+			onClose={onClose}
+		>
+			<Modal.Title>채팅방 생성</Modal.Title>
+
+			<Modal.Body>
+				<div className="flex flex-col gap-6">
+					<TextInput
+						label="채팅방 이름"
+						type="text"
+						id="room-name"
+						value={roomTitle}
+						onChange={e => setRoomTitle(e.target.value)}
+						placeholder="새 채팅방 이름을 입력하세요."
 					/>
-				</div>
-				<div className={InputContainer}>
-					<div
-						style={{
-							display: "flex",
-							flexDirection: "row",
-							gap: "10px",
-						}}
-					>
-						<button
-							className={
-								roomInfo.isPrivate ? ApplyBtn : FilterBtn
-							}
-							onClick={() => {
-								if (roomInfo.isPrivate) {
-									setRoomInfo({
-										...roomInfo,
-										password: "",
-										isPrivate: false,
-									});
-								} else {
-									setRoomInfo({
-										...roomInfo,
-										isPrivate: true,
-									});
-								}
-							}}
+
+					<div className="flex h-10 gap-3">
+						<Button
+							color={isRoomPrivate ? "primary" : "neutral"}
+							variant={isRoomPrivate ? "solid" : "outline"}
+							onClick={() => setIsRoomPrivate(prev => !prev)}
 						>
 							비밀 방
-						</button>
-						{roomInfo.isPrivate && (
-							<input
-								className={PasswordInput}
-								value={roomInfo.password}
-								placeholder="비밀번호를 입력해주세요"
-								onChange={e =>
-									setRoomInfo({
-										...roomInfo,
-										password: e.target.value,
-									})
-								}
+						</Button>
+
+						{isRoomPrivate && (
+							<TextInput
+								wrapperClassName="w-full"
+								type="password"
+								id="room-password"
+								value={roomPassword}
+								placeholder="비밀번호를 입력하세요."
+								onChange={e => setRoomPassword(e.target.value)}
 							/>
 						)}
 					</div>
 				</div>
-			</div>
-		</div>
+			</Modal.Body>
+
+			<Modal.Footer>
+				<Button
+					variant="outline"
+					onClick={onClose}
+				>
+					취소
+				</Button>
+
+				<Button
+					color="action"
+					onClick={createRoom}
+				>
+					생성
+				</Button>
+			</Modal.Footer>
+		</Modal>
 	);
 };
 

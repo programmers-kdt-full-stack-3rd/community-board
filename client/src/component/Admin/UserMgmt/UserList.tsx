@@ -12,6 +12,8 @@ import {
 } from "../../../api/admin/user_crud";
 import TextInput from "../../common/TextInput";
 import Button from "../../common/Button";
+import { useModal } from "../../../hook/useModal";
+import ConfirmModal from "../../common/Modal/ConfirmModal";
 
 const UserList = () => {
 	const initialPage = 1;
@@ -23,6 +25,12 @@ const UserList = () => {
 	const [currentPage, setCurrentPage] = useState<number>(initialPage);
 	const nickname = "";
 	const [email, setEmail] = useState<string>("");
+
+	const confirmModal = useModal();
+	const [confirmModalDetails, setConfirmModalDetails] = useState({
+		content: "",
+		updateFunction: async () => {},
+	});
 
 	const fetchUsers = () => {
 		ApiCall(
@@ -59,13 +67,33 @@ const UserList = () => {
 		setCurrentPage(1);
 		fetchUsers();
 	};
+
 	const handleUserUpdate = async (updateFunction: () => Promise<void>) => {
+		confirmModal.close();
+		setConfirmModalDetails({
+			content: "",
+			updateFunction: async () => {},
+		});
+
 		await updateFunction();
 		fetchUsers();
 	};
 
 	return (
 		<div className="mx-auto mt-2 w-full max-w-7xl px-4 lg:mt-[18px] lg:px-0">
+			<ConfirmModal
+				isOpen={confirmModal.isOpen}
+				onAccept={() =>
+					handleUserUpdate(confirmModalDetails.updateFunction)
+				}
+				onClose={confirmModal.close}
+			>
+				<ConfirmModal.Title>동작 확인</ConfirmModal.Title>
+				<ConfirmModal.Body>
+					{confirmModalDetails.content}
+				</ConfirmModal.Body>
+			</ConfirmModal>
+
 			<div className="mb-6 flex flex-row items-center justify-between">
 				<h2 className="text-xl font-bold">사용자 목록</h2>
 
@@ -121,17 +149,15 @@ const UserList = () => {
 											color="action"
 											variant="solid"
 											onClick={() => {
-												if (
-													window.confirm(
-														"해당 사용자를 복구하시겠습니까?"
-													)
-												) {
-													handleUserUpdate(() =>
+												setConfirmModalDetails({
+													content:
+														"해당 사용자를 복구하시겠습니까?",
+													updateFunction: () =>
 														handleRestoreAdminUser(
 															user.id
-														)
-													);
-												}
+														),
+												});
+												confirmModal.open();
 											}}
 										>
 											복구
@@ -141,17 +167,15 @@ const UserList = () => {
 											color="danger"
 											variant="solid"
 											onClick={() => {
-												if (
-													window.confirm(
-														"해당 사용자를 삭제하시겠습니까?"
-													)
-												) {
-													handleUserUpdate(() =>
+												setConfirmModalDetails({
+													content:
+														"해당 사용자를 삭제하시겠습니까?",
+													updateFunction: () =>
 														handleDeleteAdminUser(
 															user.id
-														)
-													);
-												}
+														),
+												});
+												confirmModal.open();
 											}}
 										>
 											삭제

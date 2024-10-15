@@ -27,6 +27,7 @@ import { PostModule } from "./post/post.module";
 import { RankModule } from "./rank/rank.module";
 import { RbacModule } from "./rbac/rbac.module";
 import { UserModule } from "./user/user.module";
+import { ImageModule } from "./image/image.module";
 
 @Module({
 	imports: [
@@ -71,6 +72,7 @@ import { UserModule } from "./user/user.module";
 		AdminModule,
 		HealthModule,
 		RankModule,
+		ImageModule,
 	],
 	controllers: [AppController],
 	providers: [
