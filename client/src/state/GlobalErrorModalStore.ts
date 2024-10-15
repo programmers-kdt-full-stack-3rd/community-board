@@ -1,20 +1,24 @@
 import { create } from "zustand";
+import { TModalVariant } from "../component/common/Modal/Modal";
 
 interface IGlobalErrorModalState {
 	isOpen: boolean;
 	callback?: () => void;
 	title: string;
 	message: string;
+	variant: TModalVariant;
 }
 
 interface IOpenActionParam {
 	title: string;
 	message: string;
+	variant?: TModalVariant;
 	callback?: () => void;
 }
 
 interface IOpenWithMessageSplitActionParam {
 	messageWithTitle: string;
+	variant?: TModalVariant;
 	callback?: () => void;
 }
 
@@ -30,6 +34,7 @@ export const useGlobalErrorModal = create<TGlobalErrorModalStore>(set => ({
 	isOpen: false,
 	title: "",
 	message: "",
+	variant: "error",
 
 	open: param =>
 		set(state => ({
@@ -38,22 +43,20 @@ export const useGlobalErrorModal = create<TGlobalErrorModalStore>(set => ({
 			isOpen: true,
 		})),
 
-	openWithMessageSplit: ({ messageWithTitle, callback }) => {
+	openWithMessageSplit: ({ messageWithTitle, ...param }) => {
 		const delimiterIndex = messageWithTitle.indexOf(":");
 
 		if (delimiterIndex >= 0) {
 			set(state => ({
 				...state,
-				callback,
-				isOpen: true,
+				...param,
 				title: messageWithTitle.slice(0, delimiterIndex).trim(),
 				message: messageWithTitle.slice(delimiterIndex + 1).trim(),
 			}));
 		} else {
 			set(state => ({
 				...state,
-				callback,
-				isOpen: true,
+				...param,
 				title: "",
 				message: messageWithTitle.trim(),
 			}));
@@ -67,5 +70,6 @@ export const useGlobalErrorModal = create<TGlobalErrorModalStore>(set => ({
 			callback: undefined,
 			title: "",
 			message: "",
+			variant: "error",
 		})),
 }));
