@@ -15,6 +15,7 @@ import MyChat from "./MyChat";
 import SystemChat from "./SystemChat";
 import YourChat from "./YourChat";
 import { useUserStore } from "../../../state/store";
+import { ChatRoomSideBar } from "./SideBar/ChatRoomSideBar";
 
 interface Props {
 	title: string;
@@ -36,6 +37,9 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 	const [roomLoading, setRoomLoading] = useState(true);
 	const [chatLoading, setChatLoading] = useState(false);
 	const [memberId, setMemberId] = useState<number>(0);
+
+	// chatroom aside
+	const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(false);
 
 	const messageMap: Map<string, IMessage[]> = useMemo(() => {
 		const map = new Map<string, IMessage[]>();
@@ -200,10 +204,33 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 
 	return (
 		<div className={chatRoomContainer}>
-			{/* TODO : title zustand에서 꺼내오기 */}
+			{isSideBarOpen && (
+				<ChatRoomSideBar
+					title={title}
+					close={() => {
+						setIsSideBarOpen(false);
+					}}
+					members={[
+						{ roomId: roomId, memberId: 1 },
+						{ roomId: roomId, memberId: 1 },
+						{ roomId: roomId, memberId: 1 },
+						{ roomId: roomId, memberId: 1 },
+						{ roomId: roomId, memberId: 1 },
+						{ roomId: roomId, memberId: 1 },
+					]}
+					roomId={roomId}
+				/>
+			)}
 			<ChatRoomHeader
 				title={title}
 				onClick={backBtnClick}
+				isOpen={isSideBarOpen}
+				open={() => {
+					setIsSideBarOpen(true);
+				}}
+				close={() => {
+					setIsSideBarOpen(false);
+				}}
 			/>
 			<div
 				ref={chatRef}
