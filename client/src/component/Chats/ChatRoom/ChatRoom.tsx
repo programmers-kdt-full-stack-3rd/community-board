@@ -88,6 +88,10 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 	};
 
 	useLayoutEffect(() => {
+		getMembers();
+	}, [roomId]);
+
+	useLayoutEffect(() => {
 		if (socket) {
 			const handleReceiveMessage = (newMessage: IMessage) => {
 				const msg: IMessage = strToDate(newMessage);
@@ -116,20 +120,6 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 				socket.off("receive_message", handleReceiveMessage);
 			};
 		}
-
-		/* TODO : member 불러오기 by RoomId */
-		ApiCall(
-			() => sendGetRoomMembersRequest(roomId),
-			err => {
-				console.error("사용자 정보를 가져올 수 없습니다.", err);
-			}
-		).then(response => {
-			if (response instanceof Error) {
-				return;
-			}
-
-			setRoomMembers(response.roomMembers);
-		});
 	}, [roomId, socket, myMemberId]);
 
 	useEffect(() => {
@@ -177,7 +167,6 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 			socket.emit("send_message", msg, (isSuccess: boolean) => {
 				if (isSuccess) {
 					setMessageLogs(prev => [...prev, msg]);
-					// TODO : zustand에 저장
 				} else {
 					console.error(msg);
 					// TODO : 재전송 로직 추가
@@ -225,6 +214,23 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 				/>
 			);
 		});
+	};
+
+	const getMembers = async () => {
+		const roomMembers = await ApiCall(
+			() => sendGetRoomMembersRequest(roomId),
+			err => {
+				console.error("사용자 정보를 가져올 수 없습니다.", err);
+			}
+		).then(response => {
+			if (response instanceof Error) {
+				return;
+			}
+
+			return response.roomMembers;
+		});
+
+		setRoomMembers(roomMembers);
 	};
 
 	return (

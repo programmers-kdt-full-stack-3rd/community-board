@@ -2,6 +2,8 @@ import { DataSource, Repository } from "typeorm";
 import { Injectable } from "@nestjs/common";
 import { Member } from "../entities/member.entity";
 import { Room } from "../entities/room.entity";
+import { IRoomMember, mapDBToIRoomMember } from "shared";
+import { User } from "src/user/entities/user.entity";
 
 @Injectable()
 export class MemberRepository extends Repository<Member> {
@@ -19,5 +21,24 @@ export class MemberRepository extends Repository<Member> {
 		const totalCnt = parseInt(result.total);
 
 		return totalCnt;
+	}
+
+	async getRoomMembers(roomId: number): Promise<IRoomMember[]> {
+		const queryBuilder = this.createQueryBuilder("m")
+			.leftJoinAndSelect(User, "u", "m.user_id = u.id")
+			.where("m.room_id = :roomId", { roomId })
+			.select([
+				"m.id as member_id",
+				"u.nickname as nickname",
+				"u.img_url as img_url",
+			]);
+
+		const roomMembers = await queryBuilder.getRawMany();
+
+		const result = roomMembers.map(roomMember => {
+			return mapDBToIRoomMember(roomMember);
+		});
+
+		return result;
 	}
 }

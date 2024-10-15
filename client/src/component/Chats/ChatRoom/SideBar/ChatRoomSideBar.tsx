@@ -1,7 +1,7 @@
 import React from "react";
 import { IRoomMember } from "shared";
 import { LiaPenSolid } from "react-icons/lia";
-import profileIcon from "../assets/icons/profile-icon.svg";
+import profileIcon from "../../../../assets/icons/profile-icon.svg";
 
 interface Props {
 	title: string;
@@ -19,15 +19,20 @@ export const ChatRoomSideBar: React.FC<Props> = ({
 	const renderMembers = () => {
 		return members.map(member => (
 			<div
-				className="flex-start h-[50px] w-[310px] gap-[10px]"
+				className="flex-start flex h-[50px] w-[310px]"
 				key={member.memberId}
 			>
-				<img
-					className="h-[30px] w-[30px] rounded-full object-cover"
-					src={member.imgUrl ? member.imgUrl : profileIcon}
-				/>
-				<div className="flex items-center justify-start font-extrabold">
-					{member.nickname}
+				<div className="flex h-full w-full flex-row gap-[10px] pl-[10px]">
+					<div className="flex items-center">
+						<img
+							className="h-[30px] w-[30px] rounded-full object-cover"
+							src={member.imgUrl ? member.imgUrl : profileIcon}
+						/>
+					</div>
+
+					<div className="flex items-center justify-start font-extrabold">
+						{member.nickname}
+					</div>
 				</div>
 			</div>
 		));
@@ -55,7 +60,7 @@ export const ChatRoomSideBar: React.FC<Props> = ({
 					<div className="flex items-center justify-start py-[10px] pl-[10px] font-extrabold">
 						멤버
 					</div>
-					<div className="flex max-h-[250px] w-[310px] flex-col gap-[10px] overflow-y-scroll">
+					<div className="flex h-[250px] w-[310px] flex-col gap-[10px] overflow-x-hidden overflow-y-scroll">
 						{renderMembers()}
 					</div>
 				</div>
