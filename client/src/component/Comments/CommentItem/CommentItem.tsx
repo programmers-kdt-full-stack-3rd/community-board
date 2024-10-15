@@ -33,7 +33,7 @@ const CommentItem: React.FC<ICommentItemProps> = ({
 	const globalErrorModal = useGlobalErrorModal();
 	const deleteConfirmModal = useModal();
 
-	const { isQnaCategory, acceptedCommentId } = usePostInfo();
+	const { post, isQnaCategory, acceptedCommentId, fetchPost } = usePostInfo();
 
 	const isAccepted = isQnaCategory && acceptedCommentId === comment.id;
 	const isAcceptable = isQnaCategory && acceptedCommentId === null;
@@ -52,6 +52,24 @@ const CommentItem: React.FC<ICommentItemProps> = ({
 				}, []),
 		[comment.content]
 	);
+
+	const handleAccept = async () => {
+		const res = await ApiCall(
+			// TODO: 댓글 채택 API 호출
+			() => Promise.resolve({}),
+			() =>
+				globalErrorModal.openWithMessageSplit({
+					messageWithTitle: "오류: 댓글 채택 API 호출 실패",
+				})
+		);
+
+		if (res instanceof Error) {
+			return;
+		}
+
+		alert("댓글을 채택했습니다.");
+		fetchPost(post.id);
+	};
 
 	const handleEditModeToggle = () => {
 		setIsEditMode(!isEditMode);
@@ -156,12 +174,12 @@ const CommentItem: React.FC<ICommentItemProps> = ({
 					</div>
 
 					<div className="flex gap-1">
-						{isAcceptable && !isEditMode && (
+						{post.is_author && isAcceptable && !isEditMode && (
 							<Button
 								color="action"
 								size="small"
 								variant="text"
-								onClick={handleEditModeToggle}
+								onClick={handleAccept}
 							>
 								채택하기
 							</Button>
