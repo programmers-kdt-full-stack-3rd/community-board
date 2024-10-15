@@ -3,6 +3,7 @@ import { useUserStore } from "../../../state/store";
 import { commentFormContainer, footer } from "./CommentForm.css";
 import Textarea from "../../common/Textarea";
 import Button from "../../common/Button";
+import { useGlobalErrorModal } from "../../../state/GlobalErrorModalStore";
 
 interface ICommentFormProps {
 	defaultContent?: string;
@@ -17,6 +18,7 @@ const CommentForm = ({
 	onSubmit,
 	onCancel,
 }: ICommentFormProps) => {
+	const globalErrorModal = useGlobalErrorModal();
 	const isLogin = useUserStore(state => state.isLogin);
 
 	const [content, setContent] = useState(defaultContent || "");
@@ -27,7 +29,10 @@ const CommentForm = ({
 
 			const trimmedContent = content.trim();
 			if (!trimmedContent) {
-				alert("댓글 내용을 입력하세요.");
+				globalErrorModal.open({
+					title: "오류",
+					message: "댓글 내용을 입력하세요.",
+				});
 				return;
 			}
 

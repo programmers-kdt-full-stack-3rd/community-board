@@ -1,10 +1,4 @@
-import {
-	FC,
-	SetStateAction,
-	useEffect,
-	useLayoutEffect,
-	useState,
-} from "react";
+import { FC, useEffect, useLayoutEffect, useState } from "react";
 import { IReadRoomResponse } from "shared";
 import {
 	chatRoomsContainer,
@@ -21,7 +15,7 @@ import { RiChatNewLine } from "react-icons/ri";
 
 interface Props {
 	currentPage: number;
-	open: React.Dispatch<SetStateAction<boolean>>;
+	open: () => void;
 	setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
 	setSelectedRoom: (room: { title: string; roomId: number }) => void;
 }
@@ -99,7 +93,7 @@ const MyChatRooms: FC<Props> = ({
 				<div className={myRoomTitleTextStyle}>내 채팅방</div>
 				<button
 					className={createButton}
-					onClick={() => open(true)}
+					onClick={open}
 				>
 					<RiChatNewLine title="채팅방 생성" />
 				</button>

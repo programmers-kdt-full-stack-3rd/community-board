@@ -13,6 +13,8 @@ import { useUserStore } from "../../../state/store";
 import { useNavigate } from "react-router-dom";
 import ChatFooter from "./ChatFooter";
 import { ChatAsideCategory, useChatAside } from "../../../state/ChatAsideStore";
+import { useModal } from "../../../hook/useModal";
+import Button from "../../common/Button";
 
 export interface RoomsInfo {
 	totalRoomCount: number;
@@ -30,7 +32,7 @@ interface Props {
 const ChatRooms: FC<Props> = ({ setSelectedRoom }) => {
 	const navigate = useNavigate(); // TEST : 채팅방 페이지
 
-	const [isOpen, setIsOpen] = useState(false);
+	const createRoomModal = useModal();
 	const [currentPage, setCurrentPage] = useState<number>(1);
 	// const isAsideOpen = true; // TODO : Aside UI 만들때 State 관리
 
@@ -48,7 +50,7 @@ const ChatRooms: FC<Props> = ({ setSelectedRoom }) => {
 				return (
 					<MyChatRooms
 						currentPage={currentPage}
-						open={setIsOpen}
+						open={createRoomModal.open}
 						setCurrentPage={setCurrentPage}
 						setSelectedRoom={setSelectedRoom}
 					/>
@@ -68,14 +70,22 @@ const ChatRooms: FC<Props> = ({ setSelectedRoom }) => {
 		}
 	}, [currentPage, isLogin, navigate, nickname, socket, category]);
 
+	const handleCreateRoomAccept = (room: {
+		title: string;
+		roomId: number;
+	}) => {
+		setSelectedRoom(room);
+		createRoomModal.close();
+	};
+
 	return (
 		<div className={container}>
 			{isLogin ? (
 				<div className={chatRoomsStyle}>
-					{isOpen ? (
+					{createRoomModal.isOpen ? (
 						<CreateRoomModal
-							close={setIsOpen}
-							setSelectedRoom={setSelectedRoom}
+							onAccept={handleCreateRoomAccept}
+							onClose={createRoomModal.close}
 						/>
 					) : null}
 					{renderChatRoomPage()}
@@ -84,14 +94,16 @@ const ChatRooms: FC<Props> = ({ setSelectedRoom }) => {
 			) : (
 				<div className={loginGuidanceStyle}>
 					<p>로그인 후 이용할 수 있습니다.</p>
-					<button
+					<Button
+						color="action"
+						size="large"
 						onClick={() => {
 							navigate("/login");
 							close();
 						}}
 					>
 						로그인
-					</button>
+					</Button>
 				</div>
 			)}
 		</div>

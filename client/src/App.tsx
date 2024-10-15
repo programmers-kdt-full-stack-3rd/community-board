@@ -103,6 +103,7 @@ function App() {
 				<MainContainer>
 					<GlobalErrorModal
 						isOpen={globalErrorModal.isOpen}
+						variant={globalErrorModal.variant}
 						callback={globalErrorModal.callback}
 						onClose={globalErrorModal.close}
 					>

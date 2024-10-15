@@ -20,6 +20,7 @@ import {
 	applySubmitButtonStyle,
 	submitButtonStyle,
 } from "../../component/User/css/SubmitButton.css";
+import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
 
 const EmailRegistration: FC = () => {
 	const navigate = useNavigate();
@@ -32,6 +33,8 @@ const EmailRegistration: FC = () => {
 	const password = useStringWithValidation();
 	const requiredPassword = useStringWithValidation();
 	const [errorMessage, setErrorMessage] = useState("");
+
+	const globalErrorModal = useGlobalErrorModal();
 
 	const { setIsEmailRegistered } = useUserStore.use.actions();
 
@@ -50,13 +53,19 @@ const EmailRegistration: FC = () => {
 			err.code === 401 &&
 			err.message === "Unauthorized: 로그인이 필요합니다."
 		) {
-			alert("로그인이 필요합니다.");
+			globalErrorModal.open({
+				title: "오류",
+				message: "로그인이 필요합니다.",
+			});
 			navigate("/login");
 			return;
 		}
 
 		if (err.code !== 200) {
-			alert("검증되지 않은 유저입니다.");
+			globalErrorModal.open({
+				title: "오류",
+				message: "로그인 정보가 만료되었거나 유효하지 않습니다.",
+			});
 			navigate(`/checkPassword?next=emailRegistration&final=${final}`);
 			return;
 		}
@@ -116,7 +125,10 @@ const EmailRegistration: FC = () => {
 
 	const handleSubmit = async () => {
 		if (isEmailRegistered) {
-			alert(`${storeNickName} 님은 이미 이메일을 등록하셨습니다.`);
+			globalErrorModal.open({
+				title: "오류",
+				message: `${storeNickName} 님은 이미 이메일을 등록했습니다.`,
+			});
 			navigate(final || "/");
 			return;
 		}
@@ -139,7 +151,11 @@ const EmailRegistration: FC = () => {
 		setIsEmailRegistered(true);
 		navigate(final || "/");
 
-		alert("로그인 이메일을 등록했습니다.");
+		globalErrorModal.open({
+			variant: "info",
+			title: "이메일 등록 성공",
+			message: "로그인 이메일을 등록했습니다.",
+		});
 	};
 
 	const handleCancle = () => {

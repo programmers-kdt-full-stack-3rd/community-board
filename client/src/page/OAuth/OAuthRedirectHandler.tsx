@@ -10,10 +10,12 @@ import { sendOAuthLoginRequest } from "../../api/users/oauth";
 import { useUserStore } from "../../state/store";
 import Loader from "../../component/common/Loader/Loader";
 import { ApiCall } from "../../api/api";
+import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
 
 interface IOAuthLoginDestination {
 	ok: string;
 	err: string;
+	message?: string;
 }
 
 const getDestination = (
@@ -38,10 +40,10 @@ const getDestination = (
 		const final = prevSearch.get("final") ?? "/";
 
 		if (!nextAction) {
-			alert("재인증 후 수행할 동작이 없습니다.");
 			return {
 				ok: prevLocation,
 				err: prevLocation,
+				message: "재인증 이후 수행할 동작이 없습니다.",
 			};
 		} else if (nextAction === "accountDelete") {
 			return {
@@ -66,12 +68,12 @@ const getDestination = (
 //사용자 인증 완료 후 리디렉션된 후 처리
 const OAuthRedirectHandler = () => {
 	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
 	const navigate = useNavigate();
 	const location = useLocation();
 	const params = useParams();
 
 	const { setLoginUser } = useUserStore.use.actions();
+	const globalErrorModal = useGlobalErrorModal();
 
 	const handleOAuthLogin = async (
 		provider: TOAuthProvider,
@@ -84,8 +86,9 @@ const OAuthRedirectHandler = () => {
 			err => {
 				const message = `${provider} 로그인 실패`;
 				console.error(message, err);
-				alert(message);
-				setError(`${message}: ${err.message}`);
+				globalErrorModal.openWithMessageSplit({
+					messageWithTitle: err.message,
+				});
 
 				navigate(destination.err);
 			}
@@ -134,7 +137,10 @@ const OAuthRedirectHandler = () => {
 				: prevPathname;
 
 		if (!isOAuthLoginType(loginType)) {
-			setError("유효하지 않은 소셜 로그인 유형");
+			globalErrorModal.open({
+				title: "오류",
+				message: "소셜 로그인 유형이 올바르지 않습니다.",
+			});
 			navigate(prevLocation);
 			return;
 		}
@@ -145,12 +151,25 @@ const OAuthRedirectHandler = () => {
 			prevLocation
 		);
 
-		if (!isOAuthProvider(provider)) {
-			setError("유효하지 않은 소셜 로그인 서비스");
+		if (destination.message) {
+			globalErrorModal.open({
+				title: "오류",
+				message: destination.message,
+			});
+			navigate(destination.err);
+			return;
+		} else if (!isOAuthProvider(provider)) {
+			globalErrorModal.open({
+				title: "오류",
+				message: "지원하지 않는 소셜 로그인 서비스입니다.",
+			});
 			navigate(destination.err);
 			return;
 		} else if (!code) {
-			setError("유효하지 않은 인가 코드");
+			globalErrorModal.open({
+				title: "오류",
+				message: "인가 코드가 유효하지 않습니다.",
+			});
 			navigate(destination.err);
 			return;
 		}
@@ -164,8 +183,6 @@ const OAuthRedirectHandler = () => {
 				<div>
 					<Loader />
 				</div>
-			) : error ? (
-				<p>{error}</p>
 			) : (
 				<p>로그인 완료</p>
 			)}
