@@ -20,6 +20,7 @@ import {
 	applySubmitButtonStyle,
 	submitButtonStyle,
 } from "../../component/User/css/SubmitButton.css";
+import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
 
 interface IProfileUpdatePayload {
 	email?: string | undefined;
@@ -44,6 +45,8 @@ const ProfileUpdate: FC = () => {
 	const requiredPassword = useStringWithValidation();
 	const [errorMessage, setErrorMessage] = useState("");
 
+	const globalErrorModal = useGlobalErrorModal();
+
 	const { setNickName: storeSetNickName } = useUserStore.use.actions();
 
 	const storeNickName = useUserStore.use.nickname();
@@ -61,13 +64,19 @@ const ProfileUpdate: FC = () => {
 			err.code === 401 &&
 			err.message === "Unauthorized: 로그인이 필요합니다."
 		) {
-			alert("로그인이 필요합니다.");
+			globalErrorModal.open({
+				title: "오류",
+				message: "로그인이 필요합니다.",
+			});
 			navigate("/login");
 			return;
 		}
 
 		if (err.code !== 200) {
-			alert("검증되지 않은 유저 입니다.");
+			globalErrorModal.open({
+				title: "오류",
+				message: "로그인 정보가 만료되었거나 유효하지 않습니다.",
+			});
 			navigate(`/checkPassword?next=profileUpdate&final=${final}`);
 			return;
 		}
@@ -159,7 +168,11 @@ const ProfileUpdate: FC = () => {
 
 		storeSetNickName(nickname.value);
 
-		alert("유저 정보가 변경되었습니다.");
+		globalErrorModal.open({
+			variant: "info",
+			title: "성공",
+			message: "유저 정보가 변경되었습니다.",
+		});
 	};
 
 	const handleCancle = () => {

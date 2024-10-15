@@ -1,12 +1,12 @@
 import { ImageActions } from "@xeger/quill-image-actions";
-import React, { SetStateAction, useCallback, useMemo } from "react";
+import React, { SetStateAction, useCallback, useEffect, useMemo } from "react";
 import ReactQuill, { Quill } from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { ApiCall } from "../../../api/api";
 import { uploadImageRequest } from "../../../api/posts/crud";
 import { useGlobalErrorModal } from "../../../state/GlobalErrorModalStore";
 import { getImageDimensionsFromBlob } from "../../../utils/getImageDimensions";
-import { quillFormats, toolbarContainer } from "./constants";
+import { quillFormats, template, toolbarContainer } from "./constants";
 
 /*
 client
@@ -23,6 +23,7 @@ interface IProps {
 	quillRef: React.RefObject<ReactQuill>;
 	content: string;
 	setContent: React.Dispatch<SetStateAction<string>>;
+	categoryId: number;
 }
 
 // 다크모드 호환을 위해 인라인 스타일 대신 클래스로 컬러 적용
@@ -38,8 +39,15 @@ const CustomEditorBase: React.FC<IProps> = ({
 	quillRef,
 	content,
 	setContent,
+	categoryId,
 }) => {
 	const globalErrorModal = useGlobalErrorModal();
+
+	useEffect(() => {
+		if (!content && categoryId === 5) {
+			setContent(template);
+		}
+	}, [content, setContent, template, categoryId]);
 
 	// 이미지 업로드 -> S3에 저장 -> 저장된 이미지 url (imgUrl) 반환
 	const upload = useCallback(

@@ -29,7 +29,6 @@ const GlobalErrorModalRoot: React.FC<IGlobalErrorModalRootProps> = ({
 	return (
 		<AlertModal
 			{...baseModalProps}
-			variant="error"
 			onClose={handleClose}
 		>
 			{children}

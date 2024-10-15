@@ -37,6 +37,9 @@ export class User {
 	@Column({ name: "role_id", default: 2 })
 	roleId: number;
 
+	@Column({ name: "img_url", default: null })
+	imgUrl: string;
+
 	@ManyToOne(() => Role, role => role.id)
 	@JoinColumn({ name: "role_id" })
 	role: Role;

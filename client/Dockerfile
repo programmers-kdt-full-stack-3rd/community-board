@@ -6,6 +6,7 @@ RUN apt-get update -y
 
 COPY ./client ./client
 COPY ./shared ./shared
+COPY ./nestjs-migration ./nestjs-migration
 COPY ./package*.json ./
 COPY ./nginx/.env ./
 

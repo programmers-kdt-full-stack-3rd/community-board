@@ -19,7 +19,7 @@ const SubmitButton: FC<ISubmitButtonProps> = ({
 			disabled={!apply}
 			onClick={onClick}
 			type="submit"
-			color="neutral"
+			color={apply ? "neutral" : "disabled"}
 			variant="solid"
 			size="large"
 		>
