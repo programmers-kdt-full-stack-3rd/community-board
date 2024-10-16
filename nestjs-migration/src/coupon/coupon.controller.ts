@@ -18,6 +18,16 @@ export class CouponController {
 	constructor(private readonly couponService: CouponService) {}
 
 	@UseGuards(LoginGuard)
+	@Get("/users")
+	@HttpCode(HttpStatus.OK)
+	async getUserCoupon(@User() user: IUserEntity) {
+		const userId = user.userId;
+		const couponName = await this.couponService.getUserCoupon(userId);
+
+		return { name: couponName };
+	}
+
+	@UseGuards(LoginGuard)
 	@Post("")
 	@HttpCode(HttpStatus.OK)
 	async handleCoupon(
