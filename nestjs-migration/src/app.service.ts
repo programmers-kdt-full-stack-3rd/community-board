@@ -1,8 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { RedisRepository } from "./redis/redis.repository";
+import { RedisRepository } from "./redis/redis.repository";
 
 @Injectable()
 export class AppService {
+	constructor(private readonly redisRepository: RedisRepository) {}
+
 	constructor(private readonly redisRepository: RedisRepository) {}
 
 	getHello(): string {

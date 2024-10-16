@@ -37,9 +37,7 @@ import { EventEmitterModule } from "@nestjs/event-emitter";
 			cache: true,
 			isGlobal: true,
 			envFilePath:
-				process.env.NODE_ENV === "test"
-					? ".env.test"
-					: "./../nginx/.env",
+				process.env.NODE_ENV === "test" ? ".env.test" : "./../.env",
 			load: [appConfig, typeOrmConfig, jwtConfig, oauthConfig],
 		}),
 		TypeOrmModule.forRootAsync({
