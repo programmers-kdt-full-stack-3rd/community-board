@@ -26,7 +26,7 @@ export class CreatePostReq {
 	@IsOptional()
 	@Type(() => Number)
 	@IsNumber()
-	roomId: number;
+	room_id: number;
 }
 
 export class CreatePostDto extends CreatePostReq {

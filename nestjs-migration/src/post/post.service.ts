@@ -15,6 +15,7 @@ import { DeletePostDto } from "./dto/delete-post.dto";
 import { POST_ERROR_MESSAGES } from "./constant/post.constants";
 import { GetPostDto } from "./dto/get-post.dto";
 import { RecrutingPost } from "./entities/recruting_posts.entity";
+import { Room } from "src/chat/entities/room.entity";
 
 @Injectable()
 export class PostService {
@@ -24,13 +25,11 @@ export class PostService {
 	) {}
 
 	async createPost(createPostDto: CreatePostDto): Promise<number> {
-		console.log(createPostDto);
-
 		const queryRunner = this.dataSource.createQueryRunner();
 		let isTransactionStarted = false;
 
 		try {
-			const { doFilter, category_id, title, authorId, roomId } =
+			const { doFilter, category_id, title, authorId, room_id } =
 				createPostDto;
 			let { content } = createPostDto;
 
@@ -61,12 +60,15 @@ export class PostService {
 			const result = await queryRunner.manager.save(newPost);
 			const postId = result.id;
 
-			if (roomId) {
-				// TODO : recruting_posts 테이블에 post_id, room_id insert
+			if (room_id) {
+				const room = await queryRunner.manager
+					.getRepository(Room)
+					.findOne({ where: { id: room_id } });
 
+				// TODO : recruting_posts 테이블에 post_id, room_id insert
 				const recrutingPost = Object.assign(new RecrutingPost(), {
-					postId: postId, // post 객체 할당
-					roomId: roomId, // room 객체 할당
+					post: newPost, // post 객체 할당
+					room: room, // room 객체 할당
 				});
 
 				await queryRunner.manager

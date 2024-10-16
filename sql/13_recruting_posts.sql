@@ -3,6 +3,5 @@ CREATE TABLE IF NOT EXISTS recruting_posts (
     post_id INT NOT NULL,
     room_id INT NOT NULL,
     FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
-    FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE,
-    UNIQUE KEY (post_id, room_id)
+    FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE
 );
