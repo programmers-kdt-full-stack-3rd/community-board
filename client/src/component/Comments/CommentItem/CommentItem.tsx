@@ -131,6 +131,7 @@ const CommentItem = ({ comment, onUpdate, onDelete }: ICommentItemProps) => {
 					{comment.is_author && !isEditMode && (
 						<div className="flex gap-1">
 							<Button
+								className="dark:text-white"
 								size="small"
 								variant="text"
 								onClick={handleEditModeToggle}

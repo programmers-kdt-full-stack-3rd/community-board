@@ -374,6 +374,33 @@ const ProfilePage = () => {
 					탈퇴하기
 				</Button>
 			</ProfileItem>
+
+			<ProfileItem
+				title="쿠폰함"
+				profileEdit={profileEdit}
+				setProfileEdit={setProfileEdit}
+			>
+				<div
+					style={{
+						fontWeight: "bolder",
+						display: "flex",
+						justifyContent: "center",
+						alignItems: "center",
+						color: "black",
+					}}
+				>
+					내가 받은 쿠폰 개수
+				</div>
+				<Button
+					style={{
+						background: "none",
+						color: "black",
+						fontWeight: "bolder",
+					}}
+				>
+					3개
+				</Button>
+			</ProfileItem>
 		</div>
 	);
 };

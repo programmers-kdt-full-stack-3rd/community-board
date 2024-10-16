@@ -161,6 +161,7 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 							{isAuthor ? (
 								<>
 									<Button
+										className="dark:text-white"
 										size="small"
 										onClick={handleUpdate}
 										variant="text"
