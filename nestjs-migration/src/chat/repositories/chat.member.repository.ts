@@ -26,7 +26,10 @@ export class MemberRepository extends Repository<Member> {
 	async getRoomMembers(roomId: number): Promise<IRoomMember[]> {
 		const queryBuilder = this.createQueryBuilder("m")
 			.leftJoinAndSelect(User, "u", "m.user_id = u.id")
-			.where("m.room_id = :roomId", { roomId })
+			.where("m.room_id = :roomId AND m.is_deleted != :isDeleted", {
+				roomId,
+				isDeleted: true,
+			})
 			.select([
 				"m.id as member_id",
 				"u.nickname as nickname",

@@ -21,7 +21,7 @@ export class RoomRepository extends Repository<Room> {
 	async getRoomByKeyword(
 		readRoomByKeywordDto: ReadRoomByKeywordDto
 	): Promise<RoomHeader[]> {
-		let { keyword, perPage, page } = readRoomByKeywordDto;
+		const { keyword, perPage, page } = readRoomByKeywordDto;
 
 		const queryBuilder = this.createQueryBuilder("r")
 			.select([
@@ -33,8 +33,8 @@ export class RoomRepository extends Repository<Room> {
 			.innerJoin(
 				Member,
 				"m",
-				"r.id = m.room_id AND m.is_deleted = :isDeleted AND r.name Like :keyword",
-				{ isDeleted: false, keyword: `%${keyword.trim()}%` }
+				"r.id = m.room_id AND m.is_deleted != :isDeleted AND r.name Like :keyword",
+				{ isDeleted: true, keyword: `%${keyword.trim()}%` }
 			)
 			.groupBy("r.id")
 			.addGroupBy("r.name")
@@ -55,22 +55,22 @@ export class RoomRepository extends Repository<Room> {
 
 		const queryBuilder = this.createQueryBuilder("r")
 			.select([
-				"COUNT(m2.id) as totalMembersCount",
-				"r.id as roomId",
-				"r.name as title",
-				"r.is_private as isPrivate",
+				"COUNT(m2.id) AS totalMembersCount",
+				"r.id AS roomId",
+				"r.name AS title",
+				"r.is_private AS isPrivate",
 			])
 			.innerJoin(
 				Member,
 				"m1",
-				"r.id = m1.room_id AND m1.is_deleted = :isDeleted AND m1.user_id = :userId ",
-				{ isDeleted: false, userId }
+				"r.id = m1.room_id AND m1.is_deleted != :isDeleted AND m1.user_id = :userId",
+				{ isDeleted: true, userId }
 			)
 			.leftJoin(
 				Member,
 				"m2",
-				"r.id = m2.room_id AND m2.is_deleted = :isDeleted",
-				{ isDeleted: false }
+				"r.id = m2.room_id AND m2.is_deleted != :isDeleted",
+				{ isDeleted: true }
 			)
 			.groupBy("r.id")
 			.addGroupBy("r.name")
@@ -99,6 +99,7 @@ export class RoomRepository extends Repository<Room> {
 			.innerJoin(Member, "mem")
 			.innerJoin(User, "usr")
 			.innerJoin(Message, "msg")
+			.where("mem.room_id = :roomId", { roomId })
 			.orderBy("msg.created_at", "ASC");
 
 		const results = await queryBuilder.getRawMany();
