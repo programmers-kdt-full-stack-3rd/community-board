@@ -92,7 +92,7 @@ export class PostRepository extends Repository<Post> {
 		readPostsQueryDto: ReadPostsQuery,
 		userId: number
 	): Promise<number> {
-		let { keyword } = readPostsQueryDto;
+		let { keyword, category_id } = readPostsQueryDto;
 		userId ? userId : 0;
 
 		const queryBuilder = this.createQueryBuilder("post")
@@ -114,6 +114,11 @@ export class PostRepository extends Repository<Post> {
 		if (keyword) {
 			queryBuilder.andWhere("post.title LIKE :keyword", {
 				keyword: `%${keyword.trim()}%`,
+			});
+		}
+		if (category_id) {
+			queryBuilder.andWhere("post.category_id = :categoryId", {
+				categoryId: category_id,
 			});
 		}
 
@@ -289,13 +294,13 @@ export class PostRepository extends Repository<Post> {
 
 	async getTopPosts() {
 		const queryBuilder = this.createQueryBuilder("post")
-			.leftJoin("post.author", "user")
+			.innerJoin("post.author", "user")
 			.leftJoin("post.likes", "pl")
 			.select([
 				"post.title as title",
 				"post.id as postId",
 				"user.nickname as nickname",
-				"COUNT(*) as likeCount",
+				"COALESCE(COUNT(pl.id), 0) as likeCount",
 			])
 			.where("post.is_delete = :isPostDeleted", { isPostDeleted: false })
 			.andWhere("user.is_delete = :isUserDeleted", {

@@ -31,7 +31,7 @@ export const sendGetPostsRequest = async (
 	return await httpRequest(`post?${searchParams.toString()}`, HttpMethod.GET);
 };
 
-export const sendGetPostRequest = async (param: string) => {
+export const sendGetPostRequest = async (param: number) => {
 	const url = `post/${param}`;
 	return await httpRequest(url, HttpMethod.GET);
 };

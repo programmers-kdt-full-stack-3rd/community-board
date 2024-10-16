@@ -14,6 +14,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useStringWithValidation } from "../../hook/useStringWithValidation";
 import { FaComments } from "react-icons/fa6";
+import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
 
 const Join: FC = () => {
 	const navigate = useNavigate();
@@ -21,6 +22,8 @@ const Join: FC = () => {
 	const nickname = useStringWithValidation();
 	const password = useStringWithValidation();
 	const requiredPassword = useStringWithValidation();
+
+	const globalErrorModal = useGlobalErrorModal();
 
 	const handleEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
 		email.setValue(e.target.value);
@@ -162,7 +165,11 @@ const Join: FC = () => {
 		}
 
 		if (result) {
-			alert("회원가입이 완료되었습니다.");
+			globalErrorModal.open({
+				variant: "info",
+				title: "축하드립니다",
+				message: "회원가입을 완료했습니다.",
+			});
 			navigate("/login");
 		}
 	};

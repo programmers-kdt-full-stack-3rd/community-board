@@ -103,6 +103,7 @@ function App() {
 				<MainContainer>
 					<GlobalErrorModal
 						isOpen={globalErrorModal.isOpen}
+						variant={globalErrorModal.variant}
 						callback={globalErrorModal.callback}
 						onClose={globalErrorModal.close}
 					>
@@ -189,7 +190,8 @@ function App() {
 						/>
 						{categories.map(category => (
 							<Route
-								path={`/category/${category.subPath}`}
+								key={category.id}
+								path={category.path}
 								element={<Community categoryId={category.id} />}
 							/>
 						))}

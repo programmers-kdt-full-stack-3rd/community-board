@@ -1,5 +1,4 @@
 import { dateToStr } from "../../utils/date-to-str";
-import { IPostInfo } from "shared";
 import { useCallback, useLayoutEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -18,15 +17,15 @@ import { useModal } from "../../hook/useModal";
 import useCategory from "../../hook/useCategory";
 import { sendJoinRoomRequest } from "../../api/chats/crud";
 import AlertModal from "../common/Modal/AlertModal";
+import { FaCheck } from "react-icons/fa";
+import { usePostInfo } from "../../state/PostInfoStore";
 
-interface IPostInfoProps {
-	postInfo: IPostInfo;
-}
-
-const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
+const PostInfo: React.FC = () => {
 	const navigate = useNavigate();
+	const { post, acceptedCommentId, isQnaCategory } = usePostInfo();
+	const isAcceptedQna = isQnaCategory && acceptedCommentId !== null;
 
-	const { currentCategory } = useCategory(postInfo.category);
+	const { currentCategory } = useCategory(post.category);
 
 	const deleteModal = useModal();
 	const joinSuccessModal = useModal();
@@ -36,16 +35,16 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 	const [likes, setLikes] = useState(0);
 
 	useLayoutEffect(() => {
-		setUserLiked(postInfo.user_liked);
-		setLikes(postInfo.likes);
-	}, [postInfo.user_liked, postInfo.likes]);
+		setUserLiked(post.user_liked);
+		setLikes(post.likes);
+	}, [post.user_liked, post.likes]);
 
-	const time = postInfo.updated_at
-		? new Date(postInfo.updated_at)
-		: new Date(postInfo.created_at);
-	const updateTxt = postInfo.updated_at ? " (수정됨)" : "";
-	const isAuthor = postInfo.is_author;
-	const content = postInfo.content;
+	const time = post.updated_at
+		? new Date(post.updated_at)
+		: new Date(post.created_at);
+	const updateTxt = post.updated_at ? " (수정됨)" : "";
+	const isAuthor = post.is_author;
+	const content = post.content;
 
 	const isLogin = useUserStore(state => state.isLogin);
 
@@ -61,8 +60,8 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 
 		const res = await ApiCall(
 			userLiked
-				? () => sendDeletePostLikeRequest(postInfo.id)
-				: () => sendCreatePostLikeRequest(postInfo.id),
+				? () => sendDeletePostLikeRequest(post.id)
+				: () => sendCreatePostLikeRequest(post.id),
 			err =>
 				globalErrorModal.openWithMessageSplit({
 					messageWithTitle: err.message,
@@ -83,7 +82,7 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 	};
 
 	const handleUpdate = () => {
-		const url = `/post/new?postId=${postInfo.id}&title=${encodeURIComponent(postInfo.title)}&content=${encodeURIComponent(postInfo.content)}`;
+		const url = `/post/new?postId=${post.id}&title=${encodeURIComponent(post.title)}&content=${encodeURIComponent(post.content)}`;
 
 		navigate(url);
 	};
@@ -98,7 +97,7 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 		}
 
 		const res = await ApiCall(
-			() => sendDeletePostRequest(postInfo.id.toString()),
+			() => sendDeletePostRequest(post.id.toString()),
 			err => {
 				deleteModal.close();
 				globalErrorModal.openWithMessageSplit({
@@ -112,12 +111,16 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 		}
 
 		deleteModal.close();
-		alert("삭제에 성공했습니다.");
-		navigate(`/category/${currentCategory?.subPath}`);
+		globalErrorModal.open({
+			variant: "info",
+			title: "게시글 삭제 성공",
+			message: "게시글을 성공적으로 삭제했습니다.",
+		});
+		navigate(currentCategory?.path ?? "/");
 	}, [isAuthor]);
 
 	const handleJoinRoom = async () => {
-		const roomId = postInfo.room_id;
+		const roomId = post.room_id;
 
 		if (!roomId) {
 			return;
@@ -177,26 +180,42 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 				</div>
 
 				<div className="border-b-customGray border-t-customGray border-spacing-3 border-y">
-					<div className="text-left text-2xl font-bold">
-						<div className="mb-2 mt-4">{postInfo.title}</div>
+					<div className="mb-2 mt-4 flex items-center gap-3 text-left">
+						{isAcceptedQna && (
+							<div className="flex shrink-0 items-center gap-1 rounded-md bg-green-600/20 px-2 py-1 text-sm font-bold text-green-800 dark:text-green-400">
+								<FaCheck size="0.875em" />
+								<span>채택 완료</span>
+							</div>
+						)}
+						<div className="break-words break-all text-2xl font-bold">
+							{post.title}
+						</div>
 					</div>
 
 					<div className="mb-4 flex items-center justify-between">
 						<div className="flex items-center gap-2 text-lg">
-							<div>{postInfo.author_nickname}</div>
+							<div>{post.author_nickname}</div>
 							<div>{dateToStr(time) + updateTxt}</div>
 						</div>
 
 						<div className="flex items-center gap-2 text-base">
+							{isAcceptedQna && (
+								<div className="text-xs text-gray-500 dark:text-gray-400">
+									채택을 완료한 게시글은 수정·삭제할 수
+									없습니다.
+								</div>
+							)}
+
 							<IoEyeOutline />
-							<div>{postInfo.views}</div>
+							<div>{post.views}</div>
 
 							<FaRegThumbsUp />
-							<div>{postInfo.likes}</div>
+							<div>{post.likes}</div>
 
-							{isAuthor ? (
+							{isAuthor && !isAcceptedQna ? (
 								<>
 									<Button
+										className="dark:text-white"
 										size="small"
 										onClick={handleUpdate}
 										variant="text"
@@ -225,7 +244,7 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 					dangerouslySetInnerHTML={{ __html: content }}
 				/>
 
-				{postInfo.room_id && (
+				{post.room_id && (
 					<div className="flex w-full items-center justify-center">
 						<Button onClick={handleJoinRoom}>팀에 참여하기</Button>
 					</div>
