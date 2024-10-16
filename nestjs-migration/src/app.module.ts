@@ -28,9 +28,6 @@ import { RankModule } from "./rank/rank.module";
 import { RbacModule } from "./rbac/rbac.module";
 import { UserModule } from "./user/user.module";
 import { ImageModule } from "./image/image.module";
-import { CouponModule } from "./coupon/coupon.module";
-import { RedisModule } from "./redis/redis.module";
-import { EventEmitterModule } from "@nestjs/event-emitter";
 
 @Module({
 	imports: [
@@ -63,7 +60,6 @@ import { EventEmitterModule } from "@nestjs/event-emitter";
 			},
 			inject: [ConfigService],
 		}),
-		EventEmitterModule.forRoot(),
 		UserModule,
 		AuthModule,
 		PostModule,
@@ -77,8 +73,6 @@ import { EventEmitterModule } from "@nestjs/event-emitter";
 		HealthModule,
 		RankModule,
 		ImageModule,
-		CouponModule,
-		RedisModule,
 	],
 	controllers: [AppController],
 	providers: [

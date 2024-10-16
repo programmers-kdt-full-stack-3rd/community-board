@@ -13,7 +13,6 @@ import { Post } from "../../post/entities/post.entity";
 import { Role } from "../../rbac/entities/roles.entity";
 import { CommentLike } from "../../like/entities/comment-like.entity";
 import { Member } from "../../chat/entities/member.entity";
-import { CouponLog } from "src/coupon/entities/coupon_log.entity";
 
 @Entity("users")
 export class User {
@@ -64,8 +63,4 @@ export class User {
 	//chat
 	@OneToMany(type => Member, member => member.user)
 	members: Member[];
-
-	//coupon
-	@OneToMany(type => CouponLog, coupon => coupon.id)
-	couponLogs: CouponLog[];
 }
