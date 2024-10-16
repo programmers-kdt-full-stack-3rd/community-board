@@ -16,7 +16,7 @@ export class CouponLog {
 	id: number;
 
 	@CreateDateColumn()
-	recieved_time: Timestamp;
+	received_time: Timestamp;
 
 	@ManyToOne(type => User, user => user.couponLogs)
 	@JoinColumn({ name: "user_id" })

@@ -6,6 +6,7 @@ import { CouponRepository } from "./repositories/coupon.repository";
 import { CouponLogRepository } from "./repositories/coupon_log.repository";
 import { ServerError } from "src/common/exceptions/server-error.exception";
 import { EventEmitter2 } from "@nestjs/event-emitter";
+import { COUPON_ERROR_MESSAGES } from "./constant/coupon.constants";
 
 @Injectable()
 export class CouponService {
@@ -16,6 +17,23 @@ export class CouponService {
 		private readonly eventEmitter: EventEmitter2,
 		@InjectQueue("wait_coupon_queue") private couponQueue: Queue
 	) {}
+
+	async getUserCoupon(userId: number) {
+		try {
+			const couponId = await this.couponLogRepository.getCoupons(userId);
+			const coupon = await this.couponRepository.findOne({
+				where: {
+					id: couponId,
+				},
+			});
+			const couponName = coupon.name;
+			return couponName;
+		} catch (err) {
+			throw ServerError.reference(
+				COUPON_ERROR_MESSAGES.GET_COUPON_NAME_ERROR
+			);
+		}
+	}
 
 	async initRedis(couponId: number) {
 		await this.redisRepository.init(couponId);
@@ -44,7 +62,6 @@ export class CouponService {
 	}
 
 	async issueCoupon(couponId: number, userId: number) {
-		let msg;
 		try {
 			console.log(
 				"redis에 있는 user_coupon 정보",
@@ -54,7 +71,10 @@ export class CouponService {
 			const couponCount = await this.redisRepository.getStock(couponId);
 
 			if (couponCount < 1) {
-				throw ServerError.etcError(409, "쿠폰이 모두 소진되었습니다");
+				throw ServerError.etcError(
+					409,
+					COUPON_ERROR_MESSAGES.RUN_OUT_ERROR
+				);
 			}
 
 			const dupCheck = await this.redisRepository.checkDupCoupon(
@@ -62,7 +82,10 @@ export class CouponService {
 				couponId
 			);
 			if (dupCheck) {
-				throw ServerError.etcError(409, "이미 발급 받았습니다");
+				throw ServerError.etcError(
+					409,
+					COUPON_ERROR_MESSAGES.DUP_ERROR
+				);
 			}
 
 			await this.redisRepository.saveLogToRedis(userId, couponId);
@@ -77,21 +100,20 @@ export class CouponService {
 			throw err;
 		}
 	}
-	//coupon_id에 일단 순서 넣고 나중에 coupon id로 변경
-	async saveLogToMaria(userId, couponId) {
+	async saveLogToMaria(userId: number, couponId: number) {
 		const couponLog = this.couponLogRepository.create({
-			user: userId,
-			coupon: couponId,
+			user: { id: userId },
+			coupon: { id: couponId },
 		});
 		await this.couponLogRepository.save(couponLog);
 		console.log("maria log");
 	}
 
-	async saveCouponStockToMaria(couponId, updatedStock) {
+	async saveCouponStockToMaria(couponId: number, updatedStock: number) {
 		await this.couponRepository.update(
 			{ id: couponId },
 			{ stock: updatedStock }
 		);
-		console.log("maria count");
+		console.log("maria count log");
 	}
 }
