@@ -238,7 +238,7 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 			{isSideBarOpen && (
 				<ChatRoomSideBar
 					title={title}
-					close={() => {
+					sideBarClose={() => {
 						setIsSideBarOpen(false);
 					}}
 					members={roomMembers}

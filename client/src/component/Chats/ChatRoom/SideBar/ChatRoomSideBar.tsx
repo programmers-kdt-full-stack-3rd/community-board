@@ -1,22 +1,25 @@
 import React from "react";
 import { IRoomMember } from "shared";
-import { LiaPenSolid } from "react-icons/lia";
 import profileIcon from "../../../../assets/icons/profile-icon.svg";
 import { Link } from "react-router-dom";
+import { useChatAside } from "../../../../state/ChatAsideStore";
+import { FiX } from "react-icons/fi";
 
 interface Props {
 	title: string;
-	close: () => void;
+	sideBarClose: () => void;
 	members: IRoomMember[];
 	roomId: number;
 }
 
 export const ChatRoomSideBar: React.FC<Props> = ({
 	title,
-	close,
+	sideBarClose,
 	members,
 	roomId,
 }) => {
+	const { close } = useChatAside();
+
 	const renderMembers = () => {
 		return members.map(member => (
 			<div
@@ -43,7 +46,7 @@ export const ChatRoomSideBar: React.FC<Props> = ({
 		<>
 			<div
 				className="absolute right-[-15px] top-[-20px] z-10 h-[500px] w-[400px] bg-black bg-opacity-50"
-				onClick={close}
+				onClick={sideBarClose}
 			></div>
 			<div className="bg-customGray absolute right-[-15px] top-[-20px] z-20 flex h-[500px] w-[350px] flex-col gap-[10px] px-[20px] py-[10px]">
 				<div className="flex h-[50px] w-[310px] items-center justify-between py-[10px] pl-[10px]">
@@ -55,7 +58,10 @@ export const ChatRoomSideBar: React.FC<Props> = ({
 							console.log(members);
 						}}
 					>
-						<LiaPenSolid className="h-[25px] w-[25px]" />
+						<FiX
+							className="h-[25px] w-[25px] cursor-pointer"
+							onClick={sideBarClose}
+						/>
 					</div>
 				</div>
 				<div className="h-auto w-[310px]">
@@ -66,26 +72,19 @@ export const ChatRoomSideBar: React.FC<Props> = ({
 						{renderMembers()}
 					</div>
 				</div>
-				<div
-					className="flex h-[50px] w-[310px] cursor-pointer items-center justify-center bg-blue-500 font-extrabold text-white"
-					onClick={() => {
-						/* TODO : 모집글 작성 */
-					}}
-				>
-					모집글 작성
-				</div>
 				<Link
 					to={`/post/new?category_id=4&room_id=${roomId}`}
-					className="flex h-[50px] w-[310px] cursor-pointer items-center justify-center bg-red-500 font-extrabold text-white"
+					onClick={close}
+					className="flex h-[50px] w-[310px] cursor-pointer items-center justify-center bg-blue-500 font-extrabold text-white"
 				>
-					방 나가기
+					모집글 작성
 				</Link>
-				{/* <div
+				<div
 					className="flex h-[50px] w-[310px] cursor-pointer items-center justify-center bg-red-500 font-extrabold text-white"
 					onClick={() => {}}
 				>
 					방 나가기
-				</div> */}
+				</div>
 			</div>
 		</>
 	);
