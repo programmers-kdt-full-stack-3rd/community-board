@@ -21,7 +21,7 @@ export class CouponController {
 	@Post("")
 	@HttpCode(HttpStatus.CREATED)
 	async handleCoupon(
-		@Body() body: { couponId: number }, //ms단위로
+		@Body() body: { couponId: number },
 		@User() user: IUserEntity
 	) {
 		const { couponId } = body;
@@ -32,7 +32,7 @@ export class CouponController {
 			throw err;
 		}
 	}
-
+	//test용 api (레디스 내용 초기화)
 	@Get("/init/:couponId")
 	async initRedis(@Param("couponId") couponId: number) {
 		await this.couponService.initRedis(couponId);

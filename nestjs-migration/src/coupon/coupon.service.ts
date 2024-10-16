@@ -17,11 +17,11 @@ export class CouponService {
 		@InjectQueue("wait_coupon_queue") private couponQueue: Queue
 	) {}
 
-	async initRedis(couponId) {
+	async initRedis(couponId: number) {
 		await this.redisRepository.init(couponId);
 	}
 
-	async goToQueue(userId, couponId) {
+	async goToQueue(userId: number, couponId: number) {
 		const job = await this.couponQueue.add(
 			"issue_coupon",
 			{
@@ -29,14 +29,13 @@ export class CouponService {
 				couponId,
 			},
 			{
-				removeOnComplete: true, //check
-				removeOnFail: true, //check
+				removeOnComplete: true,
+				removeOnFail: true,
 				attempts: 1,
 				jobId: `${userId}_${couponId}`,
 			}
 		);
-		const result = await job.finished(); // 작업 완료 시까지 대기
-
+		const result = await job.finished(); // 작업 완료 시까지 대기 TODO: 비동기로 변경
 		const state = await job.getState();
 		console.log(`작업의 상태: ${state}`);
 
@@ -44,7 +43,7 @@ export class CouponService {
 		console.log(`대기 중인 작업 수: ${waitingCount}`);
 	}
 
-	async issueCoupon(couponId, orderId, userId, eventName) {
+	async issueCoupon(couponId: number, userId: number) {
 		let msg;
 		try {
 			console.log(
@@ -55,7 +54,6 @@ export class CouponService {
 			const couponCount = await this.redisRepository.getStock(couponId);
 
 			if (couponCount < 1) {
-				msg = "coupon.failed.runout";
 				throw ServerError.reference("쿠폰이 모두 소진되었습니다");
 			}
 
@@ -64,8 +62,6 @@ export class CouponService {
 				couponId
 			);
 			if (dupCheck) {
-				console.log("dobule");
-				msg = "coupon.failed.duplicated";
 				throw ServerError.reference("이미 발급 받았습니다");
 			}
 
@@ -75,14 +71,10 @@ export class CouponService {
 				await this.redisRepository.getStock(couponId);
 
 			//발급 후 mysql에 저장(비동기?)
-			this.saveLogToMaria(userId, orderId);
+			this.saveLogToMaria(userId, couponId);
 			this.saveCouponStockToMaria(couponId, updatedCoupons);
-
-			this.eventEmitter.emit(eventName, { success: true });
 		} catch (err) {
 			throw err;
-		} finally {
-			await this.sendEvent(msg);
 		}
 	}
 	//coupon_id에 일단 순서 넣고 나중에 coupon id로 변경
@@ -101,11 +93,5 @@ export class CouponService {
 			{ stock: updatedStock }
 		);
 		console.log("maria count");
-	}
-
-	async sendEvent(message: string) {
-		this.eventEmitter.emit("coupon.success", {
-			message,
-		});
 	}
 }

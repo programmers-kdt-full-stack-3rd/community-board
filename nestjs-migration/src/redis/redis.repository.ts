@@ -10,11 +10,12 @@ export class RedisRepository {
 		this.redisClient = new Redis(redisConfig);
 	}
 
-	//test
-	async getRedisData(userId, couponId) {
+	//test용
+	async getRedisData(userId: number, couponId: number) {
 		return await this.redisClient.smembers(`coupon_${couponId}`);
 	}
-	async init(couponId) {
+	//test용
+	async init(couponId: number) {
 		await this.redisClient.del(`coupon_${couponId}`);
 	}
 
@@ -24,7 +25,7 @@ export class RedisRepository {
 			`user:${userId}:coupon_log`
 		);
 	}
-	async saveLogToRedis(userId: string, couponId: string): Promise<void> {
+	async saveLogToRedis(userId: number, couponId: number): Promise<void> {
 		const result = await this.redisClient.sadd(
 			`coupon_${couponId}`,
 			`user:${userId}:coupon_log`
@@ -32,15 +33,14 @@ export class RedisRepository {
 		console.log("saveLogREdis", result);
 	}
 
-	async setStock(couponId: string, stock: number): Promise<void> {
+	async setStock(couponId: number, stock: number): Promise<void> {
 		await this.redisClient.set(
 			`coupon_stock_${couponId}`,
 			stock.toString()
 		);
 	}
 
-	// 재고 가져오기
-	async getStock(couponId: string): Promise<number | null> {
+	async getStock(couponId: number): Promise<number | null> {
 		const stock = await this.redisClient.get(`coupon_stock_${couponId}`);
 		return stock ? parseInt(stock, 10) : null;
 	}

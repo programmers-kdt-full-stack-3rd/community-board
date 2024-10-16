@@ -8,15 +8,10 @@ export class CouponConsumer {
 
 	@Process("issue_coupon")
 	async transcode(job: Job) {
-		const { userId, orderId, couponId, eventName } = job.data;
+		const { userId, couponId } = job.data;
 
 		try {
-			const doIt = await this.couponService.issueCoupon(
-				couponId,
-				orderId,
-				userId,
-				eventName
-			);
+			await this.couponService.issueCoupon(couponId, userId);
 		} catch (err) {
 			throw err;
 		}
