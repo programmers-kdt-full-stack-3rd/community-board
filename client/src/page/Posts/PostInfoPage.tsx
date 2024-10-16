@@ -17,6 +17,7 @@ const PostInfoPage = () => {
 		id: 0,
 		title: "",
 		content: "",
+		category: "",
 		author_id: 0,
 		author_nickname: "",
 		is_author: false,

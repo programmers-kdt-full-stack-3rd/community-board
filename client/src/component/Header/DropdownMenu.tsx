@@ -8,14 +8,7 @@ import { IoShareSocialOutline } from "react-icons/io5";
 import { MdOutlineAttachEmail } from "react-icons/md";
 import { FaRegUserCircle } from "react-icons/fa";
 
-interface IDropdownMenuProps {
-	ref: React.RefObject<HTMLDivElement>;
-}
-
-const DropdownMenu: ForwardRefRenderFunction<
-	HTMLDivElement,
-	IDropdownMenuProps
-> = ({ ref }) => {
+const DropdownMenu: ForwardRefRenderFunction<HTMLDivElement> = () => {
 	const navigate = useNavigate();
 
 	const isEmailRegistered = useUserStore.use.isEmailRegistered();
@@ -57,10 +50,7 @@ const DropdownMenu: ForwardRefRenderFunction<
 	};
 
 	return (
-		<div
-			ref={ref}
-			className="dark:bg-customGray absolute right-0 top-12 z-50 min-w-[160px] rounded-md bg-white shadow-xl"
-		>
+		<div className="dark:bg-customGray absolute right-0 top-12 z-50 min-w-[160px] rounded-md bg-white shadow-xl">
 			<div className="m-4 cursor-pointer text-left text-base text-gray-700 dark:text-white">
 				<div
 					className="flex flex-row items-center gap-2 py-2 hover:opacity-70"
