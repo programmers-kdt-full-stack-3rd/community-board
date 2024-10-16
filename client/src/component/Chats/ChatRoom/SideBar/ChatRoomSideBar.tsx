@@ -2,6 +2,7 @@ import React from "react";
 import { IRoomMember } from "shared";
 import { LiaPenSolid } from "react-icons/lia";
 import profileIcon from "../../../../assets/icons/profile-icon.svg";
+import { Link } from "react-router-dom";
 
 interface Props {
 	title: string;
@@ -37,6 +38,7 @@ export const ChatRoomSideBar: React.FC<Props> = ({
 			</div>
 		));
 	};
+
 	return (
 		<>
 			<div
@@ -72,14 +74,18 @@ export const ChatRoomSideBar: React.FC<Props> = ({
 				>
 					모집글 작성
 				</div>
-				<div
+				<Link
+					to={`/post/new?category_id=4&room_id=${roomId}`}
 					className="flex h-[50px] w-[310px] cursor-pointer items-center justify-center bg-red-500 font-extrabold text-white"
-					onClick={() => {
-						/* TODO : 방 나가기 */
-					}}
 				>
 					방 나가기
-				</div>
+				</Link>
+				{/* <div
+					className="flex h-[50px] w-[310px] cursor-pointer items-center justify-center bg-red-500 font-extrabold text-white"
+					onClick={() => {}}
+				>
+					방 나가기
+				</div> */}
 			</div>
 		</>
 	);

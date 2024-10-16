@@ -27,6 +27,7 @@ const UpsertPostPage: React.FC = () => {
 	const queryParams = new URLSearchParams(location.search);
 	const categoryId =
 		parseInt(queryParams.get("category_id") ?? "", 10) || undefined;
+	const roomId = parseInt(queryParams.get("room_id") ?? "", 10) || undefined;
 	const postId = queryParams.get("postId") || "";
 	const originalTitle = queryParams.get("title") || "";
 	const originalContent = queryParams.get("content") || "";
@@ -89,6 +90,7 @@ const UpsertPostPage: React.FC = () => {
 			title,
 			content: sanitizePostContent(content),
 			doFilter: false,
+			room_id: roomId,
 		};
 
 		const res = await ApiCall(

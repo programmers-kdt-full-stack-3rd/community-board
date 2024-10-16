@@ -1,6 +1,12 @@
-import { IsNotEmpty, IsPositive, Max } from "class-validator";
+import {
+	IsNotEmpty,
+	IsNumber,
+	IsOptional,
+	IsPositive,
+	Max,
+} from "class-validator";
 import { POST_ERROR_MESSAGES } from "../constant/post.constants";
-import { Transform } from "class-transformer";
+import { Transform, Type } from "class-transformer";
 
 export class CreatePostReq {
 	@IsNotEmpty({ message: POST_ERROR_MESSAGES.TITLE_REQUIRED })
@@ -16,6 +22,11 @@ export class CreatePostReq {
 	category_id: number;
 
 	doFilter: boolean;
+
+	@IsOptional()
+	@Type(() => Number)
+	@IsNumber()
+	roomId: number;
 }
 
 export class CreatePostDto extends CreatePostReq {

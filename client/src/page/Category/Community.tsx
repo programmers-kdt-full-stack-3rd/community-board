@@ -109,16 +109,20 @@ const Community: React.FC<IProps> = ({ categoryId }) => {
 							/>
 
 							<div className={postListActions}>
-								{isLogin && currentCategory && (
-									<div className={createPostButtonWrapper}>
-										<button
-											className="dark:bg-customGray bg-blue-900 text-white"
-											onClick={handleCreatePostClick}
+								{isLogin &&
+									currentCategory &&
+									categoryId !== 4 && (
+										<div
+											className={createPostButtonWrapper}
 										>
-											글쓰기
-										</button>
-									</div>
-								)}
+											<button
+												className="dark:bg-customGray bg-blue-900 text-white"
+												onClick={handleCreatePostClick}
+											>
+												글쓰기
+											</button>
+										</div>
+									)}
 							</div>
 						</div>
 
