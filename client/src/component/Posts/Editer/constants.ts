@@ -8,6 +8,10 @@ export const quillFormats = [
 	"image",
 	"width",
 	"height",
+	"header",
+	"horizontal-rule",
+	"list",
+	"bullet",
 ];
 
 const toolbarColors = [
@@ -56,3 +60,31 @@ export const toolbarContainer = [
 	["image"],
 	["clean"],
 ];
+
+export const template = `
+<p><strong class="ql-size-large">📝 </strong><strong class="ql-size-large ql-color-red3">[버그/이슈] </strong><strong class="ql-size-large">설명</strong></p>
+<p>&gt;<span class="ql-font-monospace"> 버그 또는 이슈의 간단한 설명을 적어주세요.</span></p>
+<pre class="ql-syntax" spellcheck="false">👉 (ex. 로그인 시 오류 메시지가 표시되며, 사용자가 로그인할 수 없습니다.)</pre>
+<p><br/></p><p><br/></p>
+<p><strong class="ql-size-large">🔍 해결 단계</strong></p>
+<p>&gt;<span class="ql-font-monospace"> 이 곳에 내용을 입력해주세요.</span></p>
+<pre class="ql-syntax" spellcheck="false">👉 (ex. 로그를 보면서 사용자 인증 부분 수정)</pre>
+<p><br/></p><p><br/></p>
+<p><strong class="ql-size-large">💡 예상 결과</strong></p>
+<p>&gt;<span class="ql-font-monospace"> 예상했던 결과를 적어주세요.</span></p>
+<pre class="ql-syntax" spellcheck="false">👉 (ex. 사용자가 정상적으로 로그인)</pre>
+<p><br/></p><p><br/></p>
+<p><strong class="ql-size-large">💡 실제 결과</strong></p>
+<p>&gt;<span class="ql-font-monospace"> 실제로 발생한 결과를 적어주세요.</span></p>
+<pre class="ql-syntax" spellcheck="false">👉 (ex. 사용자가 정상적으로 로그인 가능)</pre>
+<p><br/></p><p><br/></p>
+<p><strong class="ql-size-large">🔗 추가 정보(참고 사항)</strong></p>
+<p>&gt;<span class="ql-font-monospace"> 추가적인 정보가 있다면 적어주세요.</span></p>
+<pre class="ql-syntax" spellcheck="false">👉 (ex. 로그를 잘 보자~ :D )</pre>
+<p><br/></p><p><br/></p>
+<p><strong class="ql-size-large">📌 우선순위</strong></p>
+<p>&gt;<span class="ql-font-monospace"> 이 문제가 얼마나 중요한지 우선순위를 적어주세요.</span></p>
+<pre class="ql-syntax" spellcheck="false">👉 (ex. 쉽게 해결 가능~~ *^v^* )</pre>
+<p><br/></p><p><br/></p>
+
+`;

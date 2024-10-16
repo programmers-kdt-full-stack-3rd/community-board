@@ -180,6 +180,57 @@ export class UserRepository extends Repository<User> {
 
 		return plainToInstance(GetTopActivties, results);
 	}
+
+	// true : 같은 사용자 있음 (에러 상황)
+	async findSameUser(nickname?: string, email?: string): Promise<boolean> {
+		const where: any = [];
+
+		if (nickname) {
+			where.push({ nickname });
+		}
+
+		if (email) {
+			where.push({ email });
+		}
+
+		const sameUserCount = await this.count({
+			where: where.length > 0 ? where : undefined,
+		});
+
+		return sameUserCount !== 0;
+	}
+
+	async updateUserProfile(
+		userId: number,
+		nickname?: string,
+		imgUrl?: string
+	) {
+		const updateData: Partial<{ nickname?: string; imgUrl?: string }> = {};
+
+		if (nickname) {
+			updateData.nickname = nickname;
+		}
+
+		if (imgUrl) {
+			updateData.imgUrl = imgUrl;
+		}
+
+		return this.update({ id: userId, isDelete: false }, updateData);
+	}
+
+	async updateUserPassword(userId: number, newPassword: string) {
+		return this.update(
+			{ id: userId, isDelete: false },
+			{ password: newPassword }
+		);
+
+		// return this.createQueryBuilder("user")
+		// .update()
+		// .set({ password: newPassword })
+		// .where("id = :userId", { userId })
+		// .andWhere("isDelete = :isDelete", { isDelete: false })
+		// .execute();
+	}
 	//예시 코드
 
 	// async customMethod(id: number): Promise<User> {

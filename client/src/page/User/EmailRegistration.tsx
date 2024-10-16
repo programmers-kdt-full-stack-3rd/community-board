@@ -1,11 +1,5 @@
 import { ChangeEvent, FC, useMemo, useState } from "react";
 import PasswordForm from "../../component/User/PasswordForm";
-import {
-	buttonsWrapper,
-	cancleButton,
-	profileUpdateForm,
-	profileUpdateWrapper,
-} from "./ProfileUpdate.css";
 import SubmitButton from "../../component/User/SubmitButton";
 import { ERROR_MESSAGE, REGEX } from "./constants/constants";
 import ErrorMessageForm from "../../component/User/ErrorMessageForm";
@@ -16,10 +10,7 @@ import { ApiCall } from "../../api/api";
 import { ClientError } from "../../api/errors";
 import EmailForm from "../../component/User/EmailForm";
 import { useStringWithValidation } from "../../hook/useStringWithValidation";
-import {
-	applySubmitButtonStyle,
-	submitButtonStyle,
-} from "../../component/User/css/SubmitButton.css";
+import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
 
 const EmailRegistration: FC = () => {
 	const navigate = useNavigate();
@@ -32,6 +23,8 @@ const EmailRegistration: FC = () => {
 	const password = useStringWithValidation();
 	const requiredPassword = useStringWithValidation();
 	const [errorMessage, setErrorMessage] = useState("");
+
+	const globalErrorModal = useGlobalErrorModal();
 
 	const { setIsEmailRegistered } = useUserStore.use.actions();
 
@@ -50,13 +43,19 @@ const EmailRegistration: FC = () => {
 			err.code === 401 &&
 			err.message === "Unauthorized: 로그인이 필요합니다."
 		) {
-			alert("로그인이 필요합니다.");
+			globalErrorModal.open({
+				title: "오류",
+				message: "로그인이 필요합니다.",
+			});
 			navigate("/login");
 			return;
 		}
 
 		if (err.code !== 200) {
-			alert("검증되지 않은 유저입니다.");
+			globalErrorModal.open({
+				title: "오류",
+				message: "로그인 정보가 만료되었거나 유효하지 않습니다.",
+			});
 			navigate(`/checkPassword?next=emailRegistration&final=${final}`);
 			return;
 		}
@@ -116,7 +115,10 @@ const EmailRegistration: FC = () => {
 
 	const handleSubmit = async () => {
 		if (isEmailRegistered) {
-			alert(`${storeNickName} 님은 이미 이메일을 등록하셨습니다.`);
+			globalErrorModal.open({
+				title: "오류",
+				message: `${storeNickName} 님은 이미 이메일을 등록했습니다.`,
+			});
 			navigate(final || "/");
 			return;
 		}
@@ -139,7 +141,11 @@ const EmailRegistration: FC = () => {
 		setIsEmailRegistered(true);
 		navigate(final || "/");
 
-		alert("로그인 이메일을 등록했습니다.");
+		globalErrorModal.open({
+			variant: "info",
+			title: "이메일 등록 성공",
+			message: "로그인 이메일을 등록했습니다.",
+		});
 	};
 
 	const handleCancle = () => {
@@ -147,10 +153,10 @@ const EmailRegistration: FC = () => {
 	};
 
 	return (
-		<div className={profileUpdateWrapper}>
+		<div className="mx-auto w-full max-w-[350px] rounded-lg bg-gray-800 p-5 shadow-md">
 			<h1>로그인 이메일 등록</h1>
 
-			<div className={profileUpdateForm}>
+			<div className="flex flex-col gap-2.5">
 				<EmailForm
 					email={email.value}
 					onChange={handleEmailChange}
@@ -178,9 +184,9 @@ const EmailRegistration: FC = () => {
 					<ErrorMessageForm>{errorMessage}</ErrorMessageForm>
 				)}
 
-				<div className={buttonsWrapper}>
+				<div className="flex w-full flex-row justify-between gap-2.5">
 					<button
-						className={cancleButton}
+						className="my-3 h-[50px] w-full cursor-pointer rounded-md bg-gray-600 p-0 text-white hover:brightness-75"
 						onClick={handleCancle}
 					>
 						취소
@@ -188,8 +194,8 @@ const EmailRegistration: FC = () => {
 					<SubmitButton
 						className={
 							btnApply
-								? applySubmitButtonStyle
-								: submitButtonStyle
+								? `my-4 h-[50px] w-full cursor-pointer rounded-[6px] border border-[#444] bg-green-600 p-0 text-center text-base text-white transition-opacity duration-200 hover:bg-[#666] hover:opacity-90`
+								: `my-4 h-[50px] w-full cursor-pointer rounded-[6px] border border-[#444] bg-[#555] p-0 text-center text-base text-white transition-opacity duration-200 hover:bg-[#666] hover:opacity-90`
 						}
 						onClick={handleSubmit}
 						apply={btnApply}

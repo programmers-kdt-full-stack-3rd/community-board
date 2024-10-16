@@ -25,15 +25,16 @@ const UpsertPostPage: React.FC = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const queryParams = new URLSearchParams(location.search);
-	const categoryId =
-		parseInt(queryParams.get("category_id") ?? "", 10) || undefined;
+	const categoryId = parseInt(queryParams.get("category_id") ?? "", 10) || 1;
 	const postId = queryParams.get("postId") || "";
 	const originalTitle = queryParams.get("title") || "";
 	const originalContent = queryParams.get("content") || "";
 	const isModification = postId;
 
 	const errorModal = useGlobalErrorModal();
-	const { currentCategory } = useCategory(categoryId);
+	const { currentCategory } = useCategory(
+		isModification ? undefined : categoryId
+	);
 
 	const [title, setTitle] = useState<string>(originalTitle);
 	const [content, setContent] = useState<string>(originalContent);
@@ -181,7 +182,7 @@ const UpsertPostPage: React.FC = () => {
 				</span>
 
 				<span className="mb-5 ml-5 mt-1 text-sm text-gray-200">
-					{currentCategory
+					{currentCategory && !isModification
 						? `“${currentCategory.name}”에 새 게시글을 작성합니다.`
 						: `“${originalTitle}” 게시글을 수정합니다.`}
 				</span>
@@ -226,6 +227,7 @@ const UpsertPostPage: React.FC = () => {
 					quillRef={quillRef}
 					content={content}
 					setContent={setContent}
+					categoryId={categoryId}
 				/>
 			</div>
 

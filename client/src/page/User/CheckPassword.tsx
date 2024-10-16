@@ -14,6 +14,7 @@ import { ClientError } from "../../api/errors";
 import { ApiCall } from "../../api/api";
 import OAuthLoginButtons from "../../component/User/OAuthLoginButtons";
 import ConfirmModal from "../../component/common/Modal/ConfirmModal";
+import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
 
 const CheckPassword: FC = () => {
 	const navigate = useNavigate();
@@ -28,6 +29,7 @@ const CheckPassword: FC = () => {
 	const { setLogoutUser } = useUserStore.use.actions();
 	const isEmailRegistered = useUserStore.use.isEmailRegistered();
 
+	const globalErrorModal = useGlobalErrorModal();
 	const accountDeleteModal = useModal();
 
 	useLayoutEffect(() => {
@@ -42,24 +44,36 @@ const CheckPassword: FC = () => {
 
 	const handleSubmit = async () => {
 		if (!password) {
-			alert("비밀번호를 입력하세요.");
+			globalErrorModal.open({
+				title: "오류",
+				message: "비밀번호를 입력하세요.",
+			});
 			return;
 		}
 		if (REGEX.PASSWORD.test(password) === false) {
-			alert("비밀번호가 일치하지 않습니다.");
+			globalErrorModal.open({
+				title: "오류",
+				message: "비밀번호가 일치하지 않습니다.",
+			});
 			setPassword("");
 			return;
 		}
 
 		const errorHandle = (err: ClientError) => {
 			if (err.code === 400) {
-				alert("비밀번호가 일치하지 않습니다.");
+				globalErrorModal.open({
+					title: "오류",
+					message: "비밀번호가 일치하지 않습니다.",
+				});
 				setPassword("");
 				return;
 			}
 
 			if (err.code === 401) {
-				alert("로그인이 필요합니다.");
+				globalErrorModal.open({
+					title: "오류",
+					message: "로그인이 필요합니다.",
+				});
 				navigate("/login");
 				return;
 			}
@@ -75,7 +89,10 @@ const CheckPassword: FC = () => {
 		}
 
 		if (!next) {
-			alert("비밀번호 재확인 이후 진행할 동작이 없습니다.");
+			globalErrorModal.open({
+				title: "오류",
+				message: "비밀번호 재확인 이후 진행할 동작이 없습니다.",
+			});
 			navigate("/");
 			return;
 		} else if (next === "accountDelete") {
@@ -88,7 +105,10 @@ const CheckPassword: FC = () => {
 
 	const handleAccountDeleteAccept = async () => {
 		const errorHandle = () => {
-			alert("회원 탈퇴에 실패했습니다.");
+			globalErrorModal.open({
+				title: "오류",
+				message: "회원 탈퇴에 실패했습니다.",
+			});
 			navigate(`/`);
 			return;
 		};
@@ -103,7 +123,11 @@ const CheckPassword: FC = () => {
 		}
 
 		accountDeleteModal.close();
-		alert("회원 탈퇴가 완료되었습니다.");
+		globalErrorModal.open({
+			variant: "warning",
+			title: "회원 탈퇴 완료",
+			message: "회원 탈퇴를 완료했습니다.",
+		});
 
 		setLogoutUser();
 		navigate(`/`);

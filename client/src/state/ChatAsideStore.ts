@@ -10,12 +10,14 @@ export enum ChatAsideCategory {
 interface IChatAsideState {
 	isOpen: boolean;
 	category: ChatAsideCategory;
+	chatModalContainer: Element | null;
 }
 
 interface IChatAsideActions {
 	open: () => void;
 	close: () => void;
 	setCategory: (category: ChatAsideCategory) => void;
+	setChatModalContainer: (element: Element | null) => void;
 }
 
 export interface TChatAsideStore extends IChatAsideState, IChatAsideActions {}
@@ -30,15 +32,19 @@ export const useChatAside = create<TChatAsideStore>(
 		set => ({
 			isOpen: false,
 			category: ChatAsideCategory.SEARCH,
+			chatModalContainer: null,
 			open: () => set(() => ({ isOpen: true })),
 			close: () => set(() => ({ isOpen: false })),
 			setCategory: category => set(() => ({ category: category })),
+			setChatModalContainer: element =>
+				set(() => ({ chatModalContainer: element })),
 		}),
 		{
 			name: "ChatAsideStore",
 			partialize: state => ({
 				isOpen: state.isOpen,
 				category: state.category,
+				chatModalContainer: null,
 			}),
 		}
 	)

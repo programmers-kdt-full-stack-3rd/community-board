@@ -1,12 +1,11 @@
 import { FC, ReactNode } from "react";
-import { errorMessageStyle } from "./css/errorMessage.css";
 
 interface IErrorMessageFormProps {
 	children: ReactNode;
 }
 
 const ErrorMessageForm: FC<IErrorMessageFormProps> = ({ children }) => {
-	return <div className={errorMessageStyle}>{children}</div>;
+	return <div className="w-full text-left text-red-500">{children}</div>;
 };
 
 export default ErrorMessageForm;

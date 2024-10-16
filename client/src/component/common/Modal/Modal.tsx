@@ -13,6 +13,8 @@ export interface IModalRootProps {
 	children: React.ReactNode;
 	variant?: TModalVariant;
 	isOpen?: boolean;
+	/** @property 기본값: `#modal-root`에 해당하는 엘리먼트 */
+	container?: Element;
 	onClose?: () => void;
 }
 
@@ -42,6 +44,7 @@ const ModalRoot: React.FC<IModalRootProps> = ({
 	children,
 	variant = "base",
 	isOpen,
+	container = modalRootElement,
 	onClose,
 }) => {
 	const contextValue: IModalContextValue = useMemo(
@@ -62,7 +65,14 @@ const ModalRoot: React.FC<IModalRootProps> = ({
 			{isOpen &&
 				createPortal(
 					<ModalContext.Provider value={contextValue}>
-						<div className="fixed inset-0 z-50 flex h-full w-full items-center justify-center bg-black/50">
+						<div
+							className={clsx(
+								"inset-0 z-50 flex h-full w-full items-center justify-center bg-black/50",
+								container === modalRootElement
+									? "fixed"
+									: "absolute"
+							)}
+						>
 							<div
 								className="absolute inset-0 -z-10 h-full w-full"
 								onClick={handleClose}
@@ -72,7 +82,7 @@ const ModalRoot: React.FC<IModalRootProps> = ({
 							</section>
 						</div>
 					</ModalContext.Provider>,
-					modalRootElement
+					container
 				)}
 		</>
 	);

@@ -1,7 +1,12 @@
 import clsx from "clsx";
 import React from "react";
 
-export type TButtonColor = "primary" | "action" | "neutral" | "danger";
+export type TButtonColor =
+	| "primary"
+	| "action"
+	| "neutral"
+	| "danger"
+	| "disabled";
 export type TButtonVariant = "solid" | "outline" | "text";
 export type TButtonSize = "small" | "medium" | "large";
 
@@ -47,6 +52,12 @@ const Button: React.FC<IButtonProps> = ({
 			outline:
 				"border border-red-600 text-red-600 hover:bg-red-600 hover:text-white",
 			text: "text-red-600 hover:bg-red-100",
+		},
+		disabled: {
+			solid: "bg-gray-500 text-white hover:bg-gray-400",
+			outline:
+				"border border-gray-600 text-gray-600 hover:bg-gray-600 hover:text-white",
+			text: "text-gray-600 hover:bg-gray-100",
 		},
 	};
 

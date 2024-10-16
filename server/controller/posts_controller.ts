@@ -22,12 +22,14 @@ export interface IReadPostRequest {
 	perPage: number;
 	keyword?: string;
 	sortBy?: SortBy;
+	category_id?: number;
 }
 
 export interface ICreatePostRequest {
 	title: string;
 	content: string;
 	author_id: number;
+	category_id: number;
 }
 
 export interface IUpdatePostRequest {
@@ -47,6 +49,7 @@ export const handlePostsRead = async (
 			perPage: parseInt(req.query.perPage as string) || 10,
 			keyword: (req.query.keyword as string) || undefined,
 			sortBy: parseInt(req.query.sortBy as string) || undefined,
+			category_id: parseInt(req.query.category_id as string) || 1,
 		};
 
 		const userId = req.userId;
@@ -90,6 +93,7 @@ export const handlePostCreate = async (
 			title: req.body.title,
 			content: req.body.content,
 			author_id: req.userId,
+			category_id: req.body.category_id || 1,
 		};
 
 		// 필터링

@@ -9,20 +9,14 @@ import {
 	fetchCommentRank,
 	fetchPostRank,
 } from "../../../api/Rank/rank_crud";
-import {
-	TopPostsRes,
-	TopCommentsRes,
-	TopActivitiesRes,
-} from "../../../../../nestjs-migration/dist/rank/dto/rank-results.dto";
+import { ITopPosts, ITopComments, ITopActivities } from "shared";
 import { ApiCall } from "../../../api/api";
 import { ClientError } from "../../../api/errors";
 
 export const UserRank = () => {
-	const [postRank, setPostRank] = useState<TopPostsRes[]>([]);
-	const [commentRank, setCommentRank] = useState<TopCommentsRes[]>([]);
-	const [activitiesRank, setActivitiesRank] = useState<TopActivitiesRes[]>(
-		[]
-	);
+	const [postRank, setPostRank] = useState<ITopPosts[]>([]);
+	const [commentRank, setCommentRank] = useState<ITopComments[]>([]);
+	const [activitiesRank, setActivitiesRank] = useState<ITopActivities[]>([]);
 
 	useEffect(() => {
 		const fetchData = async () => {

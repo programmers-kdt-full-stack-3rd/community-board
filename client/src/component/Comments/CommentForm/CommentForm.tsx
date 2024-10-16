@@ -1,8 +1,8 @@
 import { ChangeEvent, FormEvent, useCallback, useState } from "react";
 import { useUserStore } from "../../../state/store";
-import { commentFormContainer, footer } from "./CommentForm.css";
 import Textarea from "../../common/Textarea";
 import Button from "../../common/Button";
+import { useGlobalErrorModal } from "../../../state/GlobalErrorModalStore";
 
 interface ICommentFormProps {
 	defaultContent?: string;
@@ -17,6 +17,7 @@ const CommentForm = ({
 	onSubmit,
 	onCancel,
 }: ICommentFormProps) => {
+	const globalErrorModal = useGlobalErrorModal();
 	const isLogin = useUserStore(state => state.isLogin);
 
 	const [content, setContent] = useState(defaultContent || "");
@@ -27,7 +28,10 @@ const CommentForm = ({
 
 			const trimmedContent = content.trim();
 			if (!trimmedContent) {
-				alert("댓글 내용을 입력하세요.");
+				globalErrorModal.open({
+					title: "오류",
+					message: "댓글 내용을 입력하세요.",
+				});
 				return;
 			}
 
@@ -54,7 +58,7 @@ const CommentForm = ({
 
 	return (
 		<form
-			className={commentFormContainer}
+			className="box-border flex w-full flex-col items-stretch gap-2"
 			onSubmit={handleFormSubmit}
 		>
 			<Textarea
@@ -65,7 +69,7 @@ const CommentForm = ({
 				onChange={handleContentChange}
 			/>
 
-			<div className={footer}>
+			<div className="flex items-start justify-end gap-2">
 				<Button
 					className="mb-2"
 					type="submit"

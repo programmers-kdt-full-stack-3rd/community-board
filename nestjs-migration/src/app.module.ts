@@ -30,6 +30,7 @@ import { UserModule } from "./user/user.module";
 import { CouponModule } from "./coupon/coupon.module";
 import { RedisModule } from "./redis/redis.module";
 import { EventEmitterModule } from "@nestjs/event-emitter";
+import { ImageModule } from "./image/image.module";
 
 @Module({
 	imports: [
@@ -77,6 +78,7 @@ import { EventEmitterModule } from "@nestjs/event-emitter";
 		RankModule,
 		CouponModule,
 		RedisModule,
+		ImageModule,
 	],
 	controllers: [AppController],
 	providers: [

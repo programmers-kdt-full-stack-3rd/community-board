@@ -14,6 +14,8 @@ import {
 } from "../../../api/admin/post_crud";
 import TextInput from "../../common/TextInput";
 import Button from "../../common/Button";
+import { useModal } from "../../../hook/useModal";
+import ConfirmModal from "../../common/Modal/ConfirmModal";
 
 const PostList = () => {
 	const initialPage = 1;
@@ -24,6 +26,12 @@ const PostList = () => {
 	});
 	const [currentPage, setCurrentPage] = useState<number>(initialPage);
 	const [keyword, setKeyword] = useState<string>("");
+
+	const confirmModal = useModal();
+	const [confirmModalDetails, setConfirmModalDetails] = useState({
+		content: "",
+		updateFunction: async () => {},
+	});
 
 	const fetchPosts = () => {
 		ApiCall(
@@ -56,12 +64,31 @@ const PostList = () => {
 	};
 
 	const handlePostUpdate = async (updateFunction: () => Promise<void>) => {
+		confirmModal.close();
+		setConfirmModalDetails({
+			content: "",
+			updateFunction: async () => {},
+		});
+
 		await updateFunction();
 		fetchPosts();
 	};
 
 	return (
 		<div className="mx-auto mt-2 w-full max-w-7xl px-4 lg:mt-[18px] lg:px-0">
+			<ConfirmModal
+				isOpen={confirmModal.isOpen}
+				onAccept={() =>
+					handlePostUpdate(confirmModalDetails.updateFunction)
+				}
+				onClose={confirmModal.close}
+			>
+				<ConfirmModal.Title>동작 확인</ConfirmModal.Title>
+				<ConfirmModal.Body>
+					{confirmModalDetails.content}
+				</ConfirmModal.Body>
+			</ConfirmModal>
+
 			<div className="mb-6 flex flex-row items-center justify-between">
 				<h2 className="text-xl font-bold">게시물 목록</h2>
 
@@ -101,10 +128,15 @@ const PostList = () => {
 					posts.postHeaders.map(post => (
 						<div key={post.id}>
 							<div className="my-2 grid w-full grid-cols-[3fr_4fr_2fr_1fr_1fr] items-center">
-								<Link to={`/post/${post.id}`}>
+								<Link
+									to={`/post/${post.id}`}
+									className="break-words break-all"
+								>
 									{post.title}
 								</Link>
-								<div>{post.author}</div>
+								<div className="break-words break-all">
+									{post.author}
+								</div>
 								<div>
 									{dateToStr(new Date(post.createdAt), true)}
 								</div>
@@ -114,17 +146,15 @@ const PostList = () => {
 											color="neutral"
 											variant="solid"
 											onClick={() => {
-												if (
-													window.confirm(
-														"해당 게시물을 공개하시겠습니까?"
-													)
-												) {
-													handlePostUpdate(() =>
+												setConfirmModalDetails({
+													content:
+														"해당 게시물을 공개하시겠습니까?",
+													updateFunction: () =>
 														handleAdminPostPublic(
 															post.id
-														)
-													);
-												}
+														),
+												});
+												confirmModal.open();
 											}}
 										>
 											공개
@@ -134,17 +164,15 @@ const PostList = () => {
 											color="action"
 											variant="solid"
 											onClick={() => {
-												if (
-													window.confirm(
-														"해당 게시물을 비공개하시겠습니까?"
-													)
-												) {
-													handlePostUpdate(() =>
+												setConfirmModalDetails({
+													content:
+														"해당 게시물을 비공개하시겠습니까?",
+													updateFunction: () =>
 														handleAdminPostPrivate(
 															post.id
-														)
-													);
-												}
+														),
+												});
+												confirmModal.open();
 											}}
 										>
 											비공개
@@ -157,17 +185,15 @@ const PostList = () => {
 											color="neutral"
 											variant="solid"
 											onClick={() => {
-												if (
-													window.confirm(
-														"해당 게시물을 복구하시겠습니까?"
-													)
-												) {
-													handlePostUpdate(() =>
+												setConfirmModalDetails({
+													content:
+														"해당 게시물을 복구하시겠습니까?",
+													updateFunction: () =>
 														handleRestoreAdminPost(
 															post.id
-														)
-													);
-												}
+														),
+												});
+												confirmModal.open();
 											}}
 										>
 											복구
@@ -177,17 +203,15 @@ const PostList = () => {
 											color="danger"
 											variant="solid"
 											onClick={() => {
-												if (
-													window.confirm(
-														"해당 게시물을 삭제하시겠습니까?"
-													)
-												) {
-													handlePostUpdate(() =>
+												setConfirmModalDetails({
+													content:
+														"해당 게시물을 삭제하시겠습니까?",
+													updateFunction: () =>
 														handleDeleteAdminPost(
 															post.id
-														)
-													);
-												}
+														),
+												});
+												confirmModal.open();
 											}}
 										>
 											삭제
