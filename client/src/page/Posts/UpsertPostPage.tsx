@@ -32,7 +32,9 @@ const UpsertPostPage: React.FC = () => {
 	const isModification = postId;
 
 	const errorModal = useGlobalErrorModal();
-	const { currentCategory } = useCategory(categoryId);
+	const { currentCategory } = useCategory(
+		isModification ? undefined : categoryId
+	);
 
 	const [title, setTitle] = useState<string>(originalTitle);
 	const [content, setContent] = useState<string>(originalContent);
@@ -180,7 +182,7 @@ const UpsertPostPage: React.FC = () => {
 				</span>
 
 				<span className="mb-5 ml-5 mt-1 text-sm text-gray-200">
-					{currentCategory
+					{currentCategory && !isModification
 						? `“${currentCategory.name}”에 새 게시글을 작성합니다.`
 						: `“${originalTitle}” 게시글을 수정합니다.`}
 				</span>
