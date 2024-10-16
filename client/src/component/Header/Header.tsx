@@ -111,7 +111,8 @@ const Header: React.FC = () => {
 						<div className="hidden overflow-hidden whitespace-nowrap text-white hover:text-gray-300 sm:flex sm:items-center sm:gap-x-4 xl:gap-x-6">
 							{headerCategories.map(category => (
 								<Link
-									to={`/category/${category.subPath}`}
+									key={category.id}
+									to={category.path}
 									className="text-white hover:text-gray-300"
 								>
 									{category.name}
