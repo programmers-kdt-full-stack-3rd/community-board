@@ -146,8 +146,14 @@ export class ChatController {
 
 			return { roomId: result };
 		} catch (err) {
-			console.log(err);
-			throw ServerError.reference(CHAT_ERROR_MESSAGES.ROOM_JOIN_ERROR);
+			let errorMessage: string = "";
+
+			if (err.message.includes("Duplicate")) {
+				errorMessage = CHAT_ERROR_MESSAGES.ALREADY_MEMBER;
+			} else {
+				errorMessage = CHAT_ERROR_MESSAGES.ROOM_JOIN_ERROR;
+			}
+			throw ServerError.reference(errorMessage);
 		}
 	}
 

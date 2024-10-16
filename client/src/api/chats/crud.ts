@@ -16,8 +16,15 @@ export const sendGetRoomMembersRequest = async (roomId: number) => {
 	return await httpRequest(url, HttpMethod.GET);
 };
 
-export const sendJoinRoomRequest = async (roomId: number) => {
-	const requestBody = convertToBody({ roomId: roomId });
+interface IJoinRoomRequest {
+	roomId: number;
+	isPrivate: boolean;
+	password: string;
+	nickname?: string;
+}
+
+export const sendJoinRoomRequest = async (body: IJoinRoomRequest) => {
+	const requestBody = convertToBody(body);
 	const url = `chat/join`;
 	return await httpRequest(url, HttpMethod.POST, requestBody);
 };

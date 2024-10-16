@@ -123,8 +123,14 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 			return;
 		}
 
+		const body = {
+			roomId: roomId,
+			isPrivate: false,
+			password: "",
+		};
+
 		const result = await ApiCall(
-			() => sendJoinRoomRequest(roomId),
+			() => sendJoinRoomRequest(body),
 			err => {
 				globalErrorModal.openWithMessageSplit({
 					messageWithTitle: err.message,
@@ -135,6 +141,8 @@ const PostInfo: React.FC<IPostInfoProps> = ({ postInfo }) => {
 		if (result instanceof Error) {
 			return;
 		}
+
+		joinSuccessModal.open();
 	};
 
 	return (
