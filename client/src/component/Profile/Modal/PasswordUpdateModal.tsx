@@ -72,7 +72,7 @@ const PasswordUpdateModal: React.FC<Props> = ({ close }) => {
 					}}
 				/>
 			</div>
-			<div className="m-5 flex h-full w-full flex-col flex-wrap items-center gap-4">
+			<div className="my-5 flex h-full w-full flex-col flex-wrap items-center gap-4 px-5">
 				<div className="flex w-full flex-col">
 					<TextInput
 						label={"현재 비밀번호"}
