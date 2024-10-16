@@ -175,6 +175,7 @@ const PostInfo: React.FC = () => {
 							{isAuthor && !isAcceptedQna ? (
 								<>
 									<Button
+										className="dark:text-white"
 										size="small"
 										onClick={handleUpdate}
 										variant="text"

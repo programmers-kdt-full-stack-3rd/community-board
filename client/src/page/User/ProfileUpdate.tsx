@@ -1,12 +1,7 @@
 import { ChangeEvent, FC, useMemo, useState } from "react";
 import NicknameForm from "../../component/User/NicknameForm";
 import PasswordForm from "../../component/User/PasswordForm";
-import {
-	buttonsWrapper,
-	cancleButton,
-	profileUpdateForm,
-	profileUpdateWrapper,
-} from "./ProfileUpdate.css";
+
 import SubmitButton from "../../component/User/SubmitButton";
 import { ERROR_MESSAGE, REGEX } from "./constants/constants";
 import ErrorMessageForm from "../../component/User/ErrorMessageForm";
@@ -16,10 +11,6 @@ import { useUserStore } from "../../state/store";
 import { ApiCall } from "../../api/api";
 import { ClientError } from "../../api/errors";
 import { useStringWithValidation } from "../../hook/useStringWithValidation";
-import {
-	applySubmitButtonStyle,
-	submitButtonStyle,
-} from "../../component/User/css/SubmitButton.css";
 import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
 
 interface IProfileUpdatePayload {
@@ -180,10 +171,10 @@ const ProfileUpdate: FC = () => {
 	};
 
 	return (
-		<div className={profileUpdateWrapper}>
+		<div className="mx-auto w-full max-w-[350px] rounded-lg bg-gray-800 p-5 shadow-md">
 			<h1>유저 정보 수정</h1>
 
-			<div className={profileUpdateForm}>
+			<div className="flex flex-col gap-2.5">
 				<NicknameForm
 					labelText="변경할 닉네임"
 					nickname={nickname.value}
@@ -216,9 +207,9 @@ const ProfileUpdate: FC = () => {
 					<ErrorMessageForm>{errorMessage}</ErrorMessageForm>
 				)}
 
-				<div className={buttonsWrapper}>
+				<div className="flex w-full flex-row justify-between gap-2.5">
 					<button
-						className={cancleButton}
+						className="my-3 h-[50px] w-full cursor-pointer rounded-md bg-gray-600 p-0 text-white hover:brightness-75"
 						onClick={handleCancle}
 					>
 						취소
@@ -226,8 +217,8 @@ const ProfileUpdate: FC = () => {
 					<SubmitButton
 						className={
 							btnApply
-								? applySubmitButtonStyle
-								: submitButtonStyle
+								? `my-4 h-[50px] w-full cursor-pointer rounded-[6px] border border-[#444] bg-green-600 p-0 text-center text-base text-white transition-opacity duration-200 hover:bg-green-700 hover:opacity-90`
+								: `my-4 h-[50px] w-full cursor-pointer rounded-[6px] border border-[#444] bg-[#555] p-0 text-center text-base text-white transition-opacity duration-200 hover:bg-[#666] hover:opacity-90`
 						}
 						onClick={handleSubmit}
 						apply={btnApply}

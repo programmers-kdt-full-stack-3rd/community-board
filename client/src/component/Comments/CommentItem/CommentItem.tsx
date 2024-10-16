@@ -191,6 +191,7 @@ const CommentItem: React.FC<ICommentItemProps> = ({
 						{comment.is_author && !isEditMode && !isLocked && (
 							<>
 								<Button
+									className="dark:text-white"
 									size="small"
 									variant="text"
 									onClick={handleEditModeToggle}

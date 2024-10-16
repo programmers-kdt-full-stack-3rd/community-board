@@ -5,17 +5,13 @@ import Pagination from "../../component/common/Pagination/Pagination";
 import PostList from "../../component/Posts/PostList/PostList";
 import SearchForm from "../../component/common/SearchForm/SearchForm";
 import { useUserStore } from "../../state/store";
-import {
-	createPostButtonWrapper,
-	mainPageStyle,
-	postListActions,
-} from "../Main/Main.css";
 import { UserRank } from "../../component/Posts/Rank/UserRank";
 import { useNavigate } from "react-router-dom";
 import useParsedSearchParams from "../../hook/useParsedSearchParams";
 import useCategory from "../../hook/useCategory";
 import usePostList from "../../hook/usePostList";
 import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
+import { Coupon } from "../../component/Coupon/coupon";
 
 interface IProps {
 	categoryId?: number;
@@ -85,9 +81,12 @@ const Community: React.FC<IProps> = ({ categoryId }) => {
 		<div>
 			<div className="mx-auto mt-2 w-full max-w-7xl px-4 lg:mt-[18px] lg:px-0">
 				<div className="ml-4 flex lg:space-x-10">
-					<UserRank />
+					<div className="flex flex-col gap-2">
+						<UserRank />
+						<Coupon />
+					</div>
 
-					<div className={mainPageStyle}>
+					<div className="flex w-[800px] flex-col items-stretch gap-4">
 						<div className="dark:bg-customGray relative mt-4 flex flex-col justify-between rounded-lg bg-blue-900 text-left">
 							<span className="ml-5 mt-5 text-lg font-bold text-white">
 								{currentCategory?.name ?? "모든 글 모아 보기"}
@@ -106,9 +105,9 @@ const Community: React.FC<IProps> = ({ categoryId }) => {
 								onSubmit={handleSearchSubmit}
 							/>
 
-							<div className={postListActions}>
+							<div className="flex flex-col gap-2">
 								{isLogin && currentCategory && (
-									<div className={createPostButtonWrapper}>
+									<div className="flex justify-end">
 										<button
 											className="dark:bg-customGray bg-blue-900 text-white"
 											onClick={handleCreatePostClick}
