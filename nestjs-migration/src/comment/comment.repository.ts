@@ -134,12 +134,12 @@ export class CommentRepository extends Repository<Comment> {
 
 	async getTopComments() {
 		const queryBuilder = this.createQueryBuilder("comment")
-			.leftJoin("comment.author", "user")
+			.innerJoin("comment.author", "user")
 			.leftJoin("comment.comment_likes", "cl")
-			.leftJoin("comment.post", "post")
+			.innerJoin("comment.post", "post")
 			.select([
 				"user.nickname as nickname",
-				"COUNT(*) as likeCount",
+				"COALESCE(COUNT(cl.id), 0) as likeCount",
 				"comment.id as commentId",
 				"post.id as postId",
 			])
