@@ -28,7 +28,7 @@ export class CouponController {
 	}
 
 	@UseGuards(LoginGuard)
-	@Post("")
+	@Post("/")
 	@HttpCode(HttpStatus.OK)
 	async handleCoupon(
 		@Body() body: { couponId: number },
