@@ -31,6 +31,7 @@ export class MemberRepository extends Repository<Member> {
 				"m.id as member_id",
 				"u.nickname as nickname",
 				"u.img_url as img_url",
+				"m.is_host as is_host",
 			]);
 
 		const roomMembers = await queryBuilder.getRawMany();

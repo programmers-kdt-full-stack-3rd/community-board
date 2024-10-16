@@ -14,5 +14,6 @@ export const mapDBToIRoomMember = (dbData: any): IRoomMember => {
 		memberId: dbData.member_id,
 		imgUrl: dbData.img_url ? dbData.img_url : "",
 		nickname: dbData.nickname,
+		isHost: dbData.is_host,
 	};
 };

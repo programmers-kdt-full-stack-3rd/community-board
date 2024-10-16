@@ -41,12 +41,8 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 	const [myMemberId, setMyMemberId] = useState<number>(0);
 
 	const [roomMembers, setRoomMembers] = useState<IRoomMember[]>([
-		{ memberId: 1, nickname: "123" },
-		{ memberId: 1, nickname: "123" },
-		{ memberId: 1, nickname: "123" },
-		{ memberId: 1, nickname: "123" },
-		{ memberId: 1, nickname: "123" },
-		{ memberId: 1, nickname: "123" },
+		{ memberId: 1, nickname: "123", isHost: true },
+		{ memberId: 1, nickname: "123", isHost: false },
 	]);
 
 	// chatroom aside
@@ -102,8 +98,8 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 			socket.emit(
 				"enter_room",
 				roomId,
-				(response: { myMemberId: number; messageLogs: IMessage[] }) => {
-					setMyMemberId(response.myMemberId);
+				(response: { memberId: number; messageLogs: IMessage[] }) => {
+					setMyMemberId(response.memberId);
 					const msgs = response.messageLogs.map(message => {
 						return strToDate(message);
 					});
@@ -147,6 +143,8 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 	};
 
 	const chatInputClick = () => {
+		console.log("memberId:", myMemberId);
+
 		if (!message.length || chatLoading) {
 			return;
 		}
@@ -160,6 +158,8 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 			isMine: true,
 			isSystem: false,
 		};
+
+		console.log("before send :", msg);
 
 		setChatLoading(true);
 
@@ -243,6 +243,8 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 					}}
 					members={roomMembers}
 					roomId={roomId}
+					myMemberId={myMemberId}
+					goBack={backBtnClick}
 				/>
 			)}
 			<ChatRoomHeader

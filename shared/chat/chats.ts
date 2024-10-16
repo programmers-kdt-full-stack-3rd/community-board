@@ -22,6 +22,7 @@ export interface IRoomMember {
 	memberId: number;
 	imgUrl?: string;
 	nickname: string;
+	isHost: boolean; //
 }
 
 // socket, kafka DTO ---------------------------------

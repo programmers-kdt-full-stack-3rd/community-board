@@ -4,12 +4,19 @@ import profileIcon from "../../../../assets/icons/profile-icon.svg";
 import { Link } from "react-router-dom";
 import { useChatAside } from "../../../../state/ChatAsideStore";
 import { FiX } from "react-icons/fi";
+import AlertModal from "../../../common/Modal/AlertModal";
+import { useModal } from "../../../../hook/useModal";
+import { ApiCall } from "../../../../api/api";
+import { sendLeaveRoomRequest } from "../../../../api/chats/crud";
+import { ClientError } from "../../../../api/errors";
 
 interface Props {
 	title: string;
 	sideBarClose: () => void;
 	members: IRoomMember[];
 	roomId: number;
+	myMemberId: number;
+	goBack: () => void;
 }
 
 export const ChatRoomSideBar: React.FC<Props> = ({
@@ -17,7 +24,10 @@ export const ChatRoomSideBar: React.FC<Props> = ({
 	sideBarClose,
 	members,
 	roomId,
+	myMemberId,
+	goBack,
 }) => {
+	const alertModal = useModal();
 	const { close } = useChatAside();
 
 	const renderMembers = () => {
@@ -42,8 +52,43 @@ export const ChatRoomSideBar: React.FC<Props> = ({
 		));
 	};
 
+	const handleLeaveRoom = async () => {
+		members.forEach(member => {
+			if (member.memberId === myMemberId && member.isHost === true) {
+				alertModal.open();
+				return;
+			}
+		});
+
+		/*
+            roomId, memberId -> roomId, myMemberId, user_id 일치하는 user 삭제
+            방장이면 삭제 x
+
+            나가기 성공 -> 채팅방 aside에서 이전 페이지로 감
+        */
+
+		const result = await ApiCall(
+			() => sendLeaveRoomRequest(roomId),
+			() => {}
+		);
+
+		if (result instanceof ClientError) {
+			return;
+		}
+
+		goBack();
+	};
+
 	return (
 		<>
+			<AlertModal
+				isOpen={alertModal.isOpen}
+				onClose={alertModal.close}
+				variant="info"
+			>
+				<AlertModal.Title>안내</AlertModal.Title>
+				<AlertModal.Body>방장은 탈퇴할 수 없습니다.</AlertModal.Body>
+			</AlertModal>
 			<div
 				className="absolute right-[-15px] top-[-20px] z-10 h-[500px] w-[400px] bg-black bg-opacity-50"
 				onClick={sideBarClose}
@@ -81,7 +126,7 @@ export const ChatRoomSideBar: React.FC<Props> = ({
 				</Link>
 				<div
 					className="flex h-[50px] w-[310px] cursor-pointer items-center justify-center bg-red-500 font-extrabold text-white"
-					onClick={() => {}}
+					onClick={handleLeaveRoom}
 				>
 					방 나가기
 				</div>

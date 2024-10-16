@@ -28,3 +28,9 @@ export const sendJoinRoomRequest = async (body: IJoinRoomRequest) => {
 	const url = `chat/join`;
 	return await httpRequest(url, HttpMethod.POST, requestBody);
 };
+
+export const sendLeaveRoomRequest = async (roomId: number) => {
+	const requestBody = convertToBody({ roomId: roomId });
+	const url = `chat/leave`;
+	return await httpRequest(url, HttpMethod.POST, requestBody);
+};
