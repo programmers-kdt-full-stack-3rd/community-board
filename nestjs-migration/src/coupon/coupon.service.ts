@@ -54,7 +54,7 @@ export class CouponService {
 			const couponCount = await this.redisRepository.getStock(couponId);
 
 			if (couponCount < 1) {
-				throw ServerError.reference("쿠폰이 모두 소진되었습니다");
+				throw ServerError.etcError(409, "쿠폰이 모두 소진되었습니다");
 			}
 
 			const dupCheck = await this.redisRepository.checkDupCoupon(
@@ -62,7 +62,7 @@ export class CouponService {
 				couponId
 			);
 			if (dupCheck) {
-				throw ServerError.reference("이미 발급 받았습니다");
+				throw ServerError.etcError(409, "이미 발급 받았습니다");
 			}
 
 			await this.redisRepository.saveLogToRedis(userId, couponId);

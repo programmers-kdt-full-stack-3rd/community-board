@@ -19,7 +19,7 @@ export class CouponController {
 
 	@UseGuards(LoginGuard)
 	@Post("")
-	@HttpCode(HttpStatus.CREATED)
+	@HttpCode(HttpStatus.OK)
 	async handleCoupon(
 		@Body() body: { couponId: number },
 		@User() user: IUserEntity
