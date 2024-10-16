@@ -2,11 +2,6 @@ import { useEffect, useState } from "react";
 import Confetti from "../../component/common/Confetti/Confetti";
 import { FaCrown, FaUserCircle } from "react-icons/fa";
 import {
-	TopPostsRes,
-	TopCommentsRes,
-	TopActivitiesRes,
-} from "../../../../nestjs-migration/dist/rank/dto/rank-results.dto";
-import {
 	fetchActivitiesRank,
 	fetchCommentRank,
 	fetchPostRank,
@@ -14,16 +9,15 @@ import {
 import { Link } from "react-router-dom";
 import { ApiCall } from "../../api/api";
 import { ClientError } from "../../api/errors";
+import { ITopPosts, ITopComments, ITopActivities } from "shared";
 
 const buttons = ["Activity Ranking", "Post Ranking", "Comment Ranking"];
 
 export const Rank = () => {
 	const [active, setActive] = useState(0);
-	const [postRank, setPostRank] = useState<TopPostsRes[]>([]);
-	const [commentRank, setCommentRank] = useState<TopCommentsRes[]>([]);
-	const [activitiesRank, setActivitiesRank] = useState<TopActivitiesRes[]>(
-		[]
-	);
+	const [postRank, setPostRank] = useState<ITopPosts[]>([]);
+	const [commentRank, setCommentRank] = useState<ITopComments[]>([]);
+	const [activitiesRank, setActivitiesRank] = useState<ITopActivities[]>([]);
 	const [loading, setLoading] = useState(true);
 
 	const fetchData = async () => {
@@ -61,9 +55,7 @@ export const Rank = () => {
 		fetchData();
 	}, []);
 
-	const getScore = (
-		rank: TopActivitiesRes | TopPostsRes | TopCommentsRes
-	) => {
+	const getScore = (rank: ITopActivities | ITopPosts | ITopComments) => {
 		if ("postCount" in rank && "commentCount" in rank) {
 			return rank.postCount + rank.commentCount;
 		} else if ("likeCount" in rank) {
@@ -190,7 +182,7 @@ export const Rank = () => {
 		return <div>잠시만 기다려 주세요...</div>;
 	}
 
-	let activeData: TopActivitiesRes[] | TopPostsRes[] | TopCommentsRes[];
+	let activeData: ITopActivities[] | ITopPosts[] | ITopComments[];
 	if (active === 0) {
 		activeData = activitiesRank;
 	} else if (active === 1) {
