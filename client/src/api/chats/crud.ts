@@ -15,3 +15,9 @@ export const sendGetRoomMembersRequest = async (roomId: number) => {
 	const url = `chat/members/${roomId}`;
 	return await httpRequest(url, HttpMethod.GET);
 };
+
+export const sendJoinRoomRequest = async (roomId: number) => {
+	const requestBody = convertToBody({ roomId: roomId });
+	const url = `chat/join`;
+	return await httpRequest(url, HttpMethod.POST, requestBody);
+};

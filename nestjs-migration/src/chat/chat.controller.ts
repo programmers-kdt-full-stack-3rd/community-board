@@ -146,6 +146,7 @@ export class ChatController {
 
 			return { roomId: result };
 		} catch (err) {
+			console.log(err);
 			throw ServerError.reference(CHAT_ERROR_MESSAGES.ROOM_JOIN_ERROR);
 		}
 	}

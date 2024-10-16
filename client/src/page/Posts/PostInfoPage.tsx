@@ -26,6 +26,7 @@ const PostInfoPage = () => {
 		likes: 0,
 		user_liked: false,
 		category: "",
+		room_id: undefined,
 	});
 
 	useLayoutEffect(() => {

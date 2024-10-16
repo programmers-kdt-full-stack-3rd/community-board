@@ -16,6 +16,7 @@ export interface IPostInfo {
 	views: number;
 	likes: number;
 	user_liked: boolean;
+	room_id?: number;
 }
 
 export interface IPostHeader {
