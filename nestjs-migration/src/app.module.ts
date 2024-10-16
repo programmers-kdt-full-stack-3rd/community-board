@@ -27,6 +27,9 @@ import { PostModule } from "./post/post.module";
 import { RankModule } from "./rank/rank.module";
 import { RbacModule } from "./rbac/rbac.module";
 import { UserModule } from "./user/user.module";
+import { CouponModule } from "./coupon/coupon.module";
+import { RedisModule } from "./redis/redis.module";
+import { EventEmitterModule } from "@nestjs/event-emitter";
 
 @Module({
 	imports: [
@@ -34,7 +37,9 @@ import { UserModule } from "./user/user.module";
 			cache: true,
 			isGlobal: true,
 			envFilePath:
-				process.env.NODE_ENV === "test" ? ".env.test" : "./../.env",
+				process.env.NODE_ENV === "test"
+					? ".env.test"
+					: "./../nginx/.env",
 			load: [appConfig, typeOrmConfig, jwtConfig, oauthConfig],
 		}),
 		TypeOrmModule.forRootAsync({
@@ -59,6 +64,7 @@ import { UserModule } from "./user/user.module";
 			},
 			inject: [ConfigService],
 		}),
+		EventEmitterModule.forRoot(),
 		UserModule,
 		AuthModule,
 		PostModule,
@@ -71,6 +77,8 @@ import { UserModule } from "./user/user.module";
 		AdminModule,
 		HealthModule,
 		RankModule,
+		CouponModule,
+		RedisModule,
 	],
 	controllers: [AppController],
 	providers: [
