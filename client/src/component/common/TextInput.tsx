@@ -71,7 +71,7 @@ const TextInput: React.FC<ITextInputProps> = ({
 				{actionButton}
 			</div>
 
-			{isValid === false && (
+			{isValid === false && !!errorMessage && (
 				<div className="ml-1 text-sm text-red-600">{errorMessage}</div>
 			)}
 		</div>
