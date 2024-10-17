@@ -85,6 +85,8 @@ export class RoomRepository extends Repository<Room> {
 	}
 
 	async getMessageLogs(roomId: number): Promise<IMessage[]> {
+		console.log("roomId:", roomId);
+
 		const queryBuilder = this.createQueryBuilder("r")
 			.select([
 				"msg.id AS id",
@@ -96,13 +98,16 @@ export class RoomRepository extends Repository<Room> {
 				"msg.is_system AS isSystem",
 				"usr.is_delete AS isDeleted",
 			])
-			.innerJoin(Member, "mem")
-			.innerJoin(User, "usr")
-			.innerJoin(Message, "msg")
-			.where("mem.room_id = :roomId", { roomId })
+			.innerJoin(Member, "mem", "r.id = mem.room_id AND r.id = :roomId", {
+				roomId,
+			})
+			.innerJoin(User, "usr", "usr.id = mem.user_id")
+			.innerJoin(Message, "msg", "msg.member_id = mem.id")
 			.orderBy("msg.created_at", "ASC");
 
 		const results = await queryBuilder.getRawMany();
+
+		console.log(results.length);
 
 		return results;
 	}
