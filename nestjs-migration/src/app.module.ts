@@ -28,6 +28,7 @@ import { RankModule } from "./rank/rank.module";
 import { RbacModule } from "./rbac/rbac.module";
 import { UserModule } from "./user/user.module";
 import { ImageModule } from "./image/image.module";
+import { QnAModule } from "./qna/qna.module";
 
 @Module({
 	imports: [
@@ -73,6 +74,7 @@ import { ImageModule } from "./image/image.module";
 		HealthModule,
 		RankModule,
 		ImageModule,
+		QnAModule,
 	],
 	controllers: [AppController],
 	providers: [
