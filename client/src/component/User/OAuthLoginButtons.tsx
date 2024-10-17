@@ -8,13 +8,13 @@ import {
 import googleIcon from "../../assets/icons/google-icon.svg";
 import naverIcon from "../../assets/icons/naver-icon.svg";
 import kakaoIcon from "../../assets/icons/kakao-icon.svg";
-
 import { deleteOAuthConnection, getOAuthLoginUrl } from "../../api/users/oauth";
 import { ApiCall } from "../../api/api";
 import { getUserMyself } from "../../api/users/crud";
 import { useModal } from "../../hook/useModal";
 import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
 import ConfirmModal from "../common/Modal/ConfirmModal";
+import Button from "../common/Button";
 
 interface IProps {
 	loginType: TOAuthLoginType;
@@ -162,12 +162,13 @@ const OAuthLoginButtons: React.FC<IProps> = ({ loginType }) => {
 				</button>
 
 				{loginType === "link" ? (
-					<button
+					<Button
+						variant="text"
 						disabled={!oAuthConnections?.google}
 						onClick={handleUnlinkClickWith("google")}
 					>
 						연동 해제
-					</button>
+					</Button>
 				) : null}
 			</div>
 
@@ -186,12 +187,13 @@ const OAuthLoginButtons: React.FC<IProps> = ({ loginType }) => {
 				</button>
 
 				{loginType === "link" ? (
-					<button
+					<Button
+						variant="text"
 						disabled={!oAuthConnections?.naver}
 						onClick={handleUnlinkClickWith("naver")}
 					>
 						연동 해제
-					</button>
+					</Button>
 				) : null}
 			</div>
 
@@ -210,12 +212,13 @@ const OAuthLoginButtons: React.FC<IProps> = ({ loginType }) => {
 				</button>
 
 				{loginType === "link" ? (
-					<button
+					<Button
+						variant="text"
 						disabled={!oAuthConnections?.kakao}
 						onClick={handleUnlinkClickWith("kakao")}
 					>
 						연동 해제
-					</button>
+					</Button>
 				) : null}
 			</div>
 		</div>

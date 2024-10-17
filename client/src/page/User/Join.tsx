@@ -1,10 +1,6 @@
 import { FC, useMemo } from "react";
-import EmailForm from "../../component/User/EmailForm";
 import PasswordForm from "../../component/User/PasswordForm";
-import SubmitButton from "../../component/User/SubmitButton";
-import NicknameForm from "../../component/User/NicknameForm";
 import { ERROR_MESSAGE, REGEX } from "./constants/constants";
-
 import { ClientError } from "../../api/errors";
 import { ApiCall } from "../../api/api";
 import {
@@ -15,6 +11,8 @@ import { useNavigate } from "react-router-dom";
 import { useStringWithValidation } from "../../hook/useStringWithValidation";
 import { FaComments } from "react-icons/fa6";
 import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
+import TextInput from "../../component/common/TextInput";
+import Button from "../../component/common/Button";
 
 const Join: FC = () => {
 	const navigate = useNavigate();
@@ -42,9 +40,9 @@ const Join: FC = () => {
 			}
 		});
 
-		requiredPassword.setValidation((value, pass, fail) => {
+		requiredPassword.setValidation((value, pass, fail, clear) => {
 			if (!value) {
-				fail("");
+				clear();
 			} else if (e.target.value === value) {
 				pass();
 			} else {
@@ -65,10 +63,11 @@ const Join: FC = () => {
 
 	const btnApply = useMemo(
 		() =>
-			email.isValid &&
-			nickname.isValid &&
-			password.isValid &&
-			requiredPassword.isValid,
+			(email.isValid &&
+				nickname.isValid &&
+				password.isValid &&
+				requiredPassword.isValid) ??
+			false,
 		[
 			email.isValid,
 			nickname.isValid,
@@ -84,7 +83,6 @@ const Join: FC = () => {
 				return;
 			}
 
-			// TODO : api 호출해서 중복 확인
 			const res = await ApiCall(
 				() => sendPostCheckUserRequest({ email: value }),
 				err => {
@@ -114,7 +112,6 @@ const Join: FC = () => {
 				return;
 			}
 
-			// TODO : api 호출해서 중복 확인
 			const res = await ApiCall(
 				() => sendPostCheckUserRequest({ nickname: value }),
 				err => {
@@ -180,6 +177,7 @@ const Join: FC = () => {
 				<FaComments />
 				<span>CODEPLAY</span>
 			</div>
+
 			<div className="my-4 flex w-full items-center">
 				<hr className="flex-grow text-gray-600 dark:text-gray-500" />
 				<span className="px-3 font-bold text-gray-600 dark:text-gray-400">
@@ -187,49 +185,77 @@ const Join: FC = () => {
 				</span>
 				<hr className="flex-grow text-gray-600 dark:text-gray-500" />
 			</div>
+
 			<div className="flex w-full flex-col gap-4">
-				{/* 미리 정의된 컴포넌트로 수정 아직 안 함*/}
-				<EmailForm
-					email={email.value}
-					onChange={handleEmail}
-					duplicationCheckFunc={checkEmailDuplication}
+				<TextInput
+					type="email"
+					id="email"
+					label="이메일"
+					value={email.value}
+					placeholder="이메일을 입력하세요."
 					isValid={email.isValid}
 					errorMessage={email.errorMessage}
-					isDuplicateCheck={true}
-				/>
-				<NicknameForm
-					nickname={nickname.value}
-					labelText="닉네임"
-					onChange={handleNickname}
-					duplicationCheckFunc={checkNicknameDuplication}
-					errorMessage={nickname.errorMessage}
-					isValid={nickname.isValid}
-					isDuplicateCheck={true}
-				/>
-				<PasswordForm
-					password={password.value}
-					onChange={handlePassword}
-					labelText="비밀번호"
-					placeholder="10자 이상의 영문 대/소문자, 숫자를 사용"
-					errorMessage={password.errorMessage}
-					isValid={password.isValid}
-				/>
-				<PasswordForm
-					password={requiredPassword.value}
-					id={"requiredPassword"}
-					onChange={handleRequiredPassword}
-					labelText="비밀번호 확인"
-					errorMessage={requiredPassword.errorMessage}
-					isValid={requiredPassword.isValid}
+					onChange={handleEmail}
+					actionButton={
+						<Button
+							size="small"
+							disabled={email.isValid}
+							onClick={checkEmailDuplication}
+						>
+							중복 확인
+						</Button>
+					}
 				/>
 
-				<SubmitButton
-					className={btnApply ? "" : "bg-gray-300"}
+				<TextInput
+					type="text"
+					id="nickname"
+					label="닉네임"
+					value={nickname.value}
+					placeholder="닉네임을 입력하세요."
+					isValid={nickname.isValid}
+					errorMessage={nickname.errorMessage}
+					onChange={handleNickname}
+					actionButton={
+						<Button
+							size="small"
+							disabled={nickname.isValid}
+							onClick={checkNicknameDuplication}
+						>
+							중복 확인
+						</Button>
+					}
+				/>
+
+				<PasswordForm
+					mode="new"
+					id="password"
+					label="비밀번호"
+					value={password.value}
+					placeholder="10자 이상의 영문 대/소문자, 숫자를 사용"
+					isValid={password.isValid}
+					errorMessage={password.errorMessage}
+					onChange={handlePassword}
+				/>
+
+				<PasswordForm
+					mode="confirm"
+					id="password-confirm"
+					label="비밀번호 확인"
+					isValid={requiredPassword.isValid}
+					errorMessage={requiredPassword.errorMessage}
+					onChange={handleRequiredPassword}
+				/>
+
+				<Button
+					type="submit"
+					className="mt-5"
+					size="large"
+					disabled={!btnApply}
 					onClick={submitJoin}
-					apply={btnApply}
 				>
 					회원가입
-				</SubmitButton>
+				</Button>
 			</div>
 		</div>
 	);

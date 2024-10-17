@@ -1,12 +1,10 @@
-import { FC, useLayoutEffect, useState } from "react";
+import { FC, FormEvent, useLayoutEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
 	sendDeleteUserRequest,
 	sendPOSTCheckPasswordRequest,
 } from "../../api/users/crud";
 import PasswordForm from "../../component/User/PasswordForm";
-import SubmitButton from "../../component/User/SubmitButton";
-
 import { REGEX } from "./constants/constants";
 import { useModal } from "../../hook/useModal";
 import { useUserStore } from "../../state/store";
@@ -15,6 +13,7 @@ import { ApiCall } from "../../api/api";
 import OAuthLoginButtons from "../../component/User/OAuthLoginButtons";
 import ConfirmModal from "../../component/common/Modal/ConfirmModal";
 import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
+import Button from "../../component/common/Button";
 
 const CheckPassword: FC = () => {
 	const navigate = useNavigate();
@@ -42,7 +41,9 @@ const CheckPassword: FC = () => {
 		setPassword(e.target.value);
 	};
 
-	const handleSubmit = async () => {
+	const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+
 		if (!password) {
 			globalErrorModal.open({
 				title: "오류",
@@ -154,25 +155,35 @@ const CheckPassword: FC = () => {
 				</ConfirmModal.Body>
 			</ConfirmModal>
 
-			<div>
-				{isEmailRegistered ? (
-					<>
-						<PasswordForm
-							labelText="비밀번호 재확인"
-							password={password}
-							onChange={handlePasswordChange}
-						/>
-						<SubmitButton onClick={handleSubmit}>확인</SubmitButton>
-					</>
-				) : (
-					<>
-						<p className="m-0 text-left text-[15px] font-bold">
-							소셜 로그인으로 계정 소유 확인
-						</p>
-						<OAuthLoginButtons loginType="reconfirm" />
-					</>
-				)}
-			</div>
+			{isEmailRegistered ? (
+				<form
+					className="flex flex-col gap-5"
+					onSubmit={handleSubmit}
+				>
+					<PasswordForm
+						mode="auth"
+						id="password"
+						label="비밀번호 재확인"
+						value={password}
+						placeholder="비밀번호를 입력하세요."
+						onChange={handlePasswordChange}
+					/>
+
+					<Button
+						size="large"
+						type="submit"
+					>
+						확인
+					</Button>
+				</form>
+			) : (
+				<div>
+					<p className="m-0 text-left text-[15px] font-bold">
+						소셜 로그인으로 계정 소유 확인
+					</p>
+					<OAuthLoginButtons loginType="reconfirm" />
+				</div>
+			)}
 		</div>
 	);
 };
