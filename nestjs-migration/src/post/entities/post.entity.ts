@@ -12,6 +12,7 @@ import {
 	UpdateDateColumn,
 } from "typeorm";
 import { PostCategories } from "./post_categories.entity";
+import { RecrutingPost } from "./recruting_posts.entity";
 
 @Entity("posts")
 export class Post {
@@ -52,4 +53,7 @@ export class Post {
 
 	@OneToMany(type => Comment, comment => comment.post)
 	comments: Comment[];
+
+	@OneToMany(type => RecrutingPost, recrutingPost => recrutingPost.post)
+	recrutingPosts: RecrutingPost[];
 }

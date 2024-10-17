@@ -14,6 +14,7 @@ import { ServerError } from "../common/exceptions/server-error.exception";
 import { IMessage } from "./dto/message.dto";
 import { GetRoomsRes } from "./dto/chat-result.dto";
 import { CHAT_ERROR_MESSAGES } from "./constant/chat.constants";
+import { IRoomMember } from "shared";
 
 @Injectable()
 export class ChatService {
@@ -181,5 +182,16 @@ export class ChatService {
 		} catch (err) {
 			throw err;
 		}
+	}
+
+	async getChatRoomMembers(roomId: number): Promise<IRoomMember[]> {
+		try {
+			const result = await this.memberRepository.getRoomMembers(roomId);
+
+			return result;
+		} catch (err) {
+			throw err;
+		}
+		return [];
 	}
 }

@@ -6,6 +6,7 @@ export const chatRoomContainer = style({
 	width: "100%",
 	height: "100%",
 	color: "white",
+	position: "relative",
 });
 
 export const chatRoomHeader = style({

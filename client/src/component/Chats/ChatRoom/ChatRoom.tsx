@@ -6,7 +6,7 @@ import {
 	useRef,
 	useState,
 } from "react";
-import { IMessage } from "shared";
+import { IMessage, IRoomMember } from "shared";
 
 import { chatRoomBody, chatRoomContainer } from "./ChatRoom.css";
 import ChatInput from "./ChatInput";
@@ -15,6 +15,9 @@ import MyChat from "./MyChat";
 import SystemChat from "./SystemChat";
 import YourChat from "./YourChat";
 import { useUserStore } from "../../../state/store";
+import { ChatRoomSideBar } from "./SideBar/ChatRoomSideBar";
+import { ApiCall } from "../../../api/api";
+import { sendGetRoomMembersRequest } from "../../../api/chats/crud";
 
 interface Props {
 	title: string;
@@ -35,7 +38,15 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 	const [messageLogs, setMessageLogs] = useState<IMessage[]>([]); // TEST : 컴포넌트 상태 저장
 	const [roomLoading, setRoomLoading] = useState(true);
 	const [chatLoading, setChatLoading] = useState(false);
-	const [memberId, setMemberId] = useState<number>(0);
+	const [myMemberId, setMyMemberId] = useState<number>(0);
+
+	const [roomMembers, setRoomMembers] = useState<IRoomMember[]>([
+		{ memberId: 1, nickname: "123", isHost: true },
+		{ memberId: 1, nickname: "123", isHost: false },
+	]);
+
+	// chatroom aside
+	const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(false);
 
 	const messageMap: Map<string, IMessage[]> = useMemo(() => {
 		const map = new Map<string, IMessage[]>();
@@ -73,6 +84,10 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 	};
 
 	useLayoutEffect(() => {
+		getMembers();
+	}, [roomId]);
+
+	useLayoutEffect(() => {
 		if (socket) {
 			const handleReceiveMessage = (newMessage: IMessage) => {
 				const msg: IMessage = strToDate(newMessage);
@@ -84,7 +99,7 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 				"enter_room",
 				roomId,
 				(response: { memberId: number; messageLogs: IMessage[] }) => {
-					setMemberId(response.memberId);
+					setMyMemberId(response.memberId);
 					const msgs = response.messageLogs.map(message => {
 						return strToDate(message);
 					});
@@ -101,7 +116,7 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 				socket.off("receive_message", handleReceiveMessage);
 			};
 		}
-	}, [roomId, socket, memberId]);
+	}, [roomId, socket, myMemberId]);
 
 	useEffect(() => {
 		const sorted = Array.from(messageMap.entries())
@@ -128,12 +143,14 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 	};
 
 	const chatInputClick = () => {
+		console.log("memberId:", myMemberId);
+
 		if (!message.length || chatLoading) {
 			return;
 		}
 
 		const msg: IMessage = {
-			memberId,
+			memberId: myMemberId,
 			roomId,
 			nickname,
 			message,
@@ -142,13 +159,14 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 			isSystem: false,
 		};
 
+		console.log("before send :", msg);
+
 		setChatLoading(true);
 
 		if (socket) {
 			socket.emit("send_message", msg, (isSuccess: boolean) => {
 				if (isSuccess) {
 					setMessageLogs(prev => [...prev, msg]);
-					// TODO : zustand에 저장
 				} else {
 					console.error(msg);
 					// TODO : 재전송 로직 추가
@@ -198,12 +216,47 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 		});
 	};
 
+	const getMembers = async () => {
+		const roomMembers = await ApiCall(
+			() => sendGetRoomMembersRequest(roomId),
+			err => {
+				console.error("사용자 정보를 가져올 수 없습니다.", err);
+			}
+		).then(response => {
+			if (response instanceof Error) {
+				return;
+			}
+
+			return response.roomMembers;
+		});
+
+		setRoomMembers(roomMembers);
+	};
+
 	return (
 		<div className={chatRoomContainer}>
-			{/* TODO : title zustand에서 꺼내오기 */}
+			{isSideBarOpen && (
+				<ChatRoomSideBar
+					title={title}
+					sideBarClose={() => {
+						setIsSideBarOpen(false);
+					}}
+					members={roomMembers}
+					roomId={roomId}
+					myMemberId={myMemberId}
+					goBack={backBtnClick}
+				/>
+			)}
 			<ChatRoomHeader
 				title={title}
 				onClick={backBtnClick}
+				isOpen={isSideBarOpen}
+				open={() => {
+					setIsSideBarOpen(true);
+				}}
+				close={() => {
+					setIsSideBarOpen(false);
+				}}
 			/>
 			<div
 				ref={chatRef}

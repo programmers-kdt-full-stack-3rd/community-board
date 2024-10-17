@@ -15,6 +15,8 @@ import ConfirmModal from "../common/Modal/ConfirmModal";
 import { sendDeletePostRequest } from "../../api/posts/crud";
 import { useModal } from "../../hook/useModal";
 import useCategory from "../../hook/useCategory";
+import { sendJoinRoomRequest } from "../../api/chats/crud";
+import AlertModal from "../common/Modal/AlertModal";
 import { FaCheck } from "react-icons/fa";
 import { usePostInfo } from "../../state/PostInfoStore";
 
@@ -26,6 +28,7 @@ const PostInfo: React.FC = () => {
 	const { currentCategory } = useCategory(post.category);
 
 	const deleteModal = useModal();
+	const joinSuccessModal = useModal();
 	const globalErrorModal = useGlobalErrorModal();
 
 	const [userLiked, setUserLiked] = useState(false);
@@ -116,6 +119,35 @@ const PostInfo: React.FC = () => {
 		navigate(currentCategory?.path ?? "/");
 	}, [isAuthor]);
 
+	const handleJoinRoom = async () => {
+		const roomId = post.room_id;
+
+		if (!roomId) {
+			return;
+		}
+
+		const body = {
+			roomId: roomId,
+			isPrivate: false,
+			password: "",
+		};
+
+		const result = await ApiCall(
+			() => sendJoinRoomRequest(body),
+			err => {
+				globalErrorModal.openWithMessageSplit({
+					messageWithTitle: err.message,
+				});
+			}
+		);
+
+		if (result instanceof Error) {
+			return;
+		}
+
+		joinSuccessModal.open();
+	};
+
 	return (
 		<div>
 			<ConfirmModal
@@ -131,6 +163,14 @@ const PostInfo: React.FC = () => {
 					정말로 이 게시글을 삭제할까요?
 				</ConfirmModal.Body>
 			</ConfirmModal>
+			<AlertModal
+				isOpen={joinSuccessModal.isOpen}
+				onClose={joinSuccessModal.close}
+				variant="info"
+			>
+				<AlertModal.Title>안내</AlertModal.Title>
+				<AlertModal.Body>채팅방 가입에 성공했습니다</AlertModal.Body>
+			</AlertModal>
 
 			<div className="flex w-[800px] flex-col pb-2.5 pt-2.5">
 				<div className="dark:bg-customGray relative mb-4 mt-4 flex flex-col justify-between rounded-lg bg-blue-900 text-left">
@@ -203,6 +243,12 @@ const PostInfo: React.FC = () => {
 					className="post-body h-full w-[780px] resize-none text-start text-base"
 					dangerouslySetInnerHTML={{ __html: content }}
 				/>
+
+				{post.room_id && (
+					<div className="flex w-full items-center justify-center">
+						<Button onClick={handleJoinRoom}>팀에 참여하기</Button>
+					</div>
+				)}
 
 				<div className="mt-10 flex flex-col items-center justify-center">
 					<div

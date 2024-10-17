@@ -31,6 +31,7 @@ import { CouponModule } from "./coupon/coupon.module";
 import { RedisModule } from "./redis/redis.module";
 import { EventEmitterModule } from "@nestjs/event-emitter";
 import { ImageModule } from "./image/image.module";
+import { QnAModule } from "./qna/qna.module";
 
 @Module({
 	imports: [
@@ -79,6 +80,7 @@ import { ImageModule } from "./image/image.module";
 		CouponModule,
 		RedisModule,
 		ImageModule,
+		QnAModule,
 	],
 	controllers: [AppController],
 	providers: [
