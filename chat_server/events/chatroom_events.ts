@@ -63,18 +63,11 @@ export const handleRoomEvents = (socket: Socket) => {
 				);
 				const { roomId } = joinData.data as IJoinRoomResponse;
 
-				// 멤버 ID
-				const memIdData = await getMyMemberId(
-					{
-						roomId,
-					},
-					socket.handshake.headers.cookie!
-				);
-				const { memberId } = memIdData.data as IEnterRoomResponse;
+				console.log(`roomId : ${roomId} 에 가입 성공!`);
 
 				// system 메시지
 				const message: IMessage = {
-					memberId,
+					memberId: 1,
 					roomId,
 					nickname: data.nickname!,
 					message: `${data.nickname}님이 가입했습니다.`,
@@ -115,6 +108,7 @@ export const handleRoomEvents = (socket: Socket) => {
 			) => void
 		) => {
 			try {
+				await new Promise(resolve => setTimeout(resolve, 1000));
 				// 쿠키
 				const cookie = socket.handshake.headers.cookie!;
 
@@ -122,11 +116,11 @@ export const handleRoomEvents = (socket: Socket) => {
 				const memIdData = await getMyMemberId({ roomId }, cookie);
 				const { memberId } = memIdData.data;
 
+				console.log(`memberId : ${memberId} 엔터 룸에서 멤버 조회!`);
+
 				// 메시지 조회
 				// console.time("message reading time");
 				const messagesData = await getMessages(roomId); // Redis
-
-				console.log(`messagesDataCount : ${messagesData.length}`);
 
 				const messageLogsData =
 					messagesData.length > 0
@@ -134,8 +128,6 @@ export const handleRoomEvents = (socket: Socket) => {
 						: await getMessageLogs({ roomId }, cookie); // Redis X
 				const { messageLogs } = messageLogsData.data;
 				// console.timeEnd("message reading time");
-
-				console.log(`messagesLogDataCount : ${messageLogs.length}`);
 
 				// 메시지 저장
 				messagesData.length === 0 &&
