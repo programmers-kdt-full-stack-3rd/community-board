@@ -1,7 +1,7 @@
-import clsx from "clsx";
 import React, { createContext, useContext, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { FiAlertTriangle, FiInfo, FiXCircle } from "react-icons/fi";
+import { twMerge } from "tailwind-merge";
 
 export type TModalVariant = "error" | "warning" | "info" | "base";
 
@@ -66,7 +66,7 @@ const ModalRoot: React.FC<IModalRootProps> = ({
 				createPortal(
 					<ModalContext.Provider value={contextValue}>
 						<div
-							className={clsx(
+							className={twMerge(
 								"inset-0 z-50 flex h-full w-full items-center justify-center bg-black/50",
 								container === modalRootElement
 									? "fixed"
@@ -107,7 +107,7 @@ const ModalTitle: React.FC<IModalTitleProps> = ({ children }) => {
 
 	return (
 		<header
-			className={clsx(
+			className={twMerge(
 				"flex items-center justify-center gap-2 text-2xl",
 				classNameByVariant[variant] ?? classNameByVariant.base
 			)}

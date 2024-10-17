@@ -1,4 +1,3 @@
-import clsx from "clsx";
 import React, {
 	ChangeEvent,
 	useEffect,
@@ -7,6 +6,7 @@ import React, {
 	useState,
 } from "react";
 import ReactQuill from "react-quill";
+import { twMerge } from "tailwind-merge";
 import TextInput from "../../component/common/TextInput";
 import { useLocation, useNavigate } from "react-router-dom";
 import CustomEditor from "../../component/Posts/Editer/CustomEditor";
@@ -205,7 +205,7 @@ const UpsertPostPage: React.FC = () => {
 			<div className="flex w-full flex-col gap-1">
 				<div className="ml-1 flex gap-6 text-sm">
 					<div
-						className={clsx(
+						className={twMerge(
 							"font-bold",
 							isContentValid === true &&
 								"after:ml-1 after:content-['✔']",
@@ -216,7 +216,7 @@ const UpsertPostPage: React.FC = () => {
 						내용
 					</div>
 					<div
-						className={clsx(
+						className={twMerge(
 							"text-red-600",
 							isContentValid !== false && "hidden"
 						)}

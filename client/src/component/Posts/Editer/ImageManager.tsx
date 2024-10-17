@@ -154,8 +154,6 @@ const ImageManager: React.FC<IProps> = ({
 								variant="text"
 								onClick={handleRemoveWith(url)}
 								className="absolute right-2 top-2 bg-white/65 p-2 shadow backdrop-blur-sm"
-								// TODO: className 충돌로 인하여 Tailwind Merge 도입 필요
-								style={{ padding: "8px" }}
 							>
 								<FiTrash2 />
 							</Button>
