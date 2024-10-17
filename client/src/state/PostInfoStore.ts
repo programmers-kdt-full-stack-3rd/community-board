@@ -11,10 +11,12 @@ interface IPostInfoState {
 
 	isQnaCategory: boolean;
 	acceptedCommentId: number | null;
+	hasAcceptedLikeToggle: boolean;
 }
 
 interface IPostInfoActions {
 	fetchPost: (postId: number) => void;
+	setAcceptedCommentLikeToggled: (next: boolean) => void;
 	clear: () => void;
 }
 
@@ -42,6 +44,7 @@ export const usePostInfo = create<TPostInfoStore>(set => ({
 
 	isQnaCategory: false,
 	acceptedCommentId: null,
+	hasAcceptedLikeToggle: false,
 
 	fetchPost: async (postId: number) => {
 		const res = await ApiCall(
@@ -56,6 +59,7 @@ export const usePostInfo = create<TPostInfoStore>(set => ({
 
 					isQnaCategory: false,
 					acceptedCommentId: null,
+					hasAcceptedLikeToggle: false,
 				}));
 			}
 		);
@@ -84,6 +88,7 @@ export const usePostInfo = create<TPostInfoStore>(set => ({
 
 						isQnaCategory,
 						acceptedCommentId: null,
+						hasAcceptedLikeToggle: false,
 					}))
 			);
 
@@ -101,8 +106,14 @@ export const usePostInfo = create<TPostInfoStore>(set => ({
 
 			isQnaCategory,
 			acceptedCommentId,
+			hasAcceptedLikeToggle: false,
 		}));
 	},
+
+	setAcceptedCommentLikeToggled: (next: boolean) =>
+		set({
+			hasAcceptedLikeToggle: next,
+		}),
 
 	clear: () =>
 		set({
@@ -112,5 +123,6 @@ export const usePostInfo = create<TPostInfoStore>(set => ({
 
 			isQnaCategory: false,
 			acceptedCommentId: null,
+			hasAcceptedLikeToggle: false,
 		}),
 }));
