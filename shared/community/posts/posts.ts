@@ -16,6 +16,7 @@ export interface IPostInfo {
 	views: number;
 	likes: number;
 	user_liked: boolean;
+	room_id?: number;
 }
 
 export interface IPostHeader {
@@ -25,4 +26,24 @@ export interface IPostHeader {
 	created_at: Date;
 	likes: number;
 	views: number;
+}
+
+export interface ITopPosts {
+	title: string;
+	postId: number;
+	nickname: string;
+	likeCount: number;
+}
+
+export interface ITopComments {
+	nickname: string;
+	commentId: number;
+	postId: number;
+	likeCount: number;
+}
+
+export interface ITopActivities {
+	nickname: string;
+	postCount: number;
+	commentCount: number;
 }

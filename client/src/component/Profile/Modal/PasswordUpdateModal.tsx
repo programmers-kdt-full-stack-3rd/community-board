@@ -1,9 +1,4 @@
 import { SetStateAction, useState } from "react";
-import {
-	InputContainer,
-	ModalBody,
-	PostHeaderTitle,
-} from "../../Posts/Modal/PostModal.css";
 import { FiX } from "react-icons/fi";
 import Button from "../../common/Button";
 import { ApiCall } from "../../../api/api";
@@ -68,15 +63,17 @@ const PasswordUpdateModal: React.FC<Props> = ({ close }) => {
 				</AlertModal.Body>
 			</AlertModal>
 			<div className="dark:border-white-500 flex h-fit flex-row flex-wrap justify-between border-b border-gray-500 p-[15px]">
-				<div className={PostHeaderTitle}>비밀번호 수정</div>
+				<div className="flex items-center justify-center font-extrabold">
+					비밀번호 수정
+				</div>
 				<FiX
 					onClick={() => {
 						close(false);
 					}}
 				/>
 			</div>
-			<div className={ModalBody}>
-				<div className={InputContainer}>
+			<div className="my-5 flex h-full w-full flex-col flex-wrap items-center gap-4 px-5">
+				<div className="flex w-full flex-col">
 					<TextInput
 						label={"현재 비밀번호"}
 						value={origin}
@@ -86,7 +83,7 @@ const PasswordUpdateModal: React.FC<Props> = ({ close }) => {
 						isValid={REGEX.PASSWORD.test(origin)}
 					/>
 				</div>
-				<div className={InputContainer}>
+				<div className="flex w-full flex-col">
 					<TextInput
 						label={"새 비밀번호"}
 						value={newPsword}
@@ -99,7 +96,7 @@ const PasswordUpdateModal: React.FC<Props> = ({ close }) => {
 						}
 					/>
 				</div>
-				<div className={InputContainer}>
+				<div className="flex w-full flex-col">
 					<TextInput
 						label={"비밀번호 확인"}
 						value={checkPsword}

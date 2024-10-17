@@ -92,7 +92,7 @@ export class PostRepository extends Repository<Post> {
 		readPostsQueryDto: ReadPostsQuery,
 		userId: number
 	): Promise<number> {
-		let { keyword } = readPostsQueryDto;
+		let { keyword, category_id } = readPostsQueryDto;
 		userId ? userId : 0;
 
 		const queryBuilder = this.createQueryBuilder("post")
@@ -116,6 +116,11 @@ export class PostRepository extends Repository<Post> {
 				keyword: `%${keyword.trim()}%`,
 			});
 		}
+		if (category_id) {
+			queryBuilder.andWhere("post.category_id = :categoryId", {
+				categoryId: category_id,
+			});
+		}
 
 		return await queryBuilder.getCount();
 	}
@@ -124,22 +129,24 @@ export class PostRepository extends Repository<Post> {
 		const authorId = userId;
 		const queryBuilder = this.createQueryBuilder("post")
 			.leftJoin("post.author", "user")
+			.leftJoin("post.recrutingPosts", "rp", "rp.post_id = post.id") // RecrutingPosts와 조인
 			.select([
 				"post.id as id",
-				"title",
-				"content",
+				"post.title as title",
+				"post.content as content",
 				"pc.name as category",
-				"author_id",
+				"post.author_id as author_id",
 				"user.nickname as author_nickname",
 				"(post.author_id = :authorId) AS is_author",
 				"post.created_at as created_at",
 				"post.updated_at as updated_at",
-				"views",
+				"post.views as views",
 				`EXISTS(
-                    SELECT 1
-                    FROM post_likes AS pl
-                    WHERE pl.post_id = post.id AND pl.user_id = :userId
-                ) AS user_liked`,
+					SELECT 1
+					FROM post_likes AS pl
+					WHERE pl.post_id = post.id AND pl.user_id = :userId
+				) AS user_liked`,
+				"rp.room_id as room_id", // room_id 추가
 			])
 			.addSelect(
 				subQuery =>
@@ -287,13 +294,13 @@ export class PostRepository extends Repository<Post> {
 
 	async getTopPosts() {
 		const queryBuilder = this.createQueryBuilder("post")
-			.leftJoin("post.author", "user")
+			.innerJoin("post.author", "user")
 			.leftJoin("post.likes", "pl")
 			.select([
 				"post.title as title",
 				"post.id as postId",
 				"user.nickname as nickname",
-				"COUNT(*) as likeCount",
+				"COALESCE(COUNT(pl.id), 0) as likeCount",
 			])
 			.where("post.is_delete = :isPostDeleted", { isPostDeleted: false })
 			.andWhere("user.is_delete = :isUserDeleted", {

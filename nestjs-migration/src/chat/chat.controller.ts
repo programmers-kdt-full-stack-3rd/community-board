@@ -29,6 +29,7 @@ import { EnterRoomReq } from "./dto/enter-room.dto";
 import { JoinRoomReq } from "./dto/join-room.dto";
 import { LeaveRoomReq } from "./dto/leave-room.dto";
 import { ReadRoomQuery } from "./dto/read-room-query.dto";
+import { IRoomMember } from "shared";
 
 @Controller("chat")
 export class ChatController {
@@ -145,7 +146,14 @@ export class ChatController {
 
 			return { roomId: result };
 		} catch (err) {
-			throw ServerError.reference(CHAT_ERROR_MESSAGES.ROOM_JOIN_ERROR);
+			let errorMessage: string = "";
+
+			if (err.message.includes("Duplicate")) {
+				errorMessage = CHAT_ERROR_MESSAGES.ALREADY_MEMBER;
+			} else {
+				errorMessage = CHAT_ERROR_MESSAGES.ROOM_JOIN_ERROR;
+			}
+			throw ServerError.reference(errorMessage);
 		}
 	}
 
@@ -192,6 +200,25 @@ export class ChatController {
 			await this.chatService.leaveRoom(leaveRoomDto);
 		} catch (err) {
 			throw ServerError.reference(CHAT_ERROR_MESSAGES.LEAVE_ROOM_ERROR);
+		}
+	}
+
+	@Get("/members/:room_id")
+	@UseGuards(LoginGuard)
+	@HttpCode(HttpStatus.OK)
+	@Permissions("read:chat-room")
+	async handleReadRoomMembers(
+		@Param("room_id", ParseIntPipe) roomId: number
+	): Promise<{ roomMembers: IRoomMember[] }> {
+		try {
+			const result = await this.chatService.getChatRoomMembers(roomId);
+
+			return { roomMembers: result };
+		} catch (err) {
+			console.log(err);
+			throw ServerError.reference(
+				CHAT_ERROR_MESSAGES.READ_ROOM_MEMBERS_ERROR
+			);
 		}
 	}
 }

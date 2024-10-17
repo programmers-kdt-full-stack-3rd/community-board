@@ -5,12 +5,16 @@ import {
 	sendGetPostsRequest,
 	TPostListClientSearchParams,
 } from "../api/posts/crud";
+import { sendQnaAcceptedCommentIdsRequest } from "../api/posts/qna_crud";
 
 type TPostListHookProps = Partial<
 	TPostListClientSearchParams & {
 		categoryId: number;
+		indexCorrector: (actual: number) => void;
 	}
 >;
+
+const noOperation = () => {};
 
 const usePostList = ({
 	index = 1,
@@ -18,13 +22,27 @@ const usePostList = ({
 	sortBy,
 	keyword,
 	categoryId,
+	indexCorrector = noOperation,
 }: TPostListHookProps) => {
 	const [postList, setPostList] = useState<IPostHeader[] | null>([]);
 	const [totalPosts, setTotalPosts] = useState(0);
-	const [actualIndex, setActualIndex] = useState(1);
 
-	const fetchPostList = useCallback(() => {
-		ApiCall(
+	const isQnaCategory = categoryId === 3;
+	const [acceptedCommentIds, setAcceptedCommentIds] = useState<
+		(number | null)[]
+	>([]);
+
+	const postRequestDeps = [
+		index,
+		perPage,
+		sortBy,
+		keyword,
+		categoryId,
+		indexCorrector,
+	];
+
+	const fetchPostList = useCallback(async () => {
+		const postRes = await ApiCall(
 			() =>
 				sendGetPostsRequest({
 					index,
@@ -33,32 +51,57 @@ const usePostList = ({
 					keyword,
 					category_id: categoryId,
 				}),
-			() => setPostList(null)
-		).then(res => {
-			if (res instanceof Error) {
-				return;
+			() => {
+				setPostList(null);
+				setAcceptedCommentIds([]);
 			}
+		);
 
-			const total = parseInt(res.total, 10) || 0;
-			const pageCount = Math.ceil(total / perPage);
+		if (postRes instanceof Error) {
+			return;
+		}
 
-			if (pageCount > 0 && index > pageCount) {
-				setActualIndex(pageCount);
-			} else {
-				setPostList(mapDBToPostHeaders(res.postHeaders));
-				setTotalPosts(total);
-			}
-		});
-	}, [index, perPage, sortBy, keyword, categoryId]);
+		const total = parseInt(postRes.total, 10) || 0;
+		const pageCount = Math.ceil(total / perPage);
+
+		if (pageCount > 0 && index > pageCount) {
+			indexCorrector(pageCount);
+			return;
+		}
+
+		const fetchedPostList = mapDBToPostHeaders(postRes.postHeaders);
+		setPostList(fetchedPostList);
+		setTotalPosts(total);
+
+		if (!isQnaCategory || !fetchedPostList.length) {
+			return;
+		}
+
+		const qnaRes = await ApiCall(
+			() =>
+				sendQnaAcceptedCommentIdsRequest({
+					postIds: fetchedPostList.map(({ id }) => id),
+				}),
+			() => setAcceptedCommentIds(fetchedPostList.map(() => null))
+		);
+
+		if (qnaRes instanceof Error) {
+			return;
+		}
+
+		setAcceptedCommentIds(
+			qnaRes?.commentIds ?? fetchedPostList.map(() => null)
+		);
+	}, postRequestDeps);
 
 	useEffect(() => {
 		fetchPostList();
-	}, [index, perPage, sortBy, keyword, categoryId]);
+	}, postRequestDeps);
 
 	return {
 		postList,
 		totalPosts,
-		actualIndex,
+		acceptedCommentIds,
 		fetchPostList,
 	};
 };

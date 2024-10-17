@@ -7,6 +7,7 @@ import {
 	UpdateDateColumn,
 } from "typeorm";
 import { Member } from "./member.entity";
+import { RecrutingPost } from "src/post/entities/recruting_posts.entity";
 
 @Entity("rooms")
 export class Room {
@@ -30,4 +31,7 @@ export class Room {
 
 	@OneToMany(type => Member, member => member.room)
 	members: Member[];
+
+	@OneToMany(() => RecrutingPost, recrutingPost => recrutingPost.room)
+	recrutingPosts: RecrutingPost[];
 }

@@ -12,9 +12,18 @@ import { IoListOutline } from "react-icons/io5";
 interface Props {
 	title: string;
 	onClick: () => void;
+	isOpen: boolean;
+	open: () => void;
+	close: () => void;
 }
 
-const ChatRoomHeader: React.FC<Props> = ({ title, onClick }) => {
+const ChatRoomHeader: React.FC<Props> = ({
+	title,
+	onClick,
+	isOpen,
+	open,
+	close,
+}) => {
 	return (
 		<div className={chatRoomHeader}>
 			<div
@@ -24,7 +33,16 @@ const ChatRoomHeader: React.FC<Props> = ({ title, onClick }) => {
 				<FaArrowLeft className={chatRoomHeaderIcon} />
 			</div>
 			<div className={chatRoomHeaderTitle}>{title}</div>
-			<div className={dropdown}>
+			<div
+				className={dropdown}
+				onClick={() => {
+					if (isOpen) {
+						close();
+					} else {
+						open();
+					}
+				}}
+			>
 				<IoListOutline className={chatRoomHeaderIcon} />
 			</div>
 		</div>

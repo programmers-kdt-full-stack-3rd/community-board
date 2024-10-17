@@ -8,14 +8,7 @@ import {
 import googleIcon from "../../assets/icons/google-icon.svg";
 import naverIcon from "../../assets/icons/naver-icon.svg";
 import kakaoIcon from "../../assets/icons/kakao-icon.svg";
-import {
-	googleButton,
-	iconStyle,
-	kakaoButton,
-	naverButton,
-	socialLoginButtons,
-	socialLoginItem,
-} from "./css/OAuthLoginButtons.css";
+
 import { deleteOAuthConnection, getOAuthLoginUrl } from "../../api/users/oauth";
 import { ApiCall } from "../../api/api";
 import { getUserMyself } from "../../api/users/crud";
@@ -137,7 +130,7 @@ const OAuthLoginButtons: React.FC<IProps> = ({ loginType }) => {
 	};
 
 	return (
-		<div className={socialLoginButtons}>
+		<div className="mt-5 flex w-full flex-col gap-4">
 			<ConfirmModal
 				isOpen={unlinkConfirmModal.isOpen}
 				okButtonColor="danger"
@@ -154,16 +147,16 @@ const OAuthLoginButtons: React.FC<IProps> = ({ loginType }) => {
 				</ConfirmModal.Body>
 			</ConfirmModal>
 
-			<div className={socialLoginItem}>
+			<div className="flex items-stretch justify-stretch gap-4">
 				<button
-					className={googleButton}
+					className="flex flex-grow cursor-pointer items-center justify-center rounded-lg border-none bg-white p-3 text-base font-bold text-black transition-transform duration-200 hover:bg-gray-100 hover:text-gray-800 hover:shadow-lg hover:shadow-gray-400/50"
 					disabled={oAuthConnections?.google ?? false}
 					onClick={handleLoginClickWith("google")}
 				>
 					<img
 						src={googleIcon}
 						alt="Google Icon"
-						className={iconStyle}
+						className="mr-2 h-5 w-5"
 					/>
 					구글로 로그인
 				</button>
@@ -178,16 +171,16 @@ const OAuthLoginButtons: React.FC<IProps> = ({ loginType }) => {
 				) : null}
 			</div>
 
-			<div className={socialLoginItem}>
+			<div className="flex items-stretch justify-stretch gap-4">
 				<button
-					className={naverButton}
+					className="flex flex-grow cursor-pointer items-center justify-center rounded-lg border-none bg-[#1ec800] p-3 text-base font-bold text-white transition-transform duration-200 hover:bg-[#17a500] hover:text-gray-300 hover:shadow-lg hover:shadow-black/50"
 					disabled={oAuthConnections?.naver ?? false}
 					onClick={handleLoginClickWith("naver")}
 				>
 					<img
 						src={naverIcon}
 						alt="Naver Icon"
-						className={iconStyle}
+						className="mr-2 h-5 w-5"
 					/>
 					네이버로 로그인
 				</button>
@@ -202,16 +195,16 @@ const OAuthLoginButtons: React.FC<IProps> = ({ loginType }) => {
 				) : null}
 			</div>
 
-			<div className={socialLoginItem}>
+			<div className="flex items-stretch justify-stretch gap-4">
 				<button
-					className={kakaoButton}
+					className="flex flex-grow cursor-pointer items-center justify-center rounded-lg border-none bg-[#fee500] p-3 text-base font-bold text-black transition-transform duration-200 hover:bg-[#fdd835] hover:text-[#2e1b1b] hover:shadow-lg hover:shadow-black/50"
 					disabled={oAuthConnections?.kakao ?? false}
 					onClick={handleLoginClickWith("kakao")}
 				>
 					<img
 						src={kakaoIcon}
 						alt="Kakao Icon"
-						className={iconStyle}
+						className="mr-2 h-5 w-5"
 					/>
 					카카오로 로그인
 				</button>

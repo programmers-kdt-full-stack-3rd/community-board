@@ -1,4 +1,4 @@
-import { ChangeEvent, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 
 import Button from "../../component/common/Button";
 
@@ -20,6 +20,7 @@ import ConfirmModal from "../../component/common/Modal/ConfirmModal";
 import { useModal } from "../../hook/useModal";
 import { useNavigate } from "react-router-dom";
 import PasswordUpdateModal from "../../component/Profile/Modal/PasswordUpdateModal";
+import { fetchCouponName } from "../../api/coupon/coupon_crud";
 
 const ProfilePage = () => {
 	const navigate = useNavigate();
@@ -35,6 +36,7 @@ const ProfilePage = () => {
 
 	const [profileEdit, setProfileEdit] = useState<boolean>(false);
 	const [isOpen, setIsOpen] = useState<boolean>(false);
+	const [couponName, setCouponName] = useState("");
 
 	const handleAccountDeleteTry = () => {
 		accountDeleteModal.open();
@@ -44,6 +46,19 @@ const ProfilePage = () => {
 		accountDeleteModal.close();
 		navigate(`/checkPassword?next=accountDelete`);
 	};
+
+	useEffect(() => {
+		const fetchCoupon = async () => {
+			try {
+				const data = await fetchCouponName();
+				setCouponName(data.name);
+			} catch (error) {
+				setCouponName("");
+			}
+		};
+
+		fetchCoupon();
+	}, []);
 
 	const handleFileUpload = async (e: ChangeEvent<HTMLInputElement>) => {
 		const files = e.target.files;
@@ -373,6 +388,27 @@ const ProfilePage = () => {
 				>
 					탈퇴하기
 				</Button>
+			</ProfileItem>
+
+			<ProfileItem
+				title="쿠폰함"
+				profileEdit={profileEdit}
+				setProfileEdit={setProfileEdit}
+			>
+				<div
+					style={{
+						fontWeight: "bolder",
+						display: "flex",
+						justifyContent: "center",
+						alignItems: "center",
+						color: "black",
+					}}
+				>
+					내가 받은 쿠폰
+				</div>
+				<div className="flex flex-row">
+					<p className="text-xs">{couponName}</p>
+				</div>
 			</ProfileItem>
 		</div>
 	);

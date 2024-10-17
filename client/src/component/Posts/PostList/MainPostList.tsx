@@ -17,7 +17,6 @@ const MainPortList = ({ posts, keyword }: IPostListProps) => {
 			<ul className="divide-customGray divide-y">
 				{isPostsEmpty ? (
 					<EmptyPostListBody
-						className="my-30 text-center text-2xl text-gray-500"
 						isFetchFailed={isFetchFailed}
 						keyword={keyword}
 					/>
@@ -50,7 +49,7 @@ const MainPortList = ({ posts, keyword }: IPostListProps) => {
 								</div>
 							</div>
 							<Link
-								className="mb-1 mt-1 block text-left text-base font-bold text-black dark:text-gray-300"
+								className="mb-1 mt-1 block break-words break-all text-left text-base font-bold text-black dark:text-gray-300"
 								to={`/post/${postHeader.id}`}
 							>
 								{postHeader.title}

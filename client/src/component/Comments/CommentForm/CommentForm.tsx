@@ -1,6 +1,5 @@
 import { ChangeEvent, FormEvent, useCallback, useState } from "react";
 import { useUserStore } from "../../../state/store";
-import { commentFormContainer, footer } from "./CommentForm.css";
 import Textarea from "../../common/Textarea";
 import Button from "../../common/Button";
 import { useGlobalErrorModal } from "../../../state/GlobalErrorModalStore";
@@ -59,7 +58,7 @@ const CommentForm = ({
 
 	return (
 		<form
-			className={commentFormContainer}
+			className="box-border flex w-full flex-col items-stretch gap-2"
 			onSubmit={handleFormSubmit}
 		>
 			<Textarea
@@ -70,7 +69,7 @@ const CommentForm = ({
 				onChange={handleContentChange}
 			/>
 
-			<div className={footer}>
+			<div className="flex items-start justify-end gap-2">
 				<Button
 					className="mb-2"
 					type="submit"

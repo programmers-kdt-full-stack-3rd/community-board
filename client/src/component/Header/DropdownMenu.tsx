@@ -3,19 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { useUserStore } from "../../state/store";
 import { ApiCall } from "../../api/api";
 import { getUserMyself } from "../../api/users/crud";
-import { MdOutlineAdminPanelSettings } from "react-icons/md";
+//import { MdOutlineAdminPanelSettings } from "react-icons/md";
 import { IoShareSocialOutline } from "react-icons/io5";
 import { MdOutlineAttachEmail } from "react-icons/md";
 import { FaRegUserCircle } from "react-icons/fa";
 
-interface IDropdownMenuProps {
-	ref: React.RefObject<HTMLDivElement>;
-}
-
-const DropdownMenu: ForwardRefRenderFunction<
-	HTMLDivElement,
-	IDropdownMenuProps
-> = ({ ref }) => {
+const DropdownMenu: ForwardRefRenderFunction<HTMLDivElement> = (_, ref) => {
 	const navigate = useNavigate();
 
 	const isEmailRegistered = useUserStore.use.isEmailRegistered();
@@ -52,15 +45,12 @@ const DropdownMenu: ForwardRefRenderFunction<
 		navigate(`/oauth`);
 	};
 
-	const handleAdminPageClick = () => {
-		navigate(`/admin`);
-	};
+	// const handleAdminPageClick = () => {
+	// 	navigate(`/admin`);
+	// };
 
 	return (
-		<div
-			ref={ref}
-			className="dark:bg-customGray absolute right-0 top-12 z-50 min-w-[160px] rounded-md bg-white shadow-xl"
-		>
+		<div className="dark:bg-customGray absolute right-0 top-12 z-50 min-w-[160px] rounded-md bg-white shadow-xl">
 			<div className="m-4 cursor-pointer text-left text-base text-gray-700 dark:text-white">
 				<div
 					className="flex flex-row items-center gap-2 py-2 hover:opacity-70"
@@ -89,13 +79,13 @@ const DropdownMenu: ForwardRefRenderFunction<
 				</div>
 
 				{/* 권한 확인 과정 구현 필요 */}
-				<div
+				{/* <div
 					className="flex flex-row items-center gap-2 py-2 hover:opacity-70"
 					onClick={handleAdminPageClick}
 				>
 					<MdOutlineAdminPanelSettings />
 					관리자 페이지
-				</div>
+				</div> */}
 			</div>
 		</div>
 	);

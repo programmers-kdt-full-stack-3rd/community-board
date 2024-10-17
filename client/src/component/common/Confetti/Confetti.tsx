@@ -71,22 +71,6 @@ const Confetti: FC<ConfettiProps> = ({
 		);
 
 		makeShot(
-			0.6,
-			{
-				spread: 60,
-				startVelocity: 60,
-			},
-			{ x: 0.8, y: 1 }
-		);
-		makeShot(
-			0.6,
-			{
-				spread: 80,
-				startVelocity: 100,
-			},
-			{ x: 0.8, y: 1 }
-		);
-		makeShot(
 			1,
 			{
 				spread: 120,

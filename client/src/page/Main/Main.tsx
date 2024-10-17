@@ -4,6 +4,7 @@ import MainPortList from "../../component/Posts/PostList/MainPostList";
 import { UserRank } from "../../component/Posts/Rank/UserRank";
 import useCategory from "../../hook/useCategory";
 import usePostList from "../../hook/usePostList";
+import { Coupon } from "../../component/Coupon/coupon";
 
 const Main = () => {
 	const { postList: communityPosts } = usePostList({
@@ -38,7 +39,10 @@ const Main = () => {
 		<div>
 			<div className="mx-auto mt-2 w-full max-w-7xl px-4 lg:mt-[18px] lg:px-0">
 				<div className="ml-4 flex lg:space-x-10">
-					<UserRank />
+					<div className="flex flex-col gap-2">
+						<UserRank />
+						<Coupon />
+					</div>
 
 					<div className="w-full min-w-0 flex-auto lg:static lg:max-h-full lg:overflow-visible">
 						<div className="min-w-0 flex-auto">
@@ -50,7 +54,10 @@ const Main = () => {
 										</span>
 										<Link
 											className="m-4 justify-end text-base text-gray-300 hover:text-gray-500"
-											to={`/category/${categoriesByName.community?.subPath}`}
+											to={
+												categoriesByName.community
+													?.path ?? ""
+											}
 										>
 											바로가기
 										</Link>
@@ -64,7 +71,9 @@ const Main = () => {
 										</span>
 										<Link
 											className="m-4 justify-end text-base text-gray-300 hover:text-gray-500"
-											to={`/category/${categoriesByName.qna?.subPath}`}
+											to={
+												categoriesByName.qna?.path ?? ""
+											}
 										>
 											바로가기
 										</Link>
@@ -81,7 +90,10 @@ const Main = () => {
 										</span>
 										<Link
 											className="m-4 justify-end text-base text-gray-300 hover:text-gray-500"
-											to={`/category/${categoriesByName.crew?.subPath}`}
+											to={
+												categoriesByName.crew?.path ??
+												""
+											}
 										>
 											바로가기
 										</Link>
@@ -95,7 +107,10 @@ const Main = () => {
 										</span>
 										<Link
 											className="m-4 justify-end text-base text-gray-300 hover:text-gray-500"
-											to={`/category/${categoriesByName.achievement?.subPath}`}
+											to={
+												categoriesByName.achievement
+													?.path ?? ""
+											}
 										>
 											바로가기
 										</Link>

@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import { Room } from "src/chat/entities/room.entity";
 import { DataSource } from "typeorm";
 import { ServerError } from "../common/exceptions/server-error.exception";
 import { Log } from "../log/entities/log.entity";
@@ -13,6 +14,7 @@ import { GetPostDto } from "./dto/get-post.dto";
 import { ReadPostsQuery } from "./dto/read-posts-query.dto";
 import { UpdatePostDto } from "./dto/update-post.dto";
 import { Post } from "./entities/post.entity";
+import { RecrutingPost } from "./entities/recruting_posts.entity";
 import { PostRepository } from "./post.repository";
 
 @Injectable()
@@ -27,8 +29,9 @@ export class PostService {
 		let isTransactionStarted = false;
 
 		try {
-			let { doFilter, content, category_id, title, authorId } =
+			const { doFilter, category_id, title, authorId, room_id } =
 				createPostDto;
+			let { content } = createPostDto;
 
 			if (doFilter) {
 				const regex = getRegex(regexs);
@@ -64,6 +67,23 @@ export class PostService {
 
 			const result = await queryRunner.manager.save(newPost);
 			const postId = result.id;
+
+			if (room_id) {
+				const room = await queryRunner.manager
+					.getRepository(Room)
+					.findOne({ where: { id: room_id } });
+
+				// TODO : recruting_posts 테이블에 post_id, room_id insert
+				const recrutingPost = Object.assign(new RecrutingPost(), {
+					post: newPost, // post 객체 할당
+					room: room, // room 객체 할당
+				});
+
+				await queryRunner.manager
+					.getRepository(RecrutingPost)
+					.save(recrutingPost);
+			}
+
 			await queryRunner.manager.getRepository(Log).save(logValue);
 
 			await queryRunner.commitTransaction();
@@ -109,6 +129,12 @@ export class PostService {
 		if (!post) {
 			throw ServerError.notFound(POST_ERROR_MESSAGES.NOT_FOUND_POST);
 		} else {
+			//조회수 증가
+			console.log(post);
+			if (!post.is_author) {
+				await this.addView(post.id);
+				post.views += 1;
+			}
 			return post;
 		}
 	}
@@ -194,5 +220,17 @@ export class PostService {
 		});
 
 		return result.category.id;
+	}
+
+	private async addView(postId: number): Promise<void> {
+		const post = await this.postRepository.findOne({
+			where: { id: postId },
+		});
+		post.views += 1;
+
+		await this.postRepository.update(
+			{ id: postId },
+			{ views: post.views, updatedAt: post.updatedAt }
+		);
 	}
 }

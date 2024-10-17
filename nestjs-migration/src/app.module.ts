@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { APP_GUARD } from "@nestjs/core";
+import { EventEmitterModule } from "@nestjs/event-emitter";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { DataSource } from "typeorm";
 import {
@@ -19,15 +20,19 @@ import appConfig from "./config/app.config";
 import { typeOrmConfig } from "./config/db.config";
 import jwtConfig from "./config/jwt.config";
 import oauthConfig from "./config/oauth.config";
+import redisConfig from "./config/redis.config";
+import { CouponModule } from "./coupon/coupon.module";
 import { HealthModule } from "./health-check/health.module";
+import { ImageModule } from "./image/image.module";
 import { LikeModule } from "./like/like.module";
 import { LogModule } from "./log/log.module";
 import { OAuthModule } from "./oauth/oauth.module";
 import { PostModule } from "./post/post.module";
+import { QnAModule } from "./qna/qna.module";
 import { RankModule } from "./rank/rank.module";
 import { RbacModule } from "./rbac/rbac.module";
+import { RedisModule } from "./redis/redis.module";
 import { UserModule } from "./user/user.module";
-import { ImageModule } from "./image/image.module";
 
 @Module({
 	imports: [
@@ -36,7 +41,13 @@ import { ImageModule } from "./image/image.module";
 			isGlobal: true,
 			envFilePath:
 				process.env.NODE_ENV === "test" ? ".env.test" : "./../.env",
-			load: [appConfig, typeOrmConfig, jwtConfig, oauthConfig],
+			load: [
+				appConfig,
+				typeOrmConfig,
+				jwtConfig,
+				oauthConfig,
+				redisConfig,
+			],
 		}),
 		TypeOrmModule.forRootAsync({
 			imports: [ConfigModule],
@@ -60,6 +71,7 @@ import { ImageModule } from "./image/image.module";
 			},
 			inject: [ConfigService],
 		}),
+		EventEmitterModule.forRoot(),
 		UserModule,
 		AuthModule,
 		PostModule,
@@ -72,7 +84,10 @@ import { ImageModule } from "./image/image.module";
 		AdminModule,
 		HealthModule,
 		RankModule,
+		CouponModule,
+		RedisModule,
 		ImageModule,
+		QnAModule,
 	],
 	controllers: [AppController],
 	providers: [

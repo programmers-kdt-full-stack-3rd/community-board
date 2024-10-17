@@ -14,6 +14,7 @@ export const mapDBToPostInfo = (data: any): IPostInfo => {
 		views: data.views,
 		likes: data.likes,
 		user_liked: !!data.user_liked,
+		room_id: data.room_id,
 	};
 };
 

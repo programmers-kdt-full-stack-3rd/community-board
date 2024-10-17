@@ -13,6 +13,7 @@ const processMessage = async (dto: IKafkaMessageDTO) => {
 			timestamp, // string 형식의 시간 데이터
 		});
 	} catch (error) {
+		console.log(error);
 		throw new Error("message 처리 중 오류");
 	}
 };

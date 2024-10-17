@@ -11,10 +11,7 @@ export const chatAsideStyle = style({
 	minHeight: "200px",
 	zIndex: "2",
 	borderRadius: "20px",
-	paddingTop: "20px",
-	paddingBottom: "20px",
-	paddingLeft: "15px",
-	paddingRight: "15px",
+	color: "black",
 	overflowY: "hidden",
 	boxShadow: "0 0 5px white",
 });

@@ -19,8 +19,10 @@ export interface IRoomHeader {
 }
 
 export interface IRoomMember {
-	roomId: number;
 	memberId: number;
+	imgUrl?: string;
+	nickname: string;
+	isHost: boolean; //
 }
 
 // socket, kafka DTO ---------------------------------
