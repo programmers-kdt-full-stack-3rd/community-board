@@ -179,7 +179,7 @@ const Comments: React.FC = () => {
 				{comments.length > 0 ? (
 					comments.map(comment => (
 						<CommentItem
-							key={comment.id}
+							key={`${comment.id}-${comment.user_liked}`}
 							comment={comment}
 							onUpdate={handleCommentUpdate}
 							onDelete={handleCommentDelete}

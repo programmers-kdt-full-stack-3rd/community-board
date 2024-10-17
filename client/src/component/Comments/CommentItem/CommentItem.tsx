@@ -4,6 +4,7 @@ import {
 	sendDeleteCommentRequest,
 	sendPatchCommentRequest,
 } from "../../../api/comments/crud";
+import { sendQnaAcceptCommentRequest } from "../../../api/posts/qna_crud";
 import { dateToStr } from "../../../utils/date-to-str";
 import CommentForm from "../CommentForm/CommentForm";
 import CommentLikeButton from "../CommentLikeButton/CommentLikeButton";
@@ -31,6 +32,7 @@ const CommentItem: React.FC<ICommentItemProps> = ({
 	const [isEditMode, setIsEditMode] = useState(false);
 
 	const globalErrorModal = useGlobalErrorModal();
+	const acceptConfirmModal = useModal();
 	const deleteConfirmModal = useModal();
 
 	const { post, isQnaCategory, acceptedCommentId, fetchPost } = usePostInfo();
@@ -54,12 +56,17 @@ const CommentItem: React.FC<ICommentItemProps> = ({
 	);
 
 	const handleAccept = async () => {
+		post.id;
+
 		const res = await ApiCall(
-			// TODO: 댓글 채택 API 호출
-			() => Promise.resolve({}),
 			() =>
+				sendQnaAcceptCommentRequest({
+					postId: post.id,
+					commentId: comment.id,
+				}),
+			err =>
 				globalErrorModal.openWithMessageSplit({
-					messageWithTitle: "오류: 댓글 채택 API 호출 실패",
+					messageWithTitle: err.message,
 				})
 		);
 
@@ -67,7 +74,12 @@ const CommentItem: React.FC<ICommentItemProps> = ({
 			return;
 		}
 
-		alert("댓글을 채택했습니다.");
+		acceptConfirmModal.close();
+		globalErrorModal.open({
+			variant: "info",
+			title: "안내",
+			message: "댓글을 채택했습니다.",
+		});
 		fetchPost(post.id);
 	};
 
@@ -140,7 +152,24 @@ const CommentItem: React.FC<ICommentItemProps> = ({
 	return (
 		<div className="border-b-customGray flex w-full border-spacing-3 flex-row items-center justify-between border-b">
 			<ConfirmModal
+				isOpen={acceptConfirmModal.isOpen}
+				variant="warning"
+				okButtonLabel="채택하기"
+				onAccept={handleAccept}
+				onClose={acceptConfirmModal.close}
+			>
+				<ConfirmModal.Title>댓글 채택 확인</ConfirmModal.Title>
+				<ConfirmModal.Body>
+					이 댓글을 정말로 채택할까요?
+					<br />
+					댓글을 채택한 이후에는 이 게시글을 수정·삭제할 수 없게 되며,
+					이 게시글의 댓글도 작성·수정·삭제를 할 수 없게 됩니다.
+				</ConfirmModal.Body>
+			</ConfirmModal>
+
+			<ConfirmModal
 				isOpen={deleteConfirmModal.isOpen}
+				variant="warning"
 				okButtonColor="danger"
 				okButtonLabel="댓글 삭제"
 				onAccept={handleDelete}
@@ -183,7 +212,7 @@ const CommentItem: React.FC<ICommentItemProps> = ({
 								color="action"
 								size="small"
 								variant="text"
-								onClick={handleAccept}
+								onClick={acceptConfirmModal.open}
 							>
 								채택하기
 							</Button>

@@ -17,7 +17,6 @@ const MainPortList = ({ posts, keyword }: IPostListProps) => {
 			<ul className="divide-customGray divide-y">
 				{isPostsEmpty ? (
 					<EmptyPostListBody
-						className="my-30 text-center text-2xl text-gray-500"
 						isFetchFailed={isFetchFailed}
 						keyword={keyword}
 					/>

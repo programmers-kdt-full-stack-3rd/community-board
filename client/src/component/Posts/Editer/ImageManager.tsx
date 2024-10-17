@@ -13,11 +13,22 @@ interface IProps {
 	setEditorContents: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const s3ImageUrlPattern =
-	/^https:\/\/codeplay-bucket\.s3\.([a-z0-9_-]+)\.amazonaws\.com\/(.+)$/gi;
+const s3Region = import.meta.env.VITE_REGION;
+const s3Bucket = import.meta.env.VITE_BUCKET_NAME;
+
+const s3ImageUrlPrefixes = [
+	`https://s3.${s3Region}.amazonaws.com/${s3Bucket}/`,
+	`https://${s3Bucket}.s3.${s3Region}.amazonaws.com/`,
+];
 
 const isS3Image = (url: string): boolean => {
-	return s3ImageUrlPattern.test(url);
+	for (const prefix of s3ImageUrlPrefixes) {
+		if (url.startsWith(prefix)) {
+			return true;
+		}
+	}
+
+	return false;
 };
 
 const ImageManager: React.FC<IProps> = ({
