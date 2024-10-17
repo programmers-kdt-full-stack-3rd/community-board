@@ -1,13 +1,15 @@
-import Redis from "ioredis";
 import { Injectable } from "@nestjs/common";
-import { redisConfig } from "src/config/redis.config";
+import { ConfigService } from "@nestjs/config";
+import Redis from "ioredis";
 
 @Injectable()
 export class RedisRepository {
 	private readonly redisClient: Redis;
 
-	constructor() {
-		this.redisClient = new Redis(redisConfig);
+	constructor(private readonly configService: ConfigService) {
+		const host: string = this.configService.get("redis.host");
+		const port: number = this.configService.get("redis.port");
+		this.redisClient = new Redis(port, host);
 	}
 
 	//test용
