@@ -36,7 +36,6 @@ async function bootstrap() {
 
 	const configService = app.get(ConfigService);
 	const port = configService.get("app.port");
-	console.log(port);
 	await app.listen(port);
 }
 bootstrap();

@@ -1,5 +1,4 @@
 import { TbMessage2Search } from "react-icons/tb";
-import { IoMdSettings } from "react-icons/io";
 import { BsWechat } from "react-icons/bs";
 import { ChatAsideCategory, useChatAside } from "../../../state/ChatAsideStore";
 import {
@@ -65,33 +64,6 @@ const ChatFooter = () => {
 					}
 				>
 					채팅
-				</div>
-			</div>
-			<div
-				className={chatCategoryStyle}
-				onClick={() => {
-					setCategory(ChatAsideCategory.SETTING);
-				}}
-			>
-				<IoMdSettings
-					className={
-						chatIconStyle[
-							ChatAsideCategory.SETTING === category
-								? "active"
-								: "inactive"
-						]
-					}
-				/>
-				<div
-					className={
-						chatIconTextStyle[
-							ChatAsideCategory.SETTING === category
-								? "active"
-								: "inactive"
-						]
-					}
-				>
-					설정
 				</div>
 			</div>
 		</div>

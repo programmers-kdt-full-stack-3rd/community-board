@@ -23,7 +23,7 @@ const MainPortList = ({ posts, keyword }: IPostListProps) => {
 				) : (
 					posts.map(postHeader => (
 						<li
-							className="py-4 last:pb-0"
+							className="px-[10px] py-4 last:pb-0"
 							key={postHeader.id}
 						>
 							<div className="flex items-center justify-between text-gray-600 dark:text-gray-400">

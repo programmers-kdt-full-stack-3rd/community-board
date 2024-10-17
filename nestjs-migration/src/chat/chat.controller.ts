@@ -215,7 +215,6 @@ export class ChatController {
 
 			return { roomMembers: result };
 		} catch (err) {
-			console.log(err);
 			throw ServerError.reference(
 				CHAT_ERROR_MESSAGES.READ_ROOM_MEMBERS_ERROR
 			);
