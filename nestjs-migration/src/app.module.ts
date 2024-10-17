@@ -27,6 +27,9 @@ import { PostModule } from "./post/post.module";
 import { RankModule } from "./rank/rank.module";
 import { RbacModule } from "./rbac/rbac.module";
 import { UserModule } from "./user/user.module";
+import { CouponModule } from "./coupon/coupon.module";
+import { RedisModule } from "./redis/redis.module";
+import { EventEmitterModule } from "@nestjs/event-emitter";
 import { ImageModule } from "./image/image.module";
 import { QnAModule } from "./qna/qna.module";
 
@@ -61,6 +64,7 @@ import { QnAModule } from "./qna/qna.module";
 			},
 			inject: [ConfigService],
 		}),
+		EventEmitterModule.forRoot(),
 		UserModule,
 		AuthModule,
 		PostModule,
@@ -73,6 +77,8 @@ import { QnAModule } from "./qna/qna.module";
 		AdminModule,
 		HealthModule,
 		RankModule,
+		CouponModule,
+		RedisModule,
 		ImageModule,
 		QnAModule,
 	],
