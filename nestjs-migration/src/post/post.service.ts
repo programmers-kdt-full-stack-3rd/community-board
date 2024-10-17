@@ -1,19 +1,19 @@
 import { Injectable } from "@nestjs/common";
-import { CreatePostDto } from "./dto/create-post.dto";
-import { UpdatePostDto } from "./dto/update-post.dto";
 import { DataSource } from "typeorm";
+import { ServerError } from "../common/exceptions/server-error.exception";
+import { Log } from "../log/entities/log.entity";
 import { changeBadWords, getRegex } from "../utils/bad-word-regex/regexTask";
 import { regexs } from "../utils/bad-word-regex/regexs.json";
 import { makeLogTitle } from "../utils/user-logs-utils";
-import { Post } from "./entities/post.entity";
-import { ReadPostsQuery } from "./dto/read-posts-query.dto";
-import { PostRepository } from "./post.repository";
-import { Log } from "../log/entities/log.entity";
-import { ServerError } from "../common/exceptions/server-error.exception";
-import { GetPostHeadersDto } from "./dto/get-post-headers.dto";
-import { DeletePostDto } from "./dto/delete-post.dto";
 import { POST_ERROR_MESSAGES } from "./constant/post.constants";
+import { CreatePostDto } from "./dto/create-post.dto";
+import { DeletePostDto } from "./dto/delete-post.dto";
+import { GetPostHeadersDto } from "./dto/get-post-headers.dto";
 import { GetPostDto } from "./dto/get-post.dto";
+import { ReadPostsQuery } from "./dto/read-posts-query.dto";
+import { UpdatePostDto } from "./dto/update-post.dto";
+import { Post } from "./entities/post.entity";
+import { PostRepository } from "./post.repository";
 
 @Injectable()
 export class PostService {
@@ -34,6 +34,14 @@ export class PostService {
 				const regex = getRegex(regexs);
 				const newText = changeBadWords(content, regex);
 				content = newText;
+			}
+
+			if (category_id === 5) {
+				if (!this.checkTemplate(content)) {
+					throw ServerError.badRequest(
+						POST_ERROR_MESSAGES.INVALID_TEMPLATE
+					);
+				}
 			}
 
 			const newPost = Object.assign(new Post(), {
@@ -156,5 +164,27 @@ export class PostService {
 		} else {
 			throw ServerError.reference(POST_ERROR_MESSAGES.DELETE_POST_ERROR);
 		}
+	}
+
+	private checkTemplate(content: string): boolean {
+		const requiredSections = [
+			'<p><strong class="ql-size-large">📝 </strong><strong class="ql-size-large ql-color-red3">[버그/이슈] </strong><strong class="ql-size-large">설명</strong></p>',
+			'<p><strong class="ql-size-large">🔍 해결 단계</strong></p>',
+			'<p><strong class="ql-size-large">💡 예상 결과</strong></p>',
+			'<p><strong class="ql-size-large">💡 실제 결과</strong></p>',
+			'<p><strong class="ql-size-large">🔗 추가 정보(참고 사항)</strong></p>',
+			'<p><strong class="ql-size-large">📌 우선순위</strong></p>',
+		];
+
+		return requiredSections.every(section => content.includes(section));
+	}
+
+	private async getCategoryIdByPostId(postId: number): Promise<number> {
+		const result = await this.postRepository.findOne({
+			where: { id: postId },
+			select: ["category"],
+		});
+
+		return result.category.id;
 	}
 }
