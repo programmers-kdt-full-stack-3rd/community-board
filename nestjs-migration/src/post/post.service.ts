@@ -1,21 +1,21 @@
 import { Injectable } from "@nestjs/common";
-import { CreatePostDto } from "./dto/create-post.dto";
-import { UpdatePostDto } from "./dto/update-post.dto";
+import { Room } from "src/chat/entities/room.entity";
 import { DataSource } from "typeorm";
+import { ServerError } from "../common/exceptions/server-error.exception";
+import { Log } from "../log/entities/log.entity";
 import { changeBadWords, getRegex } from "../utils/bad-word-regex/regexTask";
 import { regexs } from "../utils/bad-word-regex/regexs.json";
 import { makeLogTitle } from "../utils/user-logs-utils";
-import { Post } from "./entities/post.entity";
-import { ReadPostsQuery } from "./dto/read-posts-query.dto";
-import { PostRepository } from "./post.repository";
-import { Log } from "../log/entities/log.entity";
-import { ServerError } from "../common/exceptions/server-error.exception";
-import { GetPostHeadersDto } from "./dto/get-post-headers.dto";
-import { DeletePostDto } from "./dto/delete-post.dto";
 import { POST_ERROR_MESSAGES } from "./constant/post.constants";
+import { CreatePostDto } from "./dto/create-post.dto";
+import { DeletePostDto } from "./dto/delete-post.dto";
+import { GetPostHeadersDto } from "./dto/get-post-headers.dto";
 import { GetPostDto } from "./dto/get-post.dto";
+import { ReadPostsQuery } from "./dto/read-posts-query.dto";
+import { UpdatePostDto } from "./dto/update-post.dto";
+import { Post } from "./entities/post.entity";
 import { RecrutingPost } from "./entities/recruting_posts.entity";
-import { Room } from "src/chat/entities/room.entity";
+import { PostRepository } from "./post.repository";
 
 @Injectable()
 export class PostService {
@@ -121,6 +121,12 @@ export class PostService {
 		if (!post) {
 			throw ServerError.notFound(POST_ERROR_MESSAGES.NOT_FOUND_POST);
 		} else {
+			//조회수 증가
+			console.log(post);
+			if (!post.is_author) {
+				await this.addView(post.id);
+				post.views += 1;
+			}
 			return post;
 		}
 	}
@@ -176,5 +182,17 @@ export class PostService {
 		} else {
 			throw ServerError.reference(POST_ERROR_MESSAGES.DELETE_POST_ERROR);
 		}
+	}
+
+	private async addView(postId: number): Promise<void> {
+		const post = await this.postRepository.findOne({
+			where: { id: postId },
+		});
+		post.views += 1;
+
+		await this.postRepository.update(
+			{ id: postId },
+			{ views: post.views, updatedAt: post.updatedAt }
+		);
 	}
 }
