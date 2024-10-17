@@ -4,7 +4,9 @@ import OAuthLoginButtons from "../../component/User/OAuthLoginButtons";
 const OAuthLink: React.FC = () => {
 	return (
 		<div className="dark:bg-customGray mx-auto w-full max-w-[350px] rounded-lg bg-gray-300 p-5 shadow-md">
-			<h1 className="mb-10">소셜 로그인 연동 관리</h1>
+			<h1 className="mb-5 px-3 font-bold text-gray-600 dark:text-gray-400">
+				소셜 로그인 연동 관리
+			</h1>
 
 			<OAuthLoginButtons loginType="link" />
 		</div>

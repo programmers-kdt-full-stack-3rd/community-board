@@ -1,7 +1,8 @@
 import React from "react";
 import { twMerge } from "tailwind-merge";
 
-interface ITextInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface ITextInputProps
+	extends React.InputHTMLAttributes<HTMLInputElement> {
 	wrapperClassName?: string;
 	type?: "email" | "number" | "password" | "search" | "tel" | "text" | "url";
 	label?: string;

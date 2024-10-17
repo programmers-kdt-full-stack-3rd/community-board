@@ -3,12 +3,13 @@ import { useState } from "react";
 type TValidateFn = (
 	value: string,
 	pass: () => void,
-	fail: (message: string) => void
+	fail: (message: string) => void,
+	clear: () => void
 ) => void;
 
 interface IStringWithValidation {
 	value: string;
-	isValid: boolean;
+	isValid: boolean | undefined;
 	errorMessage: string;
 
 	/**
@@ -32,7 +33,7 @@ interface IStringWithValidation {
 
 export const useStringWithValidation = (): IStringWithValidation => {
 	const [text, setText] = useState("");
-	const [isValid, setIsValid] = useState(false);
+	const [isValid, setIsValid] = useState<boolean | undefined>(undefined);
 	const [errorMessage, setErrorMessage] = useState("");
 
 	const setValidationPass = () => {
@@ -46,12 +47,12 @@ export const useStringWithValidation = (): IStringWithValidation => {
 	};
 
 	const clearValidation = () => {
-		setIsValid(false);
+		setIsValid(undefined);
 		setErrorMessage("");
 	};
 
 	const setValidation = (validateFn: TValidateFn = clearValidation) => {
-		validateFn(text, setValidationPass, setValidationFail);
+		validateFn(text, setValidationPass, setValidationFail, clearValidation);
 	};
 
 	const setValue = (
@@ -59,7 +60,12 @@ export const useStringWithValidation = (): IStringWithValidation => {
 		validateFn: TValidateFn = clearValidation
 	) => {
 		setText(value);
-		validateFn(value, setValidationPass, setValidationFail);
+		validateFn(
+			value,
+			setValidationPass,
+			setValidationFail,
+			clearValidation
+		);
 	};
 
 	return {

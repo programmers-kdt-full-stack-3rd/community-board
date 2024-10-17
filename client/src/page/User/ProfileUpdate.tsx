@@ -1,17 +1,19 @@
 import { ChangeEvent, FC, useMemo, useState } from "react";
-import NicknameForm from "../../component/User/NicknameForm";
 import PasswordForm from "../../component/User/PasswordForm";
-
-import SubmitButton from "../../component/User/SubmitButton";
 import { ERROR_MESSAGE, REGEX } from "./constants/constants";
 import ErrorMessageForm from "../../component/User/ErrorMessageForm";
-import { sendPutUpdateUserRequest } from "../../api/users/crud";
+import {
+	sendPostCheckUserRequest,
+	sendPutUpdateUserRequest,
+} from "../../api/users/crud";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useUserStore } from "../../state/store";
 import { ApiCall } from "../../api/api";
 import { ClientError } from "../../api/errors";
 import { useStringWithValidation } from "../../hook/useStringWithValidation";
 import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
+import TextInput from "../../component/common/TextInput";
+import Button from "../../component/common/Button";
 
 interface IProfileUpdatePayload {
 	email?: string | undefined;
@@ -127,13 +129,29 @@ const ProfileUpdate: FC = () => {
 	);
 
 	const checkNicknameDuplication = () => {
-		nickname.setValidation((value, pass, fail) => {
+		nickname.setValidation(async (value, pass, fail) => {
 			if (!REGEX.NICKNAME.test(value)) {
 				fail(ERROR_MESSAGE.NICKNAME_REGEX);
 				return;
 			}
 
-			// TODO : api 호출해서 중복 확인
+			const res = await ApiCall(
+				() => sendPostCheckUserRequest({ nickname: value }),
+				err => {
+					console.log(err);
+					fail("잠시 후 다시 시도해주세요!");
+					return;
+				}
+			);
+
+			if (res instanceof ClientError) {
+				return;
+			}
+
+			if (res.isDuplicated) {
+				fail("중복된 닉네임입니다.");
+				return;
+			}
 
 			pass();
 		});
@@ -171,35 +189,52 @@ const ProfileUpdate: FC = () => {
 	};
 
 	return (
-		<div className="mx-auto w-full max-w-[350px] rounded-lg bg-gray-800 p-5 shadow-md">
-			<h1>유저 정보 수정</h1>
+		<div className="dark:bg-customGray mx-auto w-full max-w-[350px] rounded-lg bg-gray-200 p-5 shadow-md">
+			<h1 className="mb-5 px-3 font-bold text-gray-600 dark:text-gray-400">
+				유저 정보 수정
+			</h1>
 
 			<div className="flex flex-col gap-2.5">
-				<NicknameForm
-					labelText="변경할 닉네임"
-					nickname={nickname.value}
-					onChange={handleNicknameChange}
-					errorMessage={nickname.errorMessage}
+				<TextInput
+					type="text"
+					id="nickname"
+					label="변경할 닉네임"
+					value={nickname.value}
+					placeholder="닉네임을 입력하세요."
 					isValid={nickname.isValid}
-					isDuplicateCheck={true}
-					duplicationCheckFunc={checkNicknameDuplication}
+					errorMessage={nickname.errorMessage}
+					onChange={handleNicknameChange}
+					actionButton={
+						<Button
+							size="small"
+							disabled={nickname.isValid}
+							onClick={checkNicknameDuplication}
+						>
+							중복 확인
+						</Button>
+					}
 				/>
+
 				{isEmailRegistered && (
 					<>
 						<PasswordForm
-							labelText={"변경할 비밀번호"}
-							password={password.value}
-							onChange={handlePasswordChange}
-							errorMessage={password.errorMessage}
+							mode="new"
+							id="password"
+							label="변경할 비밀번호"
+							value={password.value}
+							placeholder="10자 이상의 영문 대/소문자, 숫자를 사용"
 							isValid={password.isValid}
+							errorMessage={password.errorMessage}
+							onChange={handlePasswordChange}
 						/>
+
 						<PasswordForm
-							labelText={"비밀번호 확인"}
-							id="requiredPassword"
-							password={requiredPassword.value}
-							onChange={handleRequiredPasswordChange}
-							errorMessage={requiredPassword.errorMessage}
+							mode="confirm"
+							id="password-confirm"
+							label="비밀번호 확인"
 							isValid={requiredPassword.isValid}
+							errorMessage={requiredPassword.errorMessage}
+							onChange={handleRequiredPasswordChange}
 						/>
 					</>
 				)}
@@ -207,24 +242,24 @@ const ProfileUpdate: FC = () => {
 					<ErrorMessageForm>{errorMessage}</ErrorMessageForm>
 				)}
 
-				<div className="flex w-full flex-row justify-between gap-2.5">
-					<button
-						className="my-3 h-[50px] w-full cursor-pointer rounded-md bg-gray-600 p-0 text-white hover:brightness-75"
+				<div className="mt-5 flex w-full flex-row justify-stretch gap-5">
+					<Button
+						className="flex-1"
+						variant="text"
+						size="large"
 						onClick={handleCancle}
 					>
 						취소
-					</button>
-					<SubmitButton
-						className={
-							btnApply
-								? `my-4 h-[50px] w-full cursor-pointer rounded-[6px] border border-[#444] bg-green-600 p-0 text-center text-base text-white transition-opacity duration-200 hover:bg-green-700 hover:opacity-90`
-								: `my-4 h-[50px] w-full cursor-pointer rounded-[6px] border border-[#444] bg-[#555] p-0 text-center text-base text-white transition-opacity duration-200 hover:bg-[#666] hover:opacity-90`
-						}
+					</Button>
+
+					<Button
+						className="flex-1"
+						size="large"
 						onClick={handleSubmit}
-						apply={btnApply}
+						disabled={!btnApply}
 					>
 						유저 정보 변경
-					</SubmitButton>
+					</Button>
 				</div>
 			</div>
 		</div>
