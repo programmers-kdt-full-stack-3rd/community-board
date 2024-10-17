@@ -1,3 +1,4 @@
+import { Transform } from "class-transformer";
 import {
 	IsBoolean,
 	IsDefined,
@@ -16,6 +17,7 @@ export class JoinRoomReq {
 	nickname?: string;
 
 	@IsDefined()
+	@Transform(({ value }) => value === "true")
 	@IsBoolean()
 	isPrivate: boolean;
 

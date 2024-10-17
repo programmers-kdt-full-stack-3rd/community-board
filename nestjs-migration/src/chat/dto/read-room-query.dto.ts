@@ -22,9 +22,9 @@ export class ReadRoomQuery {
 	perPage: number = 2;
 
 	@IsOptional()
-	@Transform(({ value }) => optionalBooleanMapper[value])
+	@Transform(({ value }) => value === "true")
 	@IsBoolean()
-	isSearch?: boolean;
+	isSearch: boolean;
 
 	@IsOptional()
 	@IsString()

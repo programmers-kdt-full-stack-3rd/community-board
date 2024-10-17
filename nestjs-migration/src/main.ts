@@ -18,6 +18,7 @@ async function bootstrap() {
 				const errorMessage = Object.values(errors[0].constraints)[0];
 				throw ServerError.badRequest(errorMessage);
 			},
+			transform: true,
 		})
 	);
 	const cors = require("cors");
