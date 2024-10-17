@@ -15,7 +15,5 @@ export class CouponConsumer {
 		} catch (err) {
 			throw err;
 		}
-
-		return {};
 	}
 }

@@ -34,15 +34,12 @@ export class RedisRepository {
 	}
 
 	async setStock(couponId: number, stock: number): Promise<void> {
-		await this.redisClient.set(
-			`coupon_stock_${couponId}`,
-			stock.toString()
-		);
+		await this.redisClient.set(`coupon_stock_${couponId}`, stock);
 	}
 
-	async getStock(couponId: number): Promise<number | null> {
+	async getStock(couponId: number): Promise<number> {
 		const stock = await this.redisClient.get(`coupon_stock_${couponId}`);
-		return stock ? parseInt(stock, 10) : null;
+		return parseInt(stock, 10);
 	}
 
 	async decreaseStock(couponId: number): Promise<number> {

@@ -20,6 +20,14 @@ async function bootstrap() {
 			},
 		})
 	);
+	const cors = require("cors");
+	app.use(
+		cors({
+			origin: "http://localhost:3002", // 요청을 허용할 도메인
+			methods: ["GET", "POST"], // 허용할 HTTP 메소드
+			credentials: true, // 인증 정보 포함 여부
+		})
+	);
 
 	app.useGlobalFilters(new GlobalExceptionFilter());
 	app.use(cookieParser());
