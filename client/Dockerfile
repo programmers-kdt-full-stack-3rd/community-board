@@ -1,4 +1,4 @@
-FROM node:latest AS build
+FROM node:18 AS build
 
 WORKDIR /app/community_board
 
@@ -12,8 +12,6 @@ COPY ./nginx/.env ./
 
 RUN npm install
 RUN npm run build --workspace=client
-
-RUN ls -la ./client/dist
 
 # 빌드된 파일을 복사할 경로 수정
 FROM nginx:latest

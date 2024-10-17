@@ -125,12 +125,17 @@ export const handleRoomEvents = (socket: Socket) => {
 				// 메시지 조회
 				// console.time("message reading time");
 				const messagesData = await getMessages(roomId); // Redis
+
+				console.log(`messagesDataCount : ${messagesData.length}`);
+
 				const messageLogsData =
 					messagesData.length > 0
 						? { data: { messageLogs: messagesData } }
 						: await getMessageLogs({ roomId }, cookie); // Redis X
 				const { messageLogs } = messageLogsData.data;
 				// console.timeEnd("message reading time");
+
+				console.log(`messagesLogDataCount : ${messageLogs.length}`);
 
 				// 메시지 저장
 				messagesData.length === 0 &&

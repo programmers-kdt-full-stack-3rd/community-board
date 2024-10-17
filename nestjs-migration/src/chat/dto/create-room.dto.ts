@@ -1,3 +1,4 @@
+import { Transform } from "class-transformer";
 import { IsBoolean, IsDefined, IsOptional, IsString } from "class-validator";
 
 export class CreateRoomReq {
@@ -6,6 +7,7 @@ export class CreateRoomReq {
 	title: string;
 
 	@IsDefined()
+	@Transform(({ value }) => value === "true")
 	@IsBoolean()
 	isPrivate: boolean;
 
