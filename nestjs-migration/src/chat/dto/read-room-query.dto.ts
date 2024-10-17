@@ -1,4 +1,4 @@
-import { Type } from "class-transformer";
+import { Transform } from "class-transformer";
 import {
 	IsBoolean,
 	IsNumber,
@@ -6,22 +6,23 @@ import {
 	IsString,
 	Min,
 } from "class-validator";
+import { optionalBooleanMapper } from "src/utils/boolean_map";
 
 export class ReadRoomQuery {
 	@IsOptional()
-	@Type(() => Number) // 쿼리 파라미터를 숫자로 변환
+	@Transform(({ value }) => Number(value))
 	@IsNumber()
 	@Min(0)
 	page: number = 0;
 
 	@IsOptional()
-	@Type(() => Number)
+	@Transform(({ value }) => Number(value))
 	@IsNumber()
 	@Min(1)
 	perPage: number = 2;
 
 	@IsOptional()
-	@Type(() => Boolean)
+	@Transform(({ value }) => optionalBooleanMapper[value])
 	@IsBoolean()
 	isSearch?: boolean;
 

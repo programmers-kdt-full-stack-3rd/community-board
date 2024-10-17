@@ -106,16 +106,18 @@ const Community: React.FC<IProps> = ({ categoryId }) => {
 							/>
 
 							<div className="flex flex-col gap-2">
-								{isLogin && currentCategory && (
-									<div className="flex justify-end">
-										<button
-											className="dark:bg-customGray bg-blue-900 text-white"
-											onClick={handleCreatePostClick}
-										>
-											글쓰기
-										</button>
-									</div>
-								)}
+								{isLogin &&
+									currentCategory &&
+									categoryId !== 4 && (
+										<div className="flex justify-end">
+											<button
+												className="dark:bg-customGray bg-blue-900 text-white"
+												onClick={handleCreatePostClick}
+											>
+												글쓰기
+											</button>
+										</div>
+									)}
 							</div>
 						</div>
 
