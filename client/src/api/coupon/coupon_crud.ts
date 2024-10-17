@@ -1,9 +1,15 @@
-export const fetchCouponName = async () => {
-	const response = await fetch(`${3001}/api/coupon/users`);
-	if (!response.ok) {
-		throw new Error("Network response was not ok");
-	}
+import { HttpMethod, httpRequest } from "../api";
 
-	const data = await response.json();
-	return data;
+export const fetchCoupon = async () => {
+	const url = `coupon`;
+	return await httpRequest(
+		url,
+		HttpMethod.POST,
+		JSON.stringify({ coupon_id: 1 })
+	);
+};
+
+export const fetchCouponName = async () => {
+	const url = `coupon/users`;
+	return await httpRequest(url, HttpMethod.GET);
 };

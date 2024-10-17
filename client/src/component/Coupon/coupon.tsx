@@ -5,12 +5,38 @@ import { useModal } from "../../hook/useModal";
 import AlertModal from "../common/Modal/AlertModal";
 import { useState } from "react";
 import { FaStar } from "react-icons/fa";
+import { fetchCoupon } from "../../api/coupon/coupon_crud";
+
 export const Coupon = () => {
 	const alertModal = useModal();
-	const [isSoldOut] = useState(false);
+	const [alertMessage, setAlertMessage] = useState("");
 
-	const handleCoupon = () => {
-		alertModal.open();
+	const handleCoupon = async () => {
+		try {
+			const response = await fetchCoupon();
+			console.log(response);
+			console.log(response.status);
+
+			if (response.status === 200) {
+				setAlertMessage("쿠폰이 발급되었습니다.");
+			} else if (
+				response.status === 409 &&
+				response.message == "Unknown Error: Unknown Error: 중복쿠폰"
+			) {
+				// const errorMessage = await response.message();
+				setAlertMessage("이미 발급된 쿠폰입니다");
+			} else if (
+				response.status === 409 &&
+				response.message == "Unknown Error: Unknown Error: 쿠폰없음"
+			) {
+				// const errorMessage = await response.message();
+				setAlertMessage("쿠폰이 모두 소진되었습니다");
+			}
+		} catch (error) {
+			setAlertMessage("오류가 발생했습니다");
+		} finally {
+			alertModal.open();
+		}
 	};
 
 	return (
@@ -60,9 +86,7 @@ export const Coupon = () => {
 				>
 					<AlertModal.Title>안내</AlertModal.Title>
 					<AlertModal.Body>
-						{isSoldOut
-							? "선착순 쿠폰이 모두 소진되었습니다."
-							: "쿠폰이 발급되었습니다."}
+						{alertMessage} {/* 응답 메시지 출력 */}
 					</AlertModal.Body>
 				</AlertModal>
 			</div>
