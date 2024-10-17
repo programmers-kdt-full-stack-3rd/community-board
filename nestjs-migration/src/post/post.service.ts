@@ -124,6 +124,14 @@ export class PostService {
 			content = changeBadWords(content, regex);
 		}
 
+		if ((await this.getCategoryIdByPostId(postId)) === 5) {
+			if (!this.checkTemplate(content)) {
+				throw ServerError.badRequest(
+					POST_ERROR_MESSAGES.INVALID_TEMPLATE
+				);
+			}
+		}
+
 		let result;
 		if (content && title) {
 			result = await this.postRepository.update(
