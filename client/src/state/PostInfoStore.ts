@@ -2,11 +2,12 @@ import { IPostInfo, mapDBToPostInfo } from "shared";
 import { create } from "zustand";
 import { ApiCall } from "../api/api";
 import { sendGetPostRequest } from "../api/posts/crud";
+import { sendQnaAcceptedCommentIdsRequest } from "../api/posts/qna_crud";
 
 interface IPostInfoState {
 	post: IPostInfo;
 	postErrorMessage: string;
-	postFetchState: "loading" | "error" | "ok";
+	postFetchState: "loading" | "error" | "qna-error" | "ok";
 
 	isQnaCategory: boolean;
 	acceptedCommentId: number | null;
@@ -69,12 +70,21 @@ export const usePostInfo = create<TPostInfoStore>(set => ({
 
 		if (isQnaCategory) {
 			const qnaRes = await ApiCall(
-				// TODO: 주어진 게시글 ID 목록으로 채택 댓글 목록 요청
 				() =>
-					Promise.resolve({
-						commentIds: [postId % 2 || null],
+					sendQnaAcceptedCommentIdsRequest({
+						postIds: [fetchedPost.id],
 					}),
-				() => {}
+				err =>
+					set(state => ({
+						...state,
+
+						post: fetchedPost,
+						postErrorMessage: err.message,
+						postFetchState: "qna-error",
+
+						isQnaCategory,
+						acceptedCommentId: null,
+					}))
 			);
 
 			if (!(qnaRes instanceof Error)) {

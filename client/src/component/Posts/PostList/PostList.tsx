@@ -120,7 +120,6 @@ const PostList: React.FC<IPostListProps> = ({
 				<div className="flex flex-col">
 					{isPostsEmpty ? (
 						<EmptyPostListBody
-							className="my-30 text-center text-lg text-gray-600 dark:text-gray-500"
 							isFetchFailed={isFetchFailed}
 							keyword={keyword}
 						/>
