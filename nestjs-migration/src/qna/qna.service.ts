@@ -30,15 +30,21 @@ export class QnAService {
 	async acceptQnAComment({
 		postId,
 		commentId,
+		userId,
 	}: AcceptQnACommentReq): Promise<void> {
 		const post = await this.qnaRepository.manager.findOne(Post, {
 			where: { id: postId },
+			relations: ["author"],
 		});
 
 		if (!post) {
 			throw ServerError.badRequest(
 				`Post ID(${postId})가 존재하지 않습니다.`
 			);
+		}
+
+		if (post.author.id !== userId) {
+			throw ServerError.forbidden(`해당 게시물의 작성자가 아닙니다.`);
 		}
 
 		const comment = await this.qnaRepository.manager.findOne(Comment, {
