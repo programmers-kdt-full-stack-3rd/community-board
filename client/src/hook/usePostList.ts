@@ -5,6 +5,7 @@ import {
 	sendGetPostsRequest,
 	TPostListClientSearchParams,
 } from "../api/posts/crud";
+import { sendQnaAcceptedCommentIdsRequest } from "../api/posts/qna_crud";
 
 type TPostListHookProps = Partial<
 	TPostListClientSearchParams & {
@@ -77,12 +78,9 @@ const usePostList = ({
 		}
 
 		const qnaRes = await ApiCall(
-			// TODO: 주어진 게시글 ID 목록으로 채택 댓글 목록 요청
 			() =>
-				Promise.resolve({
-					commentIds: fetchedPostList.map(({ id }) =>
-						id % 2 ? 1 : null
-					),
+				sendQnaAcceptedCommentIdsRequest({
+					postIds: fetchedPostList.map(({ id }) => id),
 				}),
 			() => setAcceptedCommentIds(fetchedPostList.map(() => null))
 		);
@@ -91,7 +89,9 @@ const usePostList = ({
 			return;
 		}
 
-		setAcceptedCommentIds(qnaRes?.commentIds ?? []);
+		setAcceptedCommentIds(
+			qnaRes?.commentIds ?? fetchedPostList.map(() => null)
+		);
 	}, postRequestDeps);
 
 	useEffect(() => {
