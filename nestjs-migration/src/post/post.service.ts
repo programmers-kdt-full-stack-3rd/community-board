@@ -39,6 +39,14 @@ export class PostService {
 				content = newText;
 			}
 
+			if (category_id === 5) {
+				if (!this.checkTemplate(content)) {
+					throw ServerError.badRequest(
+						POST_ERROR_MESSAGES.INVALID_TEMPLATE
+					);
+				}
+			}
+
 			const newPost = Object.assign(new Post(), {
 				title,
 				content,
@@ -141,6 +149,14 @@ export class PostService {
 			content = changeBadWords(content, regex);
 		}
 
+		if ((await this.getCategoryIdByPostId(postId)) === 5) {
+			if (!this.checkTemplate(content)) {
+				throw ServerError.badRequest(
+					POST_ERROR_MESSAGES.INVALID_TEMPLATE
+				);
+			}
+		}
+
 		let result;
 		if (content && title) {
 			result = await this.postRepository.update(
@@ -181,6 +197,28 @@ export class PostService {
 		} else {
 			throw ServerError.reference(POST_ERROR_MESSAGES.DELETE_POST_ERROR);
 		}
+	}
+
+	private checkTemplate(content: string): boolean {
+		const requiredSections = [
+			'<p><strong class="ql-size-large">📝 </strong><strong class="ql-size-large ql-color-red3">[버그/이슈] </strong><strong class="ql-size-large">설명</strong></p>',
+			'<p><strong class="ql-size-large">🔍 해결 단계</strong></p>',
+			'<p><strong class="ql-size-large">💡 예상 결과</strong></p>',
+			'<p><strong class="ql-size-large">💡 실제 결과</strong></p>',
+			'<p><strong class="ql-size-large">🔗 추가 정보(참고 사항)</strong></p>',
+			'<p><strong class="ql-size-large">📌 우선순위</strong></p>',
+		];
+
+		return requiredSections.every(section => content.includes(section));
+	}
+
+	private async getCategoryIdByPostId(postId: number): Promise<number> {
+		const result = await this.postRepository.findOne({
+			where: { id: postId },
+			select: ["category"],
+		});
+
+		return result.category.id;
 	}
 
 	private async addView(postId: number): Promise<void> {

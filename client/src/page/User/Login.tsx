@@ -1,15 +1,14 @@
-import React, { useState } from "react";
+import React, { FormEvent, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { REGEX } from "./constants/constants";
-import EmailForm from "../../component/User/EmailForm";
-import PasswordForm from "../../component/User/PasswordForm";
-import SubmitButton from "../../component/User/SubmitButton";
 import { useUserStore } from "../../state/store";
 import { sendPostLoginRequest2 } from "../../api/users/crud";
 import OAuthLoginButtons from "../../component/User/OAuthLoginButtons";
 import { useStringWithValidation } from "../../hook/useStringWithValidation";
 import { FaComments } from "react-icons/fa6";
 import ErrorMessageForm from "../../component/User/ErrorMessageForm";
+import TextInput from "../../component/common/TextInput";
+import Button from "../../component/common/Button";
 
 const Login: React.FC = () => {
 	const email = useStringWithValidation();
@@ -51,7 +50,10 @@ const Login: React.FC = () => {
 		});
 	};
 
-	const handleLoginButton = () => {
+
+	const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+
 		const body = {
 			email: email.value,
 			password: password.value,
@@ -78,6 +80,7 @@ const Login: React.FC = () => {
 				<FaComments />
 				<span>CODEPLAY</span>
 			</div>
+
 			<div className="my-4 flex w-full items-center">
 				<hr className="flex-grow text-gray-600 dark:text-gray-500" />
 				<span className="px-3 font-bold text-gray-600 dark:text-gray-400">
@@ -85,25 +88,39 @@ const Login: React.FC = () => {
 				</span>
 				<hr className="flex-grow text-gray-600 dark:text-gray-500" />
 			</div>
-			<div className="flex w-full flex-col gap-2">
-				{/* 미리 정의된 컴포넌트로 수정 아직 안 함*/}
-				<EmailForm
-					email={email.value}
-					onChange={handleEmailChange}
+
+			<form
+				className="flex w-full flex-col gap-2"
+				onSubmit={handleLogin}
+			>
+				<TextInput
+					type="email"
+					id="email"
+					label="이메일"
+					value={email.value}
+					placeholder="이메일을 입력하세요."
 					isValid={email.isValid}
-					errorMessage={email.errorMessage}
+					onChange={handleEmailChange}
 				/>
-				<PasswordForm
-					password={password.value}
-					onChange={handlePasswordChange}
-					labelText="비밀번호"
+				<TextInput
+					type="password"
+					id="password"
+					label="비밀번호"
+					value={password.value}
+					placeholder="비밀번호를 입력하세요."
 					isValid={password.isValid}
-					errorMessage={password.errorMessage}
+					onChange={handlePasswordChange}
 				/>
 				{errorMessage && (
 					<ErrorMessageForm>{errorMessage}</ErrorMessageForm>
 				)}
-				<SubmitButton onClick={handleLoginButton}>로그인</SubmitButton>
+				<Button
+					type="submit"
+					className="mt-5"
+					size="large"
+				>
+					로그인
+				</Button>
 
 				<div className="mt-5 flex flex-row items-center justify-center gap-2">
 					<p>계정이 없으신가요?</p>
@@ -111,10 +128,11 @@ const Login: React.FC = () => {
 						href="/join"
 						className="text-blue-500"
 					>
-						계정생성
+						회원가입
 					</a>
 				</div>
-			</div>
+			</form>
+
 			<OAuthLoginButtons loginType="login" />
 		</div>
 	);

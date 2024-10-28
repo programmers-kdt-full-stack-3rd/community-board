@@ -52,6 +52,7 @@ export const useGlobalErrorModal = create<TGlobalErrorModalStore>(set => ({
 				...param,
 				title: messageWithTitle.slice(0, delimiterIndex).trim(),
 				message: messageWithTitle.slice(delimiterIndex + 1).trim(),
+				isOpen: true,
 			}));
 		} else {
 			set(state => ({
@@ -59,6 +60,7 @@ export const useGlobalErrorModal = create<TGlobalErrorModalStore>(set => ({
 				...param,
 				title: "",
 				message: messageWithTitle.trim(),
+				isOpen: true,
 			}));
 		}
 	},

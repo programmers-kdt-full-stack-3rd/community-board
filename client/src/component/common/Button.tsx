@@ -1,5 +1,5 @@
-import clsx from "clsx";
 import React from "react";
+import { twMerge } from "tailwind-merge";
 
 export type TButtonColor =
 	| "primary"
@@ -71,7 +71,7 @@ const Button: React.FC<IButtonProps> = ({
 		<button
 			{...buttonProps}
 			type={buttonProps.type || "button"}
-			className={clsx(
+			className={twMerge(
 				baseClass,
 				colorClass[color][variant],
 				sizeClass[size],

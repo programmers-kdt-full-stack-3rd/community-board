@@ -14,7 +14,6 @@ import DropdownMenu from "./DropdownMenu";
 import { ApiCall } from "../../api/api";
 import { ClientError } from "../../api/errors";
 import { useChatRoom } from "../../state/ChatRoomStore";
-import { isDevMode } from "../../utils/detectMode"; // TODO: UI 리팩터링 완료 후 테스트 import 제거
 import { MdDarkMode } from "react-icons/md";
 import useThemeStore from "../../state/ThemeStore";
 import { MdLightMode } from "react-icons/md";
@@ -123,10 +122,6 @@ const Header: React.FC = () => {
 
 					<div className="shrink-0 items-center justify-end gap-x-2 sm:flex lg:w-[180px] lg:gap-x-4">
 						<div className="right-0 mr-4 hidden shrink-0 items-center gap-x-3 sm:flex">
-							{isDevMode() && (
-								<Link to="/test/ui">UI 컴포넌트 테스트</Link>
-							)}
-
 							<div
 								className="dark:bg-customDarkGray flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white"
 								onClick={toggleDarkMode}

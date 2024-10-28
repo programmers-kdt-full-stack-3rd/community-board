@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import { AiFillLike } from "react-icons/ai";
 import {
 	sendCreateCommentLikeRequest,
@@ -8,6 +8,7 @@ import { useUserStore } from "../../../state/store";
 import { ApiCall } from "../../../api/api";
 import { useGlobalErrorModal } from "../../../state/GlobalErrorModalStore";
 import Button from "../../common/Button";
+import { usePostInfo } from "../../../state/PostInfoStore";
 
 interface ICommentLikeButtonProps {
 	commentId: number;
@@ -22,11 +23,25 @@ const CommentLikeButton = ({
 }: ICommentLikeButtonProps) => {
 	const isLogin = useUserStore(state => state.isLogin);
 	const globalErrorModal = useGlobalErrorModal();
+	const {
+		acceptedCommentId,
+		hasAcceptedLikeToggle,
+		setAcceptedCommentLikeToggled,
+	} = usePostInfo();
 
 	const [toggled, setToggled] = useState(false);
 
 	const actualUserLiked = userLiked !== toggled; // XOR
 	const diff = toggled ? (userLiked ? -1 : 1) : 0;
+
+	useLayoutEffect(() => {
+		if (
+			commentId === acceptedCommentId &&
+			toggled !== hasAcceptedLikeToggle
+		) {
+			setToggled(hasAcceptedLikeToggle);
+		}
+	}, [hasAcceptedLikeToggle]);
 
 	const handleLikeClick = async () => {
 		if (!isLogin) {
@@ -52,6 +67,10 @@ const CommentLikeButton = ({
 		}
 
 		setToggled(!toggled);
+
+		if (commentId === acceptedCommentId) {
+			setAcceptedCommentLikeToggled(!toggled);
+		}
 	};
 
 	return (
