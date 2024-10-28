@@ -9,6 +9,13 @@ export interface IUser {
 	salt: string;
 }
 
+export interface ILoginUserInfo {
+	nickname: string;
+	loginTime: string;
+	email?: string;
+	imgUrl?: string;
+}
+
 export interface INonSensitiveUser {
 	email: string | null;
 	nickname: string;
