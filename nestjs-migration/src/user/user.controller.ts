@@ -64,8 +64,8 @@ export class UserController {
 		});
 
 		return {
-			message: "로그인 성공",
-			result: {
+			error: "",
+			userInfo: {
 				nickname: result.nickname,
 				email: result.email,
 				imgUrl: result.imgUrl,
