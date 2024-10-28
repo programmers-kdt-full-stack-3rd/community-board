@@ -38,7 +38,8 @@ export async function apiInvoker<RequestType, ResponseType>(
 	};
 
 	const response = await fetch(requestAddress, requestInit);
-	const response_json: ResponseType = await response.json();
+	const response_json = (await response.json()) as ResponseType;
+
 	return response_json;
 }
 
