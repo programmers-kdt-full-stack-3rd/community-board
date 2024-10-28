@@ -3,6 +3,7 @@ import { createSelectors } from "./selector";
 import { persist } from "zustand/middleware";
 import { io, Socket } from "socket.io-client";
 import profileIcon from "../assets/icons/profile-icon.svg";
+import { ILoginUserInfo } from "shared";
 
 interface IUserState {
 	nickname: string;
@@ -22,12 +23,7 @@ interface IUserActions {
 	setIsLogin: (isLogin: boolean) => void;
 	setIsEmailRegistered: (isEmailRegistered: boolean) => void;
 	setSocket: (socket: Socket | null) => void;
-	setLoginUser: (
-		nickname: string,
-		loginTime: string,
-		email?: string,
-		imgUrl?: string
-	) => void;
+	setLoginUser: (userInfo: ILoginUserInfo) => void;
 	setLogoutUser: () => void;
 }
 
@@ -55,17 +51,12 @@ const useUserStoreBase = create<TUserStore>()(
 					setSocket: socket => set({ socket }),
 					setIsEmailRegistered: (isEmailRegistered: boolean) =>
 						set({ isEmailRegistered }),
-					setLoginUser: (
-						nickname: string,
-						loginTime: string,
-						email?: string,
-						imgUrl?: string
-					) =>
+					setLoginUser: (userInfo: ILoginUserInfo) =>
 						set({
-							nickname: nickname,
-							loginTime: loginTime,
-							email: email ? email : "",
-							imgUrl: imgUrl ? imgUrl : profileIcon,
+							nickname: userInfo.nickname,
+							loginTime: userInfo.loginTime,
+							email: userInfo.email ?? "",
+							imgUrl: userInfo.imgUrl ?? profileIcon,
 							isLogin: true,
 							socket: io(
 								`${import.meta.env.VITE_CHAT_ADDRESS}/chat`,

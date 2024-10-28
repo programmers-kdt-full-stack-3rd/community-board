@@ -5,9 +5,7 @@ import EmailForm from "../../component/User/EmailForm";
 import PasswordForm from "../../component/User/PasswordForm";
 import SubmitButton from "../../component/User/SubmitButton";
 import { useUserStore } from "../../state/store";
-import { ApiCall } from "../../api/api";
-import { ClientError } from "../../api/errors";
-import { sendPostLoginRequest } from "../../api/users/crud";
+import { sendPostLoginRequest2 } from "../../api/users/crud";
 import OAuthLoginButtons from "../../component/User/OAuthLoginButtons";
 import { useStringWithValidation } from "../../hook/useStringWithValidation";
 import { FaComments } from "react-icons/fa6";
@@ -53,40 +51,25 @@ const Login: React.FC = () => {
 		});
 	};
 
-	const handleLoginButton = async () => {
+	const handleLoginButton = () => {
 		const body = {
 			email: email.value,
 			password: password.value,
 		};
 
-		const errorHandle = (err: ClientError) => {
-			if (err.message) {
-				let message: string = err.message;
-				message = message.replace("Bad Request: ", "");
-				setErrorMessage(message);
+		sendPostLoginRequest2(body).then(res => {
+			if (res.error !== "") {
+				setErrorMessage(res.error);
+				return;
 			}
-		};
 
-		const result = await ApiCall(
-			() => sendPostLoginRequest(body),
-			errorHandle
-		);
-
-		if (result instanceof ClientError) {
-			return;
-		}
-
-		// TODO: isEmailRegistered를 로그인 시 받아서 저장하도록 수정 필요.
-		//       수정 후 DropdownMenu 컴포넌트의 유저 정보 조회 API 호출 제거.
-		if (result.result) {
-			const { nickname, email, imgUrl, loginTime } = result.result;
-
-			setLoginUser(nickname, loginTime, email, imgUrl);
+			setLoginUser(res.userInfo);
 
 			const redirect =
 				new URLSearchParams(location.search).get("redirect") || "/";
+
 			navigate(redirect);
-		}
+		});
 	};
 
 	return (
