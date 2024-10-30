@@ -8,14 +8,6 @@ import {
 } from "shared";
 import { HttpMethod, convertToBody, httpRequest, sendRequest } from "../api";
 
-export const sendPostLoginRequest = async (body: object) => {
-	return await httpRequest(
-		"user/login",
-		HttpMethod.POST,
-		convertToBody(body)
-	);
-};
-
 export const sendPostJoinRequest = async (body: object) => {
 	return await httpRequest("user/Join", HttpMethod.POST, convertToBody(body));
 };
@@ -74,7 +66,7 @@ export const sendGetUserMyself = sendRequest<
 	IGetUserMySelfResponse
 >("user", HttpMethod.GET);
 
-export const sendPostLoginRequest2 = sendRequest<ILoginRequest, ILoginResponse>(
+export const sendPostLoginRequest = sendRequest<ILoginRequest, ILoginResponse>(
 	"user/login",
 	HttpMethod.POST
 );
