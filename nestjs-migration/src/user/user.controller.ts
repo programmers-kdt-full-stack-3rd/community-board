@@ -89,7 +89,7 @@ export class UserController {
 		res.clearCookie("refreshToken");
 
 		await this.userService.logout(userId, refreshToken);
-		return { message: "로그아웃 성공" };
+		return { error: "", success: true };
 	}
 
 	@UseGuards(LoginGuard)

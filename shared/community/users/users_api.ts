@@ -2,7 +2,6 @@ import { Response } from "../api";
 import { ILoginUserInfo, INonSensitiveUser } from "./users";
 
 // login
-
 export interface ILoginRequest {
 	email: string;
 	password: string;
@@ -13,22 +12,15 @@ export interface ILoginResponse extends Response {
 }
 
 // getUserMySelf
-export interface EmptyRequest {}
-
 export interface IGetUserMySelfResponse extends Response {
 	nonSensitiveUser: INonSensitiveUser;
 }
 
 // join
-
 export interface IJoinRequest {
 	email: string;
 	nickname: string;
 	password: string;
-}
-
-export interface IJoinResponse extends Response {
-	success: boolean;
 }
 
 // update profile

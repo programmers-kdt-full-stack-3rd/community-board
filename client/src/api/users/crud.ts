@@ -2,11 +2,11 @@ import {
 	EmptyRequest,
 	IGetUserMySelfResponse,
 	IJoinRequest,
-	IJoinResponse,
 	ILoginRequest,
 	ILoginResponse,
 	IUpdatePasswordRequest,
 	IUpdateProfileRequest,
+	SuccessResponse,
 } from "shared";
 import { HttpMethod, convertToBody, httpRequest, sendRequest } from "../api";
 
@@ -25,10 +25,6 @@ export const sendPostCheckUserRequest = async (body: object) => {
 		HttpMethod.POST,
 		convertToBody(body)
 	);
-};
-
-export const sendPostLogoutRequest = async () => {
-	return await httpRequest("user/logout", HttpMethod.POST);
 };
 
 export const sendPutUpdateUserRequest = async (body: object) => {
@@ -64,12 +60,17 @@ export const sendGetUserMyself = sendRequest<
 	IGetUserMySelfResponse
 >("user", HttpMethod.GET);
 
+export const sendPostJoinRequest = sendRequest<IJoinRequest, SuccessResponse>(
+	"user/Join",
+	HttpMethod.POST
+);
+
 export const sendPostLoginRequest = sendRequest<ILoginRequest, ILoginResponse>(
 	"user/login",
 	HttpMethod.POST
 );
 
-export const sendPostJoinRequest = sendRequest<IJoinRequest, IJoinResponse>(
-	"user/Join",
+export const sendPostLogoutRequest = sendRequest<EmptyRequest, SuccessResponse>(
+	"user/logout",
 	HttpMethod.POST
 );

@@ -11,8 +11,6 @@ import { sendPostLogoutRequest } from "../../api/users/crud";
 import { useUserStore } from "../../state/store";
 import { useEffect, useRef, useState } from "react";
 import DropdownMenu from "./DropdownMenu";
-import { ApiCall } from "../../api/api";
-import { ClientError } from "../../api/errors";
 import { useChatRoom } from "../../state/ChatRoomStore";
 import { MdDarkMode } from "react-icons/md";
 import useThemeStore from "../../state/ThemeStore";
@@ -63,23 +61,20 @@ const Header: React.FC = () => {
 	};
 
 	const handleLogout = async () => {
-		const result = await ApiCall(
-			() => sendPostLogoutRequest(),
-			() => {}
-		);
+		sendPostLogoutRequest().then(res => {
+			if (res.error !== "") {
+				console.log(res.error);
+				return;
+			}
 
-		if (result instanceof ClientError) {
-			return;
-		}
+			if (socket) {
+				socket.disconnect();
+			}
 
-		if (socket) {
-			socket.disconnect();
-			console.log("로그아웃, socket disconnect");
-		}
-
-		setLogoutUser();
-		initializeChatState();
-		navigate("");
+			setLogoutUser();
+			initializeChatState();
+			navigate("");
+		});
 	};
 
 	const handleUserInfo = () => {
