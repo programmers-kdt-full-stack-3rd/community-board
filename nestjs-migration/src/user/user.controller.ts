@@ -40,7 +40,7 @@ export class UserController {
 	@HttpCode(HttpStatus.CREATED)
 	async joinUser(@Body() createUserDto: CreateUserDto) {
 		await this.userService.createUser(createUserDto);
-		return { message: "회원가입 성공" };
+		return { error: "", success: true };
 	}
 
 	@Post("login")

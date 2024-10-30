@@ -13,6 +13,7 @@ import { FaComments } from "react-icons/fa6";
 import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
 import TextInput from "../../component/common/TextInput";
 import Button from "../../component/common/Button";
+import { IJoinRequest } from "shared";
 
 const Join: FC = () => {
 	const navigate = useNavigate();
@@ -135,40 +136,26 @@ const Join: FC = () => {
 	};
 
 	const submitJoin = async () => {
-		const body = {
+		const body: IJoinRequest = {
 			email: email.value,
 			nickname: nickname.value,
 			password: password.value,
-			requiredPassword: requiredPassword.value,
 		};
 
-		const errorHandle = (err: ClientError) => {
-			if (err.code === 400) {
-				if (err.message) {
-					let message: string = err.message;
-					message = message.replace("Bad Request: ", "");
-					console.log(message);
-				}
+		sendPostJoinRequest(body).then(res => {
+			if (res.error !== "") {
+				console.log(res.error);
+				return;
 			}
-		};
 
-		const result = await ApiCall(
-			() => sendPostJoinRequest(body),
-			errorHandle
-		);
-
-		if (result instanceof ClientError) {
-			return;
-		}
-
-		if (result) {
 			globalErrorModal.open({
 				variant: "info",
-				title: "축하드립니다",
+				title: "회원 가입 완료",
 				message: "회원가입을 완료했습니다.",
 			});
+
 			navigate("/login");
-		}
+		});
 	};
 
 	return (

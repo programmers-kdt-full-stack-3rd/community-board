@@ -19,6 +19,18 @@ export interface IGetUserMySelfResponse extends Response {
 	nonSensitiveUser: INonSensitiveUser;
 }
 
+// join
+
+export interface IJoinRequest {
+	email: string;
+	nickname: string;
+	password: string;
+}
+
+export interface IJoinResponse extends Response {
+	success: boolean;
+}
+
 // update profile
 
 export interface IUpdateProfileRequest {
