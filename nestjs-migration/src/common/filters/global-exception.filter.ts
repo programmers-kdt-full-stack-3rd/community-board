@@ -30,7 +30,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 		}
 
 		response.status(status).json({
-			message: message,
+			error: message,
 		});
 	}
 }

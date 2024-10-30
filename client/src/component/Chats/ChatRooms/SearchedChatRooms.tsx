@@ -169,9 +169,14 @@ const SearchedChatRooms: React.FC<Props> = ({ setSelectedRoom }) => {
 						value={keyword}
 						onChange={onSearchChange}
 					/>
-					<button className={searchButton}>
-						<FaSearch />
-					</button>
+					<div className={searchButton}>
+						<FaSearch
+							style={{
+								width: "30px",
+								height: "30px",
+							}}
+						/>
+					</div>
 				</form>
 			</div>
 			<div

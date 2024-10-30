@@ -17,6 +17,49 @@ export const convertToBody = (body: object) => {
 	return JSON.stringify(body);
 };
 
+export async function apiInvoker<RequestType, ResponseType>(
+	address: string,
+	method: HttpMethod,
+	body?: RequestType
+) {
+	let requestAddress = `${
+		import.meta.env.VITE_SERVER_ADDRESS
+	}/api/${address}`;
+
+	requestAddress = requestAddress.replace(/([^:]\/)\/+/g, "$1");
+
+	const requestInit: RequestInit = {
+		method: method,
+		credentials: "include",
+		body: JSON.stringify(body),
+		headers: {
+			"Content-Type": "application/json",
+		},
+	};
+
+	const response = await fetch(requestAddress, requestInit);
+	const response_json = (await response.json()) as ResponseType;
+
+	return response_json;
+}
+
+export function sendRequest<RequestType, ResponseType>(
+	address: string,
+	method: HttpMethod
+): (body?: RequestType) => Promise<ResponseType> {
+	const caller = (body?: RequestType): Promise<ResponseType> => {
+		return apiInvoker<RequestType, ResponseType>(address, method, body);
+	};
+
+	return caller;
+}
+
+// export async function sendMultipartRequest<RequestType, ResponseType>(
+// 	address: string,
+// 	method: HttpMethod,
+// 	body?: FormData
+// ) {}
+
 export const httpRequest = async (
 	address: string,
 	method: HttpMethod,
@@ -104,10 +147,10 @@ export const handleApiError = (
 };
 
 export const ApiCall = async (
-	func: () => Promise<any>,
+	asyncFunc: () => Promise<any>,
 	onError: (err: ClientError) => void
 ) => {
-	return func()
+	return asyncFunc()
 		.then(res => {
 			if (res.status >= 400) {
 				throw ClientError.autoFindErrorType(res.status, res.message);

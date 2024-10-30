@@ -74,7 +74,7 @@ export const createButton = style({
 
 export const chatFooterStyle = style({
 	display: "grid",
-	gridTemplateColumns: "repeat(3, auto)",
+	gridTemplateColumns: "repeat(2, auto)",
 	cursor: "pointer",
 	width: "100%",
 	height: "40px",

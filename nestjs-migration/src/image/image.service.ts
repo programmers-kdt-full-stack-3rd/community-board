@@ -33,10 +33,6 @@ export class ImageService {
 		// 생성된 명령을 S3 클라이언트에 전달하여 이미지 업로드를 수행합니다.
 		await this.s3.send(command);
 
-		console.log(
-			`https://s3.${process.env.REGION}.amazonaws.com/${process.env.BUCKET_NAME}/${fileName}`
-		);
-
 		// 업로드된 이미지의 URL을 반환합니다.
 		return `https://s3.${process.env.REGION}.amazonaws.com/${process.env.BUCKET_NAME}/${fileName}`;
 	}

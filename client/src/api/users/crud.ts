@@ -1,5 +1,10 @@
-import { IUpdatePasswordRequest, IUpdateProfileRequest } from "shared";
-import { HttpMethod, convertToBody, httpRequest } from "../api";
+import {
+	ILoginRequest,
+	ILoginResponse,
+	IUpdatePasswordRequest,
+	IUpdateProfileRequest,
+} from "shared";
+import { HttpMethod, convertToBody, httpRequest, sendRequest } from "../api";
 
 export const getUserMyself = async () => {
 	return await httpRequest("user", HttpMethod.GET);
@@ -63,3 +68,10 @@ export const sendPatchPasswordRequest = async (
 export const sendDeleteUserRequest = async () => {
 	return await httpRequest("user", HttpMethod.DELETE);
 };
+
+// refactoring
+
+export const sendPostLoginRequest2 = sendRequest<ILoginRequest, ILoginResponse>(
+	"user/login",
+	HttpMethod.POST
+);

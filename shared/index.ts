@@ -16,3 +16,4 @@ export * from "./community/users/users_api";
 export * from "./community/oauth/oauths";
 export * from "./community/oauth/oauth_mapper";
 export * from "./community/rbac";
+export * from "./community/api";

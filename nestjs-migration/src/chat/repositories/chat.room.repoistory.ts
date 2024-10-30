@@ -85,8 +85,6 @@ export class RoomRepository extends Repository<Room> {
 	}
 
 	async getMessageLogs(roomId: number): Promise<IMessage[]> {
-		console.log("roomId:", roomId);
-
 		const queryBuilder = this.createQueryBuilder("r")
 			.select([
 				"msg.id AS id",
@@ -106,8 +104,6 @@ export class RoomRepository extends Repository<Room> {
 			.orderBy("msg.created_at", "ASC");
 
 		const results = await queryBuilder.getRawMany();
-
-		console.log(results.length);
 
 		return results;
 	}

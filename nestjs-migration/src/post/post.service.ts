@@ -130,7 +130,6 @@ export class PostService {
 			throw ServerError.notFound(POST_ERROR_MESSAGES.NOT_FOUND_POST);
 		} else {
 			//조회수 증가
-			console.log(post);
 			if (!post.is_author) {
 				await this.addView(post.id);
 				post.views += 1;

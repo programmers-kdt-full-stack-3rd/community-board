@@ -8,7 +8,6 @@ export const container = style({
 });
 
 export const roomWrapper = style({
-	height: "40px",
 	display: "flex",
 	flexDirection: "column",
 	justifyContent: "center",

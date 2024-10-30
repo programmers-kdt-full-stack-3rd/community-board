@@ -116,7 +116,7 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 				socket.off("receive_message", handleReceiveMessage);
 			};
 		}
-	}, [roomId, socket, myMemberId]);
+	}, [roomId, socket]);
 
 	useEffect(() => {
 		const sorted = Array.from(messageMap.entries())
