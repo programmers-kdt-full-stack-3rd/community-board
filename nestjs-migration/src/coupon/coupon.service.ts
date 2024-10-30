@@ -1,5 +1,5 @@
 import { InjectQueue } from "@nestjs/bull";
-import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { HttpStatus, Injectable } from "@nestjs/common";
 import { Queue } from "bull";
 import { RedisRepository } from "src/redis/redis.repository";
 import { CouponRepository } from "./repositories/coupon.repository";
@@ -63,7 +63,7 @@ export class CouponService {
 			await job.finished(); // 작업 완료 시까지 대기 TODO: 비동기로 변경
 
 			const waitingCount = await this.couponQueue.getWaitingCount();
-			console.log(`대기 중인 작업 수: ${waitingCount}`);
+			// console.log(`대기 중인 작업 수: ${waitingCount}`);
 		} catch (err) {
 			throw err;
 		}
@@ -75,10 +75,10 @@ export class CouponService {
 
 	async issueCoupon(couponId: number, userId: number) {
 		try {
-			console.log(
-				"redis에 있는 user_coupon 정보",
-				await this.redisRepository.getRedisData(userId, couponId)
-			);
+			// console.log(
+			// 	"redis에 있는 user_coupon 정보",
+			// 	await this.redisRepository.getRedisData(userId, couponId)
+			// );
 
 			const dupCheck = await this.redisRepository.checkDupCoupon(
 				userId,
@@ -90,9 +90,9 @@ export class CouponService {
 					COUPON_ERROR_MESSAGES.DUP_ERROR
 				);
 			}
-			console.log("couponId", couponId);
+			// console.log("couponId", couponId);
 			const couponCount = await this.redisRepository.getStock(couponId);
-			console.log("현재 쿠폰 개수", couponCount);
+			// console.log("현재 쿠폰 개수", couponCount);
 			if (couponCount < 1) {
 				throw ServerError.etcError(
 					HttpStatus.CONFLICT,
@@ -118,7 +118,7 @@ export class CouponService {
 			coupon: { id: couponId },
 		});
 		await this.couponLogRepository.save(couponLog);
-		console.log("maria log");
+		// console.log("maria log");
 	}
 
 	async saveCouponStockToMaria(couponId: number, updatedStock: number) {
@@ -126,6 +126,6 @@ export class CouponService {
 			{ id: couponId },
 			{ stock: updatedStock }
 		);
-		console.log("maria count log");
+		// console.log("maria count log");
 	}
 }

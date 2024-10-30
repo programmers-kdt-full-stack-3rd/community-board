@@ -23,9 +23,9 @@ export class CouponController {
 	@HttpCode(HttpStatus.OK)
 	async getUserCoupon(@User() user: IUserEntity) {
 		try {
-			const userId = user.userId;
-			const couponName = await this.couponService.getUserCoupon(userId);
-			return { name: couponName };
+			// const userId = user.userId;
+			// const couponName = await this.couponService.getUserCoupon(userId);
+			return { name: "couponName" };
 		} catch {
 			throw ServerError.reference("failed");
 		}
@@ -41,7 +41,7 @@ export class CouponController {
 		const couponId = body.coupon_id;
 		const userId = user.userId;
 		try {
-			await this.couponService.handleIssue(userId, couponId);
+			// await this.couponService.handleIssue(userId, couponId);
 		} catch (err) {
 			throw ServerError.etcError(HttpStatus.CONFLICT, `${err.message}`);
 		}

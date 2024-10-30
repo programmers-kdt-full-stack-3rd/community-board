@@ -9,7 +9,6 @@ export class CouponConsumer {
 	@Process("issue_coupon")
 	async transcode(job: Job) {
 		const { userId, couponId } = job.data;
-
 		try {
 			await this.couponService.issueCoupon(couponId, userId);
 		} catch (err) {
