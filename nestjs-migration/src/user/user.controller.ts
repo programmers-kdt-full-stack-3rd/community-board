@@ -27,6 +27,7 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { LoginDto } from "./dto/login.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { UserService } from "./user.service";
+import { IGetUserMySelfResponse } from "shared";
 
 @Controller("user")
 @UseGuards(PasswordGuard)
@@ -103,12 +104,15 @@ export class UserController {
 			await this.userService.readUser(userId);
 
 		return {
-			email: user.email,
-			nickname: user.nickname,
-			connected_oauth: oAuthConnections.map(
-				({ oAuthProvider }) => oAuthProvider.name
-			),
-		};
+			error: "",
+			nonSensitiveUser: {
+				email: user.email,
+				nickname: user.nickname,
+				connected_oauth: oAuthConnections.map(
+					({ oAuthProvider }) => oAuthProvider.name
+				),
+			},
+		} as IGetUserMySelfResponse;
 	}
 
 	@Put()
