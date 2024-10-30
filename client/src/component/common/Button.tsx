@@ -32,32 +32,32 @@ const Button: React.FC<IButtonProps> = ({
 		primary: {
 			solid: "bg-blue-800 text-white hover:bg-blue-700",
 			outline:
-				"border border-blue-800 text-blue-800 hover:bg-blue-800 hover:text-white",
-			text: "text-blue-800 hover:bg-blue-100",
+				"border border-blue-800 text-blue-800 hover:bg-blue-600/20 hover:text-white",
+			text: "text-blue-800 hover:bg-blue-600/20",
 		},
 		neutral: {
 			solid: "bg-blue-900 dark:bg-customGray text-white hover:bg-blue-800 dark:hover:bg-gray-600",
 			outline:
-				"border border-gray-600 text-gray-600 hover:bg-gray-600 hover:text-white",
-			text: "text-gray-600 hover:bg-gray-100",
+				"border border-gray-600 text-gray-600 hover:bg-gray-400/20 hover:text-white",
+			text: "text-gray-600 hover:bg-gray-400/20",
 		},
 		action: {
 			solid: "bg-blue-500 text-white hover:bg-blue-400",
 			outline:
-				"border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white",
-			text: "text-blue-500 hover:bg-blue-100",
+				"border border-blue-500 text-blue-500 hover:bg-blue-400/20 hover:text-white",
+			text: "text-blue-500 hover:bg-blue-400/20",
 		},
 		danger: {
 			solid: "bg-red-600 text-white hover:bg-red-500",
 			outline:
-				"border border-red-600 text-red-600 hover:bg-red-600 hover:text-white",
-			text: "text-red-600 hover:bg-red-100",
+				"border border-red-600 text-red-600 hover:bg-red-400/20 hover:text-white",
+			text: "text-red-600 hover:bg-red-400/20",
 		},
 		disabled: {
 			solid: "bg-gray-500 text-white hover:bg-gray-400",
 			outline:
-				"border border-gray-600 text-gray-600 hover:bg-gray-600 hover:text-white",
-			text: "text-gray-600 hover:bg-gray-100",
+				"border border-gray-600 text-gray-600 hover:bg-gray-400/20 hover:text-white",
+			text: "text-gray-600 hover:bg-gray-400/20",
 		},
 	};
 
