@@ -134,31 +134,13 @@ const Header: React.FC = () => {
 							</div>
 
 							{isLogin && (
-								<div
-									style={{
-										display: "flex",
-										flexDirection: "row",
-										gap: "5px",
-									}}
-								>
+								<div className="flex flex-row gap-1.5">
 									<img
 										src={imgUrl}
-										style={{
-											width: "40px",
-											height: "40px",
-											borderRadius: "50%",
-											objectFit: "cover",
-										}}
+										className="h-10 w-10 rounded-full object-cover"
 									/>
-									<div
-										className="text-white"
-										style={{
-											display: "flex",
-											justifyContent: "center",
-											alignItems: "center",
-										}}
-									>
-										{nickname}님 환영 합니다.
+									<div className="flex items-center justify-center text-white">
+										{nickname}님 환영합니다.
 									</div>
 								</div>
 							)}
