@@ -1,5 +1,5 @@
 import { Response } from "../api";
-import { ILoginUserInfo } from "./users";
+import { ILoginUserInfo, INonSensitiveUser } from "./users";
 
 // login
 
@@ -11,6 +11,14 @@ export interface ILoginRequest {
 export interface ILoginResponse extends Response {
 	userInfo: ILoginUserInfo;
 }
+
+// getUserMySelf
+export interface EmptyRequest {}
+
+export interface IGetUserMySelfResponse extends Response {
+	nonSensitiveUser: INonSensitiveUser;
+}
+
 // update profile
 
 export interface IUpdateProfileRequest {

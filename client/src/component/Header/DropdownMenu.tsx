@@ -1,8 +1,7 @@
 import { forwardRef, ForwardRefRenderFunction, useLayoutEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUserStore } from "../../state/store";
-import { ApiCall } from "../../api/api";
-import { getUserMyself } from "../../api/users/crud";
+import { sendGetUserMyself } from "../../api/users/crud";
 //import { MdOutlineAdminPanelSettings } from "react-icons/md";
 import { IoShareSocialOutline } from "react-icons/io5";
 import { MdOutlineAttachEmail } from "react-icons/md";
@@ -18,17 +17,13 @@ const DropdownMenu: ForwardRefRenderFunction<HTMLDivElement> = (_, ref) => {
 
 	useLayoutEffect(() => {
 		// TODO: isEmailRegistered를 로그인 시 받아서 저장하도록 서버와 클라이언트 수정 필요
-		ApiCall(
-			() => getUserMyself(),
-			err => {
-				console.error("사용자 정보를 가져올 수 없습니다.", err);
-			}
-		).then(response => {
-			if (response instanceof Error) {
+		sendGetUserMyself().then(res => {
+			if (res.error !== "") {
+				console.error("유저 정보 조회 실패 :", res.error);
 				return;
 			}
 
-			setIsEmailRegistered(!!response.email);
+			setIsEmailRegistered(!!res.nonSensitiveUser.email);
 		});
 	}, []);
 

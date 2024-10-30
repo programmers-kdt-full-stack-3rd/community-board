@@ -10,7 +10,7 @@ import naverIcon from "../../assets/icons/naver-icon.svg";
 import kakaoIcon from "../../assets/icons/kakao-icon.svg";
 import { deleteOAuthConnection, getOAuthLoginUrl } from "../../api/users/oauth";
 import { ApiCall } from "../../api/api";
-import { getUserMyself } from "../../api/users/crud";
+import { sendGetUserMyself } from "../../api/users/crud";
 import { useModal } from "../../hook/useModal";
 import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
 import ConfirmModal from "../common/Modal/ConfirmModal";
@@ -45,15 +45,13 @@ const OAuthLoginButtons: React.FC<IProps> = ({ loginType }) => {
 			return;
 		}
 
-		ApiCall(
-			() => getUserMyself(),
-			err => console.error("유저 정보 조회 실패", err)
-		).then(response => {
-			if (response instanceof Error) {
+		sendGetUserMyself().then(res => {
+			if (res.error !== "") {
+				console.error("유저 정보 조회 실패 :", res.error);
 				return;
 			}
 
-			const user = mapResponseToNonSensitiveUser(response);
+			const user = mapResponseToNonSensitiveUser(res.nonSensitiveUser);
 
 			const connection = user.connected_oauth.reduce<TOAuthLinks>(
 				(acc, provider) => {

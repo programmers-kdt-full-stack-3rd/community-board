@@ -1,14 +1,12 @@
 import {
+	EmptyRequest,
+	IGetUserMySelfResponse,
 	ILoginRequest,
 	ILoginResponse,
 	IUpdatePasswordRequest,
 	IUpdateProfileRequest,
 } from "shared";
 import { HttpMethod, convertToBody, httpRequest, sendRequest } from "../api";
-
-export const getUserMyself = async () => {
-	return await httpRequest("user", HttpMethod.GET);
-};
 
 export const sendPostLoginRequest = async (body: object) => {
 	return await httpRequest(
@@ -70,6 +68,11 @@ export const sendDeleteUserRequest = async () => {
 };
 
 // refactoring
+
+export const sendGetUserMyself = sendRequest<
+	EmptyRequest,
+	IGetUserMySelfResponse
+>("user", HttpMethod.GET);
 
 export const sendPostLoginRequest2 = sendRequest<ILoginRequest, ILoginResponse>(
 	"user/login",
