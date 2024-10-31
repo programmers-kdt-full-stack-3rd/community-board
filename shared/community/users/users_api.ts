@@ -38,3 +38,9 @@ export interface IUpdatePasswordRequest {
 	originPassword: string;
 	newPassword: string;
 }
+
+// check info
+
+export interface ICheckPasswordRequest {
+	password: string;
+}

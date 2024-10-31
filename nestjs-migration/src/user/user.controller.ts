@@ -169,7 +169,7 @@ export class UserController {
 			maxAge: COOKIE_MAX_AGE.tempToken,
 		});
 
-		return { message: "비밀번호 확인 성공" };
+		return { error: "", success: true };
 	}
 
 	@Post("/check-duplicate")
