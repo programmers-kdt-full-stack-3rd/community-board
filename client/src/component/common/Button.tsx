@@ -14,6 +14,7 @@ interface IButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 	color?: TButtonColor;
 	variant?: TButtonVariant;
 	size?: TButtonSize;
+	noInternalStyle?: boolean;
 }
 
 const Button: React.FC<IButtonProps> = ({
@@ -22,12 +23,13 @@ const Button: React.FC<IButtonProps> = ({
 	color = "neutral",
 	variant = "solid",
 	size = "medium",
+	noInternalStyle = false,
 	...buttonProps
 }) => {
 	const baseClass =
 		"box-border m-0 border-0 rounded-md cursor-pointer transition duration-200 whitespace-nowrap";
 
-	// 색은 나중에 수정
+	// TODO: 색은 나중에 수정
 	const colorClass = {
 		primary: {
 			solid: "bg-blue-800 text-white hover:bg-blue-700",
@@ -71,12 +73,16 @@ const Button: React.FC<IButtonProps> = ({
 		<button
 			{...buttonProps}
 			type={buttonProps.type || "button"}
-			className={twMerge(
-				baseClass,
-				colorClass[color][variant],
-				sizeClass[size],
-				className
-			)}
+			className={
+				noInternalStyle
+					? className
+					: twMerge(
+							baseClass,
+							colorClass[color][variant],
+							sizeClass[size],
+							className
+						)
+			}
 		>
 			{children}
 		</button>
