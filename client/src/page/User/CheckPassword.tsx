@@ -59,29 +59,24 @@ const CheckPassword: FC = () => {
 			return;
 		}
 
-		// const errorHandle = (err: ClientError) => {
-		// 	if (err.code === 400) {
-		// 		globalErrorModal.open({
-		// 			title: "오류",
-		// 			message: "비밀번호가 일치하지 않습니다.",
-		// 		});
-		// 		setPassword("");
-		// 		return;
-		// 	}
-
-		// 	if (err.code === 401) {
-		// 		globalErrorModal.open({
-		// 			title: "오류",
-		// 			message: "로그인이 필요합니다.",
-		// 		});
-		// 		navigate("/login");
-		// 		return;
-		// 	}
-		// };
-
 		sendPostCheckPasswordRequest({ password }).then(res => {
 			if (res.error !== "") {
-				// TODO : status에 따른 에러 핸들링
+				if (res.status === 400) {
+					globalErrorModal.open({
+						title: "오류",
+						message: "비밀번호가 일치하지 않습니다.",
+					});
+					setPassword("");
+				}
+
+				if (res.status === 401) {
+					globalErrorModal.open({
+						title: "오류",
+						message: "로그인이 필요합니다.",
+					});
+					navigate("/login");
+				}
+
 				return;
 			}
 
