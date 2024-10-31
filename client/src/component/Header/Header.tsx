@@ -107,48 +107,56 @@ const Header: React.FC = () => {
 							</div>
 
 							{isLogin && (
-								<div className="flex flex-row gap-1.5">
-									<img
-										src={imgUrl}
-										className="h-10 w-10 rounded-full object-cover"
-									/>
-									<div className="flex items-center justify-center text-white">
-										{nickname}님 환영합니다.
+								<>
+									<div className="flex flex-row gap-1.5">
+										<img
+											src={imgUrl}
+											className="h-10 w-10 rounded-full object-cover"
+										/>
+										<div className="flex items-center justify-center text-white">
+											{nickname}님 환영합니다.
+										</div>
 									</div>
-								</div>
-							)}
-							<div
-								className="text-lg text-white"
-								onClick={isLogin ? handleLogout : handleLogin}
-							>
-								{isLogin ? (
-									<FiLogOut
-										size="30"
-										title="로그아웃"
-									/>
-								) : (
-									<FiLogIn
-										size="30"
-										title="로그인"
-									/>
-								)}
-							</div>
 
-							<div
-								onClick={isLogin ? undefined : handleJoin}
-								className="relative text-lg text-white"
-							>
-								{isLogin ? (
-									<div className="flex items-center">
+									<div
+										className="text-lg text-white"
+										onClick={handleLogout}
+									>
+										<FiLogOut
+											size="30"
+											title="로그아웃"
+										/>
+									</div>
+
+									<div className="text-lg text-white">
 										<UserDropdown />
 									</div>
-								) : (
-									<FiUserPlus
-										size="30"
-										title="회원가입"
-									/>
-								)}
-							</div>
+								</>
+							)}
+
+							{!isLogin && (
+								<>
+									<div
+										className="text-lg text-white"
+										onClick={handleLogin}
+									>
+										<FiLogIn
+											size="30"
+											title="로그인"
+										/>
+									</div>
+
+									<div
+										className="text-lg text-white"
+										onClick={handleJoin}
+									>
+										<FiUserPlus
+											size="30"
+											title="회원가입"
+										/>
+									</div>
+								</>
+							)}
 						</div>
 					</div>
 				</nav>
