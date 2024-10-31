@@ -1,53 +1,30 @@
-import {
-	FiLogIn,
-	FiLogOut,
-	FiUser,
-	FiUserPlus,
-	FiChevronDown,
-} from "react-icons/fi";
+import React, { useEffect } from "react";
 import { FaComments } from "react-icons/fa";
+import { FiLogIn, FiLogOut, FiUserPlus } from "react-icons/fi";
+import { MdDarkMode, MdLightMode } from "react-icons/md";
 import { Link, useNavigate } from "react-router-dom";
-import { sendPostLogoutRequest } from "../../api/users/crud";
-import { useUserStore } from "../../state/store";
-import { useEffect, useRef, useState } from "react";
-import DropdownMenu from "./DropdownMenu";
 import { ApiCall } from "../../api/api";
 import { ClientError } from "../../api/errors";
-import { useChatRoom } from "../../state/ChatRoomStore";
-import { MdDarkMode } from "react-icons/md";
-import useThemeStore from "../../state/ThemeStore";
-import { MdLightMode } from "react-icons/md";
+import { sendPostLogoutRequest } from "../../api/users/crud";
 import useCategory from "../../hook/useCategory";
+import { useChatRoom } from "../../state/ChatRoomStore";
+import useThemeStore from "../../state/ThemeStore";
+import { useUserStore } from "../../state/store";
+import UserDropdown from "./UserDropdown";
 
 const Header: React.FC = () => {
 	const navigate = useNavigate();
+
 	const isLogin = useUserStore.use.isLogin();
 	const nickname = useUserStore.use.nickname();
 	const imgUrl = useUserStore.use.imgUrl();
 	const socket = useUserStore.use.socket();
 	const { setLogoutUser } = useUserStore.use.actions();
+
 	const { initializeChatState } = useChatRoom();
-	const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-	const dropdownMenuRef = useRef<HTMLDivElement>(null);
 	const { isDarkMode, toggleDarkMode } = useThemeStore();
+
 	const { headerCategories } = useCategory();
-
-	// 드랍다운 메뉴 이외 클릭시 드랍다운 메뉴 닫기
-	useEffect(() => {
-		const handleClickOutside = (e: MouseEvent) => {
-			if (
-				dropdownMenuRef.current &&
-				!dropdownMenuRef.current.contains(e.target as Node)
-			) {
-				setIsUserMenuOpen(false);
-			}
-		};
-
-		document.addEventListener("mousedown", handleClickOutside);
-		return () => {
-			document.removeEventListener("mousedown", handleClickOutside);
-		};
-	}, []);
 
 	useEffect(() => {
 		if (isDarkMode) {
@@ -80,10 +57,6 @@ const Header: React.FC = () => {
 		setLogoutUser();
 		initializeChatState();
 		navigate("");
-	};
-
-	const handleUserInfo = () => {
-		setIsUserMenuOpen(!isUserMenuOpen);
 	};
 
 	const handleJoin = () => {
@@ -162,26 +135,18 @@ const Header: React.FC = () => {
 							</div>
 
 							<div
-								onClick={isLogin ? handleUserInfo : handleJoin}
+								onClick={isLogin ? undefined : handleJoin}
 								className="relative text-lg text-white"
 							>
 								{isLogin ? (
 									<div className="flex items-center">
-										<FiUser
-											size="30"
-											title="유저정보"
-										/>
-										<FiChevronDown size="20" />
+										<UserDropdown />
 									</div>
 								) : (
 									<FiUserPlus
 										size="30"
 										title="회원가입"
 									/>
-								)}
-
-								{isUserMenuOpen && isLogin && (
-									<DropdownMenu ref={dropdownMenuRef} />
 								)}
 							</div>
 						</div>
