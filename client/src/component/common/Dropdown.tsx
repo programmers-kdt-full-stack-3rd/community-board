@@ -87,9 +87,10 @@ const DropdownRoot: React.FC<IDropdownRootProps> = ({
 			>
 				<Button
 					className={twMerge(
-						"flex w-fit flex-nowrap items-center rounded-none bg-transparent p-0 hover:bg-transparent",
+						"flex w-fit flex-nowrap items-center rounded-none p-0",
 						toggleClassName
 					)}
+					noInternalStyle
 					onClick={handleToggle}
 				>
 					{toggleLabel}
