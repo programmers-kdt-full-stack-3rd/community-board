@@ -40,7 +40,7 @@ export class UserController {
 	@HttpCode(HttpStatus.CREATED)
 	async joinUser(@Body() createUserDto: CreateUserDto) {
 		await this.userService.createUser(createUserDto);
-		return { message: "회원가입 성공" };
+		return { error: "", success: true };
 	}
 
 	@Post("login")
@@ -89,7 +89,7 @@ export class UserController {
 		res.clearCookie("refreshToken");
 
 		await this.userService.logout(userId, refreshToken);
-		return { message: "로그아웃 성공" };
+		return { error: "", success: true };
 	}
 
 	@UseGuards(LoginGuard)
@@ -165,7 +165,7 @@ export class UserController {
 			maxAge: COOKIE_MAX_AGE.tempToken,
 		});
 
-		return { message: "비밀번호 확인 성공" };
+		return { error: "", success: true };
 	}
 
 	@Post("/check-duplicate")
