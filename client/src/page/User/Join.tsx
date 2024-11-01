@@ -84,25 +84,19 @@ const Join: FC = () => {
 				return;
 			}
 
-			const res = await ApiCall(
-				() => sendPostCheckUserRequest({ email: value }),
-				err => {
-					console.log(err);
+			sendPostCheckUserRequest({ email: value }).then(res => {
+				if (res.error !== "") {
 					fail("잠시 후 다시 시도해주세요!");
 					return;
 				}
-			);
 
-			if (res instanceof ClientError) {
-				return;
-			}
+				if (res.isDuplicated) {
+					fail("중복된 이메일입니다.");
+					return;
+				}
 
-			if (res.isDuplicated) {
-				fail("중복된 이메일입니다.");
-				return;
-			}
-
-			pass();
+				pass();
+			});
 		});
 	};
 

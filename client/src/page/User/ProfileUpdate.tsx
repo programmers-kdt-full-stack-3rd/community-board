@@ -135,25 +135,19 @@ const ProfileUpdate: FC = () => {
 				return;
 			}
 
-			const res = await ApiCall(
-				() => sendPostCheckUserRequest({ nickname: value }),
-				err => {
-					console.log(err);
+			sendPostCheckUserRequest({ nickname: value }).then(res => {
+				if (res.error !== "") {
 					fail("잠시 후 다시 시도해주세요!");
 					return;
 				}
-			);
 
-			if (res instanceof ClientError) {
-				return;
-			}
+				if (res.isDuplicated) {
+					fail("중복된 닉네임입니다.");
+					return;
+				}
 
-			if (res.isDuplicated) {
-				fail("중복된 닉네임입니다.");
-				return;
-			}
-
-			pass();
+				pass();
+			});
 		});
 	};
 

@@ -1,6 +1,8 @@
 import {
 	EmptyRequest,
 	ICheckPasswordRequest,
+	ICheckUserRequest,
+	ICheckUserResponse,
 	IGetUserMySelfResponse,
 	IJoinRequest,
 	ILoginRequest,
@@ -10,15 +12,6 @@ import {
 	SuccessResponse,
 } from "shared";
 import { HttpMethod, convertToBody, httpRequest, sendRequest } from "../api";
-
-// 닉네임 중복 확인
-export const sendPostCheckUserRequest = async (body: object) => {
-	return await httpRequest(
-		"user/check-duplicate",
-		HttpMethod.POST,
-		convertToBody(body)
-	);
-};
 
 export const sendPutUpdateUserRequest = async (body: object) => {
 	return await httpRequest("user", HttpMethod.PUT, convertToBody(body));
@@ -72,3 +65,8 @@ export const sendPostCheckPasswordRequest = sendRequest<
 	ICheckPasswordRequest,
 	SuccessResponse
 >("user/check-password", HttpMethod.POST);
+
+export const sendPostCheckUserRequest = sendRequest<
+	ICheckUserRequest,
+	ICheckUserResponse
+>("user/check-duplicate", HttpMethod.POST);

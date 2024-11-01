@@ -27,7 +27,6 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { LoginDto } from "./dto/login.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { UserService } from "./user.service";
-import { IGetUserMySelfResponse } from "shared";
 
 @Controller("user")
 @UseGuards(PasswordGuard)
@@ -41,7 +40,7 @@ export class UserController {
 	@HttpCode(HttpStatus.CREATED)
 	async joinUser(@Body() createUserDto: CreateUserDto) {
 		await this.userService.createUser(createUserDto);
-		return { error: "", success: true };
+		return { message: "회원가입 성공" };
 	}
 
 	@Post("login")
@@ -90,7 +89,7 @@ export class UserController {
 		res.clearCookie("refreshToken");
 
 		await this.userService.logout(userId, refreshToken);
-		return { error: "", success: true };
+		return { message: "로그아웃 성공" };
 	}
 
 	@UseGuards(LoginGuard)
@@ -104,15 +103,12 @@ export class UserController {
 			await this.userService.readUser(userId);
 
 		return {
-			error: "",
-			nonSensitiveUser: {
-				email: user.email,
-				nickname: user.nickname,
-				connected_oauth: oAuthConnections.map(
-					({ oAuthProvider }) => oAuthProvider.name
-				),
-			},
-		} as IGetUserMySelfResponse;
+			email: user.email,
+			nickname: user.nickname,
+			connected_oauth: oAuthConnections.map(
+				({ oAuthProvider }) => oAuthProvider.name
+			),
+		};
 	}
 
 	@Put()
@@ -169,7 +165,7 @@ export class UserController {
 			maxAge: COOKIE_MAX_AGE.tempToken,
 		});
 
-		return { error: "", success: true };
+		return { message: "비밀번호 확인 성공" };
 	}
 
 	@Post("/check-duplicate")
@@ -182,7 +178,7 @@ export class UserController {
 			checkNicknameDto.email
 		);
 
-		return { isDuplicated: result };
+		return { error: "", isDuplicated: result };
 	}
 
 	@Get("/check-admin")

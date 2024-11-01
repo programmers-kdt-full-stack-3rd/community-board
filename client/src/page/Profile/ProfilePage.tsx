@@ -130,25 +130,21 @@ const ProfilePage = () => {
 			});
 		}
 
-		const res = await ApiCall(
-			() => sendPostCheckUserRequest({ nickname: newNickname }),
-			err =>
+		sendPostCheckUserRequest({ nickname: newNickname }).then(res => {
+			if (res.error !== "") {
+				console.error("잠시 후 다시 시도해주세요!");
+				return;
+			}
+
+			if (res.isDuplicated) {
 				globalErrorModal.openWithMessageSplit({
-					messageWithTitle: err.message,
-				})
-		);
+					messageWithTitle: "닉네임 중복!",
+				});
+				return;
+			}
 
-		if (res instanceof ClientError) {
-			return;
-		}
-
-		if (res.isDuplicated) {
-			globalErrorModal.openWithMessageSplit({
-				messageWithTitle: "닉네임 중복!",
-			});
-		}
-
-		setIsValid(!res.isDuplicated);
+			setIsValid(!res.isDuplicated);
+		});
 	};
 
 	const updateProfile = async () => {

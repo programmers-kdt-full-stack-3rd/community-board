@@ -106,28 +106,15 @@ const EmailRegistration: FC = () => {
 	);
 
 	const checkEmailDuplication = () => {
-		email.setValidation((value, pass, fail) => {
+		email.setValidation(async (value, pass, fail) => {
 			if (!REGEX.EMAIL.test(value)) {
 				fail(ERROR_MESSAGE.EMAIL_REGEX);
 				return;
 			}
 
-			email.setValidation(async (value, pass, fail) => {
-				if (!REGEX.EMAIL.test(value)) {
-					fail(ERROR_MESSAGE.EMAIL_REGEX);
-					return;
-				}
-
-				const res = await ApiCall(
-					() => sendPostCheckUserRequest({ email: value }),
-					err => {
-						console.log(err);
-						fail("잠시 후 다시 시도해주세요!");
-						return;
-					}
-				);
-
-				if (res instanceof ClientError) {
+			sendPostCheckUserRequest({ email: value }).then(res => {
+				if (res.error !== "") {
+					fail("잠시 후 다시 시도해주세요!");
 					return;
 				}
 
@@ -138,8 +125,6 @@ const EmailRegistration: FC = () => {
 
 				pass();
 			});
-
-			pass();
 		});
 	};
 

@@ -44,3 +44,12 @@ export interface IUpdatePasswordRequest {
 export interface ICheckPasswordRequest {
 	password: string;
 }
+
+export interface ICheckUserRequest {
+	email?: string;
+	nickname?: string;
+}
+
+export interface ICheckUserResponse extends Response {
+	isDuplicated: boolean;
+}
