@@ -9,13 +9,10 @@ import {
 	ILoginResponse,
 	IUpdatePasswordRequest,
 	IUpdateProfileRequest,
+	IUpdateUserRequest,
 	SuccessResponse,
 } from "shared";
 import { HttpMethod, convertToBody, httpRequest, sendRequest } from "../api";
-
-export const sendPutUpdateUserRequest = async (body: object) => {
-	return await httpRequest("user", HttpMethod.PUT, convertToBody(body));
-};
 
 export const sendPatchProfileRequest = async (body: IUpdateProfileRequest) => {
 	return await httpRequest(
@@ -70,3 +67,8 @@ export const sendPostCheckUserRequest = sendRequest<
 	ICheckUserRequest,
 	ICheckUserResponse
 >("user/check-duplicate", HttpMethod.POST);
+
+export const sendPutUpdateUserRequest = sendRequest<
+	IUpdateUserRequest,
+	SuccessResponse
+>("user", HttpMethod.PUT);

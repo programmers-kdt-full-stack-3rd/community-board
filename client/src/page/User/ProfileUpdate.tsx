@@ -8,23 +8,10 @@ import {
 } from "../../api/users/crud";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useUserStore } from "../../state/store";
-import { ApiCall } from "../../api/api";
-import { ClientError } from "../../api/errors";
 import { useStringWithValidation } from "../../hook/useStringWithValidation";
 import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
 import TextInput from "../../component/common/TextInput";
 import Button from "../../component/common/Button";
-
-interface IProfileUpdatePayload {
-	email?: string | undefined;
-	nickname: string;
-	password: string;
-}
-
-interface IProfileUpdateResult {
-	status: number;
-	message: string;
-}
 
 const ProfileUpdate: FC = () => {
 	const navigate = useNavigate();
@@ -44,36 +31,6 @@ const ProfileUpdate: FC = () => {
 
 	const storeNickName = useUserStore.use.nickname();
 	const isEmailRegistered = useUserStore.use.isEmailRegistered();
-
-	const handleError = (err: ClientError) => {
-		if (err.code === 400) {
-			let message: string = err.message;
-			message = message.replace("Bad Request: ", "");
-			setErrorMessage(message);
-			return;
-		}
-
-		if (
-			err.code === 401 &&
-			err.message === "Unauthorized: 로그인이 필요합니다."
-		) {
-			globalErrorModal.open({
-				title: "오류",
-				message: "로그인이 필요합니다.",
-			});
-			navigate("/login");
-			return;
-		}
-
-		if (err.code !== 200) {
-			globalErrorModal.open({
-				title: "오류",
-				message: "로그인 정보가 만료되었거나 유효하지 않습니다.",
-			});
-			navigate(`/checkPassword?next=profileUpdate&final=${final}`);
-			return;
-		}
-	};
 
 	const handleNicknameChange = (e: ChangeEvent<HTMLInputElement>) => {
 		nickname.setValue(e.target.value, (value, _pass, fail) => {
@@ -154,27 +111,47 @@ const ProfileUpdate: FC = () => {
 	// TODO: 닉네임, 비밀번호를 따로 변경할 수 있도록 서버, 클라이언트 수정 필요.
 	//       현재는 비밀번호가 없는 유저의 닉네임을 변경할 수 없음.
 	const handleSubmit = async () => {
-		const result: IProfileUpdateResult = await ApiCall(() => {
-			const payload: IProfileUpdatePayload = {
-				nickname: nickname.value,
-				password: password.value,
-			};
+		sendPutUpdateUserRequest({
+			nickname: nickname.value,
+			password: password.value,
+		}).then(res => {
+			if (res.error !== "" && res.status >= 400) {
+				if (res.status === 400) {
+					let message: string = res.error;
+					message = message.replace("Bad Request: ", "");
+					setErrorMessage(message);
+					return;
+				}
 
-			return sendPutUpdateUserRequest(payload);
-		}, handleError);
+				if (res.status === 401) {
+					globalErrorModal.open({
+						title: "오류",
+						message: "로그인이 필요합니다.",
+					});
+					navigate("/login");
+					return;
+				} else {
+					globalErrorModal.open({
+						title: "오류",
+						message:
+							"로그인 정보가 만료되었거나 유효하지 않습니다.",
+					});
+					navigate(
+						`/checkPassword?next=profileUpdate&final=${final}`
+					);
+					return;
+				}
+			}
 
-		if (result instanceof ClientError) {
-			return;
-		}
+			storeSetNickName(nickname.value);
 
-		navigate(final || "/");
+			globalErrorModal.open({
+				variant: "info",
+				title: "성공",
+				message: "유저 정보가 변경되었습니다.",
+			});
 
-		storeSetNickName(nickname.value);
-
-		globalErrorModal.open({
-			variant: "info",
-			title: "성공",
-			message: "유저 정보가 변경되었습니다.",
+			navigate(final || "/");
 		});
 	};
 

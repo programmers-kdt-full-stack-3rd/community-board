@@ -124,7 +124,7 @@ export class UserController {
 
 		await this.userService.updateUser(userId, updateUserDto);
 
-		return { message: "회원정보 수정 성공" };
+		return { error: "", success: true };
 	}
 
 	@Delete()

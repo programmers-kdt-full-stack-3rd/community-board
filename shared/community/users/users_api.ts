@@ -53,3 +53,9 @@ export interface ICheckUserRequest {
 export interface ICheckUserResponse extends Response {
 	isDuplicated: boolean;
 }
+
+export interface IUpdateUserRequest {
+	email?: string;
+	nickname: string;
+	password: string;
+}
