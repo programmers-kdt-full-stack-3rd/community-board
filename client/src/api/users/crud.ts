@@ -12,11 +12,7 @@ import {
 	IUpdateUserRequest,
 	SuccessResponse,
 } from "shared";
-import { HttpMethod, httpRequest, sendRequest } from "../api";
-
-export const sendDeleteUserRequest = async () => {
-	return await httpRequest("user", HttpMethod.DELETE);
-};
+import { HttpMethod, sendRequest } from "../api";
 
 // refactoring
 
@@ -64,3 +60,8 @@ export const sendPatchPasswordRequest = sendRequest<
 	IUpdatePasswordRequest,
 	SuccessResponse
 >("user/password", HttpMethod.PATCH);
+
+export const sendDeleteUserRequest = sendRequest<EmptyRequest, SuccessResponse>(
+	"user",
+	HttpMethod.DELETE
+);

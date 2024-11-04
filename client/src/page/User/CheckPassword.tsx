@@ -8,7 +8,6 @@ import PasswordForm from "../../component/User/PasswordForm";
 import { REGEX } from "./constants/constants";
 import { useModal } from "../../hook/useModal";
 import { useUserStore } from "../../state/store";
-import { ApiCall } from "../../api/api";
 import OAuthLoginButtons from "../../component/User/OAuthLoginButtons";
 import ConfirmModal from "../../component/common/Modal/ConfirmModal";
 import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
@@ -97,33 +96,26 @@ const CheckPassword: FC = () => {
 	};
 
 	const handleAccountDeleteAccept = async () => {
-		const errorHandle = () => {
+		sendDeleteUserRequest().then(res => {
+			if (res.error !== "") {
+				globalErrorModal.open({
+					title: "오류",
+					message: "회원 탈퇴에 실패했습니다.",
+				});
+				navigate(`/`);
+				return;
+			}
+
+			accountDeleteModal.close();
 			globalErrorModal.open({
-				title: "오류",
-				message: "회원 탈퇴에 실패했습니다.",
+				variant: "warning",
+				title: "회원 탈퇴 완료",
+				message: "회원 탈퇴를 완료했습니다.",
 			});
+
+			setLogoutUser();
 			navigate(`/`);
-			return;
-		};
-
-		const result = await ApiCall(
-			() => sendDeleteUserRequest(),
-			errorHandle
-		);
-
-		if (result instanceof Error) {
-			return;
-		}
-
-		accountDeleteModal.close();
-		globalErrorModal.open({
-			variant: "warning",
-			title: "회원 탈퇴 완료",
-			message: "회원 탈퇴를 완료했습니다.",
 		});
-
-		setLogoutUser();
-		navigate(`/`);
 	};
 
 	return (

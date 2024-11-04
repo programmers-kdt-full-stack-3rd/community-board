@@ -143,7 +143,7 @@ export class UserController {
 		res.clearCookie("accessToken");
 		res.clearCookie("refreshToken");
 
-		return { message: "회원탈퇴 성공" };
+		return { error: "", success: true };
 	}
 
 	@Post("/check-password")
