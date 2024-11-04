@@ -64,7 +64,6 @@ const Header: React.FC = () => {
 		sendPostLogoutRequest().then(res => {
 			if (res.error !== "") {
 				console.log(res.error);
-				return;
 			}
 
 			if (socket) {
