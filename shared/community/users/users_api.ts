@@ -1,4 +1,4 @@
-import { Response } from "../api";
+import { DefaultResponse } from "../api";
 import { ILoginUserInfo, INonSensitiveUser } from "./users";
 
 // login
@@ -7,12 +7,12 @@ export interface ILoginRequest {
 	password: string;
 }
 
-export interface ILoginResponse extends Response {
+export interface ILoginResponse extends DefaultResponse {
 	userInfo: ILoginUserInfo;
 }
 
 // getUserMySelf
-export interface IGetUserMySelfResponse extends Response {
+export interface IGetUserMySelfResponse extends DefaultResponse {
 	nonSensitiveUser: INonSensitiveUser;
 }
 
@@ -28,10 +28,6 @@ export interface IJoinRequest {
 export interface IUpdateProfileRequest {
 	nickname?: string;
 	imgUrl?: string;
-}
-
-export interface IUpdateProfileResponse {
-	success: boolean;
 }
 
 export interface IUpdatePasswordRequest {
@@ -50,7 +46,7 @@ export interface ICheckUserRequest {
 	nickname?: string;
 }
 
-export interface ICheckUserResponse extends Response {
+export interface ICheckUserResponse extends DefaultResponse {
 	isDuplicated: boolean;
 }
 

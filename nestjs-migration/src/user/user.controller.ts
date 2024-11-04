@@ -40,7 +40,7 @@ export class UserController {
 	@HttpCode(HttpStatus.CREATED)
 	async joinUser(@Body() createUserDto: CreateUserDto) {
 		await this.userService.createUser(createUserDto);
-		return { error: "", success: true };
+		return { error: "" };
 	}
 
 	@Post("login")
@@ -89,7 +89,7 @@ export class UserController {
 		res.clearCookie("refreshToken");
 
 		await this.userService.logout(userId, refreshToken);
-		return { error: "", success: true };
+		return { error: "" };
 	}
 
 	@UseGuards(LoginGuard)
@@ -124,7 +124,7 @@ export class UserController {
 
 		await this.userService.updateUser(userId, updateUserDto);
 
-		return { error: "", success: true };
+		return { error: "" };
 	}
 
 	@Delete()
@@ -143,7 +143,7 @@ export class UserController {
 		res.clearCookie("accessToken");
 		res.clearCookie("refreshToken");
 
-		return { error: "", success: true };
+		return { error: "" };
 	}
 
 	@Post("/check-password")
@@ -165,7 +165,7 @@ export class UserController {
 			maxAge: COOKIE_MAX_AGE.tempToken,
 		});
 
-		return { error: "", success: true };
+		return { error: "" };
 	}
 
 	@Post("/check-duplicate")
@@ -186,7 +186,7 @@ export class UserController {
 	@UseGuards(LoginGuard)
 	async checkIsAdmin(@User() user: IUserEntity) {
 		const isAdmin = await this.rbacService.isAdmin(user.roleId);
-		return { isAdmin };
+		return { error: "", isAdmin };
 	}
 
 	@Patch("/profile")
@@ -196,13 +196,14 @@ export class UserController {
 		@Body() updateProfileDto: { nickname?: string; imgUrl?: string }
 	) {
 		const userId = userEntity.userId;
-		const success = await this.userService.updateProfile(
+
+		await this.userService.updateProfile(
 			userId,
 			updateProfileDto.nickname,
 			updateProfileDto.imgUrl
 		);
 
-		return { error: "", success: success };
+		return { error: "" };
 	}
 
 	@Patch("/password")
@@ -221,6 +222,6 @@ export class UserController {
 			updatePasswordDto.newPassword
 		);
 
-		return { error: "", success: true };
+		return { error: "" };
 	}
 }

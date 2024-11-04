@@ -10,7 +10,7 @@ import {
 	IUpdatePasswordRequest,
 	IUpdateProfileRequest,
 	IUpdateUserRequest,
-	SuccessResponse,
+	DefaultResponse,
 } from "shared";
 import { HttpMethod, sendRequest } from "../api";
 
@@ -21,7 +21,7 @@ export const sendGetUserMyself = sendRequest<
 	IGetUserMySelfResponse
 >("user", HttpMethod.GET);
 
-export const sendPostJoinRequest = sendRequest<IJoinRequest, SuccessResponse>(
+export const sendPostJoinRequest = sendRequest<IJoinRequest, DefaultResponse>(
 	"user/Join",
 	HttpMethod.POST
 );
@@ -31,14 +31,14 @@ export const sendPostLoginRequest = sendRequest<ILoginRequest, ILoginResponse>(
 	HttpMethod.POST
 );
 
-export const sendPostLogoutRequest = sendRequest<EmptyRequest, SuccessResponse>(
+export const sendPostLogoutRequest = sendRequest<EmptyRequest, DefaultResponse>(
 	"user/logout",
 	HttpMethod.POST
 );
 
 export const sendPostCheckPasswordRequest = sendRequest<
 	ICheckPasswordRequest,
-	SuccessResponse
+	DefaultResponse
 >("user/check-password", HttpMethod.POST);
 
 export const sendPostCheckUserRequest = sendRequest<
@@ -48,20 +48,20 @@ export const sendPostCheckUserRequest = sendRequest<
 
 export const sendPutUpdateUserRequest = sendRequest<
 	IUpdateUserRequest,
-	SuccessResponse
+	DefaultResponse
 >("user", HttpMethod.PUT);
 
 export const sendPatchProfileRequest = sendRequest<
 	IUpdateProfileRequest,
-	SuccessResponse
+	DefaultResponse
 >("user/profile", HttpMethod.PATCH);
 
 export const sendPatchPasswordRequest = sendRequest<
 	IUpdatePasswordRequest,
-	SuccessResponse
+	DefaultResponse
 >("user/password", HttpMethod.PATCH);
 
-export const sendDeleteUserRequest = sendRequest<EmptyRequest, SuccessResponse>(
+export const sendDeleteUserRequest = sendRequest<EmptyRequest, DefaultResponse>(
 	"user",
 	HttpMethod.DELETE
 );
