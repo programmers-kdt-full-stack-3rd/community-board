@@ -221,6 +221,6 @@ export class UserController {
 			updatePasswordDto.newPassword
 		);
 
-		return { message: "비밀번호 변경 성공" };
+		return { error: "", success: true };
 	}
 }

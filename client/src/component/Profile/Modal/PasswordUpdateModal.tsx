@@ -1,7 +1,6 @@
 import { SetStateAction, useState } from "react";
 import { FiX } from "react-icons/fi";
 import Button from "../../common/Button";
-import { ApiCall } from "../../../api/api";
 import { IUpdatePasswordRequest } from "shared";
 import { sendPatchPasswordRequest } from "../../../api/users/crud";
 import { useGlobalErrorModal } from "../../../state/GlobalErrorModalStore";
@@ -30,19 +29,16 @@ const PasswordUpdateModal: React.FC<Props> = ({ close }) => {
 			newPassword: newPsword,
 		};
 
-		const res = await ApiCall(
-			() => sendPatchPasswordRequest(body),
-			err =>
+		sendPatchPasswordRequest(body).then(res => {
+			if (res.error !== "") {
 				globalErrorModal.openWithMessageSplit({
-					messageWithTitle: err.message,
-				})
-		);
+					messageWithTitle: res.error,
+				});
+				return;
+			}
 
-		if (res instanceof Error) {
-			return;
-		}
-
-		alertModal.open();
+			alertModal.open();
+		});
 	};
 
 	return (

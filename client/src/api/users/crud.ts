@@ -12,17 +12,7 @@ import {
 	IUpdateUserRequest,
 	SuccessResponse,
 } from "shared";
-import { HttpMethod, convertToBody, httpRequest, sendRequest } from "../api";
-
-export const sendPatchPasswordRequest = async (
-	body: IUpdatePasswordRequest
-) => {
-	return await httpRequest(
-		"user/password",
-		HttpMethod.PATCH,
-		convertToBody(body)
-	);
-};
+import { HttpMethod, httpRequest, sendRequest } from "../api";
 
 export const sendDeleteUserRequest = async () => {
 	return await httpRequest("user", HttpMethod.DELETE);
@@ -69,3 +59,8 @@ export const sendPatchProfileRequest = sendRequest<
 	IUpdateProfileRequest,
 	SuccessResponse
 >("user/profile", HttpMethod.PATCH);
+
+export const sendPatchPasswordRequest = sendRequest<
+	IUpdatePasswordRequest,
+	SuccessResponse
+>("user/password", HttpMethod.PATCH);
