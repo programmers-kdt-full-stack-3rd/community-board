@@ -1,53 +1,30 @@
-import {
-	FiLogIn,
-	FiLogOut,
-	FiUser,
-	FiUserPlus,
-	FiChevronDown,
-} from "react-icons/fi";
+import React, { useEffect } from "react";
 import { FaComments } from "react-icons/fa";
+import { FiLogIn, FiLogOut, FiUserPlus } from "react-icons/fi";
+import { MdDarkMode, MdLightMode } from "react-icons/md";
 import { Link, useNavigate } from "react-router-dom";
-import { sendPostLogoutRequest } from "../../api/users/crud";
-import { useUserStore } from "../../state/store";
-import { useEffect, useRef, useState } from "react";
-import DropdownMenu from "./DropdownMenu";
 import { ApiCall } from "../../api/api";
 import { ClientError } from "../../api/errors";
-import { useChatRoom } from "../../state/ChatRoomStore";
-import { MdDarkMode } from "react-icons/md";
-import useThemeStore from "../../state/ThemeStore";
-import { MdLightMode } from "react-icons/md";
+import { sendPostLogoutRequest } from "../../api/users/crud";
 import useCategory from "../../hook/useCategory";
+import { useChatRoom } from "../../state/ChatRoomStore";
+import useThemeStore from "../../state/ThemeStore";
+import { useUserStore } from "../../state/store";
+import UserDropdown from "./UserDropdown";
 
 const Header: React.FC = () => {
 	const navigate = useNavigate();
+
 	const isLogin = useUserStore.use.isLogin();
 	const nickname = useUserStore.use.nickname();
 	const imgUrl = useUserStore.use.imgUrl();
 	const socket = useUserStore.use.socket();
 	const { setLogoutUser } = useUserStore.use.actions();
+
 	const { initializeChatState } = useChatRoom();
-	const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-	const dropdownMenuRef = useRef<HTMLDivElement>(null);
 	const { isDarkMode, toggleDarkMode } = useThemeStore();
+
 	const { headerCategories } = useCategory();
-
-	// 드랍다운 메뉴 이외 클릭시 드랍다운 메뉴 닫기
-	useEffect(() => {
-		const handleClickOutside = (e: MouseEvent) => {
-			if (
-				dropdownMenuRef.current &&
-				!dropdownMenuRef.current.contains(e.target as Node)
-			) {
-				setIsUserMenuOpen(false);
-			}
-		};
-
-		document.addEventListener("mousedown", handleClickOutside);
-		return () => {
-			document.removeEventListener("mousedown", handleClickOutside);
-		};
-	}, []);
 
 	useEffect(() => {
 		if (isDarkMode) {
@@ -80,10 +57,6 @@ const Header: React.FC = () => {
 		setLogoutUser();
 		initializeChatState();
 		navigate("");
-	};
-
-	const handleUserInfo = () => {
-		setIsUserMenuOpen(!isUserMenuOpen);
 	};
 
 	const handleJoin = () => {
@@ -134,74 +107,56 @@ const Header: React.FC = () => {
 							</div>
 
 							{isLogin && (
-								<div
-									style={{
-										display: "flex",
-										flexDirection: "row",
-										gap: "5px",
-									}}
-								>
-									<img
-										src={imgUrl}
-										style={{
-											width: "40px",
-											height: "40px",
-											borderRadius: "50%",
-											objectFit: "cover",
-										}}
-									/>
-									<div
-										className="text-white"
-										style={{
-											display: "flex",
-											justifyContent: "center",
-											alignItems: "center",
-										}}
-									>
-										{nickname}님 환영 합니다.
-									</div>
-								</div>
-							)}
-							<div
-								className="text-lg text-white"
-								onClick={isLogin ? handleLogout : handleLogin}
-							>
-								{isLogin ? (
-									<FiLogOut
-										size="30"
-										title="로그아웃"
-									/>
-								) : (
-									<FiLogIn
-										size="30"
-										title="로그인"
-									/>
-								)}
-							</div>
-
-							<div
-								onClick={isLogin ? handleUserInfo : handleJoin}
-								className="relative text-lg text-white"
-							>
-								{isLogin ? (
-									<div className="flex items-center">
-										<FiUser
-											size="30"
-											title="유저정보"
+								<>
+									<div className="flex flex-row gap-1.5">
+										<img
+											src={imgUrl}
+											className="h-10 w-10 rounded-full object-cover"
 										/>
-										<FiChevronDown size="20" />
+										<div className="flex items-center justify-center text-white">
+											{nickname}님 환영합니다.
+										</div>
 									</div>
-								) : (
-									<FiUserPlus
-										size="30"
-										title="회원가입"
-									/>
-								)}
 
-								{isUserMenuOpen && isLogin && (
-									<DropdownMenu ref={dropdownMenuRef} />
-								)}
-							</div>
+									<div
+										className="text-lg text-white"
+										onClick={handleLogout}
+									>
+										<FiLogOut
+											size="30"
+											title="로그아웃"
+										/>
+									</div>
+
+									<div className="text-lg text-white">
+										<UserDropdown />
+									</div>
+								</>
+							)}
+
+							{!isLogin && (
+								<>
+									<div
+										className="text-lg text-white"
+										onClick={handleLogin}
+									>
+										<FiLogIn
+											size="30"
+											title="로그인"
+										/>
+									</div>
+
+									<div
+										className="text-lg text-white"
+										onClick={handleJoin}
+									>
+										<FiUserPlus
+											size="30"
+											title="회원가입"
+										/>
+									</div>
+								</>
+							)}
 						</div>
 					</div>
 				</nav>
