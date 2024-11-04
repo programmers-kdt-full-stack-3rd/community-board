@@ -202,7 +202,7 @@ export class UserController {
 			updateProfileDto.imgUrl
 		);
 
-		return { success };
+		return { error: "", success: success };
 	}
 
 	@Patch("/password")

@@ -14,14 +14,6 @@ import {
 } from "shared";
 import { HttpMethod, convertToBody, httpRequest, sendRequest } from "../api";
 
-export const sendPatchProfileRequest = async (body: IUpdateProfileRequest) => {
-	return await httpRequest(
-		"user/profile",
-		HttpMethod.PATCH,
-		convertToBody(body)
-	);
-};
-
 export const sendPatchPasswordRequest = async (
 	body: IUpdatePasswordRequest
 ) => {
@@ -72,3 +64,8 @@ export const sendPutUpdateUserRequest = sendRequest<
 	IUpdateUserRequest,
 	SuccessResponse
 >("user", HttpMethod.PUT);
+
+export const sendPatchProfileRequest = sendRequest<
+	IUpdateProfileRequest,
+	SuccessResponse
+>("user/profile", HttpMethod.PATCH);
