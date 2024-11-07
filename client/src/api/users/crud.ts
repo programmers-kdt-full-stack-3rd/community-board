@@ -22,7 +22,7 @@ export const sendGetUserMyself = sendRequest<
 >("user", HttpMethod.GET);
 
 export const sendPostJoinRequest = sendRequest<IJoinRequest, DefaultResponse>(
-	"user/Join",
+	"user/join",
 	HttpMethod.POST
 );
 
