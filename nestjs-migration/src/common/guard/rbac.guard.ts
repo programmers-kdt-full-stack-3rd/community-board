@@ -1,6 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
-import { RbacService } from "../../rbac/rbac.service";
+import { RbacService } from "../../api/rbac/rbac.service";
 import { ServerError } from "../exceptions/server-error.exception";
 import { IUserEntity } from "../interface/user-entity.interface";
 

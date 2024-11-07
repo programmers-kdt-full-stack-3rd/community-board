@@ -8,12 +8,12 @@ import {
 	addTransactionalDataSource,
 	getDataSourceByName,
 } from "typeorm-transactional";
-import { AdminModule } from "./admin/admin.module";
+import { AdminModule } from "./api/admin/admin.module";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
-import { AuthModule } from "./auth/auth.module";
-import { ChatModule } from "./chat/chat.module";
-import { CommentModule } from "./comment/comment.module";
+import { AuthModule } from "./api/auth/auth.module";
+import { ChatModule } from "./api/chat/chat.module";
+import { CommentModule } from "./api/comment/comment.module";
 import { RbacGuard } from "./common/guard/rbac.guard";
 import { TokenGuard } from "./common/guard/token.guard";
 import appConfig from "./config/app.config";
@@ -21,18 +21,18 @@ import { typeOrmConfig } from "./config/db.config";
 import jwtConfig from "./config/jwt.config";
 import oauthConfig from "./config/oauth.config";
 import redisConfig from "./config/redis.config";
-import { CouponModule } from "./coupon/coupon.module";
+import { CouponModule } from "./api/coupon/coupon.module";
 import { HealthModule } from "./health-check/health.module";
-import { ImageModule } from "./image/image.module";
-import { LikeModule } from "./like/like.module";
-import { LogModule } from "./log/log.module";
-import { OAuthModule } from "./oauth/oauth.module";
-import { PostModule } from "./post/post.module";
-import { QnAModule } from "./qna/qna.module";
-import { RankModule } from "./rank/rank.module";
-import { RbacModule } from "./rbac/rbac.module";
-import { RedisModule } from "./redis/redis.module";
-import { UserModule } from "./user/user.module";
+import { ImageModule } from "./api/image/image.module";
+import { LikeModule } from "./api/like/like.module";
+import { LogModule } from "./api/log/log.module";
+import { OAuthModule } from "./api/oauth/oauth.module";
+import { PostModule } from "./api/post/post.module";
+import { QnAModule } from "./api/qna/qna.module";
+import { RankModule } from "./api/rank/rank.module";
+import { RbacModule } from "./api/rbac/rbac.module";
+import { RedisModule } from "./api/redis/redis.module";
+import { UserModule } from "./api/user/user.module";
 
 @Module({
 	imports: [

@@ -4,13 +4,13 @@ import { ServerError } from "../common/exceptions/server-error.exception";
 import {
 	grantTypeToKey,
 	oAuthRequestContentType,
-} from "../oauth/constants/oauth.constants";
+} from "../api/oauth/constants/oauth.constants";
 import {
 	INaverUser,
 	IOAuthUser,
 	TOAuthLoginType,
 	TOAuthProps,
-} from "../oauth/interfaces/oauth.interface";
+} from "../api/oauth/interfaces/oauth.interface";
 
 export const buildOAuthState = (loginType: TOAuthLoginType) => {
 	return stringify({
