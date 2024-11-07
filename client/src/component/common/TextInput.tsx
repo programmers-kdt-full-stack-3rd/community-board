@@ -65,7 +65,7 @@ const TextInput: React.FC<ITextInputProps> = ({
 					id={id}
 					className={twMerge(
 						"m-0 box-border h-10 flex-1 rounded-md border border-gray-600 bg-transparent p-2 text-base text-inherit",
-						isValid === false && "border-red-600 bg-red-50"
+						isValid === false && "border-red-600 bg-red-500/5"
 					)}
 					onKeyDown={handleInputKeyDown}
 				/>
