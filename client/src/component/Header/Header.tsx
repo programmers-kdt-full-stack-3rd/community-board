@@ -3,13 +3,11 @@ import { FaComments } from "react-icons/fa";
 import { FiLogIn, FiLogOut, FiUserPlus } from "react-icons/fi";
 import { MdDarkMode, MdLightMode } from "react-icons/md";
 import { Link, useNavigate } from "react-router-dom";
-import { ApiCall } from "../../api/api";
-import { ClientError } from "../../api/errors";
-import { sendPostLogoutRequest } from "../../api/users/crud";
-import useCategory from "../../hook/useCategory";
+import { useUserStore } from "../../state/store";
 import { useChatRoom } from "../../state/ChatRoomStore";
 import useThemeStore from "../../state/ThemeStore";
-import { useUserStore } from "../../state/store";
+import { sendPostLogoutRequest } from "../../api/users/crud";
+import useCategory from "../../hook/useCategory";
 import UserDropdown from "./UserDropdown";
 
 const Header: React.FC = () => {
@@ -40,23 +38,19 @@ const Header: React.FC = () => {
 	};
 
 	const handleLogout = async () => {
-		const result = await ApiCall(
-			() => sendPostLogoutRequest(),
-			() => {}
-		);
+		sendPostLogoutRequest().then(res => {
+			if (res.error !== "") {
+				console.log(res.error);
+			}
 
-		if (result instanceof ClientError) {
-			return;
-		}
+			if (socket) {
+				socket.disconnect();
+			}
 
-		if (socket) {
-			socket.disconnect();
-			console.log("로그아웃, socket disconnect");
-		}
-
-		setLogoutUser();
-		initializeChatState();
-		navigate("");
+			setLogoutUser();
+			initializeChatState();
+			navigate("");
+		});
 	};
 
 	const handleJoin = () => {

@@ -8,8 +8,6 @@ import {
 } from "../../api/users/crud";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useUserStore } from "../../state/store";
-import { ApiCall } from "../../api/api";
-import { ClientError } from "../../api/errors";
 import { useStringWithValidation } from "../../hook/useStringWithValidation";
 import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
 import TextInput from "../../component/common/TextInput";
@@ -33,36 +31,6 @@ const EmailRegistration: FC = () => {
 
 	const storeNickName = useUserStore.use.nickname();
 	const isEmailRegistered = useUserStore.use.isEmailRegistered();
-
-	const handleError = (err: ClientError) => {
-		if (err.code === 400) {
-			let message: string = err.message;
-			message = message.replace("Bad Request: ", "");
-			setErrorMessage(message);
-			return;
-		}
-
-		if (
-			err.code === 401 &&
-			err.message === "Unauthorized: 로그인이 필요합니다."
-		) {
-			globalErrorModal.open({
-				title: "오류",
-				message: "로그인이 필요합니다.",
-			});
-			navigate("/login");
-			return;
-		}
-
-		if (err.code !== 200) {
-			globalErrorModal.open({
-				title: "오류",
-				message: "로그인 정보가 만료되었거나 유효하지 않습니다.",
-			});
-			navigate(`/checkPassword?next=emailRegistration&final=${final}`);
-			return;
-		}
-	};
 
 	const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
 		email.setValue(e.target.value);
@@ -106,28 +74,15 @@ const EmailRegistration: FC = () => {
 	);
 
 	const checkEmailDuplication = () => {
-		email.setValidation((value, pass, fail) => {
+		email.setValidation(async (value, pass, fail) => {
 			if (!REGEX.EMAIL.test(value)) {
 				fail(ERROR_MESSAGE.EMAIL_REGEX);
 				return;
 			}
 
-			email.setValidation(async (value, pass, fail) => {
-				if (!REGEX.EMAIL.test(value)) {
-					fail(ERROR_MESSAGE.EMAIL_REGEX);
-					return;
-				}
-
-				const res = await ApiCall(
-					() => sendPostCheckUserRequest({ email: value }),
-					err => {
-						console.log(err);
-						fail("잠시 후 다시 시도해주세요!");
-						return;
-					}
-				);
-
-				if (res instanceof ClientError) {
+			sendPostCheckUserRequest({ email: value }).then(res => {
+				if (res.error !== "") {
+					fail("잠시 후 다시 시도해주세요!");
 					return;
 				}
 
@@ -138,8 +93,6 @@ const EmailRegistration: FC = () => {
 
 				pass();
 			});
-
-			pass();
 		});
 	};
 
@@ -153,29 +106,50 @@ const EmailRegistration: FC = () => {
 			return;
 		}
 
-		// TODO: 백엔드에서 API 분리 필요 (이메일 등록 API)
-		const result = await ApiCall(
-			() =>
-				sendPutUpdateUserRequest({
-					email: email.value,
-					nickname: storeNickName,
-					password: password.value,
-				}),
-			handleError
-		);
+		sendPutUpdateUserRequest({
+			email: email.value,
+			nickname: storeNickName,
+			password: password.value,
+		}).then(res => {
+			if (res.error !== "" && res.status >= 400) {
+				if (res.status === 400) {
+					let message: string = res.error;
+					message = message.replace("Bad Request: ", "");
+					setErrorMessage(message);
+					return;
+				}
 
-		if (result instanceof ClientError) {
-			return;
-		}
+				if (res.status === 401) {
+					globalErrorModal.open({
+						title: "오류",
+						message: "로그인이 필요합니다.",
+					});
+					navigate("/login");
+					return;
+				} else {
+					globalErrorModal.open({
+						title: "오류",
+						message:
+							"로그인 정보가 만료되었거나 유효하지 않습니다.",
+					});
+					navigate(
+						`/checkPassword?next=emailRegistration&final=${final}`
+					);
+					return;
+				}
+			}
 
-		setIsEmailRegistered(true);
-		navigate(final || "/");
+			setIsEmailRegistered(true);
+			navigate(final || "/");
 
-		globalErrorModal.open({
-			variant: "info",
-			title: "이메일 등록 성공",
-			message: "로그인 이메일을 등록했습니다.",
+			globalErrorModal.open({
+				variant: "info",
+				title: "이메일 등록 성공",
+				message: "로그인 이메일을 등록했습니다.",
+			});
 		});
+
+		// TODO: 백엔드에서 API 분리 필요 (이메일 등록 API)
 	};
 
 	const handleCancle = () => {

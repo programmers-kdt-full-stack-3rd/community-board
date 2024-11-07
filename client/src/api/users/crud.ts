@@ -1,77 +1,67 @@
 import {
+	EmptyRequest,
+	ICheckPasswordRequest,
+	ICheckUserRequest,
+	ICheckUserResponse,
+	IGetUserMySelfResponse,
+	IJoinRequest,
 	ILoginRequest,
 	ILoginResponse,
 	IUpdatePasswordRequest,
 	IUpdateProfileRequest,
+	IUpdateUserRequest,
+	DefaultResponse,
 } from "shared";
-import { HttpMethod, convertToBody, httpRequest, sendRequest } from "../api";
-
-export const getUserMyself = async () => {
-	return await httpRequest("user", HttpMethod.GET);
-};
-
-export const sendPostLoginRequest = async (body: object) => {
-	return await httpRequest(
-		"user/login",
-		HttpMethod.POST,
-		convertToBody(body)
-	);
-};
-
-export const sendPostJoinRequest = async (body: object) => {
-	return await httpRequest("user/Join", HttpMethod.POST, convertToBody(body));
-};
-
-export const sendPOSTCheckPasswordRequest = async (body: object) => {
-	return await httpRequest(
-		"user/check-password",
-		HttpMethod.POST,
-		convertToBody(body)
-	);
-};
-
-// 닉네임 중복 확인
-export const sendPostCheckUserRequest = async (body: object) => {
-	return await httpRequest(
-		"user/check-duplicate",
-		HttpMethod.POST,
-		convertToBody(body)
-	);
-};
-
-export const sendPostLogoutRequest = async () => {
-	return await httpRequest("user/logout", HttpMethod.POST);
-};
-
-export const sendPutUpdateUserRequest = async (body: object) => {
-	return await httpRequest("user", HttpMethod.PUT, convertToBody(body));
-};
-
-export const sendPatchProfileRequest = async (body: IUpdateProfileRequest) => {
-	return await httpRequest(
-		"user/profile",
-		HttpMethod.PATCH,
-		convertToBody(body)
-	);
-};
-
-export const sendPatchPasswordRequest = async (
-	body: IUpdatePasswordRequest
-) => {
-	return await httpRequest(
-		"user/password",
-		HttpMethod.PATCH,
-		convertToBody(body)
-	);
-};
-
-export const sendDeleteUserRequest = async () => {
-	return await httpRequest("user", HttpMethod.DELETE);
-};
+import { HttpMethod, sendRequest } from "../api";
 
 // refactoring
 
-export const sendPostLoginRequest2 = sendRequest<ILoginRequest, ILoginResponse>(
+export const sendGetUserMyself = sendRequest<
+	EmptyRequest,
+	IGetUserMySelfResponse
+>("user", HttpMethod.GET);
+
+export const sendPostJoinRequest = sendRequest<IJoinRequest, DefaultResponse>(
+	"user/join",
+	HttpMethod.POST
+);
+
+export const sendPostLoginRequest = sendRequest<ILoginRequest, ILoginResponse>(
 	"user/login",
 	HttpMethod.POST
+);
+
+export const sendPostLogoutRequest = sendRequest<EmptyRequest, DefaultResponse>(
+	"user/logout",
+	HttpMethod.POST
+);
+
+export const sendPostCheckPasswordRequest = sendRequest<
+	ICheckPasswordRequest,
+	DefaultResponse
+>("user/check-password", HttpMethod.POST);
+
+export const sendPostCheckUserRequest = sendRequest<
+	ICheckUserRequest,
+	ICheckUserResponse
+>("user/check-duplicate", HttpMethod.POST);
+
+export const sendPutUpdateUserRequest = sendRequest<
+	IUpdateUserRequest,
+	DefaultResponse
+>("user", HttpMethod.PUT);
+
+export const sendPatchProfileRequest = sendRequest<
+	IUpdateProfileRequest,
+	DefaultResponse
+>("user/profile", HttpMethod.PATCH);
+
+export const sendPatchPasswordRequest = sendRequest<
+	IUpdatePasswordRequest,
+	DefaultResponse
+>("user/password", HttpMethod.PATCH);
+
+export const sendDeleteUserRequest = sendRequest<EmptyRequest, DefaultResponse>(
+	"user",
+	HttpMethod.DELETE
 );

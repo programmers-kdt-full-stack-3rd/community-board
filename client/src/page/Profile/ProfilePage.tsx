@@ -15,7 +15,6 @@ import {
 	sendPatchProfileRequest,
 	sendPostCheckUserRequest,
 } from "../../api/users/crud";
-import { IUpdateProfileRequest } from "shared";
 import ConfirmModal from "../../component/common/Modal/ConfirmModal";
 import { useModal } from "../../hook/useModal";
 import { useNavigate } from "react-router-dom";
@@ -130,50 +129,39 @@ const ProfilePage = () => {
 			});
 		}
 
-		const res = await ApiCall(
-			() => sendPostCheckUserRequest({ nickname: newNickname }),
-			err =>
+		sendPostCheckUserRequest({ nickname: newNickname }).then(res => {
+			if (res.error !== "") {
+				console.error("잠시 후 다시 시도해주세요!");
+				return;
+			}
+
+			if (res.isDuplicated) {
 				globalErrorModal.openWithMessageSplit({
-					messageWithTitle: err.message,
-				})
-		);
+					messageWithTitle: "닉네임 중복!",
+				});
+				return;
+			}
 
-		if (res instanceof ClientError) {
-			return;
-		}
-
-		if (res.isDuplicated) {
-			globalErrorModal.openWithMessageSplit({
-				messageWithTitle: "닉네임 중복!",
-			});
-		}
-
-		setIsValid(!res.isDuplicated);
+			setIsValid(!res.isDuplicated);
+		});
 	};
 
 	const updateProfile = async () => {
-		const body: IUpdateProfileRequest = {
+		sendPatchProfileRequest({
 			nickname: nickname !== newNickname ? newNickname : "",
 			imgUrl: imgUrl !== newImgUrl ? newImgUrl : "",
-		};
-
-		const res = await ApiCall(
-			() => sendPatchProfileRequest(body),
-			err =>
+		}).then(res => {
+			if (res.error !== "") {
 				globalErrorModal.openWithMessageSplit({
-					messageWithTitle: err.message,
-				})
-		);
+					messageWithTitle: res.error,
+				});
+				return;
+			}
 
-		if (res instanceof ClientError) {
-			return;
-		}
-
-		if (res.success) {
 			setImgUrl(newImgUrl);
 			setNickName(newNickname);
 			setProfileEdit(false);
-		}
+		});
 	};
 
 	return (

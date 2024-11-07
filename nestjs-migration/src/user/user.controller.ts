@@ -40,7 +40,7 @@ export class UserController {
 	@HttpCode(HttpStatus.CREATED)
 	async joinUser(@Body() createUserDto: CreateUserDto) {
 		await this.userService.createUser(createUserDto);
-		return { message: "회원가입 성공" };
+		return { error: "" };
 	}
 
 	@Post("login")
@@ -89,7 +89,7 @@ export class UserController {
 		res.clearCookie("refreshToken");
 
 		await this.userService.logout(userId, refreshToken);
-		return { message: "로그아웃 성공" };
+		return { error: "" };
 	}
 
 	@UseGuards(LoginGuard)
@@ -124,7 +124,7 @@ export class UserController {
 
 		await this.userService.updateUser(userId, updateUserDto);
 
-		return { message: "회원정보 수정 성공" };
+		return { error: "" };
 	}
 
 	@Delete()
@@ -143,7 +143,7 @@ export class UserController {
 		res.clearCookie("accessToken");
 		res.clearCookie("refreshToken");
 
-		return { message: "회원탈퇴 성공" };
+		return { error: "" };
 	}
 
 	@Post("/check-password")
@@ -165,7 +165,7 @@ export class UserController {
 			maxAge: COOKIE_MAX_AGE.tempToken,
 		});
 
-		return { message: "비밀번호 확인 성공" };
+		return { error: "" };
 	}
 
 	@Post("/check-duplicate")
@@ -178,7 +178,7 @@ export class UserController {
 			checkNicknameDto.email
 		);
 
-		return { isDuplicated: result };
+		return { error: "", isDuplicated: result };
 	}
 
 	@Get("/check-admin")
@@ -186,7 +186,7 @@ export class UserController {
 	@UseGuards(LoginGuard)
 	async checkIsAdmin(@User() user: IUserEntity) {
 		const isAdmin = await this.rbacService.isAdmin(user.roleId);
-		return { isAdmin };
+		return { error: "", isAdmin };
 	}
 
 	@Patch("/profile")
@@ -196,13 +196,14 @@ export class UserController {
 		@Body() updateProfileDto: { nickname?: string; imgUrl?: string }
 	) {
 		const userId = userEntity.userId;
-		const success = await this.userService.updateProfile(
+
+		await this.userService.updateProfile(
 			userId,
 			updateProfileDto.nickname,
 			updateProfileDto.imgUrl
 		);
 
-		return { success };
+		return { error: "" };
 	}
 
 	@Patch("/password")
@@ -221,6 +222,6 @@ export class UserController {
 			updatePasswordDto.newPassword
 		);
 
-		return { message: "비밀번호 변경 성공" };
+		return { error: "" };
 	}
 }

@@ -2,7 +2,7 @@ import React, { FormEvent, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { REGEX } from "./constants/constants";
 import { useUserStore } from "../../state/store";
-import { sendPostLoginRequest2 } from "../../api/users/crud";
+import { sendPostLoginRequest } from "../../api/users/crud";
 import OAuthLoginButtons from "../../component/User/OAuthLoginButtons";
 import { useStringWithValidation } from "../../hook/useStringWithValidation";
 import { FaComments } from "react-icons/fa6";
@@ -50,7 +50,6 @@ const Login: React.FC = () => {
 		});
 	};
 
-
 	const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 
@@ -59,7 +58,7 @@ const Login: React.FC = () => {
 			password: password.value,
 		};
 
-		sendPostLoginRequest2(body).then(res => {
+		sendPostLoginRequest(body).then(res => {
 			if (res.error !== "") {
 				setErrorMessage(res.error);
 				return;
