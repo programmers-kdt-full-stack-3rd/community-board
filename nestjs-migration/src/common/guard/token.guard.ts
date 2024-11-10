@@ -1,9 +1,9 @@
 import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
 import { Request, Response } from "express";
 import { TokenExpiredError } from "jsonwebtoken";
-import { AuthService } from "../../auth/auth.service";
-import { RefreshTokensRepository } from "../../auth/refresh-tokens.repository";
-import { UserService } from "../../user/user.service";
+import { AuthService } from "../../api/auth/auth.service";
+import { RefreshTokensRepository } from "../../api/auth/refresh-tokens.repository";
+import { UserService } from "../../api/user/user.service";
 import { ServerError } from "../exceptions/server-error.exception";
 import { COOKIE_CONSTANTS, ERROR_MESSAGES } from "./constants/guard.constants";
 

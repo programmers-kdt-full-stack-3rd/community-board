@@ -1,6 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
-import { AuthService } from "../../auth/auth.service";
+import { AuthService } from "../../api/auth/auth.service";
 import { ServerError } from "../exceptions/server-error.exception";
 import { IUserEntity } from "../interface/user-entity.interface";
 
