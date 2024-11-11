@@ -1,8 +1,10 @@
 {
 	"scripts": {
 		"start": "node dist/index.js",
+		"dev": "nodemon --watch \"*.ts\" --exec \"ts-node\" --files ./index.ts",
 		"build": "tsc -p .",
-		"dev": "nodemon --watch \"*.ts\" --exec \"ts-node\" --files ./index.ts"
+		"format:check": "npm run format:check:partial -w=community-board --include-workspace-root -- chat_server shared",
+		"format:write": "npm run format:write:partial -w=community-board --include-workspace-root -- chat_server shared"
 	},
 	"dependencies": {
 		"cookie": "^0.6.0",

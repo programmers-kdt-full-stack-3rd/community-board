@@ -7,8 +7,8 @@
 	"license": "UNLICENSED",
 	"scripts": {
 		"build": "nest build",
-		"format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-		"prettier": "prettier --write --config ./.prettierrc.json \"./**/*\"",
+		"format:check": "npm run format:check:partial -w=community-board --include-workspace-root -- nestjs-migration shared",
+		"format:write": "npm run format:write:partial -w=community-board --include-workspace-root -- nestjs-migration shared",
 		"start": "nest start",
 		"start:dev": "NODE_ENV=development nest start --watch",
 		"start:debug": "nest start --debug --watch",

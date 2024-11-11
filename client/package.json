@@ -1,5 +1,5 @@
 {
-	"name": "community-board",
+	"name": "community-board-client",
 	"private": true,
 	"version": "0.0.0",
 	"type": "module",
@@ -7,6 +7,8 @@
 		"dev": "vite",
 		"watch": "NODE_ENV=development vite build --watch --mode development",
 		"build": "tsc -b && vite build",
+		"format:check": "npm run format:check:partial -w=community-board --include-workspace-root -- client shared",
+		"format:write": "npm run format:write:partial -w=community-board --include-workspace-root -- client shared",
 		"lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
 		"preview": "vite preview"
 	},

@@ -11,7 +11,10 @@
 		"migration-test"
 	],
 	"scripts": {
-		"prettier": "prettier --write --config ./.prettierrc.json \"./**/*\""
+		"format:check:partial": "prettier --check --config .prettierrc.json",
+		"format:check": "npm run format:check:partial -- .",
+		"format:write:partial": "prettier --write --config .prettierrc.json",
+		"format:write": "npm run format:write:partial -- ."
 	},
 	"devDependencies": {
 		"autoprefixer": "^10.4.20",

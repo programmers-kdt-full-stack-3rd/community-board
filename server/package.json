@@ -17,8 +17,10 @@
 	},
 	"scripts": {
 		"start": "node dist/app.js",
-		"build": "tsc -p .",
 		"dev": "nodemon --watch \"*.ts\" --exec \"ts-node\" --files ./app.ts",
+		"build": "tsc -p .",
+		"format:check": "npm run format:check:partial -w=community-board --include-workspace-root -- server shared",
+		"format:write": "npm run format:write:partial -w=community-board --include-workspace-root -- server shared",
 		"start:test": "DB_HOST=localhost DB_PORT=3307 DB_NAME=community_board_express ts-node --files ./app.ts > express.log 2>&1 &",
 		"stop:test": "pkill -f 'ts-node.*app.ts'"
 	},
