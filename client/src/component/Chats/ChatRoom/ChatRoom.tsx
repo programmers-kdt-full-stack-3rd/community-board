@@ -72,7 +72,7 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 					nickname: "System",
 					message: `${year}년 ${month}월 ${day}일`,
 					createdAt: new Date(date),
-					isMine: false,
+					// isMine: false,
 					memberId: 0,
 					roomId: message.roomId,
 				};
@@ -98,7 +98,6 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 	}, [roomId]);
 
 	useEffect(() => {
-		console.log(1);
 		// 재연결 설정 필요
 		if (!socket) {
 			console.error("소켓 연결 x");
@@ -173,7 +172,7 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 			nickname,
 			message,
 			createdAt: new Date(),
-			isMine: true,
+			// isMine: true,
 			isSystem: false,
 		};
 
@@ -184,7 +183,6 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 				(res: ISocketSendMessageResponse) => {
 					if (res.success) {
 						// TODO : 전송 스피너 추가
-
 						// TODO : 메시지 응답 시 렌더링
 						setMessageLogs(prev => [...prev, msg]);
 					} else {
@@ -215,7 +213,7 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 						content={message.message}
 					/>
 				);
-			} else if (message.isMine) {
+			} else if (message.memberId === myMemberId) {
 				return (
 					<MyChat
 						key={index}

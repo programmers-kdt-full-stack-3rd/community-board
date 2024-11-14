@@ -25,7 +25,7 @@ export const processSystemMessage = async (
 	try {
 		// 시스템 메시지 생성
 		const message = {
-			memberId: 1, // 기억이 안나서 memberId 뭐로 하기로 했더라?
+			memberId: 0, // 기억이 안나서 memberId 뭐로 하기로 했더라?
 			roomId,
 			nickname,
 			message: `${nickname}님이 가입했습니다.`,
