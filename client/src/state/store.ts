@@ -58,12 +58,9 @@ const useUserStoreBase = create<TUserStore>()(
 							email: userInfo.email ?? "",
 							imgUrl: userInfo.imgUrl ?? profileIcon,
 							isLogin: true,
-							socket: io(
-								`${import.meta.env.VITE_CHAT_ADDRESS}/chat`,
-								{
-									withCredentials: true,
-								}
-							),
+							socket: io(`${import.meta.env.VITE_CHAT_ADDRESS}`, {
+								withCredentials: true,
+							}),
 						}),
 					setLogoutUser: () =>
 						set({

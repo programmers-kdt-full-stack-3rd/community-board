@@ -78,7 +78,7 @@ function App() {
 		// 로그인은 되어 있으나 소켓이 없는 경우
 		if (isLogin && !socket) {
 			setSocket(
-				io(`${import.meta.env.VITE_CHAT_ADDRESS}/chat`, {
+				io(`${import.meta.env.VITE_CHAT_ADDRESS}`, {
 					withCredentials: true,
 				})
 			);
