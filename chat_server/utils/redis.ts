@@ -10,7 +10,7 @@ let redisClient: RedisClientType | null = null;
 /**
  * Init Redis
  */
-const initRedis = async () => {
+export const initRedis = async () => {
 	try {
 		if (!redisClient) {
 			redisClient = redis;
@@ -20,14 +20,6 @@ const initRedis = async () => {
 	} catch (error) {
 		throw new Error("Redis 연결 실패");
 	}
-};
-/**
- * Get Redis
- * @returns redisClient
- */
-const getRedis = () => {
-	if (!redisClient) throw new Error("Redis 초기화 필요");
+
 	return redisClient;
 };
-
-export { initRedis, getRedis };
