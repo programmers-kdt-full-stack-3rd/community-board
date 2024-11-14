@@ -1,5 +1,7 @@
-import { FC, useEffect, useLayoutEffect, useState } from "react";
-import { IReadRoomResponse } from "shared";
+import { FC, useEffect, useState } from "react";
+import { RiChatNewLine } from "react-icons/ri";
+import { IReadRoomRequest, IReadRoomResponse } from "shared";
+
 import {
 	chatRoomsContainer,
 	createButton,
@@ -9,15 +11,21 @@ import {
 } from "./ChatRooms.css";
 import Rooms from "./Rooms/Rooms";
 import Pagenation from "./Pagenation/Pagenation";
+
 import { useChatRoom } from "../../../state/ChatRoomStore";
 import { useUserStore } from "../../../state/store";
-import { RiChatNewLine } from "react-icons/ri";
 
 interface Props {
 	currentPage: number;
 	open: () => void;
 	setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
 	setSelectedRoom: (room: { title: string; roomId: number }) => void;
+}
+
+interface ISocketReadRoomResponse {
+	success: boolean;
+	data?: IReadRoomResponse;
+	message?: string;
 }
 
 const MyChatRooms: FC<Props> = ({
@@ -27,24 +35,34 @@ const MyChatRooms: FC<Props> = ({
 	setSelectedRoom,
 }) => {
 	const socket = useUserStore.use.socket();
+	const roomState = useChatRoom();
 
 	const [isRendered, setIsRendered] = useState(false);
-	const roomState = useChatRoom();
 
 	useEffect(() => {
 		if (socket) {
-			socket.on("get_my_rooms", (res: IReadRoomResponse) => {
-				roomState.setMyRoomInfo(
-					res.totalRoomCount,
-					currentPage,
-					res.roomHeaders
-				);
-				setIsRendered(true);
-			});
-
-			return () => {
-				socket.off("get_my_rooms");
+			const data: IReadRoomRequest = {
+				page: currentPage,
+				perPage: 2,
+				isSearch: false,
+				keyword: "",
 			};
+
+			const handleResponse = (res: ISocketReadRoomResponse) => {
+				if (res.success) {
+					roomState.setMyRoomInfo(
+						res.data!.totalRoomCount,
+						currentPage,
+						res.data!.roomHeaders
+					);
+					setIsRendered(true);
+				} else {
+					// TODO: 불러오기 실패 처리 로직
+					console.error(res.message);
+				}
+			};
+
+			socket.emit("get_my_rooms", data, handleResponse);
 		}
 	}, [socket, currentPage]);
 
@@ -77,15 +95,6 @@ const MyChatRooms: FC<Props> = ({
 			);
 		}
 	};
-
-	useLayoutEffect(() => {
-		if (!isRendered) {
-			if (roomState.myRoomInfo.rooms[currentPage]) {
-				setIsRendered(true);
-				return;
-			}
-		}
-	}, [currentPage]);
 
 	return (
 		<div className={chatRoomsContainer}>
