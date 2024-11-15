@@ -103,11 +103,14 @@ export class UserController {
 			await this.userService.readUser(userId);
 
 		return {
-			email: user.email,
-			nickname: user.nickname,
-			connected_oauth: oAuthConnections.map(
-				({ oAuthProvider }) => oAuthProvider.name
-			),
+			error: "",
+			nonSensitiveUser: {
+				email: user.email,
+				nickname: user.nickname,
+				connected_oauth: oAuthConnections.map(
+					({ oAuthProvider }) => oAuthProvider.name
+				),
+			},
 		};
 	}
 

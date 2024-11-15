@@ -29,6 +29,8 @@ describe("UserController", () => {
 		readUser: jest.fn(),
 		updateUser: jest.fn(),
 		deleteUser: jest.fn(),
+		updateProfile: jest.fn(),
+		updatePassword: jest.fn(),
 	};
 
 	const mockRbacService = {
@@ -90,6 +92,8 @@ describe("UserController", () => {
 		checkGuardApplied("logout");
 		checkGuardApplied("readUser");
 		checkGuardApplied("updateUser");
+		checkGuardApplied("checkIsAdmin");
+		checkGuardApplied("deleteUser");
 	});
 
 	describe("POST /user/join", () => {
@@ -103,7 +107,7 @@ describe("UserController", () => {
 
 			const result = await userController.joinUser(createUserDto);
 
-			expect(result).toEqual({ message: "회원가입 성공" });
+			expect(result).toEqual({ error: "" });
 			expect(userService.createUser).toHaveBeenCalledWith(createUserDto);
 		});
 
@@ -129,6 +133,8 @@ describe("UserController", () => {
 				accessToken: "mock-access-token",
 				refreshToken: "mock-refresh-token",
 				nickname: "testuser",
+				email: "testuser@example.com",
+				imgUrl: "1234",
 			};
 
 			const mockResponse = {
@@ -146,7 +152,7 @@ describe("UserController", () => {
 				mockLoginResult.accessToken,
 				{
 					httpOnly: true,
-					secure: true,
+					// secure: true,
 					maxAge: COOKIE_MAX_AGE.accessToken,
 				}
 			);
@@ -155,15 +161,17 @@ describe("UserController", () => {
 				mockLoginResult.refreshToken,
 				{
 					httpOnly: true,
-					secure: true,
+					// secure: true,
 					maxAge: COOKIE_MAX_AGE.refreshToken,
 				}
 			);
 
 			expect(result).toEqual({
-				message: "로그인 성공",
-				result: {
+				error: "",
+				userInfo: {
 					nickname: mockLoginResult.nickname,
+					email: mockLoginResult.email,
+					imgUrl: mockLoginResult.imgUrl,
 					loginTime: mockTime,
 				},
 			});
@@ -217,7 +225,7 @@ describe("UserController", () => {
 			expect(mockResponse.clearCookie).toHaveBeenCalledWith(
 				"refreshToken"
 			);
-			expect(result).toEqual({ message: "로그아웃 성공" });
+			expect(result).toEqual({ error: "" });
 		});
 	});
 
@@ -260,7 +268,7 @@ describe("UserController", () => {
 					maxAge: COOKIE_MAX_AGE.tempToken,
 				}
 			);
-			expect(result).toEqual({ message: "비밀번호 확인 성공" });
+			expect(result).toEqual({ error: "" });
 		});
 
 		it("비밀번호 확인 실패 시 예외를 던진다", async () => {
@@ -286,6 +294,7 @@ describe("UserController", () => {
 				userController.checkPassword(
 					mockRequest as any,
 					mockResponse,
+
 					checkPasswordDto
 				)
 			).rejects.toThrow(error);
@@ -309,7 +318,7 @@ describe("UserController", () => {
 
 			expect(rbacService.isAdmin).toHaveBeenCalledWith(1);
 			expect(rbacService.isAdmin).toHaveBeenCalledTimes(1);
-			expect(result).toEqual({ isAdmin: true });
+			expect(result).toEqual({ error: "", isAdmin: true });
 		});
 
 		it("관리자 확인 실패 시 200상태 코드와 실패 메시지를 반환한다", async () => {
@@ -320,7 +329,7 @@ describe("UserController", () => {
 
 			expect(rbacService.isAdmin).toHaveBeenCalledWith(2);
 			expect(rbacService.isAdmin).toHaveBeenCalledTimes(1);
-			expect(result).toEqual({ isAdmin: false });
+			expect(result).toEqual({ error: "", isAdmin: false });
 		});
 	});
 
@@ -351,9 +360,12 @@ describe("UserController", () => {
 
 			expect(userService.readUser).toHaveBeenCalledWith(1);
 			expect(result).toEqual({
-				email: mockUser.email,
-				nickname: mockUser.nickname,
-				connected_oauth: ["google"],
+				error: "",
+				nonSensitiveUser: {
+					email: mockUser.email,
+					nickname: mockUser.nickname,
+					connected_oauth: ["google"],
+				},
 			});
 		});
 	});
@@ -378,7 +390,7 @@ describe("UserController", () => {
 				updateUserDto
 			);
 
-			expect(result).toEqual({ message: "회원정보 수정 성공" });
+			expect(result).toEqual({ error: "" });
 		});
 	});
 
@@ -404,7 +416,7 @@ describe("UserController", () => {
 			expect(mockResponse.clearCookie).toHaveBeenCalledWith(
 				"refreshToken"
 			);
-			expect(result).toEqual({ message: "회원탈퇴 성공" });
+			expect(result).toEqual({ error: "" });
 		});
 	});
 });
