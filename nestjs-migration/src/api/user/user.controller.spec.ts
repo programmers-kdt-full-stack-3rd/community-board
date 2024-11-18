@@ -19,6 +19,8 @@ import { User } from "./entities/user.entity";
 import { UserController } from "./user.controller";
 import { UserService } from "./user.service";
 import { ValidationPipe } from "@nestjs/common";
+import { plainToInstance } from "class-transformer";
+import { validate } from "class-validator";
 
 describe("UserController", () => {
 	let userController: UserController;
@@ -147,19 +149,25 @@ describe("UserController", () => {
 		});
 
 		it("요청 body 타입 일치 확인 - 닉네임 null", async () => {
-			const error = ServerError.badRequest(
-				VALIDATION_ERROR_MESSAGES.NICKNAME_REQUIRED
-			);
+			const errorMessage = VALIDATION_ERROR_MESSAGES.NICKNAME_REQUIRED;
 
-			const wrongCreateDto = {
+			const wrongData = {
 				email: "test@example.com",
-				password: "password123",
-				nickname: "",
+				password: "Password123!",
 			};
 
-			await expect(
-				userController.joinUser(wrongCreateDto)
-			).rejects.toThrow(error);
+			const wrongCreateUserDto = plainToInstance(
+				CreateUserDto,
+				wrongData
+			);
+
+			const dtoError = await validate(wrongCreateUserDto);
+
+			console.log(dtoError);
+
+			await expect(dtoError[0].constraints.isNotEmpty).toContain(
+				errorMessage
+			);
 		});
 	});
 

@@ -39,7 +39,6 @@ export class UserController {
 	@Post("join")
 	@HttpCode(HttpStatus.CREATED)
 	async joinUser(@Body() createUserDto: CreateUserDto) {
-		console.log(createUserDto);
 		await this.userService.createUser(createUserDto);
 		return { error: "" };
 	}
