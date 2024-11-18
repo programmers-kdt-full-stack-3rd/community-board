@@ -8,12 +8,17 @@ import { IUserEntity } from "../../common/interface/user-entity.interface";
 import { OAuthConnection } from "../oauth/entities/oauth-connection.entity";
 import { RbacService } from "../rbac/rbac.service";
 import * as dateUtil from "../../utils/date.util";
-import { COOKIE_MAX_AGE, USER_ERROR_MESSAGES } from "./constant/user.constants";
+import {
+	COOKIE_MAX_AGE,
+	USER_ERROR_MESSAGES,
+	VALIDATION_ERROR_MESSAGES,
+} from "./constant/user.constants";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { User } from "./entities/user.entity";
 import { UserController } from "./user.controller";
 import { UserService } from "./user.service";
+import { ValidationPipe } from "@nestjs/common";
 
 describe("UserController", () => {
 	let userController: UserController;
@@ -65,12 +70,30 @@ describe("UserController", () => {
 					useValue: mockRbacService,
 				},
 			],
-		}).compile();
+		})
+			.overridePipe(ValidationPipe)
+			.useValue(
+				new ValidationPipe({
+					disableErrorMessages: true,
+					exceptionFactory: errors => {
+						const errorMessage = Object.values(
+							errors[0].constraints
+						)[0];
+						throw ServerError.badRequest(errorMessage);
+					},
+					transform: true,
+				})
+			)
+			.compile();
 
 		userController = module.get<UserController>(UserController);
 		userService = module.get<UserService>(UserService);
 		loginGuard = module.get<LoginGuard>(LoginGuard);
 		rbacService = module.get<RbacService>(RbacService);
+
+		jest.clearAllMocks();
+		jest.resetAllMocks();
+		jest.restoreAllMocks();
 
 		jest.spyOn(dateUtil, "getKstNow").mockImplementation(() => {
 			return mockTime;
@@ -102,6 +125,7 @@ describe("UserController", () => {
 			password: "password123",
 			nickname: "testuser",
 		};
+
 		it("사용자 생성 성공 시 201 상태 코드와 성공 메시지를 반환한다", async () => {
 			jest.spyOn(userService, "createUser").mockResolvedValue(undefined);
 
@@ -119,6 +143,22 @@ describe("UserController", () => {
 
 			await expect(
 				userController.joinUser(createUserDto)
+			).rejects.toThrow(error);
+		});
+
+		it("요청 body 타입 일치 확인 - 닉네임 null", async () => {
+			const error = ServerError.badRequest(
+				VALIDATION_ERROR_MESSAGES.NICKNAME_REQUIRED
+			);
+
+			const wrongCreateDto = {
+				email: "test@example.com",
+				password: "password123",
+				nickname: "",
+			};
+
+			await expect(
+				userController.joinUser(wrongCreateDto)
 			).rejects.toThrow(error);
 		});
 	});
