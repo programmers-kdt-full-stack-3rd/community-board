@@ -10,7 +10,7 @@ let producer: Producer | null = null;
 /**
  * Init Producer
  */
-const initKafkaProducer = async () => {
+export const initKafkaProducer = async () => {
 	try {
 		if (!producer) {
 			producer = kafka.producer();
@@ -20,15 +20,6 @@ const initKafkaProducer = async () => {
 	} catch (error) {
 		throw new Error("Kafka Producer 연결 실패");
 	}
-};
 
-/**
- * Get Producer
- * @returns producer
- */
-const getKafkaProducer = () => {
-	if (!producer) throw new Error("Kafka Producer 초기화 필요");
 	return producer;
 };
-
-export { initKafkaProducer, getKafkaProducer };

@@ -1,11 +1,11 @@
-import { FC, useLayoutEffect, useState } from "react";
+import { FC, useState } from "react";
 import {
 	chatRoomsContainer,
 	chatRoomsStyle,
 	container,
 	loginGuidanceStyle,
 } from "./ChatRooms.css";
-import { IGetMyRoomRequestEvent, IRoomHeader } from "shared";
+import { IRoomHeader } from "shared";
 import CreateRoomModal from "./Modal/CreateRoomModal";
 import MyChatRooms from "./MyChatRooms";
 import SearchedChatRooms from "./SearchedChatRooms";
@@ -30,16 +30,13 @@ interface Props {
 }
 
 const ChatRooms: FC<Props> = ({ setSelectedRoom }) => {
-	const navigate = useNavigate(); // TEST : 채팅방 페이지
+	const navigate = useNavigate();
 
 	const createRoomModal = useModal();
 	const [currentPage, setCurrentPage] = useState<number>(1);
-	// const isAsideOpen = true; // TODO : Aside UI 만들때 State 관리
 
 	// 전역 상태
 	const isLogin = useUserStore.use.isLogin();
-	const nickname = useUserStore.use.nickname();
-	const socket = useUserStore.use.socket();
 	const { category, close } = useChatAside();
 
 	const renderChatRoomPage = () => {
@@ -59,16 +56,6 @@ const ChatRooms: FC<Props> = ({ setSelectedRoom }) => {
 				return <div className={chatRoomsContainer}>미구현!</div>;
 		}
 	};
-
-	useLayoutEffect(() => {
-		if (socket && category === ChatAsideCategory.MYROOM) {
-			const data: IGetMyRoomRequestEvent = {
-				page: currentPage,
-				nickname,
-			};
-			socket.emit("get_my_rooms", data);
-		}
-	}, [currentPage, isLogin, navigate, nickname, socket, category]);
 
 	const handleCreateRoomAccept = (room: {
 		title: string;

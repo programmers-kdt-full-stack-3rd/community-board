@@ -1,5 +1,6 @@
-import kafka from "./kafka_config";
-import redis from "./redis_config";
+import kafka from "./kafka.config";
+import redis from "./redis.config";
+import socket from "./socket.config";
 
 // 동적 import
 process.env.NODE_ENV !== "production" &&
@@ -8,4 +9,4 @@ process.env.NODE_ENV !== "production" &&
 const host = process.env.DOCKER_HOST_IP;
 const port = process.env.CHAT_PORT;
 
-export { host, port, kafka, redis };
+export { host, port, kafka, redis, socket };

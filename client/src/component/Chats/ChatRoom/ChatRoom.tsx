@@ -6,7 +6,7 @@ import {
 	useRef,
 	useState,
 } from "react";
-import { IMessage, IRoomMember } from "shared";
+import { IEnterRoomResponse, IMessage, IRoomMember } from "shared";
 
 import { chatRoomBody, chatRoomContainer } from "./ChatRoom.css";
 import ChatInput from "./ChatInput";
@@ -14,8 +14,9 @@ import ChatRoomHeader from "./ChatRoomHeader";
 import MyChat from "./MyChat";
 import SystemChat from "./SystemChat";
 import YourChat from "./YourChat";
-import { useUserStore } from "../../../state/store";
 import { ChatRoomSideBar } from "./SideBar/ChatRoomSideBar";
+
+import { useUserStore } from "../../../state/store";
 import { ApiCall } from "../../../api/api";
 import { sendGetRoomMembersRequest } from "../../../api/chats/crud";
 
@@ -23,6 +24,18 @@ interface Props {
 	title: string;
 	roomId: number;
 	setSelectedRoom: (room: { title: string; roomId: number } | null) => void;
+}
+
+interface ISocketEnterRoomResponse {
+	success: boolean;
+	data?: IEnterRoomResponse;
+	message?: string;
+}
+
+interface ISocketSendMessageResponse {
+	success: boolean;
+	data?: IMessage;
+	message?: string;
 }
 
 // TODO : props로 roomId, title 받을 것
@@ -34,17 +47,16 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 
 	// 컴포넌트 상태
 	const [message, setMessage] = useState("");
-	// TODO : messageLogs zustand에 저장할 것
-	const [messageLogs, setMessageLogs] = useState<IMessage[]>([]); // TEST : 컴포넌트 상태 저장
-	const [roomLoading, setRoomLoading] = useState(true);
-	const [chatLoading, setChatLoading] = useState(false);
 	const [myMemberId, setMyMemberId] = useState<number>(0);
-
 	const [roomMembers, setRoomMembers] = useState<IRoomMember[]>([
 		{ memberId: 1, nickname: "123", isHost: true },
 		{ memberId: 1, nickname: "123", isHost: false },
 	]);
-
+	const [roomLoading, setRoomLoading] = useState(true);
+	const [chatLoading, setChatLoading] = useState(false);
+	// TODO : messageLogs zustand에 저장할 것
+	const [messageLogs, setMessageLogs] = useState<IMessage[]>([]); // TEST : 컴포넌트 상태 저장
+	const [sortedMessages, setSortedMessages] = useState<IMessage[]>([]);
 	// chatroom aside
 	const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(false);
 
@@ -52,7 +64,7 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 		const map = new Map<string, IMessage[]>();
 
 		messageLogs.forEach(message => {
-			const date: string = message.createdAt.toISOString().split("T")[0];
+			const date: string = message.createdAt!.toISOString().split("T")[0];
 			if (!map.get(date)) {
 				const [year, month, day] = date.split("-");
 				const dateTitle: IMessage = {
@@ -60,7 +72,7 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 					nickname: "System",
 					message: `${year}년 ${month}월 ${day}일`,
 					createdAt: new Date(date),
-					isMine: false,
+					// isMine: false,
 					memberId: 0,
 					roomId: message.roomId,
 				};
@@ -75,11 +87,9 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 
 	const chatRef = useRef<HTMLDivElement>(null);
 
-	const [sortedMessages, setSortedMessages] = useState<IMessage[]>([]);
-
 	const strToDate = (newMessage: IMessage) => {
 		const msg: IMessage = newMessage;
-		msg.createdAt = new Date(msg.createdAt);
+		msg.createdAt = new Date(msg.createdAt!);
 		return msg;
 	};
 
@@ -87,36 +97,45 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 		getMembers();
 	}, [roomId]);
 
-	useLayoutEffect(() => {
-		if (socket) {
-			const handleReceiveMessage = (newMessage: IMessage) => {
-				const msg: IMessage = strToDate(newMessage);
-				setMessageLogs(prev => [...prev, msg]);
-			};
-
-			// 이전 메시지 모두 불러오기
-			socket.emit(
-				"enter_room",
-				roomId,
-				(response: { memberId: number; messageLogs: IMessage[] }) => {
-					setMyMemberId(response.memberId);
-					const msgs = response.messageLogs.map(message => {
-						return strToDate(message);
-					});
-					setMessageLogs(msgs);
-					setRoomLoading(false);
-				}
-			);
-
-			// 실시간 메시지 수신 설정
-			socket.on("receive_message", handleReceiveMessage);
-
-			return () => {
-				// 소켓 이벤트 핸들러 제거
-				socket.off("receive_message", handleReceiveMessage);
-			};
+	useEffect(() => {
+		// 재연결 설정 필요
+		if (!socket) {
+			console.error("소켓 연결 x");
+			return;
 		}
-	}, [roomId, socket]);
+
+		const handleReceiveMessage = (newMessage: IMessage) => {
+			const msg: IMessage = strToDate(newMessage);
+			setMessageLogs(prev => [...prev, msg]);
+		};
+
+		const data = { roomId };
+
+		// 이전 메시지 모두 불러오기
+		socket.emit("enter_room", data, (res: ISocketEnterRoomResponse) => {
+			if (res.success) {
+				// 메시지 매핑
+				const msgs = res.data!.messageLogs!.map(msg => {
+					return strToDate(msg);
+				});
+
+				// 상태 저장
+				setMyMemberId(res.data!.memberId);
+				setMessageLogs(msgs);
+				setRoomLoading(false);
+			} else console.error(res.message);
+		});
+
+		// 실시간 메시지 수신 설정
+		socket.on("receive_message", handleReceiveMessage);
+
+		// TODO : 채팅 동기화 설정 필요
+
+		return () => {
+			// 소켓 이벤트 핸들러 제거
+			socket.off("receive_message", handleReceiveMessage);
+		};
+	}, [socket, roomId]);
 
 	useEffect(() => {
 		const sorted = Array.from(messageMap.entries())
@@ -143,8 +162,6 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 	};
 
 	const chatInputClick = () => {
-		console.log("memberId:", myMemberId);
-
 		if (!message.length || chatLoading) {
 			return;
 		}
@@ -155,27 +172,31 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 			nickname,
 			message,
 			createdAt: new Date(),
-			isMine: true,
+			// isMine: true,
 			isSystem: false,
 		};
 
-		console.log("before send :", msg);
+		if (socket) {
+			socket.emit(
+				"send_message",
+				msg,
+				(res: ISocketSendMessageResponse) => {
+					if (res.success) {
+						// TODO : 전송 스피너 추가
+						// TODO : 메시지 응답 시 렌더링
+						setMessageLogs(prev => [...prev, msg]);
+					} else {
+						console.error(res.message);
+						// TODO : 재전송 로직 추가
+					}
+
+					setMessage("");
+					setChatLoading(false);
+				}
+			);
+		}
 
 		setChatLoading(true);
-
-		if (socket) {
-			socket.emit("send_message", msg, (isSuccess: boolean) => {
-				if (isSuccess) {
-					setMessageLogs(prev => [...prev, msg]);
-				} else {
-					console.error(msg);
-					// TODO : 재전송 로직 추가
-				}
-
-				setMessage("");
-				setChatLoading(false);
-			});
-		}
 	};
 
 	const renderMessages = () => {
@@ -192,12 +213,12 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 						content={message.message}
 					/>
 				);
-			} else if (message.isMine) {
+			} else if (message.memberId === myMemberId) {
 				return (
 					<MyChat
 						key={index}
 						content={message.message}
-						time={message.createdAt}
+						time={message.createdAt!}
 					/>
 				);
 			}
@@ -210,7 +231,7 @@ const ChatRoom: FC<Props> = ({ title, roomId, setSelectedRoom }) => {
 					key={index}
 					name={message.nickname!}
 					content={message.message}
-					time={message.createdAt}
+					time={message.createdAt!}
 				/>
 			);
 		});

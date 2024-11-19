@@ -1,59 +1,73 @@
-import dotenv from "dotenv";
-import cookie from "cookie";
 import { createServer } from "http";
-import jwt from "jsonwebtoken";
 import { Server } from "socket.io";
 
-import { instrument } from "@socket.io/admin-ui";
+import { port, socket } from "./config/index";
+import { handleSendMessage } from "./events/chat.event";
+import {
+	handleEnterRoom,
+	handleGetMyRooms,
+	handleJoinRoom,
+} from "./events/room.event";
+import { validateCookie } from "./middlewares/auth.middleware";
+import { initKafkaProducer } from "./utils/kafka";
+import { initRedis } from "./utils/redis";
 
-import { handleChatConnection } from "./controllers/chat_controller";
-import { handleNotificationConnection } from "./controllers/notification_controller";
-import { Socket } from "dgram";
+const startServer = async () => {
+	try {
+		// Redis & Kafka 초기화
+		const redisClient = await initRedis();
+		const kafkaProducer = await initKafkaProducer();
 
-dotenv.config({ path: "./../.env" });
+		// 소켓 서버 생성
+		const httpServer = createServer();
+		const io = new Server(httpServer, socket.options);
 
-const httpServer = createServer();
+		// 미들웨어 등록
+		io.use(validateCookie);
 
-// socket.io 서버 설정
-const io = new Server(httpServer, {
-	cors: {
-		origin: process.env.SERVER_ADDRESS || "http://localhost:8000",
-		credentials: true,
-	},
-});
+		// 이벤트 등록
+		io.on("connection", socket => {
+			// 내 채팅방 조회
+			socket.on("get_my_rooms", (data, callback) =>
+				handleGetMyRooms(data, callback, socket)
+			);
 
-// socket.io admin-ui 설정
-instrument(io, {
-	auth: false,
-	mode: "development",
-});
+			// 채팅방 가입
+			socket.on("join_room", (data, callback) =>
+				handleJoinRoom(
+					data,
+					callback,
+					socket,
+					redisClient,
+					kafkaProducer
+				)
+			);
 
-// 네임스페이스 설정
-const chatNamespace = io.of("/chat");
-chatNamespace.use((socket, next) => {
-	const cookieString = socket.handshake.headers.cookie;
+			// 채팅방 입장
+			socket.on("enter_room", (data, callback) =>
+				handleEnterRoom(data, callback, socket, redisClient)
+			);
 
-	if (cookieString === undefined) {
-		socket.disconnect();
-		return;
+			// 채팅 전송
+			socket.on("send_message", (data, callback) => {
+				handleSendMessage(
+					data,
+					callback,
+					socket,
+					redisClient,
+					kafkaProducer
+				);
+			});
+		});
+
+		// 서버 실행
+		httpServer.listen(port, () => {
+			console.log(`채팅 서버 ${port}에서 실행 중`);
+		});
+	} catch (error) {
+		console.error(error);
+		process.exit(1);
 	}
+};
 
-	const cookies = cookie.parse(cookieString!) as {
-		refreshToken: string;
-		accessToken: string;
-	};
-
-	const { userId } = jwt.decode(cookies.refreshToken) as { userId: number };
-	(socket as unknown as Socket & { userId: number }).userId = userId;
-	next();
-});
-chatNamespace.on("connection", socket => {
-	handleChatConnection(socket);
-});
-
-const notificationNamespace = io.of("/notifications");
-notificationNamespace.on("connection", socket => {
-	handleNotificationConnection(socket);
-});
-
-export default httpServer;
+startServer();
