@@ -2,68 +2,63 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { ValidationPipe } from "@nestjs/common";
 import * as request from "supertest";
 import { INestApplication } from "@nestjs/common";
-import { UserController } from "./user.controller";
 import { CreateUserDto } from "./dto/create-user.dto";
-import { VALIDATION_ERROR_MESSAGES } from "./constant/user.constants";
-import { LoginGuard } from "src/common/guard/login.guard";
-import { PasswordGuard } from "src/common/guard/password.guard";
-import { AuthService } from "../auth/auth.service";
-import { UserService } from "./user.service";
-import { RbacService } from "../rbac/rbac.service";
+import {
+	USER_ERROR_MESSAGES,
+	VALIDATION_ERROR_MESSAGES,
+} from "./constant/user.constants";
+import { ServerError } from "src/common/exceptions/server-error.exception";
+import { AppModule } from "src/app.module";
+import { GlobalExceptionFilter } from "src/common/filters/global-exception.filter";
+import { UserRepository } from "./user.repository";
 
 describe("UserController (e2e)", () => {
 	let app: INestApplication;
-
-	let userService: UserService;
-
-	const mockUserService = {
-		login: jest.fn(),
-		createUser: jest.fn(),
-		logout: jest.fn(),
-		checkPassword: jest.fn(),
-		readUser: jest.fn(),
-		updateUser: jest.fn(),
-		deleteUser: jest.fn(),
-		updateProfile: jest.fn(),
-		updatePassword: jest.fn(),
-	};
-
-	const mockRbacService = {
-		isAdmin: jest.fn(),
-	};
+	let userRepository: UserRepository;
 
 	beforeAll(async () => {
 		const moduleFixture: TestingModule = await Test.createTestingModule({
-			controllers: [UserController],
-			providers: [
-				LoginGuard,
-				PasswordGuard,
-
-				{
-					provide: AuthService,
-					useValue: {},
-				},
-
-				{
-					provide: UserService,
-					useValue: mockUserService,
-				},
-				{
-					provide: RbacService,
-					useValue: mockRbacService,
-				},
-			],
+			imports: [AppModule],
 		}).compile();
 
-		userService = moduleFixture.get<UserService>(UserService);
-
 		app = moduleFixture.createNestApplication();
-		app.useGlobalPipes(new ValidationPipe({ transform: true }));
+		app.useGlobalPipes(
+			new ValidationPipe({
+				disableErrorMessages: true,
+				exceptionFactory: errors => {
+					const errorMessage = Object.values(
+						errors[0].constraints
+					)[0];
+					throw ServerError.badRequest(errorMessage);
+				},
+				transform: true,
+			})
+		);
+		app.useGlobalFilters(new GlobalExceptionFilter());
+		userRepository = moduleFixture.get(UserRepository);
 		await app.init();
 	});
 
 	afterAll(async () => {
+		await userRepository.query("SET FOREIGN_KEY_CHECKS = 0;");
+		await userRepository.query("TRUNCATE TABLE users;");
+		await userRepository.query("SET FOREIGN_KEY_CHECKS = 1;");
 		await app.close();
+	});
+
+	it("회원 가입 테스트 - 성공", async () => {
+		const validDto: CreateUserDto = {
+			email: "test@example.com",
+			password: "Password123!",
+			nickname: "TestUser1",
+		};
+
+		const response = await request(app.getHttpServer())
+			.post("/user/join")
+			.send(validDto)
+			.expect(201);
+
+		expect(response.body).toEqual({ error: "" });
 	});
 
 	it("회원 가입 테스트 - 실페 (1) - nickname is null", async () => {
@@ -77,25 +72,42 @@ describe("UserController (e2e)", () => {
 			.send(invalidDto)
 			.expect(400);
 
-		expect(response.body.message).toContain(
+		expect(response.body.error).toContain(
 			VALIDATION_ERROR_MESSAGES.NICKNAME_REQUIRED
 		);
 	});
 
-	it("회원 가입 테스트 - 성공", async () => {
-		jest.spyOn(userService, "createUser").mockResolvedValue(undefined);
-
+	it("회원 가입 테스트 - 실패 (2) - 중복 이메일", async () => {
 		const validDto: CreateUserDto = {
 			email: "test@example.com",
 			password: "Password123!",
-			nickname: "TestUser",
+			nickname: "TestUser2",
 		};
 
 		const response = await request(app.getHttpServer())
 			.post("/user/join")
 			.send(validDto)
-			.expect(201);
+			.expect(400);
 
-		expect(response.body).toEqual({ error: "" });
+		expect(response.body.error).toContain(
+			USER_ERROR_MESSAGES.DUPLICATE_DATA
+		);
+	});
+
+	it("회원 가입 테스트 - 실패 (3) - 중복 닉네임", async () => {
+		const validDto: CreateUserDto = {
+			email: "test2@example.com",
+			password: "Password123!",
+			nickname: "TestUser1",
+		};
+
+		const response = await request(app.getHttpServer())
+			.post("/user/join")
+			.send(validDto)
+			.expect(400);
+
+		expect(response.body.error).toContain(
+			USER_ERROR_MESSAGES.DUPLICATE_DATA
+		);
 	});
 });

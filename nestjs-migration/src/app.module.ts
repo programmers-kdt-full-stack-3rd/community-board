@@ -33,14 +33,16 @@ import { RankModule } from "./api/rank/rank.module";
 import { RbacModule } from "./api/rbac/rbac.module";
 import { RedisModule } from "./api/redis/redis.module";
 import { UserModule } from "./api/user/user.module";
+import { initializeTransactionalContext } from "typeorm-transactional";
+
+initializeTransactionalContext();
 
 @Module({
 	imports: [
 		ConfigModule.forRoot({
 			cache: true,
 			isGlobal: true,
-			envFilePath:
-				process.env.NODE_ENV === "test" ? ".env.test" : "./../.env",
+			envFilePath: "./../.env",
 			load: [
 				appConfig,
 				typeOrmConfig,
@@ -58,7 +60,6 @@ import { UserModule } from "./api/user/user.module";
 				retryDelay: 3000,
 				connectTimeout: 120000,
 			}),
-
 			dataSourceFactory: async options => {
 				if (!options) {
 					throw new Error("Invalid options");
