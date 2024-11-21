@@ -46,68 +46,90 @@ describe("UserController (e2e)", () => {
 		await app.close();
 	});
 
-	it("회원 가입 테스트 - 성공", async () => {
-		const validDto: CreateUserDto = {
-			email: "test@example.com",
-			password: "Password123!",
-			nickname: "TestUser1",
-		};
+	describe("POST /user/join", () => {
+		it("회원 가입 테스트 - 성공", async () => {
+			const validDto: CreateUserDto = {
+				email: "test@example.com",
+				password: "Password123!",
+				nickname: "TestUser1",
+			};
 
-		const response = await request(app.getHttpServer())
-			.post("/user/join")
-			.send(validDto)
-			.expect(201);
+			const response = await request(app.getHttpServer())
+				.post("/user/join")
+				.send(validDto)
+				.expect(201);
 
-		expect(response.body).toEqual({ error: "" });
+			expect(response.body).toEqual({ error: "" });
+		});
+
+		it("회원 가입 테스트 - 실페 (1) - nickname is null", async () => {
+			const invalidDto = {
+				email: "test@example.com",
+				password: "Password123!",
+			};
+
+			const response = await request(app.getHttpServer())
+				.post("/user/join")
+				.send(invalidDto)
+				.expect(400);
+
+			expect(response.body.error).toContain(
+				VALIDATION_ERROR_MESSAGES.NICKNAME_REQUIRED
+			);
+		});
+
+		it("회원 가입 테스트 - 실패 (2) - 중복 이메일", async () => {
+			const validDto: CreateUserDto = {
+				email: "test@example.com",
+				password: "Password123!",
+				nickname: "TestUser2",
+			};
+
+			const response = await request(app.getHttpServer())
+				.post("/user/join")
+				.send(validDto)
+				.expect(400);
+
+			expect(response.body.error).toContain(
+				USER_ERROR_MESSAGES.DUPLICATE_DATA
+			);
+		});
+
+		it("회원 가입 테스트 - 실패 (3) - 중복 닉네임", async () => {
+			const validDto: CreateUserDto = {
+				email: "test2@example.com",
+				password: "Password123!",
+				nickname: "TestUser1",
+			};
+
+			const response = await request(app.getHttpServer())
+				.post("/user/join")
+				.send(validDto)
+				.expect(400);
+
+			expect(response.body.error).toContain(
+				USER_ERROR_MESSAGES.DUPLICATE_DATA
+			);
+		});
 	});
 
-	it("회원 가입 테스트 - 실페 (1) - nickname is null", async () => {
-		const invalidDto = {
-			email: "test@example.com",
-			password: "Password123!",
-		};
+	describe("POST /user/login", () => {});
 
-		const response = await request(app.getHttpServer())
-			.post("/user/join")
-			.send(invalidDto)
-			.expect(400);
+	describe("POST /user/logout", () => {});
 
-		expect(response.body.error).toContain(
-			VALIDATION_ERROR_MESSAGES.NICKNAME_REQUIRED
-		);
-	});
+	describe("POST /user/check-password", () => {});
 
-	it("회원 가입 테스트 - 실패 (2) - 중복 이메일", async () => {
-		const validDto: CreateUserDto = {
-			email: "test@example.com",
-			password: "Password123!",
-			nickname: "TestUser2",
-		};
+	describe("POST /user/check-duplicate", () => {});
 
-		const response = await request(app.getHttpServer())
-			.post("/user/join")
-			.send(validDto)
-			.expect(400);
+	describe("POST /user/check-admin", () => {});
 
-		expect(response.body.error).toContain(
-			USER_ERROR_MESSAGES.DUPLICATE_DATA
-		);
-	});
+	describe("GET /user", () => {});
 
-	it("회원 가입 테스트 - 실패 (3) - 중복 닉네임", async () => {
-		const validDto: CreateUserDto = {
-			email: "test2@example.com",
-			password: "Password123!",
-			nickname: "TestUser1",
-		};
+	describe("PUT /user", () => {});
 
-		const response = await request(app.getHttpServer())
-			.post("/user/join")
-			.send(validDto)
-			.expect(400);
+	describe("PATCH /user/profile", () => {});
 
-		expect(response.body.error).toContain(
-			USER_ERROR_MESSAGES.DUPLICATE_DATA
-		);
-	});
+	describe("PATCH /user/password", () => {});
+
+	describe("DELETE /user", () => {});
 });
