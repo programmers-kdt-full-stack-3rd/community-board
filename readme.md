@@ -51,7 +51,9 @@
   </tr>
 </table>
 
-## 프로젝트 구조 ( 프로젝트 진행하면서 변경 예정 )
+## 프로젝트 구조
+
+### 아래 구조에 없는 폴더, 파일은 모두 배포에 사용되므로 기입하지 않음!
 
 ```sh
 📦 community-board
@@ -64,15 +66,31 @@
 ┃ ┃ ┣ 📂 state # 전역 state with Zustand
 ┃ ┃ ┗ 📂 hooks # 커스텀 훅
 ┃ ┗ 📜 app.tsx # client main
-┣ 📂 server # BE 폴더
-┃ ┣ 📂 controller # 실제 API 구현
-┃ ┣ 📂 route # 라우팅
-┃ ┣ 📂 DB # database 관련 기능
-┃ ┃ ┣ 📂 context # 각 table 별 접근(CRUD) 로직 정의 (sql문...)
-┃ ┃ ┣ 📂 sql # table.sql
-┃ ┃ ┣ 📂 model # db data를 server에서 다루기 쉽게 변환하는 model type , interface
-┃ ┃ ┗ 📂 mapper # select한 db data를 model로 바꿔줌.
-┃ ┗ 📂 middleware # 개발한 middleware 모아놓는 곳
+┣ 📂 nestJs # BE 폴더
+┃ ┣ 📂 src
+┃ ┃ ┣ 📂 api # api module 폴더
+┃ ┃ ┣ 📂 common # guard, decorator, filter 등 서버 설정에 필요한 폴더
+┃ ┃ ┣ 📂 config # 환경 변수 관련 (option)
+┃ ┃ ┣ 📂 db # db module
+┃ ┃ ┣ 📂 health-check # ping test
+┃ ┃ ┗ 📂 utils # 기타 util 함수 폴더
+┃ ┗ 📜 main.ts # server main
+┣ 📂 chat_server # socketIO 채팅 서버 폴더
+┃ ┣ 📂 config # 환경 변수 관련
+┃ ┣ 📂 controllers
+┃ ┣ 📂 events # 소켓 이벤트 정의
+┃ ┣ 📂 middlewares # 사용하는 미들웨어
+┃ ┣ 📂 services
+┃ ┣ 📂 utils # api 요청이나 kafka, redis 관련 함수
+┃ ┗ 📜 app.ts # chat_server main
+┣ 📂 consumer-server # kafka consumer 서버 폴더
+┃ ┗ 📂 src
+┃ ┃ ┣ 📂 config # 환경 변수 관련
+┃ ┃ ┣ 📂 kafka # consumer 관련 설정
+┃ ┃ ┣ 📂 models # broker에 쌓인 채팅 내역을 DB에 create하는 기능 관련
+┃ ┃ ┣ 📂 services
+┃ ┗ 📜 index.ts # consumer-server main
+┣ 📂 sql # 프로젝트 DB sql 파일 모음
 ┗ 📂 shared # 공용 타입 및 함수 (로컬 패키지)
 ```
 
