@@ -1,4 +1,4 @@
-# 개발자 커뮤니티 게시판 프로젝트(수정 예정)
+## 개발자 커뮤니티 : CodePlay
 
 ## 팀 소개
 
@@ -51,7 +51,9 @@
   </tr>
 </table>
 
-## 프로젝트 구조
+## 1. 개발 환경
+
+## 2. 프로젝트 구조
 
 ### 아래 구조에 없는 폴더, 파일은 모두 배포에 사용되므로 기입하지 않음!
 
@@ -94,46 +96,13 @@
 ┗ 📂 shared # 공용 타입 및 함수 (로컬 패키지)
 ```
 
-## 프로젝트 초기 설정
+## 3. 역할 분담
 
-### 프로젝트 clone
+## 4. 페이지별 기능
 
-```sh
-# 프로젝트를 다운 받을 디렉토리에서 해당 명령어 실행
-git clone https://github.com/programmers-kdt-full-stack-3rd/community-board.git
+## 5. 인상 깊었던 부분 + 트러블 슈팅
 
-# 원격 저장소 연걸 확인
-git remote -v
-# 만약 제대로 URL이 안뜨면 아래 명령어 실행
-git remote add origin https://github.com/programmers-kdt-full-stack-3rd/community-board.git
-```
+## 6. 프로젝트 개선 방안
 
-### 프로젝트에 필요한 패키지 설치
-
-```sh
-# 아래 명령어를 순서대로 입력
-cd client
-sudo npm i # 비밀번호 입력하라 하면 입력하기
-cd ../server
-sudo npm i
-```
-
-### 프로젝트에서 사용할 환경 변수를 관리하는 .env 파일 생성
-
-```sh
-# client 디렉토리와 server 디렉토리에 .env 파일을 생성하기
-# 프로젝트 진행하면서 .env 파일에 채워야 하는 내용 언급할 예정
-
-# client ----
-VITE_SERVER_ADDRESS
-# server ----
-PORT
-DB_PORT
-DB_USER
-DB_NAME
-DB_PSWORD
-ACCESS_TOKEN_KEY
-REFRESH_TOKEN_KEY
-TEMP_TOKEN_KEY
-
-```
+## 7. 프로젝트 후기
+
