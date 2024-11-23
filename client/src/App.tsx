@@ -32,6 +32,7 @@ import UpsertPostPage from "./page/Posts/UpsertPostPage";
 import ProfilePage from "./page/Profile/ProfilePage";
 import { Rank } from "./page/Rank/Rank";
 import useCategory from "./hook/useCategory";
+import Toast from "./component/common/Toast/Toast";
 
 function MainContainer({ children }: { children: React.ReactNode }) {
 	const location = useLocation();
@@ -100,6 +101,8 @@ function App() {
 				<Header />
 
 				<MainContainer>
+					<Toast />
+
 					<GlobalErrorModal
 						isOpen={globalErrorModal.isOpen}
 						variant={globalErrorModal.variant}
