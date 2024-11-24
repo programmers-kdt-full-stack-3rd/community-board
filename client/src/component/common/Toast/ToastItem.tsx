@@ -1,17 +1,66 @@
 import React, { useEffect, useLayoutEffect, useRef } from "react";
-import { twJoin } from "tailwind-merge";
-import { useToast } from "../../../state/ToastStore";
+import {
+	FiAlertTriangle,
+	FiCheckCircle,
+	FiInfo,
+	FiXCircle,
+} from "react-icons/fi";
+import { IconType } from "react-icons/lib";
+import { twJoin, twMerge } from "tailwind-merge";
+import { TToastVariant, useToast } from "../../../state/ToastStore";
 
 interface IProps {
 	id: number;
 }
 
+interface IToastClassNames {
+	box: string;
+	icon: string;
+}
+
+type TVariantProperties<T> = {
+	[key in TToastVariant]: T;
+};
+
 const TOAST_DURATION_MS = 3000;
+
+const baseClassNames: IToastClassNames = {
+	box: "bg-customGray",
+	icon: "text-lg",
+};
+const variantClassNames: TVariantProperties<IToastClassNames> = {
+	error: {
+		box: "bg-red-900",
+		icon: "text-red-200",
+	},
+	warning: {
+		box: "bg-yellow-900",
+		icon: "text-yellow-200",
+	},
+	success: {
+		box: "bg-green-900",
+		icon: "text-green-200",
+	},
+	info: {
+		box: "",
+		icon: "text-neutral-200",
+	},
+};
+
+const IconComponents: TVariantProperties<IconType> = {
+	error: FiXCircle,
+	warning: FiAlertTriangle,
+	success: FiCheckCircle,
+	info: FiInfo,
+};
 
 const ToastItem: React.FC<IProps> = ({ id }) => {
 	const toastBoxRef = useRef<HTMLDivElement>(null);
 	const { items, updateItem, dismiss, forceRemove } = useToast();
 	const item = items.map.get(id);
+
+	const variant = item?.variant ?? "info";
+	const Icon = IconComponents[variant];
 
 	const handleDismiss = () => {
 		if (item?.phase !== "out") {
@@ -82,35 +131,24 @@ const ToastItem: React.FC<IProps> = ({ id }) => {
 			<div
 				ref={toastBoxRef}
 				onClick={handleDismiss}
-				className={twJoin(
-					"bg-customGray/85 flex w-full cursor-pointer gap-1 rounded px-4 py-3 text-sm text-white shadow-md backdrop-blur transition duration-300",
+				className={twMerge(
+					"bg-customGray flex w-full cursor-pointer gap-2 rounded bg-opacity-85 py-3 pl-3 pr-4 text-sm text-white shadow-md backdrop-blur-xl transition duration-300",
+					baseClassNames.box,
+					variantClassNames[variant].box,
 					item?.phase === "in" && "opacity-0",
 					item?.phase === "out" && "-translate-y-6 opacity-0"
 				)}
 			>
 				<div className="shrink-0 grow-0">
-					{/* TODO: variant 디테일 작성 */}
-					<b className="text-yellow-400">
-						{String.fromCharCode(
-							0x24d0 +
-								(item?.variant[0].charCodeAt(0) || 0) -
-								0x61
+					<Icon
+						className={twJoin(
+							baseClassNames.icon,
+							variantClassNames[variant].icon
 						)}
-					</b>
+					/>
 				</div>
 
-				<div className="flex-1">
-					{item?.message}
-					{/* TODO: 메시지만 남기기 */}
-					<br />
-					[id] {id}
-					<br />
-					[phase] {item?.phase}
-					<br />
-					[offsetY] {item?.elementOffsetY}
-					<br />
-					[height] {item?.elementHeight}
-				</div>
+				<div className="flex-1">{item?.message}</div>
 			</div>
 		</div>
 	);
