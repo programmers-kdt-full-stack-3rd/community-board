@@ -11,6 +11,8 @@ import { ServerError } from "src/common/exceptions/server-error.exception";
 import { AppModule } from "src/app.module";
 import { GlobalExceptionFilter } from "src/common/filters/global-exception.filter";
 import { UserRepository } from "./user.repository";
+import { LoginDto } from "./dto/login.dto";
+import { getKstNow } from "src/utils/date.util";
 
 describe("UserController (e2e)", () => {
 	let app: INestApplication;
@@ -45,6 +47,8 @@ describe("UserController (e2e)", () => {
 		await userRepository.query("SET FOREIGN_KEY_CHECKS = 1;");
 		await app.close();
 	});
+
+	let cookies;
 
 	describe("POST /user/join", () => {
 		it("회원 가입 테스트 - 성공", async () => {
@@ -113,7 +117,99 @@ describe("UserController (e2e)", () => {
 		});
 	});
 
-	describe("POST /user/login", () => {});
+	describe("POST /user/login", () => {
+		it("로그인 테스트 - 성공", async () => {
+			const loginDto: LoginDto = {
+				email: "test@example.com",
+				password: "Password123!",
+			};
+
+			const response = await request(app.getHttpServer())
+				.post("/user/login")
+				.send(loginDto)
+				.expect(200);
+
+			cookies = response.headers["set-cookie"];
+
+			console.log(cookies);
+
+			const { error, userInfo } = response.body;
+			const { nickname, email, imgUrl, loginTime } = userInfo;
+
+			expect(error).toEqual("");
+			expect(nickname).toEqual("TestUser1");
+			expect(email).toEqual("test@example.com");
+			expect(imgUrl).toEqual(null);
+			expect(new Date(loginTime).getTime()).toBeLessThanOrEqual(
+				new Date(getKstNow()).getTime()
+			);
+		});
+
+		// TODO : 로그인 실패 - 이메일이 잘못되었을 때와 비밀번호가 잘못 되었을 때 같은 에러를 전달하는게 좋을 듯?
+		it("로그인 테스트 - 실패 (1) - 잘못된 이메일", async () => {
+			const loginDto: LoginDto = {
+				email: "wrong_test@example.com",
+				password: "Password123!",
+			};
+
+			const response = await request(app.getHttpServer())
+				.post("/user/login")
+				.send(loginDto)
+				.expect(400);
+
+			expect(response.body.error).toContain(
+				USER_ERROR_MESSAGES.NOT_FOUND_EMAIL
+			);
+		});
+
+		it("로그인 테스트 - 실패 (2) - 잘못된 비밀번호", async () => {
+			const loginDto: LoginDto = {
+				email: "test@example.com",
+				password: "testCase123!",
+			};
+
+			const response = await request(app.getHttpServer())
+				.post("/user/login")
+				.send(loginDto)
+				.expect(400);
+
+			expect(response.body.error).toContain(
+				USER_ERROR_MESSAGES.INVALID_LOGIN
+			);
+		});
+
+		it("로그인 테스트 - 실패 (3) - 이메일 양식", async () => {
+			const loginDto: LoginDto = {
+				email: "testexample.com",
+				password: "testCase123!",
+			};
+
+			const response = await request(app.getHttpServer())
+				.post("/user/login")
+				.send(loginDto)
+				.expect(400);
+
+			expect(response.body.error).toContain(
+				VALIDATION_ERROR_MESSAGES.INVALID_EMAIL
+			);
+		});
+
+		it("로그인 테스트 - 실패 (4) - 비밀번호 양식", async () => {
+			const loginDto: LoginDto = {
+				email: "test@example.com",
+				password: "testcase123!",
+			};
+
+			const response = await request(app.getHttpServer())
+				.post("/user/login")
+				.send(loginDto)
+				.expect(400);
+
+			expect(response.body.error).toContain(
+				VALIDATION_ERROR_MESSAGES.INVALID_PASSWORD
+			);
+		});
+	});
 
 	describe("POST /user/logout", () => {});
 
