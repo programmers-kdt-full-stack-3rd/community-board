@@ -4,8 +4,7 @@ import profileIcon from "../../../../assets/icons/profile-icon.svg";
 import { Link } from "react-router-dom";
 import { useChatAside } from "../../../../state/ChatAsideStore";
 import { FiX } from "react-icons/fi";
-import AlertModal from "../../../common/Modal/AlertModal";
-import { useModal } from "../../../../hook/useModal";
+import { useToast } from "../../../../state/ToastStore";
 import { ApiCall } from "../../../../api/api";
 import { sendLeaveRoomRequest } from "../../../../api/chats/crud";
 import { ClientError } from "../../../../api/errors";
@@ -27,7 +26,7 @@ export const ChatRoomSideBar: React.FC<Props> = ({
 	myMemberId,
 	goBack,
 }) => {
-	const alertModal = useModal();
+	const toast = useToast();
 	const { close } = useChatAside();
 
 	const renderMembers = () => {
@@ -55,7 +54,10 @@ export const ChatRoomSideBar: React.FC<Props> = ({
 	const handleLeaveRoom = async () => {
 		members.forEach(member => {
 			if (member.memberId === myMemberId && member.isHost === true) {
-				alertModal.open();
+				toast.add({
+					message: "방장은 탈퇴할 수 없습니다.",
+					variant: "error",
+				});
 				return;
 			}
 		});
@@ -81,14 +83,6 @@ export const ChatRoomSideBar: React.FC<Props> = ({
 
 	return (
 		<>
-			<AlertModal
-				isOpen={alertModal.isOpen}
-				onClose={alertModal.close}
-				variant="info"
-			>
-				<AlertModal.Title>안내</AlertModal.Title>
-				<AlertModal.Body>방장은 탈퇴할 수 없습니다.</AlertModal.Body>
-			</AlertModal>
 			<div
 				className="absolute right-[-15px] top-[-20px] z-10 h-[500px] w-[400px] bg-black bg-opacity-50"
 				onClick={sideBarClose}

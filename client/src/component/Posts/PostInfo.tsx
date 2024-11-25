@@ -16,7 +16,7 @@ import { sendDeletePostRequest } from "../../api/posts/crud";
 import { useModal } from "../../hook/useModal";
 import useCategory from "../../hook/useCategory";
 import { sendJoinRoomRequest } from "../../api/chats/crud";
-import AlertModal from "../common/Modal/AlertModal";
+import { useToast } from "../../state/ToastStore";
 import { FaCheck } from "react-icons/fa";
 import { usePostInfo } from "../../state/PostInfoStore";
 
@@ -28,8 +28,8 @@ const PostInfo: React.FC = () => {
 	const { currentCategory } = useCategory(post.category);
 
 	const deleteModal = useModal();
-	const joinSuccessModal = useModal();
 	const globalErrorModal = useGlobalErrorModal();
+	const toast = useToast();
 
 	const [userLiked, setUserLiked] = useState(false);
 	const [likes, setLikes] = useState(0);
@@ -145,7 +145,10 @@ const PostInfo: React.FC = () => {
 			return;
 		}
 
-		joinSuccessModal.open();
+		toast.add({
+			message: "채팅방 가입에 성공했습니다.",
+			variant: "success",
+		});
 	};
 
 	return (
@@ -163,14 +166,6 @@ const PostInfo: React.FC = () => {
 					정말로 이 게시글을 삭제할까요?
 				</ConfirmModal.Body>
 			</ConfirmModal>
-			<AlertModal
-				isOpen={joinSuccessModal.isOpen}
-				onClose={joinSuccessModal.close}
-				variant="info"
-			>
-				<AlertModal.Title>안내</AlertModal.Title>
-				<AlertModal.Body>채팅방 가입에 성공했습니다</AlertModal.Body>
-			</AlertModal>
 
 			<div className="flex w-[800px] flex-col pb-2.5 pt-2.5">
 				<div className="dark:bg-customGray relative mb-4 mt-4 flex flex-col justify-between rounded-lg bg-blue-900 text-left">
