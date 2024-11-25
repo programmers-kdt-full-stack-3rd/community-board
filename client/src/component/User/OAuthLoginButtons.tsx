@@ -13,6 +13,7 @@ import { ApiCall } from "../../api/api";
 import { sendGetUserMyself } from "../../api/users/crud";
 import { useModal } from "../../hook/useModal";
 import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
+import { useToast } from "../../state/ToastStore";
 import ConfirmModal from "../common/Modal/ConfirmModal";
 import Button from "../common/Button";
 
@@ -37,6 +38,7 @@ const OAuthLoginButtons: React.FC<IProps> = ({ loginType }) => {
 	const [unlinkTarget, setUnlinkTarget] = useState<TOAuthProvider | "">("");
 	const unlinkConfirmModal = useModal();
 	const globalErrorModal = useGlobalErrorModal();
+	const toast = useToast();
 
 	const location = useLocation();
 
@@ -120,10 +122,9 @@ const OAuthLoginButtons: React.FC<IProps> = ({ loginType }) => {
 		});
 
 		unlinkConfirmModal.close();
-		globalErrorModal.open({
-			variant: "info",
-			title: "소셜 로그인 연동 해제 성공",
+		toast.add({
 			message: `${providerToName[provider]} 로그인 연동을 해제했습니다.`,
+			variant: "warning",
 		});
 	};
 

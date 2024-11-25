@@ -2,6 +2,7 @@ import React, { FormEvent, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { REGEX } from "./constants/constants";
 import { useUserStore } from "../../state/store";
+import { useToast } from "../../state/ToastStore";
 import { sendPostLoginRequest } from "../../api/users/crud";
 import OAuthLoginButtons from "../../component/User/OAuthLoginButtons";
 import { useStringWithValidation } from "../../hook/useStringWithValidation";
@@ -17,6 +18,7 @@ const Login: React.FC = () => {
 	const [errorMessage, setErrorMessage] = useState<string>("");
 
 	const { setLoginUser } = useUserStore.use.actions();
+	const toast = useToast();
 
 	// zustand 테스트용
 	// const stateNickName = useUserStore.use.nickname();
@@ -65,6 +67,11 @@ const Login: React.FC = () => {
 			}
 
 			setLoginUser(res.userInfo);
+
+			toast.add({
+				message: `${res.userInfo.nickname}님 환영합니다!`,
+				variant: "success",
+			});
 
 			const redirect =
 				new URLSearchParams(location.search).get("redirect") || "/";

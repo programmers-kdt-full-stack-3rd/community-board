@@ -111,10 +111,9 @@ const PostInfo: React.FC = () => {
 		}
 
 		deleteModal.close();
-		globalErrorModal.open({
-			variant: "info",
-			title: "게시글 삭제 성공",
+		toast.add({
 			message: "게시글을 성공적으로 삭제했습니다.",
+			variant: "warning",
 		});
 		navigate(currentCategory?.path ?? "/");
 	}, [isAuthor]);

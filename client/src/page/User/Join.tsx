@@ -10,7 +10,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useStringWithValidation } from "../../hook/useStringWithValidation";
 import { FaComments } from "react-icons/fa6";
-import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
+import { useToast } from "../../state/ToastStore";
 import TextInput from "../../component/common/TextInput";
 import Button from "../../component/common/Button";
 import { IJoinRequest } from "shared";
@@ -22,7 +22,7 @@ const Join: FC = () => {
 	const password = useStringWithValidation();
 	const requiredPassword = useStringWithValidation();
 
-	const globalErrorModal = useGlobalErrorModal();
+	const toast = useToast();
 
 	const handleEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
 		email.setValue(e.target.value);
@@ -142,10 +142,9 @@ const Join: FC = () => {
 				return;
 			}
 
-			globalErrorModal.open({
-				variant: "info",
-				title: "회원 가입 완료",
+			toast.add({
 				message: "회원가입을 완료했습니다.",
+				variant: "success",
 			});
 
 			navigate("/login");

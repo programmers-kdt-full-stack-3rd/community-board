@@ -10,6 +10,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useUserStore } from "../../state/store";
 import { useStringWithValidation } from "../../hook/useStringWithValidation";
 import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
+import { useToast } from "../../state/ToastStore";
 import TextInput from "../../component/common/TextInput";
 import Button from "../../component/common/Button";
 
@@ -26,6 +27,7 @@ const ProfileUpdate: FC = () => {
 	const [errorMessage, setErrorMessage] = useState("");
 
 	const globalErrorModal = useGlobalErrorModal();
+	const toast = useToast();
 
 	const { setNickName: storeSetNickName } = useUserStore.use.actions();
 
@@ -145,10 +147,9 @@ const ProfileUpdate: FC = () => {
 
 			storeSetNickName(nickname.value);
 
-			globalErrorModal.open({
-				variant: "info",
-				title: "성공",
-				message: "유저 정보가 변경되었습니다.",
+			toast.add({
+				message: "유저 정보를 변경했습니다.",
+				variant: "success",
 			});
 
 			navigate(final || "/");
