@@ -1,50 +1,14 @@
-import { useEffect, useLayoutEffect } from "react";
+import { useEffect } from "react";
 import { createPortal } from "react-dom";
-import { TToastVariant, useToast } from "../../../state/ToastStore";
+import { useToast } from "../../../state/ToastStore";
 import ToastItem from "./ToastItem";
 
 const TOAST_GAP = 8;
 
 const container = document.getElementById("toast-root")!;
 
-// TODO: mock data 제거
-const mockData: {
-	message: string;
-	variant: TToastVariant;
-}[] = [
-	{
-		message: "단순 정보를 전달하는 토스트 (1)",
-		variant: "info",
-	},
-	{
-		message: "성공을 안내하는 토스트 (2)",
-		variant: "success",
-	},
-	{
-		message: "경고 토스트 (3)",
-		variant: "warning",
-	},
-	{
-		message: "에러 안내 토스트 (4)",
-		variant: "error",
-	},
-];
-
 const Toast = () => {
-	const { items, add, updateItem, forceRemove } = useToast();
-
-	// TODO: mock data 제거
-	useLayoutEffect(() => {
-		for (const item of mockData) {
-			add(item);
-		}
-
-		return () => {
-			items.map.forEach((_, key) => {
-				forceRemove(key);
-			});
-		};
-	}, []);
+	const { items, updateItem } = useToast();
 
 	useEffect(() => {
 		const reversedItems = Array.from(items.map.values()).reverse();
