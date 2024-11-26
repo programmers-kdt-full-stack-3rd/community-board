@@ -19,6 +19,11 @@ describe("UserController (e2e)", () => {
 	let app: INestApplication;
 	let userRepository: UserRepository;
 
+	const cookies = {
+		login: [],
+		delete: [],
+	};
+
 	beforeAll(async () => {
 		const moduleFixture: TestingModule = await Test.createTestingModule({
 			imports: [AppModule],
@@ -50,15 +55,27 @@ describe("UserController (e2e)", () => {
 		await app.close();
 	});
 
-	let cookies;
-	let cookieHeader;
-
 	describe("POST /user/join", () => {
-		it("회원 가입 테스트 - 성공", async () => {
+		it("회원 가입 테스트 - 성공 (1)", async () => {
 			const validDto: CreateUserDto = {
 				email: "test@example.com",
 				password: "Password123!",
 				nickname: "TestUser1",
+			};
+
+			const response = await request(app.getHttpServer())
+				.post("/user/join")
+				.send(validDto)
+				.expect(201);
+
+			expect(response.body).toEqual({ error: "" });
+		});
+
+		it("회원 가입 테스트 - 성공 (2)", async () => {
+			const validDto: CreateUserDto = {
+				email: "deleteTest@example.com",
+				password: "Password123!",
+				nickname: "DeleteUser",
 			};
 
 			const response = await request(app.getHttpServer())
@@ -121,7 +138,7 @@ describe("UserController (e2e)", () => {
 	});
 
 	describe("POST /user/login", () => {
-		it("로그인 테스트 - 성공", async () => {
+		it("로그인 테스트 - 성공 (1)", async () => {
 			const loginDto: LoginDto = {
 				email: "test@example.com",
 				password: "Password123!",
@@ -132,7 +149,11 @@ describe("UserController (e2e)", () => {
 				.send(loginDto)
 				.expect(200);
 
-			cookies = response.headers["set-cookie"];
+			const cookieHeader = response.get("Set-Cookie");
+
+			cookieHeader.forEach(cookie => {
+				cookies["login"].push(cookie.split(";")[0] + ";");
+			});
 
 			const { error, userInfo } = response.body;
 			const { nickname, email, imgUrl, loginTime } = userInfo;
@@ -140,6 +161,35 @@ describe("UserController (e2e)", () => {
 			expect(error).toEqual("");
 			expect(nickname).toEqual("TestUser1");
 			expect(email).toEqual("test@example.com");
+			expect(imgUrl).toEqual(null);
+			expect(new Date(loginTime).getTime()).toBeLessThanOrEqual(
+				new Date(getKstNow()).getTime()
+			);
+		});
+
+		it("로그인 테스트 - 성공 (2)", async () => {
+			const loginDto: LoginDto = {
+				email: "deleteTest@example.com",
+				password: "Password123!",
+			};
+
+			const response = await request(app.getHttpServer())
+				.post("/user/login")
+				.send(loginDto)
+				.expect(200);
+
+			const cookieHeader = response.get("Set-Cookie");
+
+			cookieHeader.forEach(cookie => {
+				cookies["delete"].push(cookie.split(";")[0] + ";");
+			});
+
+			const { error, userInfo } = response.body;
+			const { nickname, email, imgUrl, loginTime } = userInfo;
+
+			expect(error).toEqual("");
+			expect(nickname).toEqual("DeleteUser");
+			expect(email).toEqual("deleteTest@example.com");
 			expect(imgUrl).toEqual(null);
 			expect(new Date(loginTime).getTime()).toBeLessThanOrEqual(
 				new Date(getKstNow()).getTime()
@@ -212,13 +262,90 @@ describe("UserController (e2e)", () => {
 		});
 	});
 
+	describe("POST /user/check-password", () => {
+		it("비밀 번호 확인 테스트 - 성공 (1) - 삭제할 사용자", async () => {
+			const response = await request(app.getHttpServer())
+				.post("/user/check-password")
+				.set("Cookie", cookies["delete"].join(" "))
+				.send({ password: "Password123!" })
+				.expect(200);
+
+			expect(response.body).toEqual({ error: "" });
+
+			cookies["delete"].push(response.get("Set-Cookie")[0]);
+		});
+
+		it("비밀 번호 확인 테스트 - 실패 (1) - 비밀번호 불일치", async () => {
+			const response = await request(app.getHttpServer())
+				.post("/user/check-password")
+				.set("Cookie", cookies["delete"].join(" "))
+				.send({ password: "Password123@" })
+				.expect(400);
+
+			expect(response.body.error).toContain(
+				VALIDATION_ERROR_MESSAGES.PASSWORD_CHECK_FAILED
+			);
+		});
+
+		it("비밀 번호 확인 테스트 - 실패 (2) - 비밀번호 null", async () => {
+			const response = await request(app.getHttpServer())
+				.post("/user/check-password")
+				.set("Cookie", cookies["delete"].join(" "))
+				.send({ password: "" })
+				.expect(400);
+
+			expect(response.body.error).toContain(
+				VALIDATION_ERROR_MESSAGES.INVALID_PASSWORD
+			);
+		});
+	});
+
+	describe("DELETE /user", () => {
+		it("회원 탈퇴 테스트 - 성공", async () => {
+			const response = await request(app.getHttpServer())
+				.delete("/user")
+				.set("Cookie", cookies["delete"].join(" "))
+				.expect(200);
+
+			expect(response.body).toEqual({ error: "" });
+		});
+
+		it("회원 탈퇴 테스트 - 실패 (1) - 이미 삭제된 사용자", async () => {
+			const response = await request(app.getHttpServer())
+				.delete("/user")
+				.set("Cookie", cookies["delete"].join(" "))
+				.expect(400);
+
+			expect(response.body.error).toContain(
+				USER_ERROR_MESSAGES.DELETED_USER
+			);
+		});
+
+		it("회원 탈퇴 테스트 - 실패 (2) - 비밀번호 확인 x", async () => {
+			const response = await request(app.getHttpServer())
+				.delete("/user")
+				.set("Cookie", cookies["login"].join(" "))
+				.expect(401);
+
+			expect(response.body.error).toContain(
+				"비밀번호 확인이 필요합니다."
+			);
+		});
+
+		it("회원 탈퇴 테스트 - 실패 (3) - 비 로그인 상태", async () => {
+			const response = await request(app.getHttpServer())
+				.delete("/user")
+				.expect(403);
+
+			expect(response.body.error).toContain("권한이 없습니다.");
+		});
+	});
+
 	describe("POST /user/logout", () => {
 		it("로그아웃 테스트 - 성공", async () => {
-			cookieHeader = cookies.map(cookie => cookie.split(";")[0] + ";");
-
 			const response = await request(app.getHttpServer())
 				.post("/user/logout")
-				.set("Cookie", cookieHeader.join(" "))
+				.set("Cookie", cookies["login"].join(" "))
 				.expect(200);
 
 			expect(response.body.error).toEqual("");
@@ -237,7 +364,7 @@ describe("UserController (e2e)", () => {
 		it("사용자 정보 조회 - 성공", async () => {
 			const response = await request(app.getHttpServer())
 				.get("/user")
-				.set("Cookie", cookieHeader.join(" "))
+				.set("Cookie", cookies["login"].join(" "))
 				.expect(200);
 
 			const { email, nickname } = response.body.nonSensitiveUser;
@@ -256,10 +383,6 @@ describe("UserController (e2e)", () => {
 	});
 
 	describe("PUT /user", () => {});
-
-	describe("DELETE /user", () => {});
-
-	describe("POST /user/check-password", () => {});
 
 	describe("POST /user/check-duplicate", () => {});
 
