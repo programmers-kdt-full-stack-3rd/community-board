@@ -13,6 +13,7 @@ import { GlobalExceptionFilter } from "src/common/filters/global-exception.filte
 import { UserRepository } from "./user.repository";
 import { LoginDto } from "./dto/login.dto";
 import { getKstNow } from "src/utils/date.util";
+import * as cookieParser from "cookie-parser";
 
 describe("UserController (e2e)", () => {
 	let app: INestApplication;
@@ -36,6 +37,7 @@ describe("UserController (e2e)", () => {
 				transform: true,
 			})
 		);
+		app.use(cookieParser());
 		app.useGlobalFilters(new GlobalExceptionFilter());
 		userRepository = moduleFixture.get(UserRepository);
 		await app.init();
@@ -131,8 +133,6 @@ describe("UserController (e2e)", () => {
 
 			cookies = response.headers["set-cookie"];
 
-			console.log(cookies);
-
 			const { error, userInfo } = response.body;
 			const { nickname, email, imgUrl, loginTime } = userInfo;
 
@@ -211,7 +211,28 @@ describe("UserController (e2e)", () => {
 		});
 	});
 
-	describe("POST /user/logout", () => {});
+	describe("POST /user/logout", () => {
+		it("로그아웃 테스트 - 성공", async () => {
+			const cookieHeader = cookies.map(
+				cookie => cookie.split(";")[0] + ";"
+			);
+
+			const response = await request(app.getHttpServer())
+				.post("/user/logout")
+				.set("Cookie", cookieHeader.join(" "))
+				.expect(200);
+
+			expect(response.body.error).toEqual("");
+		});
+
+		it("로그아웃 테스트 - 실패 (1) - 로그인 상태 아님", async () => {
+			const response = await request(app.getHttpServer())
+				.post("/user/logout")
+				.expect(401);
+
+			expect(response.body.error).toContain("로그인이 필요합니다.");
+		});
+	});
 
 	describe("POST /user/check-password", () => {});
 
