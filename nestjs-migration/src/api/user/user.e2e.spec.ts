@@ -51,6 +51,7 @@ describe("UserController (e2e)", () => {
 	});
 
 	let cookies;
+	let cookieHeader;
 
 	describe("POST /user/join", () => {
 		it("회원 가입 테스트 - 성공", async () => {
@@ -213,9 +214,7 @@ describe("UserController (e2e)", () => {
 
 	describe("POST /user/logout", () => {
 		it("로그아웃 테스트 - 성공", async () => {
-			const cookieHeader = cookies.map(
-				cookie => cookie.split(";")[0] + ";"
-			);
+			cookieHeader = cookies.map(cookie => cookie.split(";")[0] + ";");
 
 			const response = await request(app.getHttpServer())
 				.post("/user/logout")
@@ -234,19 +233,39 @@ describe("UserController (e2e)", () => {
 		});
 	});
 
+	describe("GET /user", () => {
+		it("사용자 정보 조회 - 성공", async () => {
+			const response = await request(app.getHttpServer())
+				.get("/user")
+				.set("Cookie", cookieHeader.join(" "))
+				.expect(200);
+
+			const { email, nickname } = response.body.nonSensitiveUser;
+
+			expect(email).toContain("test@example.com");
+			expect(nickname).toContain("TestUser1");
+		});
+
+		it("사용자 정보 조회 - 실패 (1) - 로그인 상태 아님", async () => {
+			const response = await request(app.getHttpServer())
+				.get("/user")
+				.expect(403);
+
+			expect(response.body.error).toContain("권한이 없습니다.");
+		});
+	});
+
+	describe("PUT /user", () => {});
+
+	describe("DELETE /user", () => {});
+
 	describe("POST /user/check-password", () => {});
 
 	describe("POST /user/check-duplicate", () => {});
 
 	describe("POST /user/check-admin", () => {});
 
-	describe("GET /user", () => {});
-
-	describe("PUT /user", () => {});
-
 	describe("PATCH /user/profile", () => {});
 
 	describe("PATCH /user/password", () => {});
-
-	describe("DELETE /user", () => {});
 });
