@@ -74,48 +74,75 @@ describe("UserController (e2e)", () => {
 		return responseBuilder;
 	};
 
+	const normalUserInfo: CreateUserDto = {
+		email: "test@example.com",
+		password: "Password123!",
+		nickname: "TestUser1",
+	};
+
+	const deleteUserInfo: CreateUserDto = {
+		email: "deleteTest@example.com",
+		password: "Password123!",
+		nickname: "DeleteUser",
+	};
+
+	const adminUserInfo: CreateUserDto = {
+		email: "adminTest@example.com",
+		password: "Password123!",
+		nickname: "adminUser",
+	};
+
 	describe("POST /user/join", () => {
 		it("회원 가입 테스트 - 성공 (1)", async () => {
-			const validDto: CreateUserDto = {
-				email: "test@example.com",
-				password: "Password123!",
-				nickname: "TestUser1",
-			};
-
 			const response = await sendRequest(
 				"post",
 				"/user/join",
-				validDto
+				normalUserInfo
 			).expect(201);
 
 			expect(response.body.error).toEqual("");
 		});
 
 		it("회원 가입 테스트 - 성공 (2)", async () => {
-			const validDto: CreateUserDto = {
-				email: "deleteTest@example.com",
-				password: "Password123!",
-				nickname: "DeleteUser",
-			};
-
-			const response = await request(app.getHttpServer())
-				.post("/user/join")
-				.send(validDto)
-				.expect(201);
+			const response = await sendRequest(
+				"post",
+				"/user/join",
+				deleteUserInfo
+			).expect(201);
 
 			expect(response.body).toEqual({ error: "" });
 		});
 
-		it("회원 가입 테스트 - 실페 (1) - nickname is null", async () => {
-			const invalidDto = {
+		it("회원 가입 테스트 - 성공 (3)", async () => {
+			const response = await sendRequest(
+				"post",
+				"/user/join",
+				adminUserInfo
+			).expect(201);
+
+			expect(response.body).toEqual({ error: "" });
+
+			// 회원 가입 성공 -> admin 권한 부여
+			await userRepository
+				.createQueryBuilder()
+				.update("users")
+				.set({ roleId: 1 })
+				.where("email = :email", { email: adminUserInfo.email })
+				.execute();
+		});
+
+		it("회원 가입 테스트 - 실페 (1) - invalid DTO", async () => {
+			const invalidUserInfo = {
 				email: "test@example.com",
 				password: "Password123!",
+				nickname: "",
 			};
 
-			const response = await request(app.getHttpServer())
-				.post("/user/join")
-				.send(invalidDto)
-				.expect(400);
+			const response = await sendRequest(
+				"post",
+				"/user/join",
+				invalidUserInfo
+			).expect(400);
 
 			expect(response.body.error).toContain(
 				VALIDATION_ERROR_MESSAGES.NICKNAME_REQUIRED
@@ -123,16 +150,17 @@ describe("UserController (e2e)", () => {
 		});
 
 		it("회원 가입 테스트 - 실패 (2) - 중복 이메일", async () => {
-			const validDto: CreateUserDto = {
-				email: "test@example.com",
+			const invalidDto: CreateUserDto = {
+				email: normalUserInfo.email,
 				password: "Password123!",
 				nickname: "TestUser2",
 			};
 
-			const response = await request(app.getHttpServer())
-				.post("/user/join")
-				.send(validDto)
-				.expect(400);
+			const response = await sendRequest(
+				"post",
+				"/user/join",
+				invalidDto
+			).expect(400);
 
 			expect(response.body.error).toContain(
 				USER_ERROR_MESSAGES.DUPLICATE_DATA
@@ -140,16 +168,17 @@ describe("UserController (e2e)", () => {
 		});
 
 		it("회원 가입 테스트 - 실패 (3) - 중복 닉네임", async () => {
-			const validDto: CreateUserDto = {
+			const invalidDto: CreateUserDto = {
 				email: "test2@example.com",
 				password: "Password123!",
-				nickname: "TestUser1",
+				nickname: normalUserInfo.nickname,
 			};
 
-			const response = await request(app.getHttpServer())
-				.post("/user/join")
-				.send(validDto)
-				.expect(400);
+			const response = await sendRequest(
+				"post",
+				"/user/join",
+				invalidDto
+			).expect(400);
 
 			expect(response.body.error).toContain(
 				USER_ERROR_MESSAGES.DUPLICATE_DATA
