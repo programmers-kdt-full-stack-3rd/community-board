@@ -190,14 +190,15 @@ describe("UserController (e2e)", () => {
 	describe("POST /user/login", () => {
 		it("로그인 테스트 - 성공 (1)", async () => {
 			const loginDto: LoginDto = {
-				email: "test@example.com",
-				password: "Password123!",
+				email: normalUserInfo.email,
+				password: normalUserInfo.password,
 			};
 
-			const response = await request(app.getHttpServer())
-				.post("/user/login")
-				.send(loginDto)
-				.expect(200);
+			const response = await sendRequest(
+				"post",
+				"/user/login",
+				loginDto
+			).expect(200);
 
 			const cookieHeader = response.get("Set-Cookie");
 
@@ -219,14 +220,15 @@ describe("UserController (e2e)", () => {
 
 		it("로그인 테스트 - 성공 (2)", async () => {
 			const loginDto: LoginDto = {
-				email: "deleteTest@example.com",
-				password: "Password123!",
+				email: deleteUserInfo.email,
+				password: deleteUserInfo.password,
 			};
 
-			const response = await request(app.getHttpServer())
-				.post("/user/login")
-				.send(loginDto)
-				.expect(200);
+			const response = await sendRequest(
+				"post",
+				"/user/login",
+				loginDto
+			).expect(200);
 
 			const cookieHeader = response.get("Set-Cookie");
 
@@ -283,10 +285,11 @@ describe("UserController (e2e)", () => {
 				password: "Password123!",
 			};
 
-			const response = await request(app.getHttpServer())
-				.post("/user/login")
-				.send(loginDto)
-				.expect(400);
+			const response = await sendRequest(
+				"post",
+				"/user/login",
+				loginDto
+			).expect(400);
 
 			expect(response.body.error).toContain(
 				USER_ERROR_MESSAGES.NOT_FOUND_EMAIL
@@ -295,14 +298,15 @@ describe("UserController (e2e)", () => {
 
 		it("로그인 테스트 - 실패 (2) - 잘못된 비밀번호", async () => {
 			const loginDto: LoginDto = {
-				email: "test@example.com",
-				password: "testCase123!",
+				email: normalUserInfo.email,
+				password: normalUserInfo.password + "!!",
 			};
 
-			const response = await request(app.getHttpServer())
-				.post("/user/login")
-				.send(loginDto)
-				.expect(400);
+			const response = await sendRequest(
+				"post",
+				"/user/login",
+				loginDto
+			).expect(400);
 
 			expect(response.body.error).toContain(
 				USER_ERROR_MESSAGES.INVALID_LOGIN
@@ -312,13 +316,14 @@ describe("UserController (e2e)", () => {
 		it("로그인 테스트 - 실패 (3) - 이메일 양식", async () => {
 			const loginDto: LoginDto = {
 				email: "testexample.com",
-				password: "testCase123!",
+				password: normalUserInfo.password,
 			};
 
-			const response = await request(app.getHttpServer())
-				.post("/user/login")
-				.send(loginDto)
-				.expect(400);
+			const response = await sendRequest(
+				"post",
+				"/user/login",
+				loginDto
+			).expect(400);
 
 			expect(response.body.error).toContain(
 				VALIDATION_ERROR_MESSAGES.INVALID_EMAIL
@@ -327,14 +332,15 @@ describe("UserController (e2e)", () => {
 
 		it("로그인 테스트 - 실패 (4) - 비밀번호 양식", async () => {
 			const loginDto: LoginDto = {
-				email: "test@example.com",
+				email: normalUserInfo.email,
 				password: "testcase123!",
 			};
 
-			const response = await request(app.getHttpServer())
-				.post("/user/login")
-				.send(loginDto)
-				.expect(400);
+			const response = await sendRequest(
+				"post",
+				"/user/login",
+				loginDto
+			).expect(400);
 
 			expect(response.body.error).toContain(
 				VALIDATION_ERROR_MESSAGES.INVALID_PASSWORD
@@ -344,23 +350,26 @@ describe("UserController (e2e)", () => {
 
 	describe("POST /user/check-password", () => {
 		it("비밀 번호 확인 테스트 - 성공 (1) - 삭제할 사용자", async () => {
-			const response = await request(app.getHttpServer())
-				.post("/user/check-password")
-				.set("Cookie", cookies["delete"].join(" "))
-				.send({ password: "Password123!" })
-				.expect(200);
+			const response = await sendRequest(
+				"post",
+				"/user/check-password",
+				{ password: "Password123!" },
+				cookies["delete"].join(" ")
+			).expect(200);
 
 			expect(response.body).toEqual({ error: "" });
 
+			// 사용자 삭제에 필요한 비밀번화 확인 Token 추가
 			cookies["delete"].push(response.get("Set-Cookie")[0]);
 		});
 
 		it("비밀 번호 확인 테스트 - 실패 (1) - 비밀번호 불일치", async () => {
-			const response = await request(app.getHttpServer())
-				.post("/user/check-password")
-				.set("Cookie", cookies["delete"].join(" "))
-				.send({ password: "Password123@" })
-				.expect(400);
+			const response = await sendRequest(
+				"post",
+				"/user/check-password",
+				{ password: "Password123@" },
+				cookies["delete"].join(" ")
+			).expect(400);
 
 			expect(response.body.error).toContain(
 				VALIDATION_ERROR_MESSAGES.PASSWORD_CHECK_FAILED
@@ -368,11 +377,12 @@ describe("UserController (e2e)", () => {
 		});
 
 		it("비밀 번호 확인 테스트 - 실패 (2) - 비밀번호 null", async () => {
-			const response = await request(app.getHttpServer())
-				.post("/user/check-password")
-				.set("Cookie", cookies["delete"].join(" "))
-				.send({ password: "" })
-				.expect(400);
+			const response = await sendRequest(
+				"post",
+				"/user/check-password",
+				{ password: "" },
+				cookies["delete"].join(" ")
+			).expect(400);
 
 			expect(response.body.error).toContain(
 				VALIDATION_ERROR_MESSAGES.INVALID_PASSWORD
@@ -382,19 +392,23 @@ describe("UserController (e2e)", () => {
 
 	describe("DELETE /user", () => {
 		it("회원 탈퇴 테스트 - 성공", async () => {
-			const response = await request(app.getHttpServer())
-				.delete("/user")
-				.set("Cookie", cookies["delete"].join(" "))
-				.expect(200);
+			const response = await sendRequest(
+				"delete",
+				"/user",
+				undefined,
+				cookies["delete"].join(" ")
+			).expect(200);
 
-			expect(response.body).toEqual({ error: "" });
+			expect(response.body.error).toEqual("");
 		});
 
 		it("회원 탈퇴 테스트 - 실패 (1) - 이미 삭제된 사용자", async () => {
-			const response = await request(app.getHttpServer())
-				.delete("/user")
-				.set("Cookie", cookies["delete"].join(" "))
-				.expect(400);
+			const response = await sendRequest(
+				"delete",
+				"/user",
+				undefined,
+				cookies["delete"].join(" ")
+			).expect(400);
 
 			expect(response.body.error).toContain(
 				USER_ERROR_MESSAGES.DELETED_USER
@@ -402,10 +416,12 @@ describe("UserController (e2e)", () => {
 		});
 
 		it("회원 탈퇴 테스트 - 실패 (2) - 비밀번호 확인 x", async () => {
-			const response = await request(app.getHttpServer())
-				.delete("/user")
-				.set("Cookie", cookies["login"].join(" "))
-				.expect(401);
+			const response = await sendRequest(
+				"delete",
+				"/user",
+				undefined,
+				cookies["login"].join(" ")
+			).expect(401);
 
 			expect(response.body.error).toContain(
 				"비밀번호 확인이 필요합니다."
@@ -413,9 +429,7 @@ describe("UserController (e2e)", () => {
 		});
 
 		it("회원 탈퇴 테스트 - 실패 (3) - 비 로그인 상태", async () => {
-			const response = await request(app.getHttpServer())
-				.delete("/user")
-				.expect(403);
+			const response = await sendRequest("delete", "/user").expect(403);
 
 			expect(response.body.error).toContain("권한이 없습니다.");
 		});
@@ -423,30 +437,32 @@ describe("UserController (e2e)", () => {
 
 	describe("GET /user", () => {
 		it("사용자 정보 조회 - 성공", async () => {
-			const response = await request(app.getHttpServer())
-				.get("/user")
-				.set("Cookie", cookies["login"].join(" "))
-				.expect(200);
+			const response = await sendRequest(
+				"get",
+				"/user",
+				undefined,
+				cookies["login"].join(" ")
+			).expect(200);
 
 			const { email, nickname } = response.body.nonSensitiveUser;
 
-			expect(email).toContain("test@example.com");
-			expect(nickname).toContain("TestUser1");
+			expect(email).toContain(normalUserInfo.email);
+			expect(nickname).toContain(normalUserInfo.nickname);
 		});
 
 		it("사용자 정보 조회 - 실패 (1) - 로그인 상태 아님", async () => {
-			const response = await request(app.getHttpServer())
-				.get("/user")
-				.expect(403);
+			const response = await sendRequest("get", "/user").expect(403);
 
 			expect(response.body.error).toContain("권한이 없습니다.");
 		});
 
 		it("사용자 정보 조회 - 실패 (2) - 삭제된 사용자", async () => {
-			const response = await request(app.getHttpServer())
-				.get("/user")
-				.set("Cookie", cookies["delete"].join(""))
-				.expect(400);
+			const response = await sendRequest(
+				"get",
+				"/user",
+				undefined,
+				cookies["delete"].join(" ")
+			).expect(400);
 
 			expect(response.body.error).toContain(
 				USER_ERROR_MESSAGES.DELETED_USER
@@ -463,11 +479,12 @@ describe("UserController (e2e)", () => {
 				email: "newEmail@example.com",
 			};
 
-			const response = await request(app.getHttpServer())
-				.post("/user/check-duplicate")
-				.set("Cookie", cookies["login"].join(" "))
-				.send(checkDuplicateDto)
-				.expect(200);
+			const response = await sendRequest(
+				"post",
+				"/user/check-duplicate",
+				checkDuplicateDto,
+				cookies["login"].join(" ")
+			).expect(200);
 
 			expect(response.body.error).toEqual("");
 			expect(response.body.isDuplicated).toEqual(false);
@@ -476,11 +493,12 @@ describe("UserController (e2e)", () => {
 		it("사용자 정보 중복 확인 테스트 - 성공 (2) - 닉네임", async () => {
 			const checkDuplicateDto = { nickname: "newUser", email: "" };
 
-			const response = await request(app.getHttpServer())
-				.post("/user/check-duplicate")
-				.set("Cookie", cookies["login"].join(" "))
-				.send(checkDuplicateDto)
-				.expect(200);
+			const response = await sendRequest(
+				"post",
+				"/user/check-duplicate",
+				checkDuplicateDto,
+				cookies["login"].join(" ")
+			).expect(200);
 
 			expect(response.body.error).toEqual("");
 			expect(response.body.isDuplicated).toEqual(false);
@@ -492,11 +510,12 @@ describe("UserController (e2e)", () => {
 				email: "test@example.com",
 			};
 
-			const response = await request(app.getHttpServer())
-				.post("/user/check-duplicate")
-				.set("Cookie", cookies["login"].join(" "))
-				.send(checkDuplicateDto)
-				.expect(200);
+			const response = await sendRequest(
+				"post",
+				"/user/check-duplicate",
+				checkDuplicateDto,
+				cookies["login"].join(" ")
+			).expect(200);
 
 			expect(response.body.error).toEqual("");
 			expect(response.body.isDuplicated).toEqual(true);
@@ -505,11 +524,12 @@ describe("UserController (e2e)", () => {
 		it("사용자 정보 중복 확인 테스트 - 실패 (2) - 닉네임", async () => {
 			const checkDuplicateDto = { nickname: "TestUser1", email: "" };
 
-			const response = await request(app.getHttpServer())
-				.post("/user/check-duplicate")
-				.set("Cookie", cookies["login"].join(" "))
-				.send(checkDuplicateDto)
-				.expect(200);
+			const response = await sendRequest(
+				"post",
+				"/user/check-duplicate",
+				checkDuplicateDto,
+				cookies["login"].join(" ")
+			).expect(200);
 
 			expect(response.body.error).toEqual("");
 			expect(response.body.isDuplicated).toEqual(true);
@@ -518,11 +538,12 @@ describe("UserController (e2e)", () => {
 		it("사용자 정보 중복 확인 테스트 - 실패 (3) - invalid DTO", async () => {
 			const checkDuplicateDto = { nickname: "", email: "" };
 
-			const response = await request(app.getHttpServer())
-				.post("/user/check-duplicate")
-				.set("Cookie", cookies["login"].join(" "))
-				.send(checkDuplicateDto)
-				.expect(400);
+			const response = await sendRequest(
+				"post",
+				"/user/check-duplicate",
+				checkDuplicateDto,
+				cookies["login"].join(" ")
+			).expect(400);
 
 			expect(response.body.error).toContain(
 				USER_ERROR_MESSAGES.VOID_INPUT
@@ -675,20 +696,37 @@ describe("UserController (e2e)", () => {
 
 	describe("POST /user/logout", () => {
 		it("로그아웃 테스트 - 성공", async () => {
-			const response = await request(app.getHttpServer())
-				.post("/user/logout")
-				.set("Cookie", cookies["login"].join(" "))
-				.expect(200);
+			const response = await sendRequest(
+				"post",
+				"/user/logout",
+				undefined,
+				cookies["login"].join(" ")
+			).expect(200);
 
 			expect(response.body.error).toEqual("");
 		});
 
 		it("로그아웃 테스트 - 실패 (1) - 로그인 상태 아님", async () => {
-			const response = await request(app.getHttpServer())
-				.post("/user/logout")
-				.expect(401);
+			const response = await sendRequest(
+				"post",
+				"/user/logout",
+				undefined
+			).expect(401);
 
 			expect(response.body.error).toContain("로그인이 필요합니다.");
+		});
+
+		it("로그아웃 테스트 - 실패 (2) - 삭제된 사용자", async () => {
+			const response = await sendRequest(
+				"post",
+				"/user/logout",
+				undefined,
+				cookies["delete"].join(" ")
+			).expect(400);
+
+			expect(response.body.error).toContain(
+				USER_ERROR_MESSAGES.DELETED_USER
+			);
 		});
 	});
 });
