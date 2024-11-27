@@ -623,7 +623,41 @@ describe("UserController (e2e)", () => {
 		});
 	});
 
-	describe("PATCH /user/password", () => {});
+	describe("PATCH /user/password", () => {
+		it("비밀번호 변경 테스트 - 성공", async () => {
+			const updatePasswordDto = {
+				originPassword: normalUserInfo.password,
+				newPassword: "newPassword123!",
+			};
+
+			const response = await sendRequest(
+				"patch",
+				"/user/password",
+				updatePasswordDto,
+				cookies["login"].join(" ")
+			).expect(200);
+
+			expect(response.body.error).toEqual("");
+		});
+
+		it("비밀번호 변경 테스트 - 실패 - 기존 비밀번호 일치 x", async () => {
+			const wrongUpdatePasswordDto = {
+				originPassword: normalUserInfo.password + "!!",
+				newPassword: "newPassword123!",
+			};
+
+			const response = await sendRequest(
+				"patch",
+				"/user/password",
+				wrongUpdatePasswordDto,
+				cookies["login"].join(" ")
+			).expect(400);
+
+			expect(response.body.error).toContain(
+				"기존 비밀번호가 일치하지 않습니다."
+			);
+		});
+	});
 
 	describe("POST /user/logout", () => {
 		it("로그아웃 테스트 - 성공", async () => {
