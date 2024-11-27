@@ -55,6 +55,25 @@ describe("UserController (e2e)", () => {
 		await app.close();
 	});
 
+	const sendRequest = (
+		method: "get" | "post" | "delete" | "put" | "patch",
+		url: string,
+		dto?: object,
+		cookie?: string
+	) => {
+		let responseBuilder = request(app.getHttpServer())[method](url);
+
+		if (dto) {
+			responseBuilder = responseBuilder.send(dto);
+		}
+
+		if (cookie) {
+			responseBuilder = responseBuilder.set("Cookie", cookie);
+		}
+
+		return responseBuilder;
+	};
+
 	describe("POST /user/join", () => {
 		it("회원 가입 테스트 - 성공 (1)", async () => {
 			const validDto: CreateUserDto = {
@@ -63,12 +82,13 @@ describe("UserController (e2e)", () => {
 				nickname: "TestUser1",
 			};
 
-			const response = await request(app.getHttpServer())
-				.post("/user/join")
-				.send(validDto)
-				.expect(201);
+			const response = await sendRequest(
+				"post",
+				"/user/join",
+				validDto
+			).expect(201);
 
-			expect(response.body).toEqual({ error: "" });
+			expect(response.body.error).toEqual("");
 		});
 
 		it("회원 가입 테스트 - 성공 (2)", async () => {
