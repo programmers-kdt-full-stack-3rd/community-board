@@ -22,6 +22,7 @@ describe("UserController (e2e)", () => {
 	const cookies = {
 		login: [],
 		delete: [],
+		admin: [],
 	};
 
 	beforeAll(async () => {
@@ -245,6 +246,36 @@ describe("UserController (e2e)", () => {
 			);
 		});
 
+		it("로그인 테스트 - 성공 (3)", async () => {
+			const loginDto: LoginDto = {
+				email: adminUserInfo.email,
+				password: adminUserInfo.password,
+			};
+
+			const response = await sendRequest(
+				"post",
+				"/user/login",
+				loginDto
+			).expect(200);
+
+			const cookieHeader = response.get("Set-Cookie");
+
+			cookieHeader.forEach(cookie => {
+				cookies["admin"].push(cookie.split(";")[0] + ";");
+			});
+
+			const { error, userInfo } = response.body;
+			const { nickname, email, imgUrl, loginTime } = userInfo;
+
+			expect(error).toEqual("");
+			expect(nickname).toEqual(adminUserInfo.nickname);
+			expect(email).toEqual(adminUserInfo.email);
+			expect(imgUrl).toEqual(null);
+			expect(new Date(loginTime).getTime()).toBeLessThanOrEqual(
+				new Date(getKstNow()).getTime()
+			);
+		});
+
 		// TODO : 로그인 실패 - 이메일이 잘못되었을 때와 비밀번호가 잘못 되었을 때 같은 에러를 전달하는게 좋을 듯?
 		it("로그인 테스트 - 실패 (1) - 잘못된 이메일", async () => {
 			const loginDto: LoginDto = {
@@ -423,7 +454,7 @@ describe("UserController (e2e)", () => {
 		});
 	});
 
-	describe("PUT /user", () => {});
+	//describe("PUT /user", () => {});
 
 	describe("POST /user/check-duplicate", () => {
 		it("사용자 정보 중복 확인 테스트 - 성공 (1) - 이메일", async () => {
@@ -485,7 +516,44 @@ describe("UserController (e2e)", () => {
 		});
 	});
 
-	describe("POST /user/check-admin", () => {});
+	describe("POST /user/check-admin", () => {
+		it("admin 확인 테스트 - 성공", async () => {
+			const response = await sendRequest(
+				"get",
+				"/user/check-admin",
+				undefined,
+				cookies["admin"].join(" ")
+			).expect(200);
+
+			expect(response.body.error).toEqual("");
+			expect(response.body.isAdmin).toEqual(true);
+		});
+
+		it("관리자 확인 테스트 - 실패 (1) - 관리자 아님", async () => {
+			const response = await sendRequest(
+				"get",
+				"/user/check-admin",
+				undefined,
+				cookies["login"].join(" ")
+			).expect(200);
+
+			expect(response.body.error).toEqual("");
+			expect(response.body.isAdmin).toEqual(false);
+		});
+
+		it("관리자 확인 테스트 - 실패 (2) - 삭제된 사용자", async () => {
+			const response = await sendRequest(
+				"get",
+				"/user/check-admin",
+				undefined,
+				cookies["delete"].join(" ")
+			).expect(400);
+
+			expect(response.body.error).toContain(
+				USER_ERROR_MESSAGES.DELETED_USER
+			);
+		});
+	});
 
 	describe("PATCH /user/profile", () => {});
 
