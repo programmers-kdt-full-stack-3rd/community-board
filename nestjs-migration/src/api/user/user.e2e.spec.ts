@@ -555,7 +555,73 @@ describe("UserController (e2e)", () => {
 		});
 	});
 
-	describe("PATCH /user/profile", () => {});
+	describe("PATCH /user/profile", () => {
+		it("프로필 수정 테스트 - 성공 (1) - only nickname", async () => {
+			const updateProfileDto = {
+				nickname: "newNickname",
+				imgUrl: "",
+			};
+
+			const response = await sendRequest(
+				"patch",
+				"/user/profile",
+				updateProfileDto,
+				cookies["login"].join(" ")
+			).expect(200);
+
+			expect(response.body.error).toEqual("");
+		});
+
+		it("프로필 수정 테스트 - 성공 (2) - only imgUrl", async () => {
+			const updateProfileDto = {
+				nickname: "",
+				imgUrl: "1234",
+			};
+
+			const response = await sendRequest(
+				"patch",
+				"/user/profile",
+				updateProfileDto,
+				cookies["login"].join(" ")
+			).expect(200);
+
+			expect(response.body.error).toEqual("");
+		});
+
+		it("프로필 수정 테스트 - 성공 (3) - nickname, imgUrl", async () => {
+			const updateProfileDto = {
+				nickname: "newNickname",
+				imgUrl: "1234",
+			};
+
+			const response = await sendRequest(
+				"patch",
+				"/user/profile",
+				updateProfileDto,
+				cookies["login"].join(" ")
+			).expect(200);
+
+			expect(response.body.error).toEqual("");
+		});
+
+		it("프로필 수정 테스트 - 실패 (1) - DTO is null", async () => {
+			const invalidUpdateProfileDto = {
+				nickname: "",
+				imgUrl: "",
+			};
+
+			const response = await sendRequest(
+				"patch",
+				"/user/profile",
+				invalidUpdateProfileDto,
+				cookies["login"].join(" ")
+			).expect(400);
+
+			expect(response.body.error).toContain(
+				USER_ERROR_MESSAGES.VOID_INPUT
+			);
+		});
+	});
 
 	describe("PATCH /user/password", () => {});
 
