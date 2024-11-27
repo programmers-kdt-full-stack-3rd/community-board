@@ -341,25 +341,6 @@ describe("UserController (e2e)", () => {
 		});
 	});
 
-	describe("POST /user/logout", () => {
-		it("로그아웃 테스트 - 성공", async () => {
-			const response = await request(app.getHttpServer())
-				.post("/user/logout")
-				.set("Cookie", cookies["login"].join(" "))
-				.expect(200);
-
-			expect(response.body.error).toEqual("");
-		});
-
-		it("로그아웃 테스트 - 실패 (1) - 로그인 상태 아님", async () => {
-			const response = await request(app.getHttpServer())
-				.post("/user/logout")
-				.expect(401);
-
-			expect(response.body.error).toContain("로그인이 필요합니다.");
-		});
-	});
-
 	describe("GET /user", () => {
 		it("사용자 정보 조회 - 성공", async () => {
 			const response = await request(app.getHttpServer())
@@ -380,15 +361,103 @@ describe("UserController (e2e)", () => {
 
 			expect(response.body.error).toContain("권한이 없습니다.");
 		});
+
+		it("사용자 정보 조회 - 실패 (2) - 삭제된 사용자", async () => {
+			const response = await request(app.getHttpServer())
+				.get("/user")
+				.set("Cookie", cookies["delete"].join(""))
+				.expect(400);
+
+			expect(response.body.error).toContain(
+				USER_ERROR_MESSAGES.DELETED_USER
+			);
+		});
 	});
 
 	describe("PUT /user", () => {});
 
-	describe("POST /user/check-duplicate", () => {});
+	describe("POST /user/check-duplicate", () => {
+		it("사용자 정보 중복 확인 테스트 - 성공 (1) - 이메일", async () => {
+			const checkDuplicateDto = {
+				nickname: "",
+				email: "newEmail@example.com",
+			};
+
+			const response = await request(app.getHttpServer())
+				.post("/user/check-duplicate")
+				.set("Cookie", cookies["login"].join(" "))
+				.send(checkDuplicateDto)
+				.expect(200);
+
+			expect(response.body.error).toEqual("");
+			expect(response.body.isDuplicated).toEqual(false);
+		});
+
+		it("사용자 정보 중복 확인 테스트 - 성공 (2) - 닉네임", async () => {
+			const checkDuplicateDto = { nickname: "newUser", email: "" };
+
+			const response = await request(app.getHttpServer())
+				.post("/user/check-duplicate")
+				.set("Cookie", cookies["login"].join(" "))
+				.send(checkDuplicateDto)
+				.expect(200);
+
+			expect(response.body.error).toEqual("");
+			expect(response.body.isDuplicated).toEqual(false);
+		});
+
+		it("사용자 정보 중복 확인 테스트 - 실패 (1) - 이메일", async () => {
+			const checkDuplicateDto = {
+				nickname: "",
+				email: "test@example.com",
+			};
+
+			const response = await request(app.getHttpServer())
+				.post("/user/check-duplicate")
+				.set("Cookie", cookies["login"].join(" "))
+				.send(checkDuplicateDto)
+				.expect(200);
+
+			expect(response.body.error).toEqual("");
+			expect(response.body.isDuplicated).toEqual(true);
+		});
+
+		it("사용자 정보 중복 확인 테스트 - 실패 (2) - 닉네임", async () => {
+			const checkDuplicateDto = { nickname: "TestUser1", email: "" };
+
+			const response = await request(app.getHttpServer())
+				.post("/user/check-duplicate")
+				.set("Cookie", cookies["login"].join(" "))
+				.send(checkDuplicateDto)
+				.expect(200);
+
+			expect(response.body.error).toEqual("");
+			expect(response.body.isDuplicated).toEqual(true);
+		});
+	});
 
 	describe("POST /user/check-admin", () => {});
 
 	describe("PATCH /user/profile", () => {});
 
 	describe("PATCH /user/password", () => {});
+
+	describe("POST /user/logout", () => {
+		it("로그아웃 테스트 - 성공", async () => {
+			const response = await request(app.getHttpServer())
+				.post("/user/logout")
+				.set("Cookie", cookies["login"].join(" "))
+				.expect(200);
+
+			expect(response.body.error).toEqual("");
+		});
+
+		it("로그아웃 테스트 - 실패 (1) - 로그인 상태 아님", async () => {
+			const response = await request(app.getHttpServer())
+				.post("/user/logout")
+				.expect(401);
+
+			expect(response.body.error).toContain("로그인이 필요합니다.");
+		});
+	});
 });
