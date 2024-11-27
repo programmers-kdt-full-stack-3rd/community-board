@@ -514,6 +514,20 @@ describe("UserController (e2e)", () => {
 			expect(response.body.error).toEqual("");
 			expect(response.body.isDuplicated).toEqual(true);
 		});
+
+		it("사용자 정보 중복 확인 테스트 - 실패 (3) - invalid DTO", async () => {
+			const checkDuplicateDto = { nickname: "", email: "" };
+
+			const response = await request(app.getHttpServer())
+				.post("/user/check-duplicate")
+				.set("Cookie", cookies["login"].join(" "))
+				.send(checkDuplicateDto)
+				.expect(400);
+
+			expect(response.body.error).toContain(
+				USER_ERROR_MESSAGES.VOID_INPUT
+			);
+		});
 	});
 
 	describe("POST /user/check-admin", () => {
