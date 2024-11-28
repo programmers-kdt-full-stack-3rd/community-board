@@ -111,7 +111,7 @@ const CheckPassword: FC = () => {
 			accountDeleteModal.close();
 			toast.add({
 				message: "회원 탈퇴를 완료했습니다.",
-				variant: "warning",
+				variant: "success",
 			});
 
 			setLogoutUser();

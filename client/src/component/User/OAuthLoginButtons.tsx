@@ -124,7 +124,7 @@ const OAuthLoginButtons: React.FC<IProps> = ({ loginType }) => {
 		unlinkConfirmModal.close();
 		toast.add({
 			message: `${providerToName[provider]} 로그인 연동을 해제했습니다.`,
-			variant: "warning",
+			variant: "success",
 		});
 	};
 

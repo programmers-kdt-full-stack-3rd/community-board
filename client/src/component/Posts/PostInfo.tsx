@@ -113,7 +113,7 @@ const PostInfo: React.FC = () => {
 		deleteModal.close();
 		toast.add({
 			message: "게시글을 성공적으로 삭제했습니다.",
-			variant: "warning",
+			variant: "success",
 		});
 		navigate(currentCategory?.path ?? "/");
 	}, [isAuthor]);
