@@ -4,7 +4,7 @@ import ReactQuill from "react-quill";
 import { useModal } from "../../../hook/useModal";
 import { useGlobalErrorModal } from "../../../state/GlobalErrorModalStore";
 import Button from "../../common/Button";
-import AlertModal from "../../common/Modal/AlertModal";
+import { useToast } from "../../../state/ToastStore";
 import ConfirmModal from "../../common/Modal/ConfirmModal";
 
 interface IProps {
@@ -38,7 +38,7 @@ const ImageManager: React.FC<IProps> = ({
 }) => {
 	const globalErrorModal = useGlobalErrorModal();
 	const removalConfirmModal = useModal();
-	const removalSuccessModal = useModal();
+	const toast = useToast();
 
 	const [imageUrlSet, setImageUrlSet] = useState(new Set<string>());
 	const [removalTargetUrl, setRemovalTargetUrl] = useState("");
@@ -97,7 +97,11 @@ const ImageManager: React.FC<IProps> = ({
 
 		setEditorContents(container.innerHTML);
 		setRemovalTargetUrl("");
-		removalSuccessModal.open();
+
+		toast.add({
+			message: "이미지를 본문에서 제거했습니다.",
+			variant: "success",
+		});
 	};
 
 	return (
@@ -119,17 +123,6 @@ const ImageManager: React.FC<IProps> = ({
 					/>
 				</ConfirmModal.Body>
 			</ConfirmModal>
-
-			<AlertModal
-				isOpen={removalSuccessModal.isOpen}
-				onClose={removalSuccessModal.close}
-				variant="info"
-			>
-				<AlertModal.Title>안내</AlertModal.Title>
-				<AlertModal.Body>
-					이미지를 본문에서 제거했습니다.
-				</AlertModal.Body>
-			</AlertModal>
 
 			<div className="ml-1 text-sm font-bold">첨부한 이미지</div>
 

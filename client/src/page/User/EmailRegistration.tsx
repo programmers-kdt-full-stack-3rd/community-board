@@ -10,6 +10,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useUserStore } from "../../state/store";
 import { useStringWithValidation } from "../../hook/useStringWithValidation";
 import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
+import { useToast } from "../../state/ToastStore";
 import TextInput from "../../component/common/TextInput";
 import Button from "../../component/common/Button";
 
@@ -26,6 +27,7 @@ const EmailRegistration: FC = () => {
 	const [errorMessage, setErrorMessage] = useState("");
 
 	const globalErrorModal = useGlobalErrorModal();
+	const toast = useToast();
 
 	const { setIsEmailRegistered } = useUserStore.use.actions();
 
@@ -142,10 +144,9 @@ const EmailRegistration: FC = () => {
 			setIsEmailRegistered(true);
 			navigate(final || "/");
 
-			globalErrorModal.open({
-				variant: "info",
-				title: "이메일 등록 성공",
+			toast.add({
 				message: "로그인 이메일을 등록했습니다.",
+				variant: "success",
 			});
 		});
 

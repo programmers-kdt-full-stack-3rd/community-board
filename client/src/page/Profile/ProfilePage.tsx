@@ -10,6 +10,7 @@ import { useUserStore } from "../../state/store";
 import { ApiCall } from "../../api/api";
 import { uploadImageRequest } from "../../api/posts/crud";
 import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
+import { useToast } from "../../state/ToastStore";
 import { ClientError } from "../../api/errors";
 import {
 	sendPatchProfileRequest,
@@ -25,6 +26,7 @@ const ProfilePage = () => {
 	const navigate = useNavigate();
 	const accountDeleteModal = useModal();
 	const globalErrorModal = useGlobalErrorModal();
+	const toast = useToast();
 	const { nickname, email, imgUrl } = useUserStore();
 	const { setImgUrl, setNickName } = useUserStore.use.actions();
 	const imageInputRef = useRef<HTMLInputElement>(null);
@@ -131,7 +133,10 @@ const ProfilePage = () => {
 
 		sendPostCheckUserRequest({ nickname: newNickname }).then(res => {
 			if (res.error !== "") {
-				console.error("잠시 후 다시 시도해주세요!");
+				toast.add({
+					message: "잠시 후 다시 시도해 주세요!",
+					variant: "error",
+				});
 				return;
 			}
 

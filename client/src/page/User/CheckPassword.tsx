@@ -11,6 +11,7 @@ import { useUserStore } from "../../state/store";
 import OAuthLoginButtons from "../../component/User/OAuthLoginButtons";
 import ConfirmModal from "../../component/common/Modal/ConfirmModal";
 import { useGlobalErrorModal } from "../../state/GlobalErrorModalStore";
+import { useToast } from "../../state/ToastStore";
 import Button from "../../component/common/Button";
 
 const CheckPassword: FC = () => {
@@ -28,6 +29,7 @@ const CheckPassword: FC = () => {
 
 	const globalErrorModal = useGlobalErrorModal();
 	const accountDeleteModal = useModal();
+	const toast = useToast();
 
 	useLayoutEffect(() => {
 		if (next === "accountDelete" && oAuthConfirmed === "true") {
@@ -107,10 +109,9 @@ const CheckPassword: FC = () => {
 			}
 
 			accountDeleteModal.close();
-			globalErrorModal.open({
-				variant: "warning",
-				title: "회원 탈퇴 완료",
+			toast.add({
 				message: "회원 탈퇴를 완료했습니다.",
+				variant: "success",
 			});
 
 			setLogoutUser();
