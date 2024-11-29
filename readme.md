@@ -131,6 +131,50 @@
 
 ## 3. 역할 분담
 
+### 문승은 ( BE )
+- nestJS API 마이그레이션
+    - 상세 내용 쓰기
+- 테스트 코드 작성
+
+### 박상찬 ( FE, BE, DevOps )
+- React
+    - 게시판 컴포넌트
+    - 게시글 컴포넌트
+    - 채팅 컴포넌트
+- (구) express API 개발
+    - 게시글 (post) CRUD
+    - 채팅 (chat) CR
+- nestJs
+    - 테스트 코드 작성
+- 배포
+    - ec2 배포
+    - react + nginx + docker를 통한 배포 환경 구축
+
+### 신재광
+- (구) express API 개발
+    - 회원 (user) CRUD
+    - 권한 & 인가 ( rbac ) 시스템
+- nestJs 마이그레이션
+
+### 이예준
+- (구) express API 개발
+    - 댓글 (comment) CRUD
+    - 좋아요 ( like ) CRUD
+- React
+    - 상세 내용 추가해주세요
+
+### 정인화
+- React
+   - 상세 내용 추가해주세요 
+
+### 최호준
+- 채팅 ( chat ) 기능
+    -  socket.io 서버 구현
+    -  kafka 도입
+    -  consumer 구현
+- 포맷팅 통일
+    - prettier 도입 및 적용
+
 ## 4. 페이지별 기능
 
 ## 5. 인상 깊었던 부분 + 트러블 슈팅
