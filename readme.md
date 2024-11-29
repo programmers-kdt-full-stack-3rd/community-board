@@ -53,9 +53,42 @@
 
 ## 1. 개발 환경
 
-## 2. 프로젝트 구조
+### FE
+<div>
+    <img src="https://img.shields.io/badge/react-0088CC?style=for-the-badge&logo=react&logoColor=white">
+    <img src="https://img.shields.io/badge/Typescript-3178C6?style=for-the-badge&logo=typescript&logoColor=white">
+    <img src="https://img.shields.io/badge/tailwindcss-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white">
+    <img src="https://img.shields.io/badge/Zustand-FF6C37?style=for-the-badge&logo=zustand&logoColor=white">
+</div>
+  
+### BE
+<div>
+    <img src="https://img.shields.io/badge/express-000000?style=for-the-badge&logo=express&logoColor=white">
+    <img src="https://img.shields.io/badge/nestjs-E0234E?style=for-the-badge&logo=nestjs&logoColor=white">
+    <img src="https://img.shields.io/badge/Typescript-3178C6?style=for-the-badge&logo=typescript&logoColor=white">
+    <img src="https://img.shields.io/badge/typeOrm-FE0803?style=for-the-badge&logo=typeorm&logoColor=white">
+</div>
 
-### 아래 구조에 없는 폴더, 파일은 모두 배포에 사용되므로 기입하지 않음!
+### 협업 툴
+<div>
+    <img src="https://img.shields.io/badge/github-000000?style=for-the-badge&logo=github&logoColor=white">
+    <img src="https://img.shields.io/badge/notion-ECD53F?style=for-the-badge&logo=notion&logoColor=black">
+    <img src="https://img.shields.io/badge/slack-4A154B?style=for-the-badge&logo=slack&logoColor=white">
+</div>
+
+### 배포
+<div>
+    <img src="https://img.shields.io/badge/amazon ec2-FF9900?style=for-the-badge&logo=amazonec2&logoColor=white">
+    <img src="https://img.shields.io/badge/amazon s3-569A31?style=for-the-badge&logo=amazons3&logoColor=white">
+    <img src="https://img.shields.io/badge/docker-2496ED?style=for-the-badge&logo=docker&logoColor=white">
+    <img src="https://img.shields.io/badge/nginx-009639?style=for-the-badge&logo=nginx&logoColor=white">
+</div>
+
+### 기타
+- 디자인 : Figma
+- ERD : DB diagram
+
+## 2. 프로젝트 구조
 
 ```sh
 📦 community-board
