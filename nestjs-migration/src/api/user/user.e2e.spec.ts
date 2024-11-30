@@ -132,7 +132,7 @@ describe("UserController (e2e)", () => {
 				.execute();
 		});
 
-		it("회원 가입 테스트 - 실페 (1) - invalid DTO", async () => {
+		it("회원 가입 테스트 - 실패 (1) - invalid DTO", async () => {
 			const invalidUserInfo = {
 				email: "test@example.com",
 				password: "Password123!",
@@ -473,7 +473,7 @@ describe("UserController (e2e)", () => {
 	//describe("PUT /user", () => {});
 
 	describe("POST /user/check-duplicate", () => {
-		it("사용자 정보 중복 확인 테스트 - 성공 (1) - 이메일", async () => {
+		it("사용자 정보 중복 확인 테스트 - 성공 (1) - 이메일 중복 x", async () => {
 			const checkDuplicateDto = {
 				nickname: "",
 				email: "newEmail@example.com",
@@ -490,7 +490,7 @@ describe("UserController (e2e)", () => {
 			expect(response.body.isDuplicated).toEqual(false);
 		});
 
-		it("사용자 정보 중복 확인 테스트 - 성공 (2) - 닉네임", async () => {
+		it("사용자 정보 중복 확인 테스트 - 성공 (2) - 닉네임 중복 x", async () => {
 			const checkDuplicateDto = { nickname: "newUser", email: "" };
 
 			const response = await sendRequest(
@@ -504,7 +504,7 @@ describe("UserController (e2e)", () => {
 			expect(response.body.isDuplicated).toEqual(false);
 		});
 
-		it("사용자 정보 중복 확인 테스트 - 실패 (1) - 이메일", async () => {
+		it("사용자 정보 중복 확인 테스트 - 성공 (3) - 이메일 중복 o", async () => {
 			const checkDuplicateDto = {
 				nickname: "",
 				email: "test@example.com",
@@ -521,7 +521,7 @@ describe("UserController (e2e)", () => {
 			expect(response.body.isDuplicated).toEqual(true);
 		});
 
-		it("사용자 정보 중복 확인 테스트 - 실패 (2) - 닉네임", async () => {
+		it("사용자 정보 중복 확인 테스트 - 성공 (4) - 닉네임 중복 o", async () => {
 			const checkDuplicateDto = { nickname: "TestUser1", email: "" };
 
 			const response = await sendRequest(
@@ -535,7 +535,7 @@ describe("UserController (e2e)", () => {
 			expect(response.body.isDuplicated).toEqual(true);
 		});
 
-		it("사용자 정보 중복 확인 테스트 - 실패 (3) - invalid DTO", async () => {
+		it("사용자 정보 중복 확인 테스트 - 실패 (1) - invalid DTO", async () => {
 			const checkDuplicateDto = { nickname: "", email: "" };
 
 			const response = await sendRequest(
@@ -552,7 +552,7 @@ describe("UserController (e2e)", () => {
 	});
 
 	describe("POST /user/check-admin", () => {
-		it("admin 확인 테스트 - 성공", async () => {
+		it("admin 확인 테스트 - 성공 (1) - 관리자 맞음", async () => {
 			const response = await sendRequest(
 				"get",
 				"/user/check-admin",
@@ -564,7 +564,7 @@ describe("UserController (e2e)", () => {
 			expect(response.body.isAdmin).toEqual(true);
 		});
 
-		it("관리자 확인 테스트 - 실패 (1) - 관리자 아님", async () => {
+		it("관리자 확인 테스트 - 성공 (2) - 관리자 아님", async () => {
 			const response = await sendRequest(
 				"get",
 				"/user/check-admin",
