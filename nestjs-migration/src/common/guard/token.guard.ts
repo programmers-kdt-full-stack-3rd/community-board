@@ -19,6 +19,11 @@ export class TokenGuard implements CanActivate {
 		const request = context.switchToHttp().getRequest<Request>();
 		const response = context.switchToHttp().getResponse<Response>();
 
+		if (!request.cookies) {
+			request.user = { userId: null, roleId: 3 };
+			return true;
+		}
+
 		const accessToken = request.cookies.accessToken;
 		const refreshToken = request.cookies.refreshToken;
 
