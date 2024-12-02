@@ -326,7 +326,7 @@ describe("UserController (e2e)", () => {
 			).expect(400);
 
 			expect(response.body.error).toContain(
-				VALIDATION_ERROR_MESSAGES.INVALID_EMAIL
+				VALIDATION_ERROR_MESSAGES.LOGIN_FAILED
 			);
 		});
 
@@ -343,7 +343,7 @@ describe("UserController (e2e)", () => {
 			).expect(400);
 
 			expect(response.body.error).toContain(
-				VALIDATION_ERROR_MESSAGES.INVALID_PASSWORD
+				VALIDATION_ERROR_MESSAGES.LOGIN_FAILED
 			);
 		});
 	});
