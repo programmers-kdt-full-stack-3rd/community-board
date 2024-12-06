@@ -1,0 +1,35 @@
+name: Pull Request 코드 검사 (클라이언트)
+
+on:
+    pull_request:
+        branches:
+            - main
+
+        paths:
+            - client/**/*
+            - shared/**/*
+
+defaults:
+    run:
+        shell: bash
+
+jobs:
+    check:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: 코드 체크아웃
+              uses: actions/checkout@v4
+
+            - name: Node 셋업
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+
+            - run: npm i
+
+            - name: 검사 - 클라이언트 코드 포맷
+              run: npm run format:check -w client
+
+            - name: 검사 - 클라이언트 프로덕션 빌드 성공 여부
+              run: npm run build -w client

@@ -1,0 +1,23 @@
+name: Pull Request 코드 검사 (정의하지 않은 영역)
+
+on:
+    pull_request:
+        branches:
+            - main
+
+        # `pr-*.yml`의 `on.pull_request.paths`에 작성한 패턴을 모두 입력합니다.
+        paths-ignore:
+            - client/**/*
+            - shared/**/*
+
+defaults:
+    run:
+        shell: bash
+
+jobs:
+    check:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: 동작 없음
+              run: ""
